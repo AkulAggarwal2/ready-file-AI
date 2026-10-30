@@ -1,0 +1,32 @@
+{
+  "resources": [
+    {
+      "id": "emergency",
+      "name": "If you are in danger right now",
+      "description": "TODO: team to write and check this text.",
+      "contact": "TODO: team to add and check the emergency contact",
+      "verified": false
+    },
+    {
+      "id": "statewide-hotline",
+      "name": "Statewide domestic violence hotline",
+      "description": "TODO: team to write and check this text.",
+      "contact": "TODO: team to add and check the phone number",
+      "verified": false
+    },
+    {
+      "id": "local-advocates",
+      "name": "Local advocate programs",
+      "description": "TODO: team to write and check this text.",
+      "contact": "TODO: team to add and check how to find a local program",
+      "verified": false
+    },
+    {
+      "id": "allen-county-specialist",
+      "name": "Allen County protective order specialist",
+      "description": "TODO: team to write and check this text.",
+      "contact": "TODO: team to add and check office location and hours",
+      "verified": false
+    }
+  ]
+}

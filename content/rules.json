@@ -1,0 +1,37 @@
+{
+  "rules": [
+    {
+      "id": "stalking-two-incidents",
+      "caseTypes": ["stalking"],
+      "condition": { "type": "incidentCountBelow", "value": 2 },
+      "questionText": "Stalking means two or more incidents. Are there other times?",
+      "sourceCitation": "PO-0102 petition booklet (team source K2)",
+      "verified": false
+    },
+    {
+      "id": "incident-missing-date",
+      "caseTypes": ["stalking", "harassment", "not-sure"],
+      "condition": { "type": "incidentDateMissing" },
+      "questionText": "Do you remember about when this happened? A rough time, like \"early March,\" is fine.",
+      "sourceCitation": "TODO: team to supply source",
+      "verified": false
+    },
+    {
+      "id": "incident-too-short",
+      "caseTypes": ["stalking", "harassment", "not-sure"],
+      "condition": { "type": "incidentWordsBelow", "value": 15 },
+      "questionText": "Can you say more about what happened? For example, what the person did or said, and where you were.",
+      "sourceCitation": "TODO: team to supply source",
+      "verified": false
+    },
+    {
+      "id": "harassment-rule",
+      "caseTypes": ["harassment"],
+      "condition": null,
+      "questionText": "TODO: team to supply question wording.",
+      "sourceCitation": "TODO: team to supply source",
+      "verified": false,
+      "todo": "The team will supply this rule. It is off until it has a condition."
+    }
+  ]
+}

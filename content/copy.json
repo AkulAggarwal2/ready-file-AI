@@ -1,0 +1,127 @@
+{
+  "app": {
+    "name": "ReadyFile",
+    "progress": "Step {current} of {total}"
+  },
+  "quickExit": {
+    "label": "Quick exit",
+    "url": "https://www.weather.com"
+  },
+  "resources": {
+    "show": "Talk to an advocate",
+    "hide": "Hide advocate contacts",
+    "heading": "Free help from an advocate",
+    "intro": "Advocates help people who are asking for a protection order. They can talk with you about your options. Their help is free and private.",
+    "notVerified": "Not checked yet"
+  },
+  "timeout": {
+    "heading": "Are you still here?",
+    "body": "To protect your privacy, everything you typed will be cleared in {seconds} seconds.",
+    "stay": "Stay here"
+  },
+  "common": {
+    "confirmNo": "Keep it"
+  },
+  "start": {
+    "heading": "Get your story ready to file",
+    "intro": "This tool helps you organize what happened before you fill out the court's online form for a protection order. It asks the kind of questions court staff ask when they help people in person.",
+    "notFiling": "This tool does not file anything for you. It does not give legal advice.",
+    "safetyHeading": "Before you start",
+    "safetyNote": "If someone else uses this device, they may see what you type. Nothing is saved. To leave fast, use Quick exit at the top of the screen. Everything is cleared after {minutes} minutes with no activity.",
+    "caseTypeLegend": "What kind of protection order are you asking for?",
+    "caseTypeHint": "If you are not sure, pick \"Not sure.\" You can still finish.",
+    "caseTypes": {
+      "stalking": "Stalking",
+      "harassment": "Harassment",
+      "not-sure": "Not sure"
+    },
+    "begin": "Start"
+  },
+  "story": {
+    "heading": "Tell what happened",
+    "intro": "Write what happened in your own words. Include each time something happened, even if it seems small. If you remember about when it happened, include that too.",
+    "label": "What happened",
+    "hint": "Try starting a new paragraph for each time something happened. That makes it easier to split your story into incidents.",
+    "sampleOne": "Fill in fictional sample: 1 incident",
+    "sampleFour": "Fill in fictional sample: 4 incidents",
+    "sampleNote": "Demo only. These buttons do not appear in the real tool.",
+    "redoWarning": "If you organize your story again, the new list will replace your current list of incidents.",
+    "back": "Back",
+    "organize": "Organize my story",
+    "organizing": "Organizing your story…"
+  },
+  "organize": {
+    "heading": "Check your incidents",
+    "intro": "An incident is one time something happened. We split your story into incidents. Check each one. You can edit, merge, delete, or add incidents.",
+    "draftNote": "This list is a draft. Nothing is final until you say it looks right.",
+    "empty": "There are no incidents yet. You can add one below.",
+    "add": "Add another incident",
+    "back": "Back to my writing",
+    "confirm": "This list looks right"
+  },
+  "incident": {
+    "heading": "Incident {n}",
+    "dateLabel": "When did it happen?",
+    "dateKinds": {
+      "exact": "I know the date",
+      "approximate": "I know about when",
+      "unknown": "I don't remember"
+    },
+    "exactLabel": "Date",
+    "approximateLabel": "About when",
+    "approximateHint": "For example: early March, or the week before Thanksgiving.",
+    "descriptionLabel": "What happened",
+    "howLabel": "How did it happen?",
+    "how": {
+      "in-person": "In person",
+      "online": "Online",
+      "phone-or-text": "Phone call or text",
+      "other": "Other",
+      "unknown": "Not sure"
+    },
+    "evidenceLabel": "Evidence or witnesses (optional)",
+    "evidenceHint": "For example: screenshots, photos, or people who saw it.",
+    "merge": "Merge with the next incident",
+    "delete": "Delete",
+    "deleteQuestion": "Delete this incident?",
+    "deleteYes": "Yes, delete"
+  },
+  "check": {
+    "heading": "A few questions",
+    "intro": "Court staff often ask questions like these when they help someone fill out the form. For each one, you can add more or continue as is. It is your choice.",
+    "left": "Questions left: {count}",
+    "aboutIncident": "About incident {n}:",
+    "addMore": "Add more",
+    "continueAsIs": "Continue as is",
+    "none": "There are no more questions.",
+    "toReview": "Go to review",
+    "back": "Back to incidents",
+    "unverified": "Unverified rule: {ruleId}"
+  },
+  "review": {
+    "heading": "Review your incidents",
+    "notFiling": "This tool does not file your petition. To file, copy this summary into the court's online form, or print it.",
+    "order": "Incidents with an exact date are listed first, from oldest to newest. Incidents without an exact date come after, in the order you gave them.",
+    "summaryLabel": "Your summary",
+    "copy": "Copy summary",
+    "copied": "Copied.",
+    "copyFailed": "Could not copy. You can select the summary and copy it yourself.",
+    "clipboardNote": "Copied text stays on this device until you copy something else. If others use this device, you may want to copy something else when you are done.",
+    "print": "Print",
+    "edit": "Edit incidents",
+    "clear": "Clear everything",
+    "clearQuestion": "Clear everything you typed and start over?",
+    "clearYes": "Yes, clear everything"
+  },
+  "summary": {
+    "title": "Incident summary",
+    "caseType": "Type of protection order: {caseType}",
+    "incident": "Incident {n}",
+    "when": "When: {when}",
+    "dateUnknown": "Date not known",
+    "how": "How it happened: {how}",
+    "what": "What happened:",
+    "evidence": "Evidence or witnesses: {evidence}",
+    "noIncidents": "No incidents were listed."
+  }
+}
