@@ -1,0 +1,373 @@
+/* Mobile-first. System fonts only: no external fonts (section 8).
+   Colors meet WCAG 2.2 AA contrast on their backgrounds. */
+
+:root {
+  --text: #1c1f26;
+  --muted: #4a5160;
+  --bg: #ffffff;
+  --surface: #f4f5f8;
+  --border: #9aa0ad;
+  --primary: #1d4ed8;
+  --primary-text: #ffffff;
+  --exit: #9f1239;
+  --exit-text: #ffffff;
+  --focus: #b45309;
+  --badge-bg: #fef3c7;
+  --badge-text: #713f12;
+  --radius: 8px;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+}
+
+h1,
+h2 {
+  line-height: 1.25;
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin: 0.5rem 0 1rem;
+}
+
+h2 {
+  font-size: 1.15rem;
+  margin: 0 0 0.75rem;
+}
+
+:focus-visible,
+h1:focus,
+h2:focus,
+p:focus {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+h1:focus:not(:focus-visible),
+h2:focus:not(:focus-visible),
+p:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Header: Quick exit stays visible on every screen, above any dialog. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0.5rem 1rem;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.brand {
+  font-weight: 700;
+}
+
+.quick-exit {
+  min-height: 48px;
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--exit);
+  color: var(--exit-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.link-button {
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--primary);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.resources-panel {
+  padding: 0.5rem 0 1rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.resources-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.resources-panel li {
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.resources-panel li p {
+  margin: 0.25rem 0;
+}
+
+.content {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.progress,
+.hint {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.progress {
+  margin: 0;
+}
+
+.hint {
+  margin: 0.25rem 0 0.5rem;
+}
+
+.note {
+  font-weight: 600;
+}
+
+.callout {
+  background: var(--surface);
+  border-left: 4px solid var(--primary);
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+}
+
+.callout h2 {
+  margin-bottom: 0.25rem;
+}
+
+.callout p {
+  margin: 0;
+}
+
+/* Forms */
+label {
+  display: block;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+input[type='text'],
+input[type='date'],
+select,
+textarea {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font: inherit;
+  color: var(--text);
+  background: var(--bg);
+}
+
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 1.5rem 0 0;
+}
+
+legend {
+  font-weight: 700;
+  padding: 0;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 48px;
+  margin: 0.25rem 0;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.choice input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+}
+
+/* Buttons: at least 48px tall for easy tapping. */
+.btn {
+  min-height: 48px;
+  padding: 0.5rem 1.25rem;
+  border: 2px solid var(--primary);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--primary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-text);
+}
+
+.btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+}
+
+/* "Add more" and "Continue as is" share one style and one width. */
+.button-row.equal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.btn-choice {
+  width: 100%;
+}
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.card .button-row {
+  margin-bottom: 0;
+}
+
+.question h2 {
+  font-size: 1.2rem;
+}
+
+blockquote {
+  margin: 0.25rem 0 1rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 4px solid var(--border);
+  color: var(--muted);
+  white-space: pre-wrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.confirm p {
+  font-weight: 600;
+  margin: 0;
+}
+
+.confirm .button-row {
+  margin-top: 0.5rem;
+}
+
+.badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  background: var(--badge-bg);
+  color: var(--badge-text);
+  font-size: 0.8rem;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+.dev-only {
+  margin-top: 1rem;
+  padding: 0.5rem 0.75rem;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+.dev-only .button-row {
+  margin: 0.5rem 0;
+}
+
+.summary {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin: 0;
+}
+
+.status {
+  min-height: 1.5em;
+  margin: 0;
+}
+
+/* Timeout warning. Sits below the header so Quick exit stays reachable. */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgb(0 0 0 / 0.55);
+}
+
+.dialog {
+  max-width: 26rem;
+  width: 100%;
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+
+  .print-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: none;
+    background: none;
+  }
+}
