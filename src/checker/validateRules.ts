@@ -1,6 +1,4 @@
-import type { CaseType, Condition, Rule } from './types';
-
-const CASE_TYPES: CaseType[] = ['stalking', 'harassment', 'not-sure'];
+import { CASE_TYPES, type CaseType, type Condition, type Rule } from './types';
 
 function fail(index: number, id: unknown, problem: string): never {
   const name = typeof id === 'string' ? `"${id}"` : `#${index + 1}`;
@@ -50,7 +48,7 @@ export function validateRules(raw: unknown): Rule[] {
 
     if (
       !Array.isArray(item.caseTypes) ||
-      !item.caseTypes.every((t): t is CaseType => CASE_TYPES.includes(t as CaseType))
+      !item.caseTypes.every((t): t is CaseType => (CASE_TYPES as readonly string[]).includes(t as string))
     ) {
       fail(index, id, `caseTypes must be a list using only: ${CASE_TYPES.join(', ')}.`);
     }

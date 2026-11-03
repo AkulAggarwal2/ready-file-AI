@@ -3,27 +3,34 @@
    backgrounds; input and control borders meet 3:1 non-text contrast. */
 
 :root {
-  /* Color */
-  --bg: #f7f5f0;
-  --surface: #ffffff;
-  --surface-soft: #eef3f1;
-  --text: #24302e;
-  --muted: #53605d;
-  --border: #d9dfdc; /* decorative dividers and card edges */
-  --border-strong: #7b8885; /* controls: 3:1 against surface */
-  --primary: #2c6b64;
-  --primary-hover: #245750;
-  --primary-soft: #dcebe8;
+  color-scheme: light dark;
+
+  /* Color: warm neutrals, one deep teal. */
+  --bg: #f6f3ee;
+  --surface: #fffdf9;
+  --surface-soft: #e9efec;
+  --text: #1f2a2b;
+  --muted: #4d5a5b;
+  --border: #d8d2c7;
+  --border-strong: #6f7a77;
+  --primary: #1d5c63;
+  --primary-hover: #154950;
+  --primary-soft: #d6e7e7;
   --primary-text: #ffffff;
   --exit: #9f1239;
   --exit-hover: #860f31;
   --exit-text: #ffffff;
   --focus: #b45309;
-  --badge-bg: #fdf0cf;
-  --badge-text: #6b4410;
+  --warning-bg: #fbeccb;
+  --warning-text: #5c3a00;
+  --success-bg: #dcefe0;
+  --success-text: #18492a;
+  --badge-bg: #fbeccb;
+  --badge-text: #5c3a00;
+  --overlay: rgb(31 42 43 / 0.55);
 
-  /* Type scale */
-  --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Type: a humanist sans-serif from the device. No font files are loaded. */
+  --font: Seravek, 'Gill Sans Nova', Ubuntu, Calibri, 'DejaVu Sans', 'Source Sans Pro', sans-serif;
   --text-sm: 0.9rem;
   --text-md: 1rem;
   --text-lg: 1.25rem;
@@ -40,13 +47,41 @@
   /* Shape and depth */
   --radius: 12px;
   --radius-sm: 8px;
-  --shadow: 0 1px 2px rgb(36 48 46 / 0.06), 0 4px 16px rgb(36 48 46 / 0.05);
+  --shadow: 0 1px 2px rgb(31 42 43 / 0.06), 0 4px 16px rgb(31 42 43 / 0.05);
 
   font-family: var(--font);
   font-size: 18px;
   line-height: 1.6;
   color: var(--text);
   background: var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #131a1b;
+    --surface: #1c2526;
+    --surface-soft: #243130;
+    --text: #e8eeed;
+    --muted: #b0bebd;
+    --border: #334140;
+    --border-strong: #8b9b98;
+    --primary: #8fd0d4;
+    --primary-hover: #aee0e3;
+    --primary-soft: #26413f;
+    --primary-text: #0f2224;
+    --exit: #f2a0b4;
+    --exit-hover: #f7bccb;
+    --exit-text: #3b0716;
+    --focus: #f5b45c;
+    --warning-bg: #4a3a14;
+    --warning-text: #fbe3ac;
+    --success-bg: #1f3d2a;
+    --success-text: #bfe8c9;
+    --badge-bg: #4a3a14;
+    --badge-text: #fbe3ac;
+    --overlay: rgb(0 0 0 / 0.65);
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+  }
 }
 
 * {
@@ -76,6 +111,19 @@ h2 {
 
 p {
   margin: 0 0 var(--space-3);
+  max-width: 68ch;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 :focus-visible,
@@ -106,8 +154,9 @@ p:focus:not(:focus-visible) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
-  max-width: 40rem;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  max-width: 42rem;
   margin: 0 auto;
 }
 
@@ -152,7 +201,7 @@ p:focus:not(:focus-visible) {
 }
 
 .resources-panel {
-  max-width: 40rem;
+  max-width: 42rem;
   margin: 0 auto;
   padding: var(--space-2) 0 var(--space-4);
   max-height: 60vh;
@@ -175,34 +224,60 @@ p:focus:not(:focus-visible) {
 }
 
 .content {
-  max-width: 40rem;
+  max-width: 42rem;
   margin: 0 auto;
   padding: var(--space-5) var(--space-4) var(--space-6);
 }
 
-/* Progress: a thin bar plus the text label. */
+/* Step indicator: five labeled steps. */
 .progress,
 .hint {
   color: var(--muted);
   font-size: var(--text-sm);
 }
 
-.progress {
-  margin: 0 0 var(--space-2);
+.step-list {
+  display: flex;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0 0 var(--space-4);
+  padding: 0;
 }
 
-.progress-bar {
-  height: 6px;
-  border-radius: 999px;
-  background: var(--border);
-  overflow: hidden;
+.step {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-top: var(--space-2);
+  border-top: 6px solid var(--border);
+  border-radius: 3px;
+  font-size: var(--text-sm);
+  color: var(--muted);
+  overflow-wrap: anywhere;
 }
 
-.progress-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: var(--primary);
-  transition: width 0.3s ease;
+.step[data-state='done'] {
+  border-top-color: var(--primary);
+}
+
+.step[data-state='current'] {
+  border-top-color: var(--primary);
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* On narrow screens only the current step keeps its label on screen. */
+@media (max-width: 34rem) {
+  .step:not([data-state='current']) .step-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .step:not([data-state='current']) {
+    flex: 0 0 2rem;
+  }
 }
 
 .hint {
@@ -448,7 +523,7 @@ blockquote {
   align-items: center;
   justify-content: center;
   padding: var(--space-4);
-  background: rgb(36 48 46 / 0.5);
+  background: var(--overlay);
 }
 
 .dialog {
@@ -458,6 +533,173 @@ blockquote {
   border-radius: var(--radius);
   background: var(--surface);
   box-shadow: var(--shadow);
+}
+
+/* Incident cards */
+.incident-card.is-dragging {
+  opacity: 0.5;
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.card-top h2 {
+  margin: 0;
+}
+
+.drag-handle {
+  cursor: grab;
+  color: var(--muted);
+  letter-spacing: -0.2em;
+  user-select: none;
+}
+
+@media (hover: none) {
+  .drag-handle {
+    display: none;
+  }
+}
+
+.incident-meta {
+  margin: var(--space-2) 0 var(--space-1);
+}
+
+.preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--muted);
+  margin: 0 0 var(--space-3);
+}
+
+.card-fields {
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
+}
+
+.card-actions {
+  margin: var(--space-3) 0 0;
+}
+
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0 0 var(--space-2);
+  padding: 0;
+}
+
+.chip {
+  padding: 0 var(--space-3);
+  border-radius: 999px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.chip-warning {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+}
+
+.chip-success {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+.disclosure {
+  margin: var(--space-4) 0;
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.disclosure summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Timeline */
+.timeline h3 {
+  font-size: var(--text-md);
+  margin: var(--space-4) 0 var(--space-2);
+}
+
+.timeline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 var(--space-4);
+  border-left: 3px solid var(--primary-soft);
+}
+
+.timeline-item {
+  position: relative;
+  padding: 0 0 var(--space-4) var(--space-3);
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: calc(-1 * var(--space-4) - 7px);
+  top: 0.55em;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.timeline-date {
+  display: block;
+  font-weight: 700;
+}
+
+.timeline-body .preview {
+  margin: var(--space-1) 0 0;
+}
+
+/* Undo toast: fixed at the bottom, but placed next to the heading in the page
+   so keyboard users reach it first. */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: var(--space-4);
+  transform: translateX(-50%);
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-5);
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--bg);
+  box-shadow: var(--shadow);
+}
+
+.btn-toast {
+  border-color: var(--bg);
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Only the court-ready summary prints. */
+.print-doc {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -473,21 +715,61 @@ blockquote {
 }
 
 @media print {
-  body * {
-    visibility: hidden;
+  @page {
+    margin: 2cm;
+
+    @bottom-center {
+      content: counter(page) ' / ' counter(pages);
+    }
   }
 
-  .print-area,
-  .print-area * {
-    visibility: visible;
+  :root {
+    color-scheme: light;
+    font-size: 12pt;
+    line-height: 1.5;
   }
 
-  .print-area {
-    position: absolute;
-    top: 0;
-    left: 0;
-    border: none;
-    box-shadow: none;
-    background: none;
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  .site-header,
+  .steps,
+  .screen-only,
+  .toast,
+  .overlay,
+  .sr-only {
+    display: none !important;
+  }
+
+  .content {
+    max-width: none;
+    padding: 0;
+  }
+
+  .print-doc {
+    display: block;
+  }
+
+  .print-doc h1 {
+    font-size: 18pt;
+    margin: 0 0 0.5em;
+  }
+
+  .print-doc h2 {
+    font-size: 14pt;
+    margin: 1.2em 0 0.3em;
+    break-after: avoid;
+  }
+
+  .print-incident {
+    break-inside: avoid-page;
+    border-top: 1px solid #000;
+  }
+
+  .print-text {
+    white-space: pre-wrap;
+    max-width: none;
   }
 }

@@ -1,11 +1,9 @@
 import { useState, type FormEvent } from 'react';
-import type { CaseType } from '../checker';
+import { CASE_TYPES, type CaseType } from '../checker';
 import { IDLE_TIMEOUT_MS } from '../config';
 import { copy, fill } from '../content';
 import { useAppState } from '../state/AppStateProvider';
 import { StepHeading } from '../ui/StepHeading';
-
-const CASE_TYPES: CaseType[] = ['stalking', 'harassment', 'not-sure'];
 
 export function StartStep() {
   const { state, dispatch } = useAppState();

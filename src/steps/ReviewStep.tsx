@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { copy } from '../content';
-import { buildSummary } from '../review/summary';
+import type { CaseType } from '../checker';
+import { copy, fill } from '../content';
+import type { Incident } from '../organizer';
+import { buildSummary, describeDate, sortByDate } from '../review/summary';
 import { ORGANIZE_HEADING_ID } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
 import { ConfirmButton } from '../ui/ConfirmButton';
 import { StepHeading } from '../ui/StepHeading';
+import { Timeline } from '../ui/Timeline';
 
 export function ReviewStep() {
   const { state, dispatch } = useAppState();
@@ -23,12 +26,15 @@ export function ReviewStep() {
 
   return (
     <div>
+      <div className="screen-only">
       <StepHeading>{c.heading}</StepHeading>
       <p className="callout">{c.notFiling}</p>
-      <p className="hint">{c.order}</p>
+
+      <h2 id="timeline-label">{copy.timeline.heading}</h2>
+      <Timeline incidents={state.incidents} numbering="timeline" />
 
       <h2 id="summary-label">{c.summaryLabel}</h2>
-      <pre className="summary print-area" aria-labelledby="summary-label" tabIndex={0}>
+      <pre className="summary" aria-labelledby="summary-label" tabIndex={0}>
         {summary}
       </pre>
 
@@ -56,6 +62,33 @@ export function ReviewStep() {
           onConfirm={() => dispatch({ type: 'reset' })}
         />
       </div>
+      </div>
+
+      <PrintSummary caseType={state.caseType ?? 'not-sure'} incidents={state.incidents} />
     </div>
+  );
+}
+
+/** The court-ready page. It is hidden on screen and is the only thing that prints. */
+function PrintSummary({ caseType, incidents }: { caseType: CaseType; incidents: Incident[] }) {
+  const s = copy.summary;
+  return (
+    <article className="print-doc">
+      <h1>{s.title}</h1>
+      <p>{fill(s.caseType, { caseType: copy.start.caseTypes[caseType] })}</p>
+      {incidents.length === 0 && <p>{s.noIncidents}</p>}
+      {sortByDate(incidents).map((incident, index) => (
+        <section key={incident.id} className="print-incident">
+          <h2>{fill(s.incident, { n: index + 1 })}</h2>
+          <p>{fill(s.when, { when: describeDate(incident) })}</p>
+          <p>{fill(s.how, { how: copy.incident.how[incident.how] })}</p>
+          <p>
+            <strong>{s.what}</strong>
+          </p>
+          <p className="print-text">{incident.description.trim()}</p>
+          {incident.evidence.trim() && <p>{fill(s.evidence, { evidence: incident.evidence.trim() })}</p>}
+        </section>
+      ))}
+    </article>
   );
 }

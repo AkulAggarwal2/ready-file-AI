@@ -1,16 +1,17 @@
 import { useCallback } from 'react';
 import { IDLE_TIMEOUT_MS, TIMEOUT_WARNING_SECONDS } from './config';
-import { copy, fill } from './content';
+import { copy } from './content';
 import { QuickExit } from './safety/QuickExit';
 import { Resources } from './safety/Resources';
 import { TimeoutWarning } from './safety/TimeoutWarning';
 import { useInactivityTimeout } from './safety/useInactivityTimeout';
-import { STEPS } from './state/appState';
+import { progressStep } from './state/appState';
 import { AppStateProvider, useAppState } from './state/AppStateProvider';
 import { CheckStep } from './steps/CheckStep';
 import { ReviewStep } from './steps/ReviewStep';
 import { StartStep } from './steps/StartStep';
 import { StoryStep } from './steps/StoryStep';
+import { StepIndicator } from './ui/StepIndicator';
 
 export function App() {
   return (
@@ -37,16 +38,13 @@ function Shell() {
         <Resources />
       </header>
 
+      {/* Announces organizing, merging, deleting, moving, and undoing to screen readers. */}
+      <div className="sr-only" role="status" aria-live="polite" aria-label={copy.common.liveRegionLabel}>
+        {state.announcement}
+      </div>
+
       <main className="content">
-        <p className="progress">
-          {fill(copy.app.progress, { current: STEPS.indexOf(state.step) + 1, total: STEPS.length })}
-        </p>
-        <div className="progress-bar" aria-hidden="true">
-          <div
-            className="progress-fill"
-            style={{ width: `${((STEPS.indexOf(state.step) + 1) / STEPS.length) * 100}%` }}
-          />
-        </div>
+        <StepIndicator current={progressStep(state)} />
         {state.step === 'start' && <StartStep />}
         {state.step === 'story' && <StoryStep />}
         {state.step === 'check' && <CheckStep />}

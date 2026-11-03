@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { runChecks, type Finding } from '../checker';
+import { DEMO_MODE } from '../config';
 import { copy, fill, rules } from '../content';
 import type { Incident } from '../organizer';
 import { ADD_INCIDENT_ID, ORGANIZE_HEADING_ID } from '../state/appState';
@@ -44,7 +45,7 @@ export function CheckStep() {
           left={open.length}
           incidents={state.incidents}
           takeFocus={answered.current}
-          onAddMore={() => dispatch({ type: 'addMore', focusTarget: addMoreTarget(current) })}
+          onAddMore={() => dispatch({ type: 'addMore', focusTarget: addMoreTarget(current), expandId: current.incidentId })}
           onContinue={() => {
             answered.current = true;
             dispatch({ type: 'dismissFinding', key: current.key });
@@ -87,12 +88,12 @@ function Question({ finding, left, incidents, takeFocus, onAddMore, onContinue }
       {index !== -1 && (
         <>
           <p>{fill(c.aboutIncident, { n: index + 1 })}</p>
-          <blockquote>{incidents[index].description || '…'}</blockquote>
+          <blockquote>{incidents[index].description || copy.common.ellipsis}</blockquote>
         </>
       )}
       <h2 id="question-text" ref={ref} tabIndex={-1}>
         {finding.questionText}
-        {import.meta.env.DEV && !finding.verified && (
+        {DEMO_MODE && !finding.verified && (
           <span className="badge badge-dev">{fill(c.unverified, { ruleId: finding.ruleId })}</span>
         )}
       </h2>

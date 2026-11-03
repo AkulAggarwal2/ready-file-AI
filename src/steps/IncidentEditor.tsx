@@ -1,8 +1,6 @@
-import { copy, fill } from '../content';
+import { copy } from '../content';
 import { HOW_OPTIONS, type HowItHappened, type Incident, type IncidentDate } from '../organizer';
-import { headingId } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
-import { ConfirmButton } from '../ui/ConfirmButton';
 
 const DATE_KINDS: IncidentDate['kind'][] = ['exact', 'approximate', 'unknown'];
 
@@ -15,7 +13,8 @@ function changeDateKind(date: IncidentDate, kind: IncidentDate['kind']): Inciden
   return { kind };
 }
 
-export function IncidentEditor({ incident, number, isLast }: { incident: Incident; number: number; isLast: boolean }) {
+/** The editable fields of one incident. The card around them is in IncidentCard. */
+export function IncidentFields({ incident }: { incident: Incident }) {
   const { dispatch } = useAppState();
   const { id, date } = incident;
   const c = copy.incident;
@@ -23,11 +22,7 @@ export function IncidentEditor({ incident, number, isLast }: { incident: Inciden
   const update = (changes: Partial<Incident>) => dispatch({ type: 'updateIncident', id, changes });
 
   return (
-    <section className="card" aria-labelledby={headingId(id)}>
-      <h2 id={headingId(id)} tabIndex={-1}>
-        {fill(c.heading, { n: number })}
-      </h2>
-
+    <>
       <label htmlFor={dateKindId(id)}>{c.dateLabel}</label>
       <select
         id={dateKindId(id)}
@@ -102,20 +97,6 @@ export function IncidentEditor({ incident, number, isLast }: { incident: Inciden
         value={incident.evidence}
         onChange={(e) => update({ evidence: e.target.value })}
       />
-
-      <div className="button-row">
-        {!isLast && (
-          <button type="button" className="btn" onClick={() => dispatch({ type: 'mergeWithNext', id })}>
-            {c.merge}
-          </button>
-        )}
-        <ConfirmButton
-          label={c.delete}
-          question={c.deleteQuestion}
-          confirmLabel={c.deleteYes}
-          onConfirm={() => dispatch({ type: 'deleteIncident', id })}
-        />
-      </div>
-    </section>
+    </>
   );
 }

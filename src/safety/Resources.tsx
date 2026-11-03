@@ -1,7 +1,15 @@
 import { useState } from 'react';
+import { DEMO_MODE } from '../config';
 import { copy, resources } from '../content';
 
 const PANEL_ID = 'advocate-resources';
+
+// An entry the team has not filled in yet must never reach a real user, so it
+// is hidden unless demo mode is on.
+const isPlaceholder = (text: string) => text.trim().startsWith('TODO');
+const visibleResources = resources.filter(
+  (resource) => DEMO_MODE || !(isPlaceholder(resource.contact) || isPlaceholder(resource.description)),
+);
 
 /** Advocate contacts, reachable from every screen (sections 4 and 8). */
 export function Resources() {
@@ -21,8 +29,9 @@ export function Resources() {
       <section id={PANEL_ID} hidden={!open} aria-labelledby="resources-heading" className="resources-panel">
         <h2 id="resources-heading">{copy.resources.heading}</h2>
         <p>{copy.resources.intro}</p>
+        {visibleResources.length === 0 && <p>{copy.resources.none}</p>}
         <ul>
-          {resources.map((resource) => (
+          {visibleResources.map((resource) => (
             <li key={resource.id}>
               <strong>{resource.name}</strong>
               {!resource.verified && <span className="badge">{copy.resources.notVerified}</span>}

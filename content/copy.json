@@ -1,18 +1,28 @@
 {
   "app": {
     "name": "ReadyFile",
-    "progress": "Step {current} of {total}"
+    "progress": "Step {current} of {total}",
+    "stepsLabel": "Your progress",
+    "steps": {
+      "start": "Start",
+      "story": "Your story",
+      "incidents": "Incidents",
+      "questions": "Questions",
+      "review": "Review"
+    }
   },
   "quickExit": {
     "label": "Quick exit",
-    "url": "https://www.weather.com"
+    "url": "https://www.weather.com",
+    "hint": "You can also press the Esc key two times fast to leave."
   },
   "resources": {
     "show": "Talk to an advocate",
     "hide": "Hide advocate contacts",
     "heading": "Free help from an advocate",
     "intro": "Advocates help people who are asking for a protection order. They can talk with you about your options. Their help is free and private.",
-    "notVerified": "Not checked yet"
+    "notVerified": "Not checked yet",
+    "none": "Contacts for advocates are being added. Please check back soon."
   },
   "timeout": {
     "heading": "Are you still here?",
@@ -20,7 +30,9 @@
     "stay": "Stay here"
   },
   "common": {
-    "confirmNo": "Keep it"
+    "confirmNo": "Keep it",
+    "ellipsis": "…",
+    "liveRegionLabel": "Updates"
   },
   "start": {
     "heading": "Get your story ready to file",
@@ -33,6 +45,8 @@
     "caseTypes": {
       "stalking": "Stalking",
       "harassment": "Harassment",
+      "domestic-violence": "Domestic or family violence",
+      "sexual-assault": "Sexual assault",
       "not-sure": "Not sure"
     },
     "begin": "Start"
@@ -84,7 +98,16 @@
     "merge": "Merge with the next incident",
     "delete": "Delete",
     "deleteQuestion": "Delete this incident?",
-    "deleteYes": "Yes, delete"
+    "deleteYes": "Yes, delete",
+    "preview": {
+      "empty": "No description yet."
+    },
+    "edit": "Edit",
+    "done": "Done editing",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "dragHandle": "Drag to move",
+    "reorderHint": "Use Move up and Move down to change the order of incidents. On a computer, you can also drag."
   },
   "check": {
     "heading": "A few questions",
@@ -123,5 +146,37 @@
     "what": "What happened:",
     "evidence": "Evidence or witnesses: {evidence}",
     "noIncidents": "No incidents were listed."
+  },
+  "badges": {
+    "heading": "Questions that may come up",
+    "summary": "{count} questions may come up in the next step. You can add detail now or answer them later.",
+    "summaryNone": "No questions are expected for this list.",
+    "perIncident": "Questions for this incident:",
+    "none": "No questions",
+    "incidentCountBelow": "Other times?",
+    "incidentDateMissing": "Date missing",
+    "incidentWordsBelow": "Could use more detail"
+  },
+  "timeline": {
+    "heading": "Timeline",
+    "dated": "With an exact date",
+    "undated": "Without an exact date",
+    "empty": "Incidents will show here once you add them.",
+    "incident": "Incident {n}"
+  },
+  "toast": {
+    "undo": "Undo",
+    "deleted": "Incident deleted.",
+    "merged": "Incidents merged."
+  },
+  "announce": {
+    "organized": "We made {count} incidents from your story.",
+    "added": "Added a new incident. You now have {count}.",
+    "deleted": "Incident deleted. You now have {count}. Undo is available for a few seconds.",
+    "merged": "Incidents merged. You now have {count}. Undo is available for a few seconds.",
+    "moved": "Incident moved to place {position} of {count}.",
+    "undone": "Done. Your change was undone. You now have {count}.",
+    "expanded": "Editing incident {n}.",
+    "collapsed": "Finished editing incident {n}."
   }
 }

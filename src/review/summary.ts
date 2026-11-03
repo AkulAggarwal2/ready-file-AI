@@ -2,19 +2,34 @@ import type { CaseType } from '../checker';
 import { copy, fill } from '../content';
 import type { Incident } from '../organizer';
 
-/**
- * Incidents with an exact date first, oldest to newest. The rest keep the
- * order she gave, because "early March" cannot be placed exactly.
- */
-export function sortByDate(incidents: Incident[]): Incident[] {
-  const exactDate = (incident: Incident) =>
-    incident.date.kind === 'exact' && incident.date.value ? incident.date.value : null;
+const exactDate = (incident: Incident) =>
+  incident.date.kind === 'exact' && incident.date.value ? incident.date.value : null;
 
+/**
+ * Splits incidents into those with an exact date (oldest to newest) and the
+ * rest, which keep the order she gave, because "early March" cannot be placed
+ * exactly.
+ */
+export function partitionByDate(incidents: Incident[]): { dated: Incident[]; undated: Incident[] } {
   const dated = incidents
     .filter((incident) => exactDate(incident))
     .sort((a, b) => exactDate(a)!.localeCompare(exactDate(b)!));
   const undated = incidents.filter((incident) => !exactDate(incident));
+  return { dated, undated };
+}
+
+/** Exact-date incidents first, then the rest. */
+export function sortByDate(incidents: Incident[]): Incident[] {
+  const { dated, undated } = partitionByDate(incidents);
   return [...dated, ...undated];
+}
+
+/** A date she typed as 2025-03-14, written for people: March 14, 2025. */
+export function formatExactDate(value: string): string {
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 export function describeDate(incident: Incident): string {

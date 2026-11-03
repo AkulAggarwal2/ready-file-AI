@@ -2,7 +2,12 @@
 // of its own. Other tools (such as a court e-filing site or an advocate tool)
 // can import it and pass in their own rules and incidents.
 
-export type CaseType = 'stalking' | 'harassment' | 'not-sure';
+// To add a type of protection order: add it here, add its label under
+// start.caseTypes in copy.json, and list it in the caseTypes of any rule that
+// applies. The order here is the order on the Start screen.
+export const CASE_TYPES = ['stalking', 'harassment', 'domestic-violence', 'sexual-assault', 'not-sure'] as const;
+
+export type CaseType = (typeof CASE_TYPES)[number];
 
 export type CheckDate =
   | { kind: 'exact'; value: string }
