@@ -40,7 +40,7 @@ export function describeDate(incident: Incident): string {
 }
 
 /** Plain-text summary she can paste into the court's e-filing form or print. */
-export function buildSummary(caseType: CaseType, incidents: Incident[]): string {
+export function buildSummary(caseType: CaseType, incidents: Incident[], story = ''): string {
   const s = copy.summary;
   const lines = [s.title, fill(s.caseType, { caseType: copy.start.caseTypes[caseType] }), ''];
 
@@ -57,6 +57,9 @@ export function buildSummary(caseType: CaseType, incidents: Incident[]): string 
     if (incident.evidence.trim()) lines.push(fill(s.evidence, { evidence: incident.evidence.trim() }));
     lines.push('');
   });
+
+  // Her own words come after the dated incidents.
+  if (story.trim()) lines.push(s.story, story.trim());
 
   return lines.join('\n').trim();
 }

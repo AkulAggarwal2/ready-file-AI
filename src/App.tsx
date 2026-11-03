@@ -5,11 +5,11 @@ import { QuickExit } from './safety/QuickExit';
 import { Resources } from './safety/Resources';
 import { TimeoutWarning } from './safety/TimeoutWarning';
 import { useInactivityTimeout } from './safety/useInactivityTimeout';
-import { progressStep } from './state/appState';
 import { AppStateProvider, useAppState } from './state/AppStateProvider';
 import { CheckStep } from './steps/CheckStep';
 import { ReviewStep } from './steps/ReviewStep';
 import { StartStep } from './steps/StartStep';
+import { IncidentsStep } from './steps/IncidentsStep';
 import { StoryStep } from './steps/StoryStep';
 import { StepIndicator } from './ui/StepIndicator';
 
@@ -44,10 +44,11 @@ function Shell() {
       </div>
 
       <main className="content">
-        <StepIndicator current={progressStep(state)} />
+        <StepIndicator current={state.step} />
         {state.step === 'start' && <StartStep />}
+        {state.step === 'incidents' && <IncidentsStep />}
         {state.step === 'story' && <StoryStep />}
-        {state.step === 'check' && <CheckStep />}
+        {state.step === 'questions' && <CheckStep />}
         {state.step === 'review' && <ReviewStep />}
       </main>
 

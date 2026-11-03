@@ -1,24 +1,29 @@
 import { copy, fill } from '../content';
-import { PROGRESS_STEPS, type ProgressStep } from '../state/appState';
+import { STEPS, type Step } from '../state/appState';
+import { useAppState } from '../state/AppStateProvider';
 
-/** Where she is in the five steps. The steps are not links: she moves with the buttons on each screen. */
-export function StepIndicator({ current }: { current: ProgressStep }) {
-  const currentIndex = PROGRESS_STEPS.indexOf(current);
+/**
+ * The five steps, shown at the top of every screen. Each one is a button, so
+ * she can go back and forth between them in any order. Her answers stay.
+ */
+export function StepIndicator({ current }: { current: Step }) {
+  const { dispatch } = useAppState();
+  const currentIndex = STEPS.indexOf(current);
 
   return (
     <nav className="steps" aria-label={copy.app.stepsLabel}>
-      <p className="sr-only">
-        {fill(copy.app.progress, { current: currentIndex + 1, total: PROGRESS_STEPS.length })}
-      </p>
+      <p className="sr-only">{fill(copy.app.progress, { current: currentIndex + 1, total: STEPS.length })}</p>
       <ol className="step-list">
-        {PROGRESS_STEPS.map((step, index) => (
-          <li
-            key={step}
-            className="step"
-            data-state={index < currentIndex ? 'done' : index === currentIndex ? 'current' : 'todo'}
-            aria-current={index === currentIndex ? 'step' : undefined}
-          >
-            <span className="step-label">{copy.app.steps[step]}</span>
+        {STEPS.map((step, index) => (
+          <li key={step} className="step" data-state={index < currentIndex ? 'done' : index === currentIndex ? 'current' : 'todo'}>
+            <button
+              type="button"
+              className="step-button"
+              aria-current={index === currentIndex ? 'step' : undefined}
+              onClick={() => dispatch({ type: 'goTo', step })}
+            >
+              {copy.app.steps[step]}
+            </button>
           </li>
         ))}
       </ol>

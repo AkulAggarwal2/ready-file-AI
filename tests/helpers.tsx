@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from '../src/App';
 import { copy } from '../src/content';
+import type { Step } from '../src/state/appState';
 
 export type User = ReturnType<typeof userEvent.setup>;
 
@@ -17,21 +18,40 @@ export async function begin(user: User, caseType?: 'Stalking' | 'Harassment' | '
   await user.click(screen.getByRole('button', { name: copy.start.begin }));
 }
 
-/** Story screen: write the story and organize it into incidents. */
-export async function tellStory(user: User, story: string) {
-  await user.click(screen.getByRole('textbox', { name: copy.story.label }));
-  await user.paste(story);
-  await user.click(screen.getByRole('button', { name: copy.story.organize }));
-  await screen.findByRole('heading', { level: 1, name: copy.organize.heading });
+/** Incidents screen, demo mode: load a fictional sample (1 or 4 incidents) and its story. */
+export async function loadSample(user: User, which: 'one' | 'four' = 'one') {
+  const name = which === 'one' ? copy.organize.sampleOne : copy.organize.sampleFour;
+  await user.click(screen.getByRole('button', { name }));
+  await screen.findAllByRole('heading', { level: 2, name: /^Incident \d$/ });
 }
 
-export async function confirmIncidents(user: User) {
+/** Incidents screen: add one incident with these details. */
+export async function addIncident(user: User, details: string) {
+  await user.click(screen.getByRole('button', { name: copy.organize.add }));
+  const boxes = screen.getAllByRole('textbox', { name: copy.incident.descriptionLabel });
+  await user.click(boxes[boxes.length - 1]);
+  await user.paste(details);
+}
+
+/** Use the step bar at the top. */
+export async function goToStep(user: User, step: Step) {
+  await user.click(screen.getByRole('button', { name: copy.app.steps[step] }));
+}
+
+/** From the Incidents screen, continue through Your story to Questions. */
+export async function toQuestions(user: User) {
   await user.click(screen.getByRole('button', { name: copy.organize.confirm }));
+  await user.click(screen.getByRole('button', { name: copy.story.next }));
 }
 
-/** Text of the question on the Check screen, without the dev-mode badge. */
-export function currentQuestion(): string | null {
-  return document.getElementById('question-text')?.childNodes[0]?.textContent ?? null;
+/** The closed question rows on the Questions screen, in order. */
+export function questionToggles(): HTMLElement[] {
+  return Array.from(document.querySelectorAll<HTMLElement>('.question-toggle'));
+}
+
+/** Text of the open question, without the demo-mode badge. */
+export function openQuestionText(): string | null {
+  return document.querySelector('.question-text')?.childNodes[0]?.textContent ?? null;
 }
 
 export const STALKING_QUESTION = 'Stalking means two or more incidents. Are there other times?';

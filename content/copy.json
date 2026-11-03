@@ -2,11 +2,11 @@
   "app": {
     "name": "ReadyFile",
     "progress": "Step {current} of {total}",
-    "stepsLabel": "Your progress",
+    "stepsLabel": "Go to a step",
     "steps": {
       "start": "Start",
-      "story": "Your story",
       "incidents": "Incidents",
+      "story": "Your story",
       "questions": "Questions",
       "review": "Review"
     }
@@ -52,26 +52,23 @@
     "begin": "Start"
   },
   "story": {
-    "heading": "Tell what happened",
-    "intro": "Write what happened in your own words. Include each time something happened, even if it seems small. If you remember about when it happened, include that too.",
-    "label": "What happened",
-    "hint": "Try starting a new paragraph for each time something happened. That makes it easier to split your story into incidents.",
-    "sampleOne": "Fill in fictional sample: 1 incident",
-    "sampleFour": "Fill in fictional sample: 4 incidents",
-    "sampleNote": "Demo only. These buttons do not appear in the real tool.",
-    "redoWarning": "If you organize your story again, the new list will replace your current list of incidents.",
-    "back": "Back",
-    "organize": "Organize my story",
-    "organizing": "Organizing your story…"
+    "heading": "Your story",
+    "intro": "Now write what happened in your own words. You can write about what led up to these times and how it affected you. This part is optional. You do not have to repeat the dates.",
+    "label": "Your story in your own words",
+    "hint": "Write as much or as little as you want.",
+    "back": "Back to incidents",
+    "next": "Go to questions"
   },
   "organize": {
-    "heading": "Check your incidents",
-    "intro": "An incident is one time something happened. We split your story into incidents. Check each one. You can edit, merge, delete, or add incidents.",
-    "draftNote": "This list is a draft. Nothing is final until you say it looks right.",
+    "heading": "Add your incidents",
+    "intro": "An incident is one time something happened. Add each one with the date, if you know it, and a few details. Short notes are fine. On the next step, you can tell your story in your own words.",
     "empty": "There are no incidents yet. You can add one below.",
-    "add": "Add another incident",
-    "back": "Back to my writing",
-    "confirm": "This list looks right"
+    "add": "Add an incident",
+    "back": "Back",
+    "confirm": "Continue to your story",
+    "sampleOne": "Fill in fictional sample: 1 incident",
+    "sampleFour": "Fill in fictional sample: 4 incidents",
+    "sampleNote": "Demo only. These buttons do not appear in the real tool."
   },
   "incident": {
     "heading": "Incident {n}",
@@ -107,19 +104,22 @@
     "moveUp": "Move up",
     "moveDown": "Move down",
     "dragHandle": "Drag to move",
-    "reorderHint": "Use Move up and Move down to change the order of incidents. On a computer, you can also drag."
+    "reorderHint": "Use Move up and Move down to change the order of incidents. On a computer, you can also drag.",
+    "descriptionHint": "Short notes are fine. For example, what the person did or said, and where you were."
   },
   "check": {
     "heading": "A few questions",
-    "intro": "Court staff often ask questions like these when they help someone fill out the form. For each one, you can add more or continue as is. It is your choice.",
-    "left": "Questions left: {count}",
+    "intro": "Court staff often ask questions like these when they help someone fill out the form. You can see all of them here. Open one to answer it, or skip it. For each one, you can add more or continue as is. It is your choice.",
+    "total": "{total} questions in all. {open} still open.",
+    "totalNone": "There are no questions right now.",
     "aboutIncident": "About incident {n}:",
+    "answered": "Done",
     "addMore": "Add more",
     "continueAsIs": "Continue as is",
-    "none": "There are no more questions.",
     "toReview": "Go to review",
-    "back": "Back to incidents",
-    "unverified": "Unverified rule: {ruleId}"
+    "back": "Back to your story",
+    "unverified": "Unverified rule: {ruleId}",
+    "allIncidents": "About all of your incidents"
   },
   "review": {
     "heading": "Review your incidents",
@@ -145,7 +145,8 @@
     "how": "How it happened: {how}",
     "what": "What happened:",
     "evidence": "Evidence or witnesses: {evidence}",
-    "noIncidents": "No incidents were listed."
+    "noIncidents": "No incidents were listed.",
+    "story": "Your story:"
   },
   "badges": {
     "heading": "Questions that may come up",
@@ -170,7 +171,6 @@
     "merged": "Incidents merged."
   },
   "announce": {
-    "organized": "We made {count} incidents from your story.",
     "added": "Added a new incident. You now have {count}.",
     "deleted": "Incident deleted. You now have {count}. Undo is available for a few seconds.",
     "merged": "Incidents merged. You now have {count}. Undo is available for a few seconds.",

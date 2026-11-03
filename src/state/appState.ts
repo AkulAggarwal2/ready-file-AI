@@ -5,18 +5,9 @@ import { createIncident, mergeIncidents, type Incident, type IncidentFields } fr
 // All state lives in memory only (section 8). Nothing here is ever written to
 // browser storage, cookies, or a server.
 
-export type Step = 'start' | 'story' | 'check' | 'review';
-export const STEPS: Step[] = ['start', 'story', 'check', 'review'];
-
-// What the step indicator shows. "Incidents" is the second half of the story step.
-export type ProgressStep = 'start' | 'story' | 'incidents' | 'questions' | 'review';
-export const PROGRESS_STEPS: ProgressStep[] = ['start', 'story', 'incidents', 'questions', 'review'];
-
-export function progressStep(state: Pick<AppState, 'step' | 'storyPhase'>): ProgressStep {
-  if (state.step === 'story') return state.storyPhase === 'organize' ? 'incidents' : 'story';
-  if (state.step === 'check') return 'questions';
-  return state.step;
-}
+// The five steps, in order. They are also the labels in the step bar at the top.
+export type Step = 'start' | 'incidents' | 'story' | 'questions' | 'review';
+export const STEPS: Step[] = ['start', 'incidents', 'story', 'questions', 'review'];
 
 /**
  * What a delete or merge removed, kept so it can be undone. Only the removed
@@ -38,8 +29,8 @@ export interface UndoEntry {
 export interface AppState {
   step: Step;
   caseType: CaseType | null;
+  // Her account in her own words, written after the incidents.
   story: string;
-  storyPhase: 'write' | 'organize';
   incidents: Incident[];
   // Ids of incidents whose fields are open for editing.
   expanded: string[];
@@ -57,7 +48,6 @@ export const initialState: AppState = {
   step: 'start',
   caseType: null,
   story: '',
-  storyPhase: 'write',
   incidents: [],
   expanded: [],
   dismissed: [],
@@ -70,8 +60,7 @@ export type Action =
   | { type: 'begin'; caseType: CaseType }
   | { type: 'goTo'; step: Step }
   | { type: 'setStory'; story: string }
-  | { type: 'backToWriting' }
-  | { type: 'organized'; incidents: Incident[] }
+  | { type: 'loadSample'; story: string; incidents: Incident[] }
   | { type: 'addMore'; focusTarget: string; expandId?: string }
   | { type: 'updateIncident'; id: string; changes: Partial<IncidentFields> }
   | { type: 'addIncident' }
@@ -113,27 +102,17 @@ function moveTo(state: AppState, from: number, to: number): AppState {
 export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'begin':
-      return { ...state, caseType: action.caseType, step: 'story' };
+      return { ...state, caseType: action.caseType, step: 'incidents' };
     case 'goTo':
       return { ...state, step: action.step, undo: null };
     case 'setStory':
       return { ...state, story: action.story };
-    case 'backToWriting':
-      return { ...state, storyPhase: 'write', undo: null };
-    case 'organized':
-      return {
-        ...state,
-        incidents: action.incidents,
-        expanded: [],
-        storyPhase: 'organize',
-        undo: null,
-        announcement: fill(copy.announce.organized, { count: action.incidents.length }),
-      };
+    case 'loadSample':
+      return { ...state, story: action.story, incidents: action.incidents, expanded: [], undo: null };
     case 'addMore':
       return {
         ...state,
-        step: 'story',
-        storyPhase: 'organize',
+        step: 'incidents',
         focusTarget: action.focusTarget,
         expanded:
           action.expandId && !state.expanded.includes(action.expandId)
@@ -235,7 +214,9 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'clearUndo':
       return state.undo ? { ...state, undo: null } : state;
     case 'dismissFinding':
-      return { ...state, dismissed: [...state.dismissed, action.key] };
+      return state.dismissed.includes(action.key)
+        ? state
+        : { ...state, dismissed: [...state.dismissed, action.key] };
     case 'focusHandled':
       return { ...state, focusTarget: null };
     case 'reset':

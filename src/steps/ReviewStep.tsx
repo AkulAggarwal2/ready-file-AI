@@ -13,7 +13,7 @@ export function ReviewStep() {
   const { state, dispatch } = useAppState();
   const [copyStatus, setCopyStatus] = useState('');
   const c = copy.review;
-  const summary = buildSummary(state.caseType ?? 'not-sure', state.incidents);
+  const summary = buildSummary(state.caseType ?? 'not-sure', state.incidents, state.story);
 
   async function copySummary() {
     try {
@@ -64,13 +64,13 @@ export function ReviewStep() {
       </div>
       </div>
 
-      <PrintSummary caseType={state.caseType ?? 'not-sure'} incidents={state.incidents} />
+      <PrintSummary caseType={state.caseType ?? 'not-sure'} incidents={state.incidents} story={state.story} />
     </div>
   );
 }
 
 /** The court-ready page. It is hidden on screen and is the only thing that prints. */
-function PrintSummary({ caseType, incidents }: { caseType: CaseType; incidents: Incident[] }) {
+function PrintSummary({ caseType, incidents, story }: { caseType: CaseType; incidents: Incident[]; story: string }) {
   const s = copy.summary;
   return (
     <article className="print-doc">
@@ -89,6 +89,12 @@ function PrintSummary({ caseType, incidents }: { caseType: CaseType; incidents: 
           {incident.evidence.trim() && <p>{fill(s.evidence, { evidence: incident.evidence.trim() })}</p>}
         </section>
       ))}
+      {story.trim() && (
+        <section className="print-incident">
+          <h2>{s.story}</h2>
+          <p className="print-text">{story.trim()}</p>
+        </section>
+      )}
     </article>
   );
 }

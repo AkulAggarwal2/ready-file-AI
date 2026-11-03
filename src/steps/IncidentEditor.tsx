@@ -65,14 +65,6 @@ export function IncidentFields({ incident }: { incident: Incident }) {
         </>
       )}
 
-      <label htmlFor={descriptionId(id)}>{c.descriptionLabel}</label>
-      <textarea
-        id={descriptionId(id)}
-        rows={5}
-        value={incident.description}
-        onChange={(e) => update({ description: e.target.value })}
-      />
-
       <label htmlFor={`${id}-how`}>{c.howLabel}</label>
       <select
         id={`${id}-how`}
@@ -85,6 +77,18 @@ export function IncidentFields({ incident }: { incident: Incident }) {
           </option>
         ))}
       </select>
+
+      <label htmlFor={descriptionId(id)}>{c.descriptionLabel}</label>
+      <p id={`${id}-description-hint`} className="hint">
+        {c.descriptionHint}
+      </p>
+      <textarea
+        id={descriptionId(id)}
+        rows={5}
+        aria-describedby={`${id}-description-hint`}
+        value={incident.description}
+        onChange={(e) => update({ description: e.target.value })}
+      />
 
       <label htmlFor={`${id}-evidence`}>{c.evidenceLabel}</label>
       <p id={`${id}-evidence-hint`} className="hint">
