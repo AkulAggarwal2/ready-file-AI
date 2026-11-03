@@ -64,6 +64,9 @@ html {
   /* Phones in landscape should not enlarge the text on their own. */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  /* WCAG 2.4.11: keep focused fields clear of the sticky header. App.tsx sets
+     --header-height from the header's real size. */
+  scroll-padding-top: calc(var(--header-height, 7rem) + var(--space-2));
 }
 
 body {
@@ -772,6 +775,14 @@ button:disabled {
   .content {
     padding-left: var(--space-4);
     padding-right: var(--space-4);
+  }
+}
+
+/* Windows high contrast mode drops backgrounds, so give filled controls an edge. */
+@media (forced-colors: active) {
+  .quick-exit,
+  .btn-primary {
+    border: 2px solid ButtonText;
   }
 }
 

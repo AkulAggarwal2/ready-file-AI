@@ -34,7 +34,7 @@ export function ReviewStep() {
       <Timeline incidents={state.incidents} numbering="timeline" />
 
       <h2 id="summary-label">{c.summaryLabel}</h2>
-      <pre className="summary" aria-labelledby="summary-label" tabIndex={0}>
+      <pre className="summary" role="region" aria-labelledby="summary-label" tabIndex={0}>
         {summary}
       </pre>
 

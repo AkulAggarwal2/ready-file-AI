@@ -127,13 +127,14 @@ The splitter uses the `IncidentExtractor` interface in
 
 ## Tests
 
-`npm test` runs 42 tests in [tests/](tests/):
+`npm test` runs 48 tests in [tests/](tests/):
 
 - **Acceptance tests 1–8 from section 12:** `acceptance.test.tsx` covers
   tests 1–6 and 8, and `content.test.ts` covers test 7, the banned-phrase
   scan.
 - **Checker and rule validation:** `checker.test.ts`.
 - **Splitter and date finding:** `organizer.test.ts`.
+- **Accessibility:** `accessibility.test.tsx` runs axe-core (WCAG 2.2 AA rules) on every screen, and checks focus movement and the timeout warning.
 - **Source code scans:** checks that the code has no storage calls, network
   calls, history changes, or hardcoded phone numbers.
 

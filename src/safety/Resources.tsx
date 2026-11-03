@@ -26,7 +26,14 @@ export function Resources() {
       >
         {open ? copy.resources.hide : copy.resources.show}
       </button>
-      <section id={PANEL_ID} hidden={!open} aria-labelledby="resources-heading" className="resources-panel">
+      {/* tabIndex lets keyboard users scroll the panel when its contacts are longer than it is. */}
+      <section
+        id={PANEL_ID}
+        hidden={!open}
+        aria-labelledby="resources-heading"
+        className="resources-panel"
+        tabIndex={0}
+      >
         <h2 id="resources-heading">{copy.resources.heading}</h2>
         <p>{copy.resources.intro}</p>
         {visibleResources.length === 0 && <p>{copy.resources.none}</p>}

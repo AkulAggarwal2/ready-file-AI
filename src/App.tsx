@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { IDLE_TIMEOUT_MS, TIMEOUT_WARNING_SECONDS } from './config';
 import { copy } from './content';
 import { QuickExit } from './safety/QuickExit';
@@ -25,12 +25,26 @@ function Shell() {
   const { state, dispatch } = useAppState();
   const clearAll = useCallback(() => dispatch({ type: 'reset' }), [dispatch]);
   const { secondsLeft, stay } = useInactivityTimeout(IDLE_TIMEOUT_MS, TIMEOUT_WARNING_SECONDS, clearAll);
+  const warningShowing = secondsLeft !== null;
+  const header = useRef<HTMLElement>(null);
+
+  // WCAG 2.4.11: share the sticky header's height with CSS (scroll-padding-top),
+  // so a field that gets keyboard focus never scrolls in behind the header.
+  useEffect(() => {
+    const element = header.current;
+    if (!element || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => {
+      document.documentElement.style.setProperty('--header-height', `${element.offsetHeight}px`);
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
 
   // Steps are kept in memory, not in the address bar or browser history, so
   // the back button never leads back into the tool after Quick exit.
   return (
     <>
-      <header className="site-header">
+      <header ref={header} className="site-header">
         <div className="header-row">
           <span className="brand">{copy.app.name}</span>
           <QuickExit />
@@ -43,7 +57,9 @@ function Shell() {
         {state.announcement}
       </div>
 
-      <main className="content">
+      {/* While the timeout warning shows, the page behind it cannot take focus.
+          The header stays usable, so Quick exit always works. */}
+      <main className="content" inert={warningShowing}>
         <StepIndicator current={state.step} />
         {state.step === 'start' && <StartStep />}
         {state.step === 'incidents' && <IncidentsStep />}
@@ -52,7 +68,7 @@ function Shell() {
         {state.step === 'review' && <ReviewStep />}
       </main>
 
-      {secondsLeft !== null && <TimeoutWarning secondsLeft={secondsLeft} onStay={stay} />}
+      {warningShowing && <TimeoutWarning secondsLeft={secondsLeft} onStay={stay} />}
     </>
   );
 }
