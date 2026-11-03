@@ -1,23 +1,50 @@
 /* Mobile-first. System fonts only: no external fonts (section 8).
-   Colors meet WCAG 2.2 AA contrast on their backgrounds. */
+   Calm, low-stimulation palette. Text colors meet WCAG 2.2 AA on their
+   backgrounds; input and control borders meet 3:1 non-text contrast. */
 
 :root {
-  --text: #1c1f26;
-  --muted: #4a5160;
-  --bg: #ffffff;
-  --surface: #f4f5f8;
-  --border: #9aa0ad;
-  --primary: #1d4ed8;
+  /* Color */
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --surface-soft: #eef3f1;
+  --text: #24302e;
+  --muted: #53605d;
+  --border: #d9dfdc; /* decorative dividers and card edges */
+  --border-strong: #7b8885; /* controls: 3:1 against surface */
+  --primary: #2c6b64;
+  --primary-hover: #245750;
+  --primary-soft: #dcebe8;
   --primary-text: #ffffff;
   --exit: #9f1239;
+  --exit-hover: #860f31;
   --exit-text: #ffffff;
   --focus: #b45309;
-  --badge-bg: #fef3c7;
-  --badge-text: #713f12;
-  --radius: 8px;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --badge-bg: #fdf0cf;
+  --badge-text: #6b4410;
+
+  /* Type scale */
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --text-sm: 0.9rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+
+  /* Space */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+
+  /* Shape and depth */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 2px rgb(36 48 46 / 0.06), 0 4px 16px rgb(36 48 46 / 0.05);
+
+  font-family: var(--font);
   font-size: 18px;
-  line-height: 1.5;
+  line-height: 1.6;
   color: var(--text);
   background: var(--bg);
 }
@@ -34,16 +61,21 @@ body {
 h1,
 h2 {
   line-height: 1.25;
+  letter-spacing: -0.01em;
 }
 
 h1 {
-  font-size: 1.5rem;
-  margin: 0.5rem 0 1rem;
+  font-size: var(--text-xl);
+  margin: var(--space-4) 0 var(--space-4);
 }
 
 h2 {
-  font-size: 1.15rem;
-  margin: 0 0 0.75rem;
+  font-size: var(--text-lg);
+  margin: 0 0 var(--space-3);
+}
+
+p {
+  margin: 0 0 var(--space-3);
 }
 
 :focus-visible,
@@ -67,30 +99,40 @@ p:focus:not(:focus-visible) {
   z-index: 20;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 0.5rem 1rem;
+  padding: var(--space-2) var(--space-4);
 }
 
 .header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: var(--space-4);
+  max-width: 40rem;
+  margin: 0 auto;
 }
 
 .brand {
   font-weight: 700;
+  font-size: var(--text-lg);
+  color: var(--primary);
+  letter-spacing: -0.01em;
 }
 
 .quick-exit {
   min-height: 48px;
-  padding: 0.5rem 1.25rem;
+  padding: var(--space-2) var(--space-5);
   border: none;
-  border-radius: var(--radius);
+  border-radius: 999px;
   background: var(--exit);
   color: var(--exit-text);
   font: inherit;
   font-weight: 700;
   cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.quick-exit:hover {
+  background: var(--exit-hover);
 }
 
 .link-button {
@@ -101,11 +143,18 @@ p:focus:not(:focus-visible) {
   color: var(--primary);
   font: inherit;
   text-decoration: underline;
+  text-underline-offset: 3px;
   cursor: pointer;
 }
 
+.link-button:hover {
+  color: var(--primary-hover);
+}
+
 .resources-panel {
-  padding: 0.5rem 0 1rem;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: var(--space-2) 0 var(--space-4);
   max-height: 60vh;
   overflow-y: auto;
 }
@@ -117,32 +166,47 @@ p:focus:not(:focus-visible) {
 }
 
 .resources-panel li {
-  padding: 0.75rem 0;
+  padding: var(--space-3) 0;
   border-top: 1px solid var(--border);
 }
 
 .resources-panel li p {
-  margin: 0.25rem 0;
+  margin: var(--space-1) 0;
 }
 
 .content {
   max-width: 40rem;
   margin: 0 auto;
-  padding: 1rem;
+  padding: var(--space-5) var(--space-4) var(--space-6);
 }
 
+/* Progress: a thin bar plus the text label. */
 .progress,
 .hint {
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .progress {
-  margin: 0;
+  margin: 0 0 var(--space-2);
+}
+
+.progress-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--primary);
+  transition: width 0.3s ease;
 }
 
 .hint {
-  margin: 0.25rem 0 0.5rem;
+  margin: var(--space-1) 0 var(--space-2);
 }
 
 .note {
@@ -150,14 +214,16 @@ p:focus:not(:focus-visible) {
 }
 
 .callout {
-  background: var(--surface);
-  border-left: 4px solid var(--primary);
-  padding: 0.75rem 1rem;
-  margin: 1rem 0;
+  background: var(--surface-soft);
+  border-radius: var(--radius);
+  padding: var(--space-4) var(--space-5);
+  margin: var(--space-5) 0;
 }
 
 .callout h2 {
-  margin-bottom: 0.25rem;
+  font-size: var(--text-md);
+  margin-bottom: var(--space-1);
+  color: var(--primary-hover);
 }
 
 .callout p {
@@ -168,7 +234,7 @@ p:focus:not(:focus-visible) {
 label {
   display: block;
   font-weight: 600;
-  margin-top: 1rem;
+  margin-top: var(--space-4);
 }
 
 input[type='text'],
@@ -178,61 +244,98 @@ textarea {
   display: block;
   width: 100%;
   min-height: 48px;
-  margin-top: 0.25rem;
-  padding: 0.5rem 0.75rem;
-  border: 2px solid var(--border);
-  border-radius: var(--radius);
+  margin-top: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-sm);
   font: inherit;
   color: var(--text);
-  background: var(--bg);
+  background: var(--surface);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type='text']:focus,
+input[type='date']:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+textarea {
+  line-height: 1.5;
+  resize: vertical;
 }
 
 fieldset {
   border: none;
   padding: 0;
-  margin: 1.5rem 0 0;
+  margin: var(--space-5) 0 0;
 }
 
 legend {
   font-weight: 700;
+  font-size: var(--text-lg);
   padding: 0;
 }
 
 .choice {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  min-height: 48px;
-  margin: 0.25rem 0;
-  padding: 0.5rem 0.75rem;
-  border: 2px solid var(--border);
+  gap: var(--space-3);
+  min-height: 56px;
+  margin: var(--space-2) 0;
+  padding: var(--space-2) var(--space-4);
+  border: 1.5px solid var(--border-strong);
   border-radius: var(--radius);
+  background: var(--surface);
   font-weight: 400;
   cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.choice:hover {
+  background: var(--surface-soft);
+}
+
+.choice:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  font-weight: 600;
 }
 
 .choice input {
   width: 1.25rem;
   height: 1.25rem;
   margin: 0;
+  accent-color: var(--primary);
 }
 
 /* Buttons: at least 48px tall for easy tapping. */
 .btn {
   min-height: 48px;
-  padding: 0.5rem 1.25rem;
-  border: 2px solid var(--primary);
-  border-radius: var(--radius);
-  background: var(--bg);
+  padding: var(--space-2) var(--space-5);
+  border: 1.5px solid var(--primary);
+  border-radius: 999px;
+  background: var(--surface);
   color: var(--primary);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.btn:hover {
+  background: var(--primary-soft);
 }
 
 .btn-primary {
   background: var(--primary);
   color: var(--primary-text);
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
 }
 
 .btn:disabled {
@@ -243,8 +346,8 @@ legend {
 .button-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin: 1.25rem 0;
+  gap: var(--space-3);
+  margin: var(--space-5) 0;
 }
 
 /* "Add more" and "Continue as is" share one style and one width. */
@@ -258,10 +361,12 @@ legend {
 }
 
 .card {
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 1rem;
-  margin: 1rem 0;
+  box-shadow: var(--shadow);
+  padding: var(--space-5);
+  margin: var(--space-4) 0;
 }
 
 .card .button-row {
@@ -269,13 +374,13 @@ legend {
 }
 
 .question h2 {
-  font-size: 1.2rem;
+  font-size: var(--text-lg);
 }
 
 blockquote {
-  margin: 0.25rem 0 1rem;
-  padding: 0.5rem 0.75rem;
-  border-left: 4px solid var(--border);
+  margin: var(--space-1) 0 var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  border-left: 4px solid var(--primary-soft);
   color: var(--muted);
   white-space: pre-wrap;
   display: -webkit-box;
@@ -291,13 +396,13 @@ blockquote {
 }
 
 .confirm .button-row {
-  margin-top: 0.5rem;
+  margin-top: var(--space-2);
 }
 
 .badge {
   display: inline-block;
-  margin-left: 0.5rem;
-  padding: 0 0.5rem;
+  margin-left: var(--space-2);
+  padding: 0 var(--space-3);
   border-radius: 999px;
   background: var(--badge-bg);
   color: var(--badge-text);
@@ -307,14 +412,14 @@ blockquote {
 }
 
 .dev-only {
-  margin-top: 1rem;
-  padding: 0.5rem 0.75rem;
-  border: 2px dashed var(--border);
-  border-radius: var(--radius);
+  margin-top: var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
 }
 
 .dev-only .button-row {
-  margin: 0.5rem 0;
+  margin: var(--space-2) 0;
 }
 
 .summary {
@@ -324,7 +429,8 @@ blockquote {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 1rem;
+  box-shadow: var(--shadow);
+  padding: var(--space-5);
   margin: 0;
 }
 
@@ -341,16 +447,29 @@ blockquote {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
-  background: rgb(0 0 0 / 0.55);
+  padding: var(--space-4);
+  background: rgb(36 48 46 / 0.5);
 }
 
 .dialog {
   max-width: 26rem;
   width: 100%;
-  padding: 1.5rem;
+  padding: var(--space-5);
   border-radius: var(--radius);
-  background: var(--bg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+@media (min-width: 40rem) {
+  .content {
+    padding-top: var(--space-6);
+  }
 }
 
 @media print {
@@ -368,6 +487,7 @@ blockquote {
     top: 0;
     left: 0;
     border: none;
+    box-shadow: none;
     background: none;
   }
 }

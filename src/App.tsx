@@ -41,6 +41,12 @@ function Shell() {
         <p className="progress">
           {fill(copy.app.progress, { current: STEPS.indexOf(state.step) + 1, total: STEPS.length })}
         </p>
+        <div className="progress-bar" aria-hidden="true">
+          <div
+            className="progress-fill"
+            style={{ width: `${((STEPS.indexOf(state.step) + 1) / STEPS.length) * 100}%` }}
+          />
+        </div>
         {state.step === 'start' && <StartStep />}
         {state.step === 'story' && <StoryStep />}
         {state.step === 'check' && <CheckStep />}
