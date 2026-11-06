@@ -93,7 +93,7 @@
     },
     "evidenceLabel": "Evidence or witnesses (optional)",
     "evidenceHint": "For example: screenshots, photos, or people who saw it.",
-    "merge": "Merge with the next incident",
+    "merge": "Merge with next",
     "delete": "Delete",
     "deleteQuestion": "Delete this incident?",
     "deleteYes": "Yes, delete",
@@ -111,7 +111,7 @@
   "check": {
     "heading": "A few questions",
     "intro": "Court staff often ask questions like these when they help someone fill out the form. You can see all of them here. Open one to answer it, or skip it. For each one, you can add more or continue as is. It is your choice.",
-    "total": "{total} questions in all. {open} still open.",
+    "total": "Questions: {total}. Still open: {open}.",
     "totalNone": "There are no questions right now.",
     "aboutIncident": "About incident {n}:",
     "answered": "Done",
@@ -125,7 +125,7 @@
   "review": {
     "heading": "Review your incidents",
     "notFiling": "This tool does not file your petition. To file, copy this summary into the court's online form, or print it.",
-    "order": "Incidents with an exact date are listed first, from oldest to newest. Incidents without an exact date come after, in the order you gave them.",
+    "order": "Incidents with a full date (day, month, and year) are listed first, from oldest to newest. The others come after, in the order you gave them.",
     "summaryLabel": "Your summary",
     "copy": "Copy summary",
     "copied": "Copied.",
@@ -151,7 +151,7 @@
   },
   "badges": {
     "heading": "Questions that may come up",
-    "summary": "{count} questions may come up in the next step. You can add detail now or answer them later.",
+    "summary": "Questions for the next step: {count}. You can add details now or answer them later.",
     "summaryNone": "No questions are expected for this list.",
     "perIncident": "Questions for this incident:",
     "none": "No questions",
@@ -161,8 +161,8 @@
   },
   "timeline": {
     "heading": "Timeline",
-    "dated": "With an exact date",
-    "undated": "Without an exact date",
+    "dated": "With a full date",
+    "undated": "Without a full date",
     "empty": "Incidents will show here once you add them.",
     "incident": "Incident {n}"
   },

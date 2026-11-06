@@ -43,7 +43,7 @@ export function IncidentsStep() {
     <div>
       <StepHeading id={ORGANIZE_HEADING_ID}>{c.heading}</StepHeading>
       <p>{c.intro}</p>
-      <p className="hint">{copy.incident.reorderHint}</p>
+      {state.incidents.length > 1 && <p className="hint">{copy.incident.reorderHint}</p>}
 
       {DEMO_MODE && (
         <div className="dev-only">

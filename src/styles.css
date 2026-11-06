@@ -772,6 +772,19 @@ button:disabled {
     flex: 1 1 100%;
   }
 
+  /* Incident cards keep their actions two to a row (Edit gets a row of its
+     own), so a list of incidents does not turn into screens of buttons. */
+  .card-actions > .btn {
+    flex: 1 1 calc(50% - var(--space-3));
+    padding-left: var(--space-3);
+    padding-right: var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  .card-actions > .btn[aria-expanded] {
+    flex-basis: 100%;
+  }
+
   .content {
     padding-left: var(--space-4);
     padding-right: var(--space-4);
