@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from '../src/App';
-import { copy } from '../src/content';
-import type { Step } from '../src/state/appState';
+import { copy, fill } from '../src/content';
+import { STEPS, type Step } from '../src/state/appState';
 
 export type User = ReturnType<typeof userEvent.setup>;
 
@@ -34,8 +34,13 @@ export async function addIncident(user: User, details: string) {
 }
 
 /** Use the step bar at the top. */
+/** The step bar button's name, as screen readers hear it: "Step 3: Your story". */
+export function stepName(step: Step): string {
+  return `${fill(copy.app.stepNumber, { n: STEPS.indexOf(step) + 1 })} ${copy.app.steps[step]}`;
+}
+
 export async function goToStep(user: User, step: Step) {
-  await user.click(screen.getByRole('button', { name: copy.app.steps[step] }));
+  await user.click(screen.getByRole('button', { name: stepName(step) }));
 }
 
 /** From the Incidents screen, continue through Your story to Questions. */

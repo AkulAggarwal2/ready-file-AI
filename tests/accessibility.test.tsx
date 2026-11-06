@@ -7,7 +7,7 @@ import { App } from '../src/App';
 import { IDLE_TIMEOUT_MS, TIMEOUT_WARNING_SECONDS } from '../src/config';
 import { copy } from '../src/content';
 import { LENA_ONE_INCIDENT } from '../src/samples/lena';
-import { begin, confirmIncidents, renderApp, tellStory } from './helpers';
+import { begin, loadSample, questionToggles, renderApp, stepName } from './helpers';
 
 vi.mock('../src/safety/leaveSite', () => ({ leaveSite: vi.fn() }));
 
@@ -35,40 +35,57 @@ describe('axe finds no violations', () => {
     await begin(user, 'Stalking');
     await expectNoViolations();
 
-    await tellStory(user, LENA_ONE_INCIDENT);
+    await loadSample(user, 'four');
     await expectNoViolations();
 
-    await confirmIncidents(user);
+    await user.click(screen.getAllByRole('button', { name: copy.incident.edit })[0]);
     await expectNoViolations();
 
-    await user.click(screen.getByRole('button', { name: copy.check.continueAsIs }));
+    await user.click(screen.getByRole('button', { name: copy.organize.confirm }));
+    await expectNoViolations();
+
+    await user.click(screen.getByRole('button', { name: copy.story.next }));
+    await expectNoViolations();
+
+    for (const toggle of questionToggles()) await user.click(toggle);
     await expectNoViolations();
 
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
     await expectNoViolations();
   });
 
-  it('when asking to confirm a delete', async () => {
+  it('when asking to confirm a delete, and after an undo-able delete', async () => {
     const user = renderApp();
     await begin(user, 'Stalking');
-    await tellStory(user, LENA_ONE_INCIDENT);
-    await user.click(screen.getByRole('button', { name: copy.incident.delete }));
+    await loadSample(user, 'four');
+
+    await user.click(screen.getAllByRole('button', { name: copy.incident.delete })[0]);
     expect(screen.getByText(copy.incident.deleteQuestion)).toHaveFocus();
     await expectNoViolations();
 
     await user.click(screen.getByRole('button', { name: copy.common.confirmNo }));
-    expect(screen.getByRole('button', { name: copy.incident.delete })).toHaveFocus();
+    expect(screen.getAllByRole('button', { name: copy.incident.delete })[0]).toHaveFocus();
+
+    await user.click(screen.getAllByRole('button', { name: copy.incident.delete })[0]);
+    await user.click(screen.getByRole('button', { name: copy.incident.deleteYes }));
+    await expectNoViolations();
   });
 });
 
-describe('focus moves to the new screen', () => {
+describe('names and focus', () => {
+  it('the step bar buttons have unique names, so "Start" means one button', () => {
+    render(<App />);
+    expect(screen.getAllByRole('button', { name: copy.start.begin })).toHaveLength(1);
+    expect(screen.getByRole('button', { name: stepName('start') })).toHaveAttribute('aria-current', 'step');
+  });
+
   it('each step heading takes focus when it appears', async () => {
     const user = renderApp();
     await begin(user, 'Stalking');
-    expect(screen.getByRole('heading', { level: 1, name: copy.story.heading })).toHaveFocus();
-    await tellStory(user, LENA_ONE_INCIDENT);
     expect(screen.getByRole('heading', { level: 1, name: copy.organize.heading })).toHaveFocus();
-    await confirmIncidents(user);
+    await user.click(screen.getByRole('button', { name: copy.organize.confirm }));
+    expect(screen.getByRole('heading', { level: 1, name: copy.story.heading })).toHaveFocus();
+    await user.click(screen.getByRole('button', { name: copy.story.next }));
     expect(screen.getByRole('heading', { level: 1, name: copy.check.heading })).toHaveFocus();
   });
 });
@@ -80,6 +97,7 @@ describe('timeout warning', () => {
   function showWarning() {
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: copy.start.begin }));
+    fireEvent.click(screen.getByRole('button', { name: stepName('story') }));
     const story = screen.getByRole('textbox', { name: copy.story.label });
     fireEvent.change(story, { target: { value: LENA_ONE_INCIDENT } });
     story.focus();

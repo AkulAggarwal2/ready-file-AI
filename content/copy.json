@@ -3,6 +3,7 @@
     "name": "ReadyFile",
     "progress": "Step {current} of {total}",
     "stepsLabel": "Go to a step",
+    "stepNumber": "Step {n}:",
     "steps": {
       "start": "Start",
       "incidents": "Incidents",

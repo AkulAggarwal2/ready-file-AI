@@ -20,6 +20,8 @@ export function StepIndicator({ current }: { current: Step }) {
               type="button"
               className="step-button"
               aria-current={index === currentIndex ? 'step' : undefined}
+              // Screen readers hear "Step 1: Start", so this button is not confused with the Start button below.
+              aria-label={`${fill(copy.app.stepNumber, { n: index + 1 })} ${copy.app.steps[step]}`}
               onClick={() => dispatch({ type: 'goTo', step })}
             >
               {copy.app.steps[step]}

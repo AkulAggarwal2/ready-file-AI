@@ -12,6 +12,7 @@ import {
   addIncident,
   begin,
   goToStep,
+  stepName,
   loadSample,
   openQuestionText,
   questionToggles,
@@ -166,7 +167,7 @@ describe('5. Timeout', () => {
   function startStory() {
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: copy.start.begin }));
-    fireEvent.click(screen.getByRole('button', { name: copy.app.steps.story }));
+    fireEvent.click(screen.getByRole('button', { name: stepName('story') }));
     fireEvent.change(screen.getByRole('textbox', { name: copy.story.label }), {
       target: { value: LENA_ONE_INCIDENT },
     });
@@ -190,7 +191,7 @@ describe('5. Timeout', () => {
 
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1, name: copy.start.heading })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: copy.app.steps.story }));
+    fireEvent.click(screen.getByRole('button', { name: stepName('story') }));
     expect(screen.getByRole('textbox', { name: copy.story.label })).toHaveValue('');
   });
 
@@ -312,6 +313,6 @@ describe('9. Order and moving around', () => {
     expect(screen.getAllByRole('heading', { level: 2, name: /^Incident \d$/ })).toHaveLength(1);
     await goToStep(user, 'story');
     expect(screen.getByRole('textbox', { name: copy.story.label })).toHaveValue(LENA_ONE_INCIDENT);
-    expect(screen.getByRole('button', { name: copy.app.steps.story })).toHaveAttribute('aria-current', 'step');
+    expect(screen.getByRole('button', { name: stepName('story') })).toHaveAttribute('aria-current', 'step');
   });
 });
