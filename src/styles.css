@@ -363,17 +363,26 @@ legend {
   background: var(--surface);
   font-weight: 400;
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease,
+    color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 .choice:hover {
   background: var(--surface-soft);
 }
 
+/* Selected: solid blue that lifts off the page. White on --primary is well above 4.5:1. */
 .choice:has(input:checked) {
   border-color: var(--primary);
-  background: var(--primary-soft);
-  font-weight: 600;
+  background: var(--primary);
+  color: var(--primary-text);
+  font-weight: 700;
+  box-shadow: 0 6px 16px rgb(0 51 153 / 0.35);
+  transform: translateY(-2px);
+}
+
+.choice:has(input:checked):hover {
+  background: var(--primary-hover);
 }
 
 /* The radio circle is hidden (still focusable and announced by screen readers);
@@ -404,7 +413,7 @@ legend {
   top: 50%;
   width: 0.4rem;
   height: 0.8rem;
-  border: solid var(--primary);
+  border: solid var(--primary-text);
   border-width: 0 3px 3px 0;
   transform: translateY(-60%) rotate(45deg);
 }
