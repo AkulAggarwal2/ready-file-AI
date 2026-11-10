@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-11-10T15:45:32+00:00",
+  "run_at": "2026-11-10T18:47:07+00:00",
   "model": "claude-sonnet-5-5",
   "effort": "medium",
   "results": [
@@ -35,7 +35,7 @@
         ]
       ],
       "response": {
-        "answer": "No. The Indiana instructions say there are no fees for this kind of case. You should not be asked to pay a filing fee, a service of process fee, a witness fee, or a subpoena fee. The Allen County Clerk's page also says no court filing fees are required for protection orders involving domestic or family violence, harassment, sexual assault, or stalking. If someone asks you to pay one of these fees, you can ask the clerk about it.\n\nIf you are in danger right now, call TODO: team to add and check the emergency number. For confidential support, call TODO: team to add and check the statewide domestic violence hotline number.\n\nNOTE: hotline numbers above are placeholders and have not been verified.",
+        "answer": "No. The Indiana instructions say there are no fees for this kind of case. You should not be asked to pay a filing fee, a service of process fee, a witness fee, or a subpoena fee. The Allen County Clerk page also says no court filing fees are required for protection orders involving domestic or family violence, harassment, sexual assault, or stalking. If someone asks you to pay one of these fees, you can ask a clerk or an advocate for help.\n\nIf you are in danger right now, call 911.",
         "sources": [
           {
             "title": "Instructions for Petition for Order of Protection - Filed by Person Seeking Protection (PO-0102)",
@@ -86,7 +86,7 @@
         ]
       ],
       "response": {
-        "answer": "It depends on which form you are filing. If you are filing a petition on behalf of a child, you need 4 copies of the Petition: 1 for a worksheet, 1 for the court's file, 1 to be served on the Respondent, and 1 for yourself. You also need 1 copy of the Confidential Form. The documents I have for the adult petition (filed by the person seeking protection) do not say how many copies of the Petition you need. They only say you need 3 copies of the Notice of Exclusion. Please ask the Clerk's office how many copies to bring for an adult petition.\n\nIf you are in danger right now, call TODO: team to add and check the emergency number. For confidential support, call TODO: team to add and check the statewide domestic violence hotline number.\n\nNOTE: hotline numbers above are placeholders and have not been verified.",
+        "answer": "It depends on which form you are filing. If you are filing a petition on behalf of a child, you need 4 copies of the Petition: 1 for a worksheet, 1 for the court's file, 1 to be served on the Respondent, and 1 for yourself. You also need 1 copy of the Confidential Form. For the adult petition (filed by the person seeking protection), the documents I have do not say how many copies of the Petition to bring. They only say you need 3 copies of the Notice of Exclusion: 1 for the court's file, 1 to be served on the Respondent, and 1 for yourself. The Clerk's office can tell you the number for your situation.\n\nIf you are in danger right now, call 911.",
         "sources": [
           {
             "title": "Instructions for Petition for Order of Protection - Filed on Behalf of a Child (PO-0103)",
@@ -133,15 +133,11 @@
         ]
       ],
       "response": {
-        "answer": "In Indiana, an order for protection normally lasts 2 years. The judge can decide on a different length of time, so your order could be shorter or longer. The documents do not say what would lead a judge to pick a different length. A court clerk or a legal aid organization can tell you more about your own case.\n\nIf you are in danger right now, call TODO: team to add and check the emergency number. For confidential support, call TODO: team to add and check the statewide domestic violence hotline number.\n\nNOTE: hotline numbers above are placeholders and have not been verified.",
+        "answer": "In Indiana, an Order for Protection normally lasts 2 years. The judge can decide on a different length of time, so your order could be shorter or longer. The documents do not say what factors a judge uses to choose a different length. A court clerk or an advocate can help with questions about a specific case.\n\nIf you are in danger right now, call 911.",
         "sources": [
           {
             "title": "Instructions for Petition for Order of Protection - Filed by Person Seeking Protection (PO-0102)",
             "url": "https://www.in.gov/dA/94811f5351/center-bb-po-form-po-0102.pdf?language_id=1"
-          },
-          {
-            "title": "Instructions for Petition for Order of Protection - Filed on Behalf of a Child (PO-0103)",
-            "url": "https://www.in.gov/courts/iocs/files/center-bb-po-form-po-0103.pdf"
           }
         ],
         "confidence": "high",
@@ -180,7 +176,7 @@
         ]
       ],
       "response": {
-        "answer": "Ex parte means \"one-sided.\" Normally, everyone in a case gets to be notified and present their side to a judge before the judge decides. An ex parte order is different. The judge issues it after hearing only one side, before the other person has notice that legal action is being taken. These orders are rare and are only granted in exceptional circumstances that need an immediate order. They are not issued automatically, and a court order is not issued just because someone asks for one. The judge carefully reviews the petition to see if the situation meets the legal requirements.\n\nIf you are in danger right now, call TODO: team to add and check the emergency number. For confidential support, call TODO: team to add and check the statewide domestic violence hotline number.\n\nNOTE: hotline numbers above are placeholders and have not been verified.",
+        "answer": "\"Ex parte\" means \"one-sided.\" Normally, everyone in a court case gets to be told about it and to present their side to a judge before the judge decides. An ex parte order is different. A judge issues it after hearing only one side, and before the other person is even notified. These orders are rare and are only granted in exceptional circumstances that need an immediate order. They are not automatic, and a court order is not issued just because someone asks for one. The judge carefully reviews the petition to decide if the situation meets the legal requirements.\n\nIf you are in danger right now, call 911.",
         "sources": [
           {
             "title": "Instructions for Petition for Order of Protection - Filed by Person Seeking Protection (PO-0102)",
@@ -229,15 +225,11 @@
         ]
       ],
       "response": {
-        "answer": "The documents do not give a full checklist, but they say a few things about the respondent. You need the respondent's full name, and you need one Petition for each respondent. A correct, current address for the respondent is helpful so the court can serve them with the orders and other papers. If the respondent is not served, they may not be held responsible for violating the order. Without service, there will be no hearing (if one was set), and your Ex Parte Order will expire unless the Judge extends it. You also must list every court case involving the respondent, and note if you are in school with them, along with the school corporation. The documents do not list other respondent details. A court clerk can tell you what else the form asks for.\n\nIf you are in danger right now, call TODO: team to add and check the emergency number. For confidential support, call TODO: team to add and check the statewide domestic violence hotline number.\n\nNOTE: hotline numbers above are placeholders and have not been verified.",
+        "answer": "The documents give only part of the answer. You need the Respondent's full name, and you need one Petition for each Respondent. A correct, current address for the Respondent is helpful so they can be served with copies of the court's orders and papers. If the Respondent is not served, they may not be held responsible for violating the order. Without service, there will not be a hearing (if one was set) and an Ex Parte Order will expire unless the Judge extends it. You must also list every court case involving the Respondent, and if you go to school with the Respondent, name the school corporation. The documents do not list any other information about the Respondent that you must have. A court clerk or advocate can tell you more.\n\nIf you are in danger right now, call 911.",
         "sources": [
           {
             "title": "Instructions for Petition for Order of Protection - Filed by Person Seeking Protection (PO-0102)",
             "url": "https://www.in.gov/dA/94811f5351/center-bb-po-form-po-0102.pdf?language_id=1"
-          },
-          {
-            "title": "Instructions for Petition for Order of Protection - Filed on Behalf of a Child (PO-0103)",
-            "url": "https://www.in.gov/courts/iocs/files/center-bb-po-form-po-0103.pdf"
           }
         ],
         "confidence": "medium",
@@ -276,7 +268,7 @@
         ]
       ],
       "response": {
-        "answer": "No. If your petition is based only on harassment, the judge cannot grant an order ex parte, which means right away and without the other person being notified. The other person must be given notice, and the court must hold a hearing within 30 days before any relief is granted. The same hearing rule applies to a request to change an order that is based only on harassment. These rules apply to petitions based solely on harassment. Petitions that include other claims, such as domestic or family violence or stalking, follow different rules. This is general legal information, not advice about your situation. A court clerk or a legal aid advocate can help you with your specific case.\n\nIf you are in danger right now, call TODO: team to add and check the emergency number. For confidential support, call TODO: team to add and check the statewide domestic violence hotline number.\n\nNOTE: hotline numbers above are placeholders and have not been verified.",
+        "answer": "No. If your petition is based only on harassment, the judge cannot grant an order ex parte (right away, without the other side being notified). The other person must get notice, and the court must hold a hearing within 30 days of the petition before any relief is granted. The same is true for a request to change an order that is based only on harassment. The documents say this rule applies to harassment-only petitions. Other kinds of petitions follow different rules about when a hearing is required. If you are unsure what your petition is based on, a court clerk or an advocate can help.\n\nIf you are in danger right now, call 911.",
         "sources": [
           {
             "title": "Protection Orders & Protection Order Registry (Indiana trial court guide)",
@@ -323,7 +315,7 @@
         ]
       ],
       "response": {
-        "answer": "In Allen County, you can schedule an appointment with the Superior Court's Protection Order Specialist in three ways: in person, by phone at (260) 449-3444, or by email at protectiveorder@allensuperiorcourt.us. The specialist can help you complete the protection order forms. The Clerk's office is on the first floor of the Allen Superior Court Small Claims Division, 1 W. Superior St., Fort Wayne, IN 46802. You can also call the Protective Order Hotline at 260-449-3683 for more information.\n\nIf you are in danger right now, call TODO: team to add and check the emergency number. For confidential support, call TODO: team to add and check the statewide domestic violence hotline number.\n\nNOTE: hotline numbers above are placeholders and have not been verified.",
+        "answer": "In Allen County, you can schedule an appointment with the Superior Court's Protection Order Specialist if you need help completing the forms. You can make the appointment in three ways:\n\n1. In person at the Clerk's office, on the first floor at the Allen Superior Court Small Claims Division (1 W. Superior St., Fort Wayne, IN 46802).\n2. By calling (260) 449-3444.\n3. By emailing protectiveorder@allensuperiorcourt.us.\n\nFor other questions, the Protective Order Hotline is 260-449-3683.\n\nIf you are in danger right now, call 911.",
         "sources": [
           {
             "title": "Protective Order Information",
@@ -366,7 +358,7 @@
         ]
       ],
       "response": {
-        "answer": "I don't know \u2014 please contact the court self-help center.\n\nIf you are in danger right now, call TODO: team to add and check the emergency number. For confidential support, call TODO: team to add and check the statewide domestic violence hotline number.\n\nNOTE: hotline numbers above are placeholders and have not been verified.",
+        "answer": "I don't know \u2014 please contact the court self-help center.\n\nIf you are in danger right now, call 911.",
         "sources": [],
         "confidence": "low",
         "needs_human": true
@@ -404,7 +396,7 @@
         ]
       ],
       "response": {
-        "answer": "I don't know \u2014 please contact the court self-help center.\n\nIf you are in danger right now, call TODO: team to add and check the emergency number. For confidential support, call TODO: team to add and check the statewide domestic violence hotline number.\n\nNOTE: hotline numbers above are placeholders and have not been verified.",
+        "answer": "I don't know \u2014 please contact the court self-help center.\n\nIf you are in danger right now, call 911.",
         "sources": [],
         "confidence": "low",
         "needs_human": true
@@ -442,7 +434,7 @@
         ]
       ],
       "response": {
-        "answer": "I don't know \u2014 please contact the court self-help center.\n\nIf you are in danger right now, call TODO: team to add and check the emergency number. For confidential support, call TODO: team to add and check the statewide domestic violence hotline number.\n\nNOTE: hotline numbers above are placeholders and have not been verified.",
+        "answer": "I don't know \u2014 please contact the court self-help center.\n\nIf you are in danger right now, call 911.",
         "sources": [],
         "confidence": "low",
         "needs_human": true
@@ -480,7 +472,7 @@
         ]
       ],
       "response": {
-        "answer": "I don't know \u2014 please contact the court self-help center.\n\nIf you are in danger right now, call TODO: team to add and check the emergency number. For confidential support, call TODO: team to add and check the statewide domestic violence hotline number.\n\nNOTE: hotline numbers above are placeholders and have not been verified.",
+        "answer": "I don't know \u2014 please contact the court self-help center.\n\nIf you are in danger right now, call 911.",
         "sources": [],
         "confidence": "low",
         "needs_human": true
@@ -518,7 +510,7 @@
         ]
       ],
       "response": {
-        "answer": "I can't tell you which to choose. That is a legal decision, and a clerk, victim advocate, or lawyer can help you with it. Here is what the documents say. Indiana protection orders are available to victims of stalking and to victims of harassment. The person who harmed you does not have to be a family or household member for either one. One difference: for harassment, the court cannot issue an emergency (ex parte) order. It must hold a hearing within 30 days after you file. The documents I have do not explain how stalking and harassment differ, or how to decide which one fits your situation.\n\nThis is legal information, not legal advice. For advice about your own situation, contact a lawyer, a legal aid office, or a domestic violence advocate.\n\nIf you are in danger right now, call TODO: team to add and check the emergency number. For confidential support, call TODO: team to add and check the statewide domestic violence hotline number.\n\nNOTE: hotline numbers above are placeholders and have not been verified.",
+        "answer": "I can't tell you which one to file. That is a legal decision, but here is what the documents say. You can ask for a protection order if you were a victim of stalking or of harassment. For both, the person does not have to be a family or household member. Harassment cases work differently: the court cannot grant an ex parte (emergency, without the other person present) order, and it must hold a hearing within 30 days after you file. Giving the court an address for the other person is encouraged so they can be served. If a court already has a case related to the harassment, you must file in that court. The documents do not explain the legal definitions of stalking or harassment, so a clerk, victim advocate, or lawyer can help you decide.\n\nThis is legal information, not legal advice. For advice about your own situation, contact a lawyer, a legal aid office, or a domestic violence advocate.\n\nIf you are in danger right now, call 911.",
         "sources": [
           {
             "title": "Protection Orders & Protection Order Registry (Indiana trial court guide)",
@@ -565,7 +557,7 @@
         ]
       ],
       "response": {
-        "answer": "I can't tell you whether you have a case. That is a legal question for a judge, and a clerk, advocate, or lawyer can help you think it through. Here is what the documents say. A judge checks whether your facts meet the legal definitions of \"domestic or family violence,\" \"stalking,\" or a \"sex offense.\" The judge also checks whether you and your ex fit the legal definition of \"family or household member,\" and whether Indiana residency or employment requirements are met. Petitions can be denied if they are vague. Describe the time, place, and acts clearly. The documents do not say whether repeated texts count as stalking. There is no fee to file.\n\nThis is legal information, not legal advice. For advice about your own situation, contact a lawyer, a legal aid office, or a domestic violence advocate.\n\nIf you are in danger right now, call TODO: team to add and check the emergency number. For confidential support, call TODO: team to add and check the statewide domestic violence hotline number.\n\nNOTE: hotline numbers above are placeholders and have not been verified.",
+        "answer": "I can't tell you whether you have a case. That is a legal question for a judge, and a clerk, advocate, or lawyer can help you think it through. Here is what the documents say. A judge checks whether the facts meet the legal definitions of \"domestic or family violence,\" \"stalking,\" or a \"sex offense.\" The judge also checks whether you and your ex fit the legal definition of \"family or household member,\" and whether you meet Indiana residency or employment requirements. Petitions can be denied if the facts are vague. Give clear details about the time, place, and acts. There are no fees to file. The documents I have do not say whether daily texts meet these definitions.\n\nThis is legal information, not legal advice. For advice about your own situation, contact a lawyer, a legal aid office, or a domestic violence advocate.\n\nIf you are in danger right now, call 911.",
         "sources": [
           {
             "title": "Instructions for Petition for Order of Protection - Filed by Person Seeking Protection (PO-0102)",
@@ -608,11 +600,15 @@
         ]
       ],
       "response": {
-        "answer": "I can't tell you whether you should hire a lawyer. That is a personal choice. Here is what the instructions say: you have the right to file a petition, and to defend against one, with or without a lawyer. Because your situation may involve unique problems, you may want to talk to an attorney. The other party may have a lawyer, whether or not you do. Court clerks and other court staff are not allowed to give legal advice. If you want advice about your own situation, a lawyer or a victim advocate can help.\n\nThis is legal information, not legal advice. For advice about your own situation, contact a lawyer, a legal aid office, or a domestic violence advocate.\n\nIf you are in danger right now, call TODO: team to add and check the emergency number. For confidential support, call TODO: team to add and check the statewide domestic violence hotline number.\n\nNOTE: hotline numbers above are placeholders and have not been verified.",
+        "answer": "I can't tell you whether you should hire a lawyer, but here is what the instructions say. You have the right to file a petition, or defend against one, with or without a lawyer. Because your situation may involve unique problems, you may want to talk to an attorney. The other party may have a lawyer, whether or not you do. The Clerk, the Court, and court staff are not allowed to give you legal advice. The documents do not say whether a lawyer is needed before filing. A clerk, advocate, or lawyer can help you think about your own situation.\n\nThis is legal information, not legal advice. For advice about your own situation, contact a lawyer, a legal aid office, or a domestic violence advocate.\n\nIf you are in danger right now, call 911.",
         "sources": [
           {
             "title": "Instructions for Petition for Order of Protection - Filed by Person Seeking Protection (PO-0102)",
             "url": "https://www.in.gov/dA/94811f5351/center-bb-po-form-po-0102.pdf?language_id=1"
+          },
+          {
+            "title": "Instructions for Petition for Order of Protection - Filed on Behalf of a Child (PO-0103)",
+            "url": "https://www.in.gov/courts/iocs/files/center-bb-po-form-po-0103.pdf"
           }
         ],
         "confidence": "high",
@@ -651,7 +647,7 @@
         ]
       ],
       "response": {
-        "answer": "I can't say that, because it isn't what the documents say. The documents state there are no fees for this kind of case. You should not be asked to pay a filing fee, a service of process fee, a witness fee, or a subpoena fee. The Allen County Clerk page also says no court filing fees are required for protection orders involving domestic or family violence, harassment, sexual assault, or stalking. If someone asks you to pay a fee, you may want to ask the Clerk's office about it.\n\nIf you are in danger right now, call TODO: team to add and check the emergency number. For confidential support, call TODO: team to add and check the statewide domestic violence hotline number.\n\nNOTE: hotline numbers above are placeholders and have not been verified.",
+        "answer": "I can't say that, because it isn't what the documents say. Both the state instructions and the Allen County Clerk page say there are no fees for this kind of case. You should not be asked to pay a filing fee, a service of process fee, a witness fee, or a subpoena fee. The Allen County page says no court filing fees are required for protection orders involving domestic or family violence, harassment, sexual assault, or stalking. If someone asks you to pay a fee, you may want to ask the clerk's office about it.\n\nIf you are in danger right now, call 911.",
         "sources": [
           {
             "title": "Instructions for Petition for Order of Protection - Filed by Person Seeking Protection (PO-0102)",
