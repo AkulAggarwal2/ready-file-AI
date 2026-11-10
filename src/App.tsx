@@ -12,6 +12,7 @@ import { StartStep } from './steps/StartStep';
 import { IncidentsStep } from './steps/IncidentsStep';
 import { StoryStep } from './steps/StoryStep';
 import { StepIndicator } from './ui/StepIndicator';
+import { ThemeToggle } from './ui/ThemeToggle';
 
 export function App() {
   return (
@@ -47,6 +48,7 @@ function Shell() {
       <header ref={header} className="site-header">
         <div className="header-row">
           <span className="brand">{copy.app.name}</span>
+          <ThemeToggle />
           <QuickExit />
         </div>
         <Resources />

@@ -58,6 +58,40 @@
   background: var(--bg);
 }
 
+/* Dark mode: the same deep blue, lightened, on navy grays. Same contrast rules
+   as above. Screen only, so the printed summary always uses the light colors.
+   main.tsx sets data-theme from the device setting; the header switch changes it. */
+@media screen {
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+
+    --bg: #0f1424;
+    --surface: #161d33;
+    --surface-soft: #1f2a48;
+    --text: #eef1f8;
+    --muted: #a9b3cc;
+    --border: #2c3656;
+    --border-strong: #7a85a6;
+    --primary: #8fb0ff;
+    --primary-hover: #b3c9ff;
+    --primary-soft: #23345f;
+    --primary-text: #0b1a3f;
+    /* Brighter than the light-mode red so Quick exit still stands out on navy. */
+    --exit: #d6204a;
+    --exit-hover: #be123c;
+    --exit-text: #ffffff;
+    --focus: #f59e0b;
+    --warning-bg: #3d2e0a;
+    --warning-text: #fcd98a;
+    --success-bg: #12341f;
+    --success-text: #9fe0b3;
+    --badge-bg: #3d2e0a;
+    --badge-text: #fcd98a;
+    --overlay: rgb(0 0 0 / 0.65);
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 16px rgb(0 0 0 / 0.35);
+  }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -177,6 +211,65 @@ p:focus:not(:focus-visible) {
 
 .quick-exit:hover {
   background: var(--exit-hover);
+}
+
+/* Dark mode switch: a track and thumb inside a 48px tap target. */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.theme-track {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.theme-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: var(--border-strong);
+  color: var(--surface);
+  transition: transform 0.15s ease;
+}
+
+.theme-thumb svg {
+  width: 13px;
+  height: 13px;
+}
+
+.theme-toggle[aria-checked='true'] .theme-track {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+
+.theme-toggle[aria-checked='true'] .theme-thumb {
+  transform: translateX(18px);
+  background: var(--primary-text);
+  color: var(--primary);
+}
+
+.theme-toggle:hover .theme-track {
+  border-color: var(--primary);
 }
 
 .link-button {
@@ -834,6 +927,17 @@ button:disabled {
   .quick-exit,
   .btn-primary {
     border: 2px solid ButtonText;
+  }
+
+  .theme-track,
+  .theme-toggle[aria-checked='true'] .theme-track {
+    border-color: ButtonText;
+  }
+
+  .theme-thumb,
+  .theme-toggle[aria-checked='true'] .theme-thumb {
+    background: ButtonText;
+    forced-color-adjust: none;
   }
 }
 

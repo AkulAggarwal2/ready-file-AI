@@ -17,6 +17,9 @@
     "url": "https://www.weather.com",
     "hint": "You can also press the Esc key two times fast to leave."
   },
+  "theme": {
+    "label": "Dark mode"
+  },
   "resources": {
     "show": "Talk to an advocate",
     "hide": "Hide advocate contacts",

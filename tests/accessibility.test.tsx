@@ -32,6 +32,10 @@ describe('axe finds no violations', () => {
     await expectNoViolations();
     await user.click(screen.getByRole('button', { name: copy.resources.hide }));
 
+    await user.click(screen.getByRole('switch', { name: copy.theme.label }));
+    await expectNoViolations();
+    await user.click(screen.getByRole('switch', { name: copy.theme.label }));
+
     await begin(user, 'Stalking');
     await expectNoViolations();
 

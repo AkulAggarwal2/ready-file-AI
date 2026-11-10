@@ -224,6 +224,7 @@ describe('6. No storage', () => {
     const openDb = globalThis.indexedDB ? vi.spyOn(globalThis.indexedDB, 'open') : null;
 
     const user = renderApp();
+    await user.click(screen.getByRole('switch', { name: copy.theme.label }));
     await begin(user, 'Stalking');
     await loadSample(user, 'one');
     await toQuestions(user);
@@ -239,6 +240,35 @@ describe('6. No storage', () => {
     expect(window.localStorage.length).toBe(0);
     expect(window.sessionStorage.length).toBe(0);
     expect(document.cookie).toBe('');
+  });
+});
+
+describe('dark mode', () => {
+  afterEach(() => vi.useRealTimers());
+
+  it('the header switch turns dark mode on and off', async () => {
+    const user = renderApp();
+    const toggle = within(screen.getByRole('banner')).getByRole('switch', { name: copy.theme.label });
+    expect(toggle).toHaveAttribute('aria-checked', 'false');
+
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute('aria-checked', 'true');
+    expect(document.documentElement.dataset.theme).toBe('dark');
+
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute('aria-checked', 'false');
+    expect(document.documentElement.dataset.theme).toBe('light');
+  });
+
+  it('stays on when the timeout clears her data', () => {
+    vi.useFakeTimers();
+    render(<App />);
+    fireEvent.click(screen.getByRole('switch', { name: copy.theme.label }));
+    act(() => vi.advanceTimersByTime(IDLE_TIMEOUT_MS));
+
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: copy.theme.label })).toHaveAttribute('aria-checked', 'true');
+    expect(document.documentElement.dataset.theme).toBe('dark');
   });
 });
 
