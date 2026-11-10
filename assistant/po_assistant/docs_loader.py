@@ -35,12 +35,14 @@ def parse_doc(path: Path) -> tuple[str, str, str]:
     return url, title, "\n".join(lines[body_start:]).strip()
 
 
-def chunk_text(text: str, size: int = config.CHUNK_WORDS, overlap: int = config.CHUNK_OVERLAP_WORDS) -> list[str]:
+def chunk_text(text: str, size: int | None = None, overlap: int | None = None) -> list[str]:
     """Split on line boundaries into chunks of about `size` words.
 
     Each new chunk starts with the last lines (about `overlap` words) of the one before,
     so a fact that straddles a boundary still appears whole in one chunk.
     """
+    size = config.CHUNK_WORDS if size is None else size
+    overlap = config.CHUNK_OVERLAP_WORDS if overlap is None else overlap
     lines = [line.strip() for line in text.splitlines() if line.strip()]
     chunks: list[str] = []
     current: list[str] = []
@@ -67,7 +69,8 @@ def chunk_text(text: str, size: int = config.CHUNK_WORDS, overlap: int = config.
     return chunks
 
 
-def load_chunks(docs_dir: Path = config.DOCS_DIR) -> list[Chunk]:
+def load_chunks(docs_dir: Path | None = None) -> list[Chunk]:
+    docs_dir = config.DOCS_DIR if docs_dir is None else docs_dir
     paths = sorted(p for p in docs_dir.iterdir() if p.suffix in (".md", ".txt"))
     if not paths:
         raise FileNotFoundError(f"No .md or .txt files in {docs_dir}")

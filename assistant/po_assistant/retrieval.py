@@ -1,6 +1,8 @@
 """BM25 keyword search over document chunks."""
 
+import math
 import re
+from collections import Counter
 from dataclasses import dataclass
 
 from rank_bm25 import BM25Okapi
@@ -37,12 +39,34 @@ class Hit:
 class Index:
     def __init__(self, chunks: list[Chunk]):
         self.chunks = chunks
-        self._bm25 = BM25Okapi([tokenize(c.title + " " + c.text) for c in chunks])
+        docs = [tokenize(c.title + " " + c.text) for c in chunks]
+        self._bm25 = BM25Okapi(docs)
+        self._terms = {c.id: set(d) for c, d in zip(chunks, docs)}
+        self._doc_freq = Counter(t for d in docs for t in set(d))
 
-    def search(self, query: str, k: int = config.TOP_K) -> list[Hit]:
+    def search(self, query: str, k: int | None = None) -> list[Hit]:
+        k = config.TOP_K if k is None else k
         tokens = tokenize(query)
         if not tokens:
             return []
         scores = self._bm25.get_scores(tokens)
         ranked = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:k]
         return [Hit(self.chunks[i], float(scores[i])) for i in ranked if scores[i] > 0]
+
+    def coverage(self, query: str, chunk: Chunk) -> float:
+        """Share (0-1) of the query's IDF weight whose terms appear in `chunk`.
+
+        Unlike a raw BM25 score this stays on the same scale as docs are added or removed.
+        Uses Lucene's smoothed IDF, which is always positive (rank_bm25's is 0 or below for
+        words in half the docs) and highest for words found in no document, the most
+        telling sign that the docs don't cover the question.
+        """
+        n_docs = len(self.chunks)
+        weights = {
+            t: math.log(1 + (n_docs - self._doc_freq[t] + 0.5) / (self._doc_freq[t] + 0.5))
+            for t in set(tokenize(query))
+        }
+        total = sum(weights.values())
+        if not total:
+            return 0.0
+        return sum(w for t, w in weights.items() if t in self._terms[chunk.id]) / total

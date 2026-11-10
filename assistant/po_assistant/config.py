@@ -19,12 +19,14 @@ MAX_TOKENS = 16000
 CHUNK_WORDS = 200  # target words per chunk
 CHUNK_OVERLAP_WORDS = 40  # words repeated at the start of the next chunk
 TOP_K = 5  # chunks sent to the model
-# Below this top BM25 score we treat the question as not covered by the docs
-# and answer "I don't know" without calling the model. Kept low on purpose: BM25
-# scores overlap between covered and uncovered questions (e.g. "what does ex parte
-# mean" ~3.7 vs "divorce in Ohio" ~3.4), so this only catches near-zero matches.
-# The model makes the finer "is this covered?" call.
-MIN_TOP_SCORE = 2.0
+# If the top chunk holds less than this share (0-1) of the question's IDF-weighted
+# terms, we treat the question as not covered and answer "I don't know" without
+# calling the model. A share, unlike a raw BM25 score, keeps its meaning as docs are
+# added. Kept very low on purpose: coverage overlaps between covered and uncovered
+# questions ("how long does an order usually last" ~0.26 vs "pizza recipe" ~0.24), and
+# long questions padded with off-topic words score low (the injection eval ~0.07), so
+# this only catches near-zero matches. The model makes the real "is this covered?" call.
+MIN_COVERAGE = 0.05
 
 IDK_ANSWER = "I don't know — please contact the court self-help center."
 

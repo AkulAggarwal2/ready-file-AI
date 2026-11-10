@@ -3,7 +3,8 @@ import json
 import pytest
 
 from po_assistant import config
-from po_assistant.assistant import Assistant
+from po_assistant import assistant as assistant_mod
+from po_assistant.assistant import Assistant, LLMUnavailable, StoppedEarly
 from po_assistant.docs_loader import Chunk
 from po_assistant.prompts import build_user_message
 
@@ -11,12 +12,6 @@ FEE = Chunk("fees#0", "fees", "Fees Page", "https://example.gov/fees", "There is
 PETS = Chunk("pets#0", "pets", "Pets Page", "https://example.gov/pets", "The judge may give the petitioner possession of an animal.")
 HOURS = Chunk("hours#0", "hours", "Hours Page", "https://example.gov/hours", "The clerk office is open weekdays.")
 CHUNKS = [FEE, PETS, HOURS]
-
-
-@pytest.fixture(autouse=True)
-def low_gate(monkeypatch):
-    # BM25 scores on a 3-chunk corpus are tiny; keep the gate for "no match at all" only.
-    monkeypatch.setattr(config, "MIN_TOP_SCORE", 0.1)
 
 
 def reply(**overrides) -> str:
@@ -69,7 +64,7 @@ def test_invalid_twice_falls_back_to_idk():
 
 def test_api_error_falls_back_without_retry():
     def broken(system, user):
-        raise ConnectionError("network down")
+        raise LLMUnavailable("APIConnectionError: network down")
 
     resp, trace = Assistant(CHUNKS, broken).answer_with_trace("Is there a filing fee?")
     assert trace.path == "api_error" and trace.attempts == 1
@@ -180,3 +175,72 @@ def test_safety_message_has_911_and_no_placeholder_until_verified(monkeypatch):
     monkeypatch.setattr(config, "SAFETY_VERIFIED", True)
     resp = Assistant(CHUNKS, FakeLLM(reply())).answer("Is there a filing fee?")
     assert config.HOTLINE_MESSAGE in resp.answer
+
+
+def test_refusal_is_not_retried_and_is_traced_as_refusal():
+    calls = []
+
+    def refusing(system, user):
+        calls.append(user)
+        raise StoppedEarly("refusal")
+
+    resp, trace = Assistant(CHUNKS, refusing).answer_with_trace("Is there a filing fee?")
+    assert trace.path == "refusal" and trace.attempts == 1 and len(calls) == 1
+    assert resp.answer.startswith(config.IDK_ANSWER)
+
+
+def test_programming_errors_are_not_hidden_as_idk():
+    def buggy(system, user):
+        raise TypeError("unexpected keyword argument")
+
+    with pytest.raises(TypeError):
+        Assistant(CHUNKS, buggy).answer("Is there a filing fee?")
+
+
+class FakeResponse:
+    def __init__(self, stop_reason, text='{"x": 1}'):
+        self.stop_reason = stop_reason
+        self.content = [type("Block", (), {"type": "text", "text": text})()]
+
+
+@pytest.mark.parametrize("stop_reason", ["refusal", "max_tokens"])
+def test_claude_llm_raises_stopped_early(monkeypatch, stop_reason):
+    monkeypatch.setattr(assistant_mod, "_create", lambda s, u: FakeResponse(stop_reason))
+    with pytest.raises(StoppedEarly) as e:
+        assistant_mod.claude_llm("sys", "user")
+    assert e.value.reason == stop_reason
+
+
+def test_claude_llm_wraps_sdk_errors(monkeypatch):
+    import anthropic
+
+    def fail(s, u):
+        raise anthropic.APIConnectionError(request=None)
+
+    monkeypatch.setattr(assistant_mod, "_create", fail)
+    with pytest.raises(LLMUnavailable):
+        assistant_mod.claude_llm("sys", "user")
+
+
+def test_client_is_reused(monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    assistant_mod._client.cache_clear()
+    try:
+        assert assistant_mod._client() is assistant_mod._client()
+    finally:
+        assistant_mod._client.cache_clear()
+
+
+def test_low_coverage_question_skips_model(monkeypatch):
+    monkeypatch.setattr(config, "MIN_COVERAGE", 0.5)
+    llm = FakeLLM()
+    # "fee" matches, but "deduct", "income", "taxes", "refund" appear in no document.
+    _, trace = Assistant(CHUNKS, llm).answer_with_trace("Can I deduct the fee from my income taxes for a refund?")
+    assert trace.path == "no_match" and llm.calls == []
+
+
+def test_top_k_is_read_from_config_at_call_time(monkeypatch):
+    monkeypatch.setattr(config, "TOP_K", 1)
+    llm = FakeLLM(reply())
+    _, trace = Assistant(CHUNKS, llm).answer_with_trace("Is there a filing fee for an animal at the clerk office?")
+    assert len(trace.retrieved) == 1

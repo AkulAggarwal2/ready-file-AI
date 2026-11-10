@@ -71,7 +71,7 @@ The app reads the folder each time it starts.
 ```
 question
   → BM25 search over ~200-word chunks (top 5)
-  → if nothing matches at all: "I don't know" (no API call)
+  → if the top chunk holds almost none of the question's words: "I don't know" (no API call)
   → Claude gets the chunks inside <document> tags + the question; must reply in JSON
   → validate JSON with pydantic; if invalid, retry once; if still invalid: "I don't know"
   → code-enforced guards: map cited chunk ids to URLs, reject phone numbers/emails/links not in
@@ -88,10 +88,12 @@ question
 | **Safety message and advice referral are added by code, not written by the model.** | They show up every time, word for word, even on errors and fallbacks. The model can't forget or reword them. |
 | **Advice detection is a regex OR the model's own flag.** | The regex catches the obvious "should I…" questions even if the model misses them. The model catches rewordings the regex can't. |
 | **`<` in retrieved text and the question is escaped inside `<document>` / `<question>` tags** (plus `"` in attributes). `&`, `>`, and quotes are left alone so the model doesn't copy entities like `&amp;` into answers. The system prompt says document text is data, not instructions. | A page (or a question) containing `</document><system>…` can't break out of its tag or pose as instructions. The code-side guards above also hold even if the model is fooled. |
-| **"Is this covered?" is mainly the model's call.** Code only short-circuits near-zero BM25 matches. | BM25 scores overlap between covered and uncovered questions ("what does ex parte mean" ≈ 3.7 vs. "divorce in Ohio" ≈ 3.4), so a score cutoff alone would be wrong both ways. |
+| **"Is this covered?" is mainly the model's call.** Code only short-circuits near-zero matches: the top chunk holds under 5% of the question's IDF-weighted words (`MIN_COVERAGE`). | Neither raw BM25 scores nor coverage separate covered from uncovered questions ("what does ex parte mean" ≈ 3.7 vs. "divorce in Ohio" ≈ 3.4), so a strict cutoff would be wrong both ways. Coverage is a 0–1 share, so unlike a raw BM25 score the cutoff keeps its meaning as docs are added or removed. |
 | **Plain JSON in the reply text + pydantic validation, rather than the API's structured-output mode.** | The spec asked for "validate, retry once, then fall back". This makes that path real and testable. Structured outputs would make invalid JSON rare (see next steps). |
 | **The retry is a fresh request with the error appended, not a multi-turn repair.** | Simpler, and avoids replaying thinking blocks across turns. |
-| **API errors (network, auth, billing) fail safe to "I don't know" without retrying.** The eval counts them as failures. | Users never see a crash. The eval can't pass "unanswerable" cases just because the API was down. |
+| **API errors (network, auth, billing) fail safe to "I don't know" without retrying.** The eval counts them as failures. Only Anthropic SDK errors are caught; a bug in our code raises. | Users never see an API outage as a crash. The eval can't pass "unanswerable" cases just because the API was down. Bugs stay visible instead of looking like "I don't know". |
+| **A refusal or a reply cut off at `MAX_TOKENS` isn't retried.** It becomes "I don't know" with trace path `refusal` or `max_tokens`. | The same request would stop the same way, and the trace should say why rather than "invalid JSON". |
+| **The web UI shows the answer as plain text, not Markdown.** Source titles are escaped. | Model output can echo document text, so it must not render as clickable links or HTML. |
 | **BM25 with a tiny plural folder (`fees`→`fee`) and a stopword list.** No vector DB. | As specified. It's easy to inspect: `--trace` shows exactly which chunks were found and their scores. |
 | **Model:** `claude-sonnet-5-5`, adaptive thinking, effort `medium`, server-side refusal fallback on. | Sonnet as requested. Medium effort is the middle setting. The fallback means a safety-classifier decline gets retried on another model instead of failing. |
 | **Gradio runs locally only. Analytics are off. Nothing is logged or stored.** | The people asking may be in danger. Their questions shouldn't leave the machine except to the API. |

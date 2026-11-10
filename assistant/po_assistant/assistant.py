@@ -4,6 +4,7 @@ retrieve -> coverage gate -> ask Claude -> validate (retry once) -> code-enforce
 The guards (sources, contact details, advice referral, safety message) run in code so the model can't skip them.
 """
 
+import functools
 import logging
 import re
 from dataclasses import dataclass, field
@@ -20,7 +21,8 @@ from .schema import ModelReply, Response, Source
 log = logging.getLogger(__name__)
 
 # An LLM is any function (system prompt, user message) -> reply text.
-# The real one calls Claude; tests pass a fake.
+# It raises LLMUnavailable if the service can't be reached and StoppedEarly if the
+# model stops before finishing. The real one calls Claude; tests pass a fake.
 LLM = Callable[[str, str], str]
 
 ADVICE_PATTERN = re.compile(
@@ -58,7 +60,19 @@ def ungrounded_contacts(answer: str, cited: list[Chunk]) -> list[str]:
 
 
 class InvalidReply(Exception):
-    pass
+    """The reply came back but isn't valid JSON for our schema. Worth one retry."""
+
+
+class StoppedEarly(Exception):
+    """The model refused or ran out of tokens. Retrying the same request won't help."""
+
+    def __init__(self, reason: str):
+        super().__init__(f"model stopped early (stop_reason={reason})")
+        self.reason = reason
+
+
+class LLMUnavailable(Exception):
+    """Network, auth, rate limit, or server error from the model API."""
 
 
 @dataclass
@@ -66,16 +80,35 @@ class Trace:
     """What happened inside one answer() call; used by evals and the UI's debug view."""
 
     retrieved: list[tuple[str, float]] = field(default_factory=list)
-    path: str = ""  # "answered" | "no_match" | "model_idk" | "no_valid_sources" | "ungrounded_contact" | "invalid_json" | "api_error"
+    # "answered" | "no_match" | "model_idk" | "no_valid_sources" | "ungrounded_contact" |
+    # "invalid_json" | "refusal" | "max_tokens" | "api_error"
+    path: str = ""
     attempts: int = 0
     errors: list[str] = field(default_factory=list)
+
+
+@functools.cache
+def _client():
+    import anthropic
+
+    return anthropic.Anthropic()  # one client, so connections are reused across questions
 
 
 def claude_llm(system: str, user: str) -> str:
     import anthropic
 
-    client = anthropic.Anthropic()
-    response = client.beta.messages.create(
+    try:
+        response = _create(system, user)
+    except anthropic.AnthropicError as e:  # API errors, plus setup errors like a missing key
+        raise LLMUnavailable(f"{type(e).__name__}: {e}") from e
+    # A refusal here already survived the server-side fallback model.
+    if response.stop_reason in ("refusal", "max_tokens"):
+        raise StoppedEarly(response.stop_reason)
+    return "".join(block.text for block in response.content if block.type == "text")
+
+
+def _create(system: str, user: str):
+    return _client().beta.messages.create(
         model=config.MODEL,
         max_tokens=config.MAX_TOKENS,
         system=system,
@@ -86,11 +119,6 @@ def claude_llm(system: str, user: str) -> str:
         betas=["server-side-fallback-2026-07-01"],
         fallbacks="default",
     )
-    if response.stop_reason == "refusal":
-        raise InvalidReply("model declined the request (stop_reason=refusal)")
-    if response.stop_reason == "max_tokens":
-        raise InvalidReply("reply was cut off (stop_reason=max_tokens)")
-    return "".join(block.text for block in response.content if block.type == "text")
 
 
 def parse_reply(text: str) -> ModelReply:
@@ -142,7 +170,7 @@ class Assistant:
 
         hits = self.index.search(question)
         trace.retrieved = [(h.chunk.id, round(h.score, 2)) for h in hits]
-        if not hits or hits[0].score < config.MIN_TOP_SCORE:
+        if not hits or self.index.coverage(question, hits[0].chunk) < config.MIN_COVERAGE:
             trace.path = "no_match"
             return _idk(advice), trace
 
@@ -194,9 +222,13 @@ class Assistant:
                 error = str(e)
                 trace.errors.append(error)
                 trace.path = "invalid_json"
-            except Exception as e:  # network, auth, rate limit: don't retry, fail safe
+            except StoppedEarly as e:  # a retry would stop the same way
+                trace.errors.append(str(e))
+                trace.path = e.reason
+                return None
+            except LLMUnavailable as e:  # don't retry, fail safe; other errors are bugs and propagate
                 log.warning("Claude API call failed: %s", e)
-                trace.errors.append(f"{type(e).__name__}: {e}")
+                trace.errors.append(str(e))
                 trace.path = "api_error"
                 return None
         return None

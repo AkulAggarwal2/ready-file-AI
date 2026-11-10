@@ -40,6 +40,27 @@ def test_chunk_text_keeps_short_trailing_text(last_line):
     assert last_line.strip() in chunks[-1]
 
 
+def test_chunk_size_and_docs_dir_are_read_from_config_at_call_time(tmp_path, monkeypatch):
+    from po_assistant import config
+
+    write(tmp_path, "a.md", "Source: https://example.gov/a\n\n" + "\n".join("word " * 10 for _ in range(10)))
+    monkeypatch.setattr(config, "DOCS_DIR", tmp_path)
+    monkeypatch.setattr(config, "CHUNK_WORDS", 30)
+    monkeypatch.setattr(config, "CHUNK_OVERLAP_WORDS", 0)
+    chunks = load_chunks()
+    assert {c.doc for c in chunks} == {"a"} and len(chunks) > 1
+
+
+def test_coverage_is_share_of_query_weight_in_chunk(tmp_path):
+    write(tmp_path, "fees.md", "Source: https://example.gov/fees\n\nThere is no filing fee for a protection order.")
+    write(tmp_path, "pets.md", "Source: https://example.gov/pets\n\nThe judge may award possession of an animal.")
+    index = Index(load_chunks(tmp_path))
+    fees = index.chunks[0]
+    assert index.coverage("filing fee", fees) == 1.0
+    assert index.coverage("pizza recipe", fees) == 0.0
+    assert 0 < index.coverage("filing fee pizza", fees) < 1
+
+
 def test_tokenize_drops_stopwords_and_folds_plurals():
     assert tokenize("What are the fees for copies?") == ["fee", "copy"]
 
