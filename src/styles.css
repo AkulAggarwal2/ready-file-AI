@@ -50,7 +50,9 @@
   --shadow: 0 1px 2px rgb(12 18 38 / 0.06), 0 4px 16px rgb(12 18 38 / 0.06);
 
   font-family: var(--font);
-  font-size: 18px;
+  /* Fluid: about 14px on a 320px phone, growing to 18px by roughly 600px. Every
+     rem-based size below scales with it. */
+  font-size: clamp(14px, 10.5px + 1.1vw, 18px);
   line-height: 1.6;
   color: var(--text);
   background: var(--bg);
@@ -92,12 +94,13 @@ h2 {
 }
 
 h1 {
-  font-size: var(--text-xl);
+  /* vw term lets a long heading shrink to fit one line on a small phone. */
+  font-size: clamp(1.05rem, 5.4vw, var(--text-xl));
   margin: var(--space-4) 0 var(--space-4);
 }
 
 h2 {
-  font-size: var(--text-lg);
+  font-size: clamp(0.95rem, 4.6vw, var(--text-lg));
   margin: 0 0 var(--space-3);
 }
 
@@ -805,7 +808,171 @@ button:disabled {
   }
 }
 
+/* ---- Fluid and centered ---------------------------------------------------
+   Everything is centered. Short text (headings, buttons, labels, step names,
+   chips) stays on one line and its font shrinks with the screen width instead
+   of wrapping. Real sentences (questions, hints, the story) still wrap, since
+   one line would be unreadably small on a phone; they are centered too.
+   `vw` units do the shrinking; the rem value is the ceiling. */
+body {
+  text-align: center;
+}
+
+.content {
+  padding-left: clamp(0.625rem, 4vw, var(--space-4));
+  padding-right: clamp(0.625rem, 4vw, var(--space-4));
+}
+
+p,
+blockquote {
+  margin-left: auto;
+  margin-right: auto;
+
+  /* Centered text reads better with evenly sized lines, not a lone last word. */
+  text-wrap: balance;
+}
+
+blockquote {
+  border-left: none;
+  border-top: 4px solid var(--primary-soft);
+}
+
+/* One line, shrinking with the screen. */
+h1,
+h2,
+h3,
+label,
+.brand,
+.quick-exit,
+.btn,
+.link-button,
+.step-button,
+.chip,
+.badge,
+.choice,
+.question-title,
+.timeline-date,
+.disclosure summary,
+.toast {
+  white-space: nowrap;
+}
+
+/* Long sentences wrap, and are centered. A fieldset legend is a full question. */
+legend,
+.hint,
+.note,
+.callout p,
+.question-text,
+.question-label,
+.status,
+.preview,
+.resources-panel p,
+.timeline-body,
+.timeline-body p,
+.dialog p {
+  white-space: normal;
+}
+
+h3 {
+  font-size: clamp(0.9rem, 4.2vw, var(--text-md));
+}
+
+legend {
+  font-size: clamp(0.95rem, 4.6vw, var(--text-lg));
+  /* A fieldset legend ignores text-align on its own; centering it takes margins. */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.brand {
+  font-size: clamp(1rem, 5vw, var(--text-lg));
+}
+
+.btn,
+.quick-exit,
+.link-button,
+.choice,
+.disclosure summary,
+.question-toggle {
+  font-size: clamp(0.78rem, 4vw, 1rem);
+}
+
+.btn,
+.quick-exit {
+  padding-left: clamp(0.75rem, 4vw, var(--space-5));
+  padding-right: clamp(0.75rem, 4vw, var(--space-5));
+}
+
+.step-list {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-1);
+}
+
+.step-button {
+  font-size: clamp(0.65rem, 3.4vw, var(--text-sm));
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.header-row,
+.button-row,
+.chip-list,
+.card-top,
+.card-actions,
+.choice,
+.question-toggle,
+.disclosure summary,
+.toast {
+  justify-content: center;
+}
+
+.header-row {
+  /* Keep brand and Quick exit on one centered row, even on a 320px phone. */
+  flex-wrap: nowrap;
+  gap: var(--space-2) clamp(0.5rem, 3vw, var(--space-4));
+}
+
+.question-toggle {
+  text-align: center;
+}
+
+/* The chevron sits right after the text instead of at the far edge. */
+.question-label {
+  flex: 0 1 auto;
+}
+
+/* Text boxes stay readable while typing, but their labels and boxes are centered. */
+textarea,
+.summary {
+  text-align: left;
+}
+
+input[type='text'],
+input[type='date'],
+select {
+  text-align: center;
+}
+
+.badge {
+  margin-left: 0;
+}
+
+.timeline-list {
+  display: inline-block;
+  text-align: center;
+  max-width: 100%;
+}
+
+.timeline-body .preview {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 @media print {
+  body {
+    text-align: left;
+  }
+
   @page {
     margin: 2cm;
 
