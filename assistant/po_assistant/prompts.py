@@ -36,14 +36,20 @@ Reply with only a JSON object, no other text and no code fences:
 """
 
 
-def escape(text: str) -> str:
-    """Neutralize markup so retrieved text or a question can't close or forge our tags."""
-    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+def escape(text: str, attr: bool = False) -> str:
+    """Neutralize markup so retrieved text or a question can't close or forge our tags.
+
+    Only '<' (and '"' inside attributes) can do that. Leaving '&', '>' and quotes alone in
+    body text keeps the model from copying entities like '&amp;' into its answer.
+    """
+    text = text.replace("<", "&lt;")
+    return text.replace('"', "&quot;") if attr else text
 
 
 def build_user_message(question: str, chunks: list[Chunk], retry_error: str | None = None) -> str:
     docs = "\n".join(
-        f'<document id="{escape(c.id)}" title="{escape(c.title)}">\n{escape(c.text)}\n</document>' for c in chunks
+        f'<document id="{escape(c.id, attr=True)}" title="{escape(c.title, attr=True)}">\n{escape(c.text)}\n</document>'
+        for c in chunks
     )
     message = f"<documents>\n{docs}\n</documents>\n\n<question>\n{escape(question)}\n</question>"
     if retry_error:

@@ -33,12 +33,12 @@ ADVICE_REFERRAL = (
     "situation, contact a lawyer, a legal aid office, or a domestic violence advocate."
 )
 
-# Safety message added to every response.
-# TODO(team): fill in and check every number below, then set SAFETY_VERIFIED = True.
+# Safety message added to every response. 911 needs no verification, so it is always shown.
+SAFETY_MESSAGE = "If you are in danger right now, call 911."
+# TODO(team): fill in and check the hotline number below, then set SAFETY_VERIFIED = True.
+# Until then the hotline sentence is left out of answers entirely.
 SAFETY_VERIFIED = False
-SAFETY_MESSAGE = (
-    "If you are in danger right now, call TODO: team to add and check the emergency number. "
+HOTLINE_MESSAGE = (
     "For confidential support, call TODO: team to add and check the statewide domestic "
     "violence hotline number."
 )
-SAFETY_UNVERIFIED_NOTICE = "NOTE: hotline numbers above are placeholders and have not been verified."

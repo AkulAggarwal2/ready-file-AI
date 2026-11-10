@@ -32,6 +32,14 @@ def test_chunk_text_overlaps_and_covers_all_lines():
     assert chunks[1].startswith(chunks[0].splitlines()[-2])
 
 
+@pytest.mark.parametrize("last_line", ["Call the clerk at 260-449-3444.", "short " * 30])
+def test_chunk_text_keeps_short_trailing_text(last_line):
+    # The first chunk ends on a 60-word line, so its overlap tail is empty (or short).
+    lines = ["intro " * 50, "long " * 60, last_line]
+    chunks = chunk_text("\n".join(lines), size=100, overlap=40)
+    assert last_line.strip() in chunks[-1]
+
+
 def test_tokenize_drops_stopwords_and_folds_plurals():
     assert tokenize("What are the fees for copies?") == ["fee", "copy"]
 

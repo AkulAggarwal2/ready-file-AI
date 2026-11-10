@@ -35,7 +35,7 @@ with gr.Blocks(title="Protection Order Filing Info") as demo:
         "**This is legal information, not legal advice.**"
     )
     if not config.SAFETY_VERIFIED:
-        gr.Markdown("> ⚠️ Prototype: hotline numbers in answers are placeholders and have not been verified.")
+        gr.Markdown("> ⚠️ Prototype: the domestic violence hotline number has not been verified yet, so answers list only 911.")
     question = gr.Textbox(label="Your question", placeholder="e.g. Is there a filing fee?", lines=2)
     submit = gr.Button("Ask", variant="primary")
     gr.Examples(EXAMPLES, inputs=question)

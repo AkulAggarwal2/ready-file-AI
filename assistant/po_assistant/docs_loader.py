@@ -45,9 +45,11 @@ def chunk_text(text: str, size: int = config.CHUNK_WORDS, overlap: int = config.
     chunks: list[str] = []
     current: list[str] = []
     count = 0
+    fresh = False  # whether `current` has lines that no chunk holds yet
     for line in lines:
         current.append(line)
         count += len(line.split())
+        fresh = True
         if count >= size:
             chunks.append("\n".join(current))
             tail: list[str] = []
@@ -58,9 +60,9 @@ def chunk_text(text: str, size: int = config.CHUNK_WORDS, overlap: int = config.
                     break
                 tail.insert(0, prev)
                 tail_count += n
-            current, count = tail, tail_count
+            current, count, fresh = tail, tail_count, False
     # Skip a leftover that is only overlap from the previous chunk.
-    if current and (not chunks or count > overlap):
+    if current and fresh:
         chunks.append("\n".join(current))
     return chunks
 

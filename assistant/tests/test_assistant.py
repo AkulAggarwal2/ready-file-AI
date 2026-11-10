@@ -122,7 +122,15 @@ def test_malicious_chunk_cannot_break_out_of_document_tag():
     )
     message = build_user_message("Is there a filing fee?", [evil])
     assert message.count("</document>") == 1  # only our own closing tag
-    assert "<system>" not in message and "&lt;system&gt;" in message
+    assert "<system>" not in message and "&lt;system>" in message
+
+
+def test_ordinary_punctuation_is_not_entity_encoded():
+    chunk = Chunk("form#0", "form", 'The "PO" Form', "https://example.gov/form", 'Petition & Request for "Hearing" > 1 page')
+    message = build_user_message("Fees & costs?", [chunk])
+    assert 'Petition & Request for "Hearing" > 1 page' in message
+    assert "Fees & costs?" in message
+    assert 'title="The &quot;PO&quot; Form"' in message
 
 
 def test_malicious_chunk_cannot_add_a_source():
@@ -131,3 +139,44 @@ def test_malicious_chunk_cannot_add_a_source():
     resp = Assistant([FEE, evil, HOURS], llm).answer("Is there a filing fee?")
     assert all("attacker" not in s.url for s in resp.sources)
     assert resp.answer.startswith(config.IDK_ANSWER)
+
+
+CLERK = Chunk(
+    "clerk#0", "clerk", "Clerk Page", "https://example.gov/clerk",
+    "Call the filing fee desk at (260) 449-3444 or email help@example.gov. Forms: www.example.gov/forms/po.",
+)
+
+
+def test_contact_details_from_cited_doc_are_allowed():
+    answer = "No filing fee. Call 260-449-3444, email help@example.gov, or see https://example.gov/forms/po."
+    llm = FakeLLM(reply(answer=answer, source_ids=["clerk#0"]))
+    resp, trace = Assistant([CLERK, PETS, HOURS], llm).answer_with_trace("Is there a filing fee?")
+    assert trace.path == "answered", trace.errors
+    assert "260-449-3444" in resp.answer
+
+
+@pytest.mark.parametrize("invented", [
+    "Call the hotline at 1-800-555-0199.",
+    "Email advocate@attacker.example for help.",
+    "See https://attacker.example/help for forms.",
+    "Visit attacker.org for forms.",
+])
+def test_invented_contact_details_become_idk(invented):
+    llm = FakeLLM(reply(answer=f"There is no filing fee. {invented}", source_ids=["clerk#0"]))
+    resp, trace = Assistant([CLERK, PETS, HOURS], llm).answer_with_trace("Is there a filing fee?")
+    assert trace.path == "ungrounded_contact"
+    assert resp.answer.startswith(config.IDK_ANSWER)
+
+
+def test_contact_from_uncited_doc_is_rejected():
+    llm = FakeLLM(reply(answer="No fee. Call (260) 449-3444.", source_ids=["fees#0"]))
+    _, trace = Assistant([FEE, CLERK, HOURS], llm).answer_with_trace("Is there a filing fee?")
+    assert trace.path == "ungrounded_contact"
+
+
+def test_safety_message_has_911_and_no_placeholder_until_verified(monkeypatch):
+    resp = Assistant(CHUNKS, FakeLLM(reply())).answer("Is there a filing fee?")
+    assert "911" in resp.answer and "TODO" not in resp.answer
+    monkeypatch.setattr(config, "SAFETY_VERIFIED", True)
+    resp = Assistant(CHUNKS, FakeLLM(reply())).answer("Is there a filing fee?")
+    assert config.HOTLINE_MESSAGE in resp.answer

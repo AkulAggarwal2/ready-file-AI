@@ -1,7 +1,7 @@
 """The whole question -> answer pipeline.
 
 retrieve -> coverage gate -> ask Claude -> validate (retry once) -> code-enforced guards.
-The guards (sources, advice referral, safety message) run in code so the model can't skip them.
+The guards (sources, contact details, advice referral, safety message) run in code so the model can't skip them.
 """
 
 import logging
@@ -30,6 +30,33 @@ ADVICE_PATTERN = re.compile(
 )
 
 
+PHONE_PATTERN = re.compile(r"(?<!\d)(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}(?!\d)")
+EMAIL_PATTERN = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
+URL_PATTERN = re.compile(r"(?:https?://|www\.)[^\s<>()\[\]\"']+|\b[\w-]+(?:\.[\w-]+)*\.(?:gov|org|com|us|net)(?:/[^\s<>()\[\]\"']*)?")
+
+
+def _phone_digits(text: str) -> set[str]:
+    return {re.sub(r"\D", "", m)[-10:] for m in PHONE_PATTERN.findall(text)}
+
+
+def _norm_link(text: str) -> str:
+    text = text.lower().rstrip(".,;:!?/")
+    return re.sub(r"^(?:https?://)?(?:www\.)?", "", text)
+
+
+def ungrounded_contacts(answer: str, cited: list[Chunk]) -> list[str]:
+    """Phone numbers, emails, and links in `answer` that don't appear in any cited chunk."""
+    source_text = "\n".join([c.text for c in cited] + [c.url for c in cited])
+    known_phones = _phone_digits(source_text)
+    known_links = {_norm_link(m) for m in EMAIL_PATTERN.findall(source_text) + URL_PATTERN.findall(source_text)}
+    bad = [m for m in PHONE_PATTERN.findall(answer) if re.sub(r"\D", "", m)[-10:] not in known_phones]
+    emails = EMAIL_PATTERN.findall(answer)
+    # Drop URL matches that are just the domain part of an email we already check.
+    links = emails + [m for m in URL_PATTERN.findall(answer) if not any(m in e for e in emails)]
+    bad += [m for m in links if not any(_norm_link(m) in k or k.startswith(_norm_link(m)) for k in known_links)]
+    return bad
+
+
 class InvalidReply(Exception):
     pass
 
@@ -39,7 +66,7 @@ class Trace:
     """What happened inside one answer() call; used by evals and the UI's debug view."""
 
     retrieved: list[tuple[str, float]] = field(default_factory=list)
-    path: str = ""  # "answered" | "no_match" | "model_idk" | "no_valid_sources" | "invalid_json" | "api_error"
+    path: str = ""  # "answered" | "no_match" | "model_idk" | "no_valid_sources" | "ungrounded_contact" | "invalid_json" | "api_error"
     attempts: int = 0
     errors: list[str] = field(default_factory=list)
 
@@ -86,8 +113,8 @@ def _finish(answer: str, sources: list[Source], confidence: str, needs_human: bo
     if advice:
         parts.append(config.ADVICE_REFERRAL)
     parts.append(config.SAFETY_MESSAGE)
-    if not config.SAFETY_VERIFIED:
-        parts.append(config.SAFETY_UNVERIFIED_NOTICE)
+    if config.SAFETY_VERIFIED:
+        parts[-1] += " " + config.HOTLINE_MESSAGE
     return Response(
         answer="\n\n".join(parts),
         sources=sources,
@@ -132,14 +159,24 @@ class Assistant:
         # Sources come only from chunks we retrieved; the model can't introduce a URL.
         by_id = {c.id: c for c in chunks}
         sources: list[Source] = []
+        cited: list[Chunk] = []
         for sid in reply.source_ids:
             chunk = by_id.get(sid)
             if chunk is None:
                 trace.errors.append(f"dropped unknown source id {sid!r}")
-            elif all(s.url != chunk.url for s in sources):
+                continue
+            cited.append(chunk)
+            if all(s.url != chunk.url for s in sources):
                 sources.append(Source(title=chunk.title, url=chunk.url))
         if not sources:
             trace.path = "no_valid_sources"
+            return _idk(advice), trace
+
+        # A phone number, email, or link must come from a cited document, never the model's memory.
+        bad = ungrounded_contacts(reply.answer, cited)
+        if bad:
+            trace.errors.append(f"contact details not in cited documents: {bad}")
+            trace.path = "ungrounded_contact"
             return _idk(advice), trace
 
         trace.path = "answered"
