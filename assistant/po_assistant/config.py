@@ -11,7 +11,7 @@ load_dotenv(ASSISTANT_DIR / ".env")
 DOCS_DIR = Path(os.getenv("PO_DOCS_DIR", ASSISTANT_DIR / "docs"))
 
 # Model settings
-MODEL = os.getenv("PO_MODEL", "claude-opus-5-5")
+MODEL = os.getenv("PO_MODEL", "claude-sonnet-5-5")
 EFFORT = os.getenv("PO_EFFORT", "medium")
 MAX_TOKENS = 16000
 
