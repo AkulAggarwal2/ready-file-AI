@@ -1,0 +1,6 @@
+anthropic==2.7.0
+rank-bm25==0.2.2
+pydantic==2.14.3
+python-dotenv==1.2.4
+gradio==6.31.0
+pytest==9.2.0
