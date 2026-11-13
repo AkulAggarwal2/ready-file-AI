@@ -158,6 +158,29 @@ describe('place and contact details', () => {
     ]);
   });
 
+  it('does not take everyday phrases for street addresses', () => {
+    const text = 'He showed up at 9 at my place. He grabbed me 2 times in court. 3 more days this way.';
+    expect(findContactDetails(text, ['address'])).toEqual([]);
+    expect(findContactDetails('She lives at 88 5th Avenue now, or 412 Oak street.', ['address'])).toHaveLength(2);
+  });
+
+  it('finds contact details in the evidence field', () => {
+    const [found] = runChecks(
+      { caseType: 'harassment', incidents: [incident('a', { place: 'At work', evidence: 'Witness: my sister, (260) 555-0199' })] },
+      rules,
+    );
+    expect(found.ruleId).toBe('incident-contact-info');
+    expect(found.matches).toEqual([{ kind: 'phone', field: 'evidence', start: 20, end: 34 }]);
+  });
+
+  it('gives a new key when the contact details in an incident change', () => {
+    const keyFor = (description: string) =>
+      runChecks({ caseType: 'harassment', incidents: [incident('a', { description, place: 'At work' })] }, rules)[0].key;
+    const first = keyFor(`${longText} Call 260-555-0142.`);
+    expect(keyFor(`${longText} Call 260-555-0142. Really.`)).toBe(first);
+    expect(keyFor(`${longText} Call 260-555-0142 or 260-555-0143.`)).not.toBe(first);
+  });
+
   it('only looks for the kinds the rule names', () => {
     expect(findContactDetails('Call 260-555-0141', ['address'])).toEqual([]);
   });

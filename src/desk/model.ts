@@ -46,15 +46,25 @@ export function version(p: Petition, name: VersionName): PetitionVersion {
   return name === 'amended' && p.sample.amended ? p.sample.amended : p.sample.original;
 }
 
+// Sample versions never change, so each one's findings are worked out once.
+const findingsCache = new WeakMap<PetitionVersion, Finding[]>();
+
+/** The questions for one version. Case types not in checkedCaseTypes get none. */
 export function findingsFor(sample: SamplePetition, v: PetitionVersion): Finding[] {
-  return runChecks(
-    {
-      caseType: sample.caseType,
-      incidents: v.incidents.map((incident, i) => ({ id: `${sample.id}-${i + 1}`, ...incident })),
-      respondent: { dateOfBirth: sample.respondent.dateOfBirth },
-    },
-    rules,
-  );
+  const cached = findingsCache.get(v);
+  if (cached) return cached;
+  const findings = deskConfig.checkedCaseTypes.includes(sample.caseType)
+    ? runChecks(
+        {
+          caseType: sample.caseType,
+          incidents: v.incidents.map((incident, i) => ({ id: `${sample.id}-${i + 1}`, ...incident })),
+          respondent: { dateOfBirth: sample.respondent.dateOfBirth },
+        },
+        rules,
+      )
+    : [];
+  findingsCache.set(v, findings);
+  return findings;
 }
 
 export const currentFindings = (p: Petition) => findingsFor(p.sample, version(p, currentVersionName(p)));

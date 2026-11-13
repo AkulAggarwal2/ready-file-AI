@@ -1,4 +1,4 @@
-import { safetyQuestions } from '../content';
+import { copy, safetyQuestions } from '../content';
 import { deskCopy } from './content';
 import { reportedFlags } from './flags';
 import type { Petition } from './model';
@@ -37,7 +37,7 @@ export function SafetyAnswersPanel({ petition, as: Heading = 'h2' }: { petition:
           return (
             <div key={q.id} className={answer === 'yes' ? 'answer-yes' : undefined}>
               <dt>{q.question}</dt>
-              <dd>{answer ? c.answers[answer] : c.noAnswer}</dd>
+              <dd>{answer ? copy.safety.answers[answer] : c.noAnswer}</dd>
             </div>
           );
         })}

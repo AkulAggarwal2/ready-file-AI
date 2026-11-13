@@ -208,6 +208,7 @@
       "other": "Desk found {n} incidents"
     },
     "incidentLine": "{date}. {place}. {how}. {lines}.",
+    "incidentLineNoLines": "{date}. {place}. {how}.",
     "noDate": "No date",
     "lines": {
       "by": "count",
@@ -405,11 +406,6 @@
     "note": "Flags show what the petitioner reported. They never reorder or hide a petition.",
     "answersTitle": "Safety answers (as given)",
     "answersIntro": "The petitioner's own answers to the optional safety questions. Desk doesn't score or judge them.",
-    "noAnswer": "No answer",
-    "answers": {
-      "yes": "Yes",
-      "no": "No",
-      "unsure": "Not sure"
-    }
+    "noAnswer": "No answer"
   }
 }

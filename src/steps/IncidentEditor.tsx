@@ -7,6 +7,7 @@ const DATE_KINDS: IncidentDate['kind'][] = ['exact', 'approximate', 'unknown'];
 export const dateKindId = (incidentId: string) => `${incidentId}-date-kind`;
 export const descriptionId = (incidentId: string) => `${incidentId}-description`;
 export const placeId = (incidentId: string) => `${incidentId}-place`;
+export const evidenceId = (incidentId: string) => `${incidentId}-evidence`;
 
 function changeDateKind(date: IncidentDate, kind: IncidentDate['kind']): IncidentDate {
   if (kind === 'exact') return { kind, value: date.kind === 'exact' ? date.value : '' };
@@ -104,12 +105,12 @@ export function IncidentFields({ incident }: { incident: Incident }) {
         onChange={(e) => update({ description: e.target.value })}
       />
 
-      <label htmlFor={`${id}-evidence`}>{c.evidenceLabel}</label>
+      <label htmlFor={evidenceId(id)}>{c.evidenceLabel}</label>
       <p id={`${id}-evidence-hint`} className="hint">
         {c.evidenceHint}
       </p>
       <textarea
-        id={`${id}-evidence`}
+        id={evidenceId(id)}
         rows={2}
         aria-describedby={`${id}-evidence-hint`}
         value={incident.evidence}

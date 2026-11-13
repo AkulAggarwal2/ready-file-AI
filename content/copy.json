@@ -127,6 +127,7 @@
     "unverified": "Unverified rule: {ruleId}",
     "allIncidents": "About all of your incidents",
     "aboutPlace": "Place:",
+    "aboutEvidence": "Evidence or witnesses:",
     "matchesHint": "The marked text may be contact details. Nothing is changed unless you change it."
   },
   "review": {

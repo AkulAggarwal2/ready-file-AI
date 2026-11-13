@@ -21,6 +21,8 @@ export interface CheckIncident {
   // Where it happened. Left out by tools that don't ask, so the place rule
   // never asks them about it.
   place?: string;
+  // Evidence or witnesses, in her words. Only checked for contact details.
+  evidence?: string;
 }
 
 export interface CheckInput {
@@ -40,7 +42,7 @@ export type ContactKind = (typeof CONTACT_KINDS)[number];
 /** Where in an incident's text a possible contact detail was found. */
 export interface ContactMatch {
   kind: ContactKind;
-  field: 'description' | 'place';
+  field: 'description' | 'place' | 'evidence';
   start: number;
   end: number;
 }

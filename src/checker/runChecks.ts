@@ -12,11 +12,20 @@ function wordCount(text: string): number {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
-function contactMatches(incident: CheckIncident, kinds: ContactKind[]): ContactMatch[] {
-  const fields = { description: incident.description, place: incident.place ?? '' };
-  return (Object.keys(fields) as ContactMatch['field'][]).flatMap((field) =>
+function contactMatches(incident: CheckIncident, kinds: ContactKind[]) {
+  const fields = { description: incident.description, place: incident.place ?? '', evidence: incident.evidence ?? '' };
+  const matches: ContactMatch[] = (Object.keys(fields) as ContactMatch['field'][]).flatMap((field) =>
     findContactDetails(fields[field], kinds).map((span) => ({ ...span, field })),
   );
+  const matchedText = matches.map((m) => `${m.field}:${fields[m.field].slice(m.start, m.end)}`).join('|');
+  return { matches, matchedText };
+}
+
+/** A short, id-safe fingerprint of the matched text. */
+function fingerprint(text: string): string {
+  let hash = 5381;
+  for (let i = 0; i < text.length; i++) hash = ((hash * 33) ^ text.charCodeAt(i)) >>> 0;
+  return hash.toString(36);
 }
 
 function finding(
@@ -24,9 +33,13 @@ function finding(
   values: Record<string, number>,
   incidentId?: string,
   matches?: ContactMatch[],
+  matchedText?: string,
 ): Finding {
+  // A contact-details key also names what was matched, so "Continue as is" on
+  // one match doesn't cover details she adds to that incident later.
+  const base = `${rule.id}:${incidentId ?? 'all'}`;
   return {
-    key: `${rule.id}:${incidentId ?? 'all'}`,
+    key: matchedText === undefined ? base : `${base}:${fingerprint(matchedText)}`,
     ruleId: rule.id,
     conditionType: rule.condition!.type,
     questionText: rule.questionText,
@@ -76,8 +89,8 @@ export function runChecks(input: CheckInput, rules: Rule[]): Finding[] {
         break;
       case 'incidentContactInfo':
         input.incidents.forEach((incident, index) => {
-          const matches = contactMatches(incident, condition.kinds);
-          if (matches.length > 0) findings.push(finding(rule, { i: index + 1 }, incident.id, matches));
+          const { matches, matchedText } = contactMatches(incident, condition.kinds);
+          if (matches.length > 0) findings.push(finding(rule, { i: index + 1 }, incident.id, matches, matchedText));
         });
         break;
       case 'respondentDobBlank':

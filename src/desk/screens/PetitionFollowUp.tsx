@@ -311,7 +311,7 @@ function FiledPanel({ petition: p }: { petition: Petition }) {
             <ul className="incident-lines">
               {v.incidents.map((incident) => (
                 <li key={incident.k}>
-                  {plural(c.incidentLine, {
+                  {plural(incident.lines ? c.incidentLine : c.incidentLineNoLines, {
                     date: incident.date,
                     place: incident.place,
                     how: incident.how,

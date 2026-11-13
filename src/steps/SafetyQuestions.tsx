@@ -41,7 +41,12 @@ export function SafetyQuestions() {
                   type="button"
                   className="btn"
                   aria-label={`${c.clear}: ${q.question}`}
-                  onClick={() => dispatch({ type: 'setSafetyAnswer', id: q.id, answer: null })}
+                  onClick={(e) => {
+                    // This button goes away once the answer is cleared, so keep her
+                    // place by moving focus to the question's first choice.
+                    e.currentTarget.closest('fieldset')?.querySelector<HTMLInputElement>('input[type="radio"]')?.focus();
+                    dispatch({ type: 'setSafetyAnswer', id: q.id, answer: null });
+                  }}
                 >
                   {c.clear}
                 </button>

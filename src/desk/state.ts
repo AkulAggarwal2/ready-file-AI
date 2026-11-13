@@ -164,7 +164,10 @@ export function deskReducer(state: DeskState, action: DeskAction): DeskState {
       if (!p?.sample.amended || !activeHold(p) || p.followUp.textedAt === undefined || p.followUp.amendedAt !== undefined) {
         return state;
       }
-      const next = moveClock(state, parseTime(deskConfig.demoAmendTime));
+      // The amendment has to arrive while the hold is still running.
+      const arrives = Math.max(state.clock, parseTime(deskConfig.demoAmendTime));
+      if (arrives >= activeHold(p)!.end) return state;
+      const next = moveClock(state, arrives);
       const added = p.sample.amended.incidents.length - p.sample.original.incidents.length;
       return update(next, action.id, (q) =>
         withLog({ ...q.followUp, amendedAt: next.clock }, next.clock, plural(log.amended, { n: added })),

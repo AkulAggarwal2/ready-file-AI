@@ -5,7 +5,7 @@ import { copy, fill, rules } from '../content';
 import { ADD_INCIDENT_ID } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
 import { StepHeading } from '../ui/StepHeading';
-import { dateKindId, descriptionId, placeId } from './IncidentEditor';
+import { dateKindId, descriptionId, evidenceId, placeId } from './IncidentEditor';
 import { SafetyQuestions } from './SafetyQuestions';
 
 /** Where "Add more" takes her: the field the question is about. */
@@ -13,8 +13,11 @@ function addMoreTarget(finding: Finding): string {
   if (!finding.incidentId) return ADD_INCIDENT_ID;
   if (finding.conditionType === 'incidentDateMissing') return dateKindId(finding.incidentId);
   if (finding.conditionType === 'incidentPlaceMissing') return placeId(finding.incidentId);
-  const inPlaceOnly = finding.matches?.every((match) => match.field === 'place');
-  return inPlaceOnly ? placeId(finding.incidentId) : descriptionId(finding.incidentId);
+  // The first field with a match, in the order the editor shows them.
+  const fields = new Set(finding.matches?.map((match) => match.field));
+  if (!fields.has('description') && fields.has('place')) return placeId(finding.incidentId);
+  if (!fields.has('description') && fields.has('evidence')) return evidenceId(finding.incidentId);
+  return descriptionId(finding.incidentId);
 }
 
 /** Her words, with possible contact details marked. The words themselves are unchanged. */
@@ -102,6 +105,7 @@ export function CheckStep() {
                         n={index + 1}
                         description={state.incidents[index].description}
                         place={state.incidents[index].place}
+                        evidence={state.incidents[index].evidence}
                         matches={finding.matches}
                       />
                     )}
@@ -164,14 +168,19 @@ interface QuoteProps {
   n: number;
   description: string;
   place: string;
+  evidence: string;
   matches?: ContactMatch[];
 }
 
-/** The incident a question is about. For contact details, the place is shown too if it has any. */
-function IncidentQuote({ n, description, place, matches = [] }: QuoteProps) {
+/**
+ * The incident a question is about. For contact details, the place and the
+ * evidence are shown too if they have any.
+ */
+function IncidentQuote({ n, description, place, evidence, matches = [] }: QuoteProps) {
   const c = copy.check;
   const inDescription = matches.filter((match) => match.field === 'description');
   const inPlace = matches.filter((match) => match.field === 'place');
+  const inEvidence = matches.filter((match) => match.field === 'evidence');
   return (
     <>
       <p>{fill(c.aboutIncident, { n })}</p>
@@ -179,6 +188,11 @@ function IncidentQuote({ n, description, place, matches = [] }: QuoteProps) {
       {inPlace.length > 0 && (
         <p>
           {c.aboutPlace} <mark>{place}</mark>
+        </p>
+      )}
+      {inEvidence.length > 0 && (
+        <p>
+          {c.aboutEvidence} {markMatches(evidence, inEvidence)}
         </p>
       )}
       {matches.length > 0 && <p className="hint">{c.matchesHint}</p>}

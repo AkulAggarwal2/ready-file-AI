@@ -33,8 +33,8 @@ export function createIncident(fields: Partial<IncidentFields> = {}): Incident {
   };
 }
 
-function joinText(a: string, b: string): string {
-  return [a.trim(), b.trim()].filter(Boolean).join('\n\n');
+function joinText(a: string, b: string, separator = '\n\n'): string {
+  return [a.trim(), b.trim()].filter(Boolean).join(separator);
 }
 
 /** Combines two incidents into one, keeping the first one's id. */
@@ -43,7 +43,7 @@ export function mergeIncidents(first: Incident, second: Incident): Incident {
     id: first.id,
     date: first.date.kind === 'unknown' ? second.date : first.date,
     description: joinText(first.description, second.description),
-    place: first.place.trim() ? first.place : second.place,
+    place: joinText(first.place, second.place, '; '),
     how: first.how === 'unknown' ? second.how : first.how,
     evidence: joinText(first.evidence, second.evidence),
   };
