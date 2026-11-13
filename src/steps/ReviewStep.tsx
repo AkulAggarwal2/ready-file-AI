@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import type { CaseType } from '../checker';
+import type { SafetyAnswer } from '../content';
 import { copy, fill } from '../content';
 import type { Incident } from '../organizer';
-import { buildSummary, describeDate, sortByDate } from '../review/summary';
+import { buildSummary, describeDate, safetyLines, sortByDate } from '../review/summary';
 import { ORGANIZE_HEADING_ID } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
 import { ConfirmButton } from '../ui/ConfirmButton';
@@ -13,7 +14,7 @@ export function ReviewStep() {
   const { state, dispatch } = useAppState();
   const [copyStatus, setCopyStatus] = useState('');
   const c = copy.review;
-  const summary = buildSummary(state.caseType ?? 'not-sure', state.incidents, state.story);
+  const summary = buildSummary(state.caseType ?? 'not-sure', state.incidents, state.story, state.safetyAnswers);
 
   async function copySummary() {
     try {
@@ -64,14 +65,27 @@ export function ReviewStep() {
       </div>
       </div>
 
-      <PrintSummary caseType={state.caseType ?? 'not-sure'} incidents={state.incidents} story={state.story} />
+      <PrintSummary
+        caseType={state.caseType ?? 'not-sure'}
+        incidents={state.incidents}
+        story={state.story}
+        safetyAnswers={state.safetyAnswers}
+      />
     </div>
   );
 }
 
 /** The court-ready page. It is hidden on screen and is the only thing that prints. */
-function PrintSummary({ caseType, incidents, story }: { caseType: CaseType; incidents: Incident[]; story: string }) {
+interface PrintProps {
+  caseType: CaseType;
+  incidents: Incident[];
+  story: string;
+  safetyAnswers: Record<string, SafetyAnswer>;
+}
+
+function PrintSummary({ caseType, incidents, story, safetyAnswers }: PrintProps) {
   const s = copy.summary;
+  const safety = safetyLines(safetyAnswers);
   return (
     <article className="print-doc">
       <h1>{s.title}</h1>
@@ -81,6 +95,7 @@ function PrintSummary({ caseType, incidents, story }: { caseType: CaseType; inci
         <section key={incident.id} className="print-incident">
           <h2>{fill(s.incident, { n: index + 1 })}</h2>
           <p>{fill(s.when, { when: describeDate(incident) })}</p>
+          {incident.place.trim() && <p>{fill(s.where, { place: incident.place.trim() })}</p>}
           <p>{fill(s.how, { how: copy.incident.how[incident.how] })}</p>
           <p>
             <strong>{s.what}</strong>
@@ -93,6 +108,14 @@ function PrintSummary({ caseType, incidents, story }: { caseType: CaseType; inci
         <section className="print-incident">
           <h2>{s.story}</h2>
           <p className="print-text">{story.trim()}</p>
+        </section>
+      )}
+      {safety.length > 0 && (
+        <section className="print-incident">
+          <h2>{s.safety}</h2>
+          {safety.map((line) => (
+            <p key={line}>{line}</p>
+          ))}
         </section>
       )}
     </article>

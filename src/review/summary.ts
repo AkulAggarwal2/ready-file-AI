@@ -1,5 +1,5 @@
 import type { CaseType } from '../checker';
-import { copy, fill } from '../content';
+import { copy, fill, safetyQuestions, type SafetyAnswer } from '../content';
 import type { Incident } from '../organizer';
 
 const exactDate = (incident: Incident) =>
@@ -39,8 +39,20 @@ export function describeDate(incident: Incident): string {
   return copy.summary.dateUnknown;
 }
 
+/** The safety questions she answered, in question order, as "question answer" lines. */
+export function safetyLines(answers: Record<string, SafetyAnswer>): string[] {
+  return safetyQuestions
+    .filter((q) => answers[q.id])
+    .map((q) => fill(copy.summary.safetyAnswer, { question: q.question, answer: copy.safety.answers[answers[q.id]] }));
+}
+
 /** Plain-text summary she can paste into the court's e-filing form or print. */
-export function buildSummary(caseType: CaseType, incidents: Incident[], story = ''): string {
+export function buildSummary(
+  caseType: CaseType,
+  incidents: Incident[],
+  story = '',
+  safetyAnswers: Record<string, SafetyAnswer> = {},
+): string {
   const s = copy.summary;
   const lines = [s.title, fill(s.caseType, { caseType: copy.start.caseTypes[caseType] }), ''];
 
@@ -50,6 +62,7 @@ export function buildSummary(caseType: CaseType, incidents: Incident[], story = 
     lines.push(
       fill(s.incident, { n: index + 1 }),
       fill(s.when, { when: describeDate(incident) }),
+      ...(incident.place.trim() ? [fill(s.where, { place: incident.place.trim() })] : []),
       fill(s.how, { how: copy.incident.how[incident.how] }),
       s.what,
       incident.description.trim(),
@@ -59,7 +72,10 @@ export function buildSummary(caseType: CaseType, incidents: Incident[], story = 
   });
 
   // Her own words come after the dated incidents.
-  if (story.trim()) lines.push(s.story, story.trim());
+  if (story.trim()) lines.push(s.story, story.trim(), '');
+
+  const safety = safetyLines(safetyAnswers);
+  if (safety.length > 0) lines.push(s.safety, ...safety);
 
   return lines.join('\n').trim();
 }

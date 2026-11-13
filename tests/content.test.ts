@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import copyJson from '../content/copy.json';
 import rulesJson from '../content/rules.json';
 import resourcesJson from '../content/resources.json';
+import safetyJson from '../content/safety-questions.json';
 import { validateRules } from '../src/checker';
 
 // Section 10. Matched case-insensitively, with curly apostrophes treated as straight ones.
@@ -34,7 +35,12 @@ function filesUnder(dir: string): string[] {
 }
 
 describe('banned phrases (acceptance test 7)', () => {
-  const files = { 'copy.json': copyJson, 'rules.json': rulesJson, 'resources.json': resourcesJson };
+  const files = {
+    'copy.json': copyJson,
+    'rules.json': rulesJson,
+    'resources.json': resourcesJson,
+    'safety-questions.json': safetyJson,
+  };
 
   for (const [file, json] of Object.entries(files)) {
     it(`finds none in ${file}`, () => {

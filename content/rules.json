@@ -11,7 +11,8 @@
       },
       "questionText": "Stalking means two or more incidents. Are there other times?",
       "sourceCitation": "PO-0102 petition booklet (team source K2)",
-      "verified": false
+      "verified": false,
+      "todo": "Team: the Petition Review Flags design suggests: \"Stalking under IC 35-45-10-1 involves repeated or continuing conduct. If more than one incident happened, you can add each one separately.\" Confirm the wording and source before changing questionText."
     },
     {
       "id": "incident-missing-date",
@@ -44,6 +45,43 @@
       },
       "questionText": "Can you say more about what happened? For example, what the person did or said, and where you were.",
       "sourceCitation": "TODO: team to supply source",
+      "verified": false
+    },
+    {
+      "id": "incident-place-missing",
+      "caseTypes": [
+        "stalking",
+        "harassment",
+        "domestic-violence",
+        "sexual-assault",
+        "not-sure"
+      ],
+      "condition": {
+        "type": "incidentPlaceMissing"
+      },
+      "questionText": "Do you remember where this happened? A general place, like \"outside my job,\" is fine.",
+      "sourceCitation": "TODO: team to supply source",
+      "verified": false
+    },
+    {
+      "id": "incident-contact-info",
+      "caseTypes": [
+        "stalking",
+        "harassment",
+        "domestic-violence",
+        "sexual-assault",
+        "not-sure"
+      ],
+      "condition": {
+        "type": "incidentContactInfo",
+        "kinds": [
+          "phone",
+          "ssn",
+          "address"
+        ]
+      },
+      "questionText": "This incident may include a phone number, Social Security number, or street address. The court form has a confidential section for contact details, so the other person doesn't see them there. Do you want to move them?",
+      "sourceCitation": "TODO: team to supply source (confidential information form)",
       "verified": false
     },
     {

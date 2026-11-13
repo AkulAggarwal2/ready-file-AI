@@ -7,6 +7,7 @@ import { IDLE_TIMEOUT_MS, TIMEOUT_WARNING_SECONDS } from '../src/config';
 import { copy, fill } from '../src/content';
 import { leaveSite } from '../src/safety/leaveSite';
 import { LENA_ONE_INCIDENT } from '../src/samples/lena';
+import { initialState, reducer } from '../src/state/appState';
 import {
   STALKING_QUESTION,
   addIncident,
@@ -276,21 +277,21 @@ describe('8. Never blocks', () => {
   it('every question shows "Add more" and "Continue as is", and "Continue as is" always moves on', async () => {
     const user = renderApp();
     await begin(user, 'Stalking');
-    // One short, undated incident triggers all three seeded rules.
+    // One short incident with no date or place triggers four seeded rules.
     await addIncident(user, 'He yelled at me.');
     await toQuestions(user);
 
-    expect(screen.getByText(fill(copy.check.total, { total: 3, open: 3 }))).toBeInTheDocument();
+    expect(screen.getByText(fill(copy.check.total, { total: 4, open: 4 }))).toBeInTheDocument();
     const seen: string[] = [];
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 4; i++) {
       await user.click(questionToggles()[i]);
       seen.push(openQuestionText()!);
       expect(screen.getByRole('button', { name: copy.check.addMore })).toBeEnabled();
       await user.click(screen.getByRole('button', { name: copy.check.continueAsIs }));
     }
-    expect(seen).toHaveLength(3);
+    expect(seen).toHaveLength(4);
     expect(seen[0]).toBe(STALKING_QUESTION);
-    expect(screen.getByText(fill(copy.check.total, { total: 3, open: 0 }))).toBeInTheDocument();
+    expect(screen.getByText(fill(copy.check.total, { total: 4, open: 0 }))).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
     expect(summaryText()).toContain('He yelled at me.');
@@ -344,5 +345,75 @@ describe('9. Order and moving around', () => {
     await goToStep(user, 'story');
     expect(screen.getByRole('textbox', { name: copy.story.label })).toHaveValue(LENA_ONE_INCIDENT);
     expect(screen.getByRole('button', { name: stepName('story') })).toHaveAttribute('aria-current', 'step');
+  });
+});
+
+// Petition Review Flags, petitioner side. All data is fictional.
+describe('10. Petition review flags', () => {
+  it('marks a possible phone number, never changes her words, and "Continue as is" still works', async () => {
+    const user = renderApp();
+    await begin(user, 'Harassment');
+    const words = 'He waited by my car after my shift and followed me home. Call me at 260-555-0142 if needed.';
+    await addIncident(user, words);
+    await user.type(screen.getByRole('textbox', { name: copy.incident.placeLabel }), 'Outside my job');
+    await toQuestions(user);
+
+    // Date missing, then contact details.
+    expect(questionToggles()).toHaveLength(2);
+    await user.click(questionToggles()[1]);
+    expect(openQuestionText()).toMatch(/confidential section/);
+    expect(document.querySelector('.question-body mark')?.textContent).toBe('260-555-0142');
+    expect(document.querySelector('.question-body blockquote')?.textContent).toBe(words);
+
+    await user.click(screen.getByRole('button', { name: copy.check.continueAsIs }));
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+    expect(summaryText()).toContain(words);
+    expect(summaryText()).toContain('Where: Outside my job');
+  });
+
+  it('"Add more" on a missing place goes to the place field', async () => {
+    const user = renderApp();
+    await begin(user, 'Harassment');
+    await addIncident(user, 'He sent me dozens of messages a day for two weeks and would not stop when I asked.');
+    await toQuestions(user);
+    await user.click(questionToggles()[1]);
+    expect(openQuestionText()).toMatch(/where this happened/);
+    await user.click(screen.getByRole('button', { name: copy.check.addMore }));
+    expect(screen.getByRole('textbox', { name: copy.incident.placeLabel })).toHaveFocus();
+  });
+
+  it('safety questions are optional, can be cleared, and only answered ones reach the summary', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await loadSample(user, 'one');
+    await toQuestions(user);
+
+    expect(screen.getByRole('heading', { level: 2, name: copy.safety.heading })).toBeInTheDocument();
+    const choke = screen.getByRole('group', { name: /choked or strangled/ });
+    await user.click(within(choke).getByRole('radio', { name: copy.safety.answers.yes }));
+    const weapon = screen.getByRole('group', { name: /gun or other weapon/ });
+    await user.click(within(weapon).getByRole('radio', { name: copy.safety.answers.unsure }));
+    await user.click(within(weapon).getByRole('button', { name: new RegExp(copy.safety.clear) }));
+    expect(within(weapon).getByRole('radio', { name: copy.safety.answers.unsure })).not.toBeChecked();
+
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+    expect(summaryText()).toContain(copy.summary.safety);
+    expect(summaryText()).toContain('Has the person ever choked or strangled you? Yes');
+    expect(summaryText()).not.toContain('weapon');
+  });
+
+  it('quick exit and timeout (both reset) clear safety answers', () => {
+    const answered = reducer(initialState, { type: 'setSafetyAnswer', id: 'choke', answer: 'yes' });
+    expect(answered.safetyAnswers).toEqual({ choke: 'yes' });
+    expect(reducer(answered, { type: 'reset' }).safetyAnswers).toEqual({});
+  });
+
+  it('with no safety answers, the summary has no safety section', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await loadSample(user, 'one');
+    await toQuestions(user);
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+    expect(summaryText()).not.toContain(copy.summary.safety);
   });
 });

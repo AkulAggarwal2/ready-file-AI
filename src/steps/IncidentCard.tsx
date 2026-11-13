@@ -71,6 +71,7 @@ export function IncidentCard({
 
       <p className="incident-meta">
         <strong>{when}</strong>
+        {incident.place.trim() && <span> · {incident.place.trim()}</span>}
         {incident.how !== 'unknown' && <span> · {c.how[incident.how]}</span>}
       </p>
       <p className="incident-preview preview">{description || c.preview.empty}</p>

@@ -18,6 +18,9 @@ export interface CheckIncident {
   id: string;
   date: CheckDate;
   description: string;
+  // Where it happened. Left out by tools that don't ask, so the place rule
+  // never asks them about it.
+  place?: string;
 }
 
 export interface CheckInput {
@@ -25,12 +28,28 @@ export interface CheckInput {
   incidents: CheckIncident[];
 }
 
+// Kinds of contact details the incidentContactInfo condition looks for. The
+// patterns are in detectors.ts, so rules pick them by name and hold no code.
+export const CONTACT_KINDS = ['phone', 'ssn', 'address'] as const;
+
+export type ContactKind = (typeof CONTACT_KINDS)[number];
+
+/** Where in an incident's text a possible contact detail was found. */
+export interface ContactMatch {
+  kind: ContactKind;
+  field: 'description' | 'place';
+  start: number;
+  end: number;
+}
+
 // Rules can only use these conditions. Rules contain no code, so every
 // question traces back to one rule in a content file.
 export type Condition =
   | { type: 'incidentCountBelow'; value: number }
   | { type: 'incidentDateMissing' }
-  | { type: 'incidentWordsBelow'; value: number };
+  | { type: 'incidentWordsBelow'; value: number }
+  | { type: 'incidentPlaceMissing' }
+  | { type: 'incidentContactInfo'; kinds: ContactKind[] };
 
 export type ConditionType = Condition['type'];
 
@@ -54,4 +73,7 @@ export interface Finding {
   verified: boolean;
   // Set when the question is about one incident rather than the whole list.
   incidentId?: string;
+  // For incidentContactInfo: where the possible contact details are, so the
+  // UI can point them out without checking again.
+  matches?: ContactMatch[];
 }

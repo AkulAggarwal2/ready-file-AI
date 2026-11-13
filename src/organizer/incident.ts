@@ -11,6 +11,8 @@ export interface Incident {
   date: IncidentDate;
   // Her words, unchanged unless she edits them.
   description: string;
+  // Where it happened, in her words.
+  place: string;
   how: HowItHappened;
   evidence: string;
 }
@@ -24,6 +26,7 @@ export function createIncident(fields: Partial<IncidentFields> = {}): Incident {
     id: `incident-${nextId++}`,
     date: { kind: 'unknown' },
     description: '',
+    place: '',
     how: 'unknown',
     evidence: '',
     ...fields,
@@ -40,6 +43,7 @@ export function mergeIncidents(first: Incident, second: Incident): Incident {
     id: first.id,
     date: first.date.kind === 'unknown' ? second.date : first.date,
     description: joinText(first.description, second.description),
+    place: first.place.trim() ? first.place : second.place,
     how: first.how === 'unknown' ? second.how : first.how,
     evidence: joinText(first.evidence, second.evidence),
   };

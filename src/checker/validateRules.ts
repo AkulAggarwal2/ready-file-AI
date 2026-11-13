@@ -1,4 +1,4 @@
-import { CASE_TYPES, type CaseType, type Condition, type Rule } from './types';
+import { CASE_TYPES, CONTACT_KINDS, type CaseType, type Condition, type ContactKind, type Rule } from './types';
 
 function fail(index: number, id: unknown, problem: string): never {
   const name = typeof id === 'string' ? `"${id}"` : `#${index + 1}`;
@@ -15,7 +15,17 @@ function validateCondition(raw: unknown, index: number, id: unknown): Condition 
 
   switch (raw.type) {
     case 'incidentDateMissing':
+    case 'incidentPlaceMissing':
       return { type: raw.type };
+    case 'incidentContactInfo':
+      if (
+        !Array.isArray(raw.kinds) ||
+        raw.kinds.length === 0 ||
+        !raw.kinds.every((k): k is ContactKind => (CONTACT_KINDS as readonly string[]).includes(k as string))
+      ) {
+        fail(index, id, `condition "incidentContactInfo" needs "kinds", a list using only: ${CONTACT_KINDS.join(', ')}.`);
+      }
+      return { type: raw.type, kinds: raw.kinds };
     case 'incidentCountBelow':
     case 'incidentWordsBelow':
       if (typeof raw.value !== 'number' || raw.value < 0) {
@@ -26,7 +36,7 @@ function validateCondition(raw: unknown, index: number, id: unknown): Condition 
       return fail(
         index,
         id,
-        `unknown condition type "${String(raw.type)}". Use incidentCountBelow, incidentDateMissing, or incidentWordsBelow.`,
+        `unknown condition type "${String(raw.type)}". Use incidentCountBelow, incidentDateMissing, incidentWordsBelow, incidentPlaceMissing, or incidentContactInfo.`,
       );
   }
 }

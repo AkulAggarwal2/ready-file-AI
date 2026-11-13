@@ -1,6 +1,7 @@
 export { runChecks } from './runChecks';
 export { validateRules } from './validateRules';
-export { CASE_TYPES } from './types';
+export { findContactDetails } from './detectors';
+export { CASE_TYPES, CONTACT_KINDS } from './types';
 export type {
   CaseType,
   CheckDate,
@@ -8,6 +9,8 @@ export type {
   CheckInput,
   Condition,
   ConditionType,
+  ContactKind,
+  ContactMatch,
   Finding,
   Rule,
 } from './types';

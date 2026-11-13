@@ -6,6 +6,7 @@ const DATE_KINDS: IncidentDate['kind'][] = ['exact', 'approximate', 'unknown'];
 
 export const dateKindId = (incidentId: string) => `${incidentId}-date-kind`;
 export const descriptionId = (incidentId: string) => `${incidentId}-description`;
+export const placeId = (incidentId: string) => `${incidentId}-place`;
 
 function changeDateKind(date: IncidentDate, kind: IncidentDate['kind']): IncidentDate {
   if (kind === 'exact') return { kind, value: date.kind === 'exact' ? date.value : '' };
@@ -64,6 +65,19 @@ export function IncidentFields({ incident }: { incident: Incident }) {
           />
         </>
       )}
+
+      <label htmlFor={placeId(id)}>{c.placeLabel}</label>
+      <p id={`${id}-place-hint`} className="hint">
+        {c.placeHint}
+      </p>
+      <input
+        id={placeId(id)}
+        type="text"
+        autoComplete="off"
+        aria-describedby={`${id}-place-hint`}
+        value={incident.place}
+        onChange={(e) => update({ place: e.target.value })}
+      />
 
       <label htmlFor={`${id}-how`}>{c.howLabel}</label>
       <select

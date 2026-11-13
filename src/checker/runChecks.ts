@@ -1,4 +1,5 @@
-import type { CheckIncident, CheckInput, Finding, Rule } from './types';
+import { findContactDetails } from './detectors';
+import type { CheckIncident, CheckInput, ContactKind, ContactMatch, Finding, Rule } from './types';
 
 function isDateMissing(incident: CheckIncident): boolean {
   const { date } = incident;
@@ -11,7 +12,14 @@ function wordCount(text: string): number {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
-function finding(rule: Rule, incidentId?: string): Finding {
+function contactMatches(incident: CheckIncident, kinds: ContactKind[]): ContactMatch[] {
+  const fields = { description: incident.description, place: incident.place ?? '' };
+  return (Object.keys(fields) as ContactMatch['field'][]).flatMap((field) =>
+    findContactDetails(fields[field], kinds).map((span) => ({ ...span, field })),
+  );
+}
+
+function finding(rule: Rule, incidentId?: string, matches?: ContactMatch[]): Finding {
   return {
     key: `${rule.id}:${incidentId ?? 'all'}`,
     ruleId: rule.id,
@@ -20,6 +28,7 @@ function finding(rule: Rule, incidentId?: string): Finding {
     sourceCitation: rule.sourceCitation,
     verified: rule.verified,
     incidentId,
+    ...(matches && { matches }),
   };
 }
 
@@ -48,6 +57,17 @@ export function runChecks(input: CheckInput, rules: Rule[]): Finding[] {
           if (wordCount(incident.description) < condition.value) {
             findings.push(finding(rule, incident.id));
           }
+        }
+        break;
+      case 'incidentPlaceMissing':
+        for (const incident of input.incidents) {
+          if (incident.place !== undefined && incident.place.trim() === '') findings.push(finding(rule, incident.id));
+        }
+        break;
+      case 'incidentContactInfo':
+        for (const incident of input.incidents) {
+          const matches = contactMatches(incident, condition.kinds);
+          if (matches.length > 0) findings.push(finding(rule, incident.id, matches));
         }
         break;
     }

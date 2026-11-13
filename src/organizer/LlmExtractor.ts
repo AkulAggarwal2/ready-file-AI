@@ -1,4 +1,4 @@
-import { LENA_FOUR_INCIDENTS } from '../samples/lena';
+import { LENA_FOUR_INCIDENTS, LENA_FOUR_PLACES } from '../samples/lena';
 import { createIncident, type Incident, type IncidentFields } from './incident';
 import type { IncidentExtractor } from './IncidentExtractor';
 import { ManualExtractor } from './ManualExtractor';
@@ -9,12 +9,14 @@ import { ManualExtractor } from './ManualExtractor';
 // Lena sample, as a model would, and uses the manual splitter for anything else.
 const [january, february, earlyMarch, march14] = LENA_FOUR_INCIDENTS.split('\n\n');
 
+const [atWork, texts, apartment, home] = LENA_FOUR_PLACES;
+
 const PREPARED_DRAFTS: Record<string, IncidentFields[]> = {
   [LENA_FOUR_INCIDENTS]: [
-    { description: january, date: { kind: 'approximate', text: 'January' }, how: 'in-person', evidence: '' },
-    { description: february, date: { kind: 'approximate', text: 'February' }, how: 'phone-or-text', evidence: '' },
-    { description: earlyMarch, date: { kind: 'approximate', text: 'early March' }, how: 'other', evidence: '' },
-    { description: march14, date: { kind: 'approximate', text: 'March 14' }, how: 'in-person', evidence: '' },
+    { description: january, place: atWork, date: { kind: 'approximate', text: 'January' }, how: 'in-person', evidence: '' },
+    { description: february, place: texts, date: { kind: 'approximate', text: 'February' }, how: 'phone-or-text', evidence: '' },
+    { description: earlyMarch, place: apartment, date: { kind: 'approximate', text: 'early March' }, how: 'other', evidence: '' },
+    { description: march14, place: home, date: { kind: 'approximate', text: 'March 14' }, how: 'in-person', evidence: '' },
   ],
 };
 

@@ -1,18 +1,33 @@
-import { useEffect, useMemo, useState } from 'react';
-import { runChecks, type Finding } from '../checker';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { runChecks, type ContactMatch, type Finding } from '../checker';
 import { DEMO_MODE } from '../config';
 import { copy, fill, rules } from '../content';
 import { ADD_INCIDENT_ID } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
 import { StepHeading } from '../ui/StepHeading';
-import { dateKindId, descriptionId } from './IncidentEditor';
+import { dateKindId, descriptionId, placeId } from './IncidentEditor';
+import { SafetyQuestions } from './SafetyQuestions';
 
 /** Where "Add more" takes her: the field the question is about. */
 function addMoreTarget(finding: Finding): string {
   if (!finding.incidentId) return ADD_INCIDENT_ID;
-  return finding.conditionType === 'incidentDateMissing'
-    ? dateKindId(finding.incidentId)
-    : descriptionId(finding.incidentId);
+  if (finding.conditionType === 'incidentDateMissing') return dateKindId(finding.incidentId);
+  if (finding.conditionType === 'incidentPlaceMissing') return placeId(finding.incidentId);
+  const inPlaceOnly = finding.matches?.every((match) => match.field === 'place');
+  return inPlaceOnly ? placeId(finding.incidentId) : descriptionId(finding.incidentId);
+}
+
+/** Her words, with possible contact details marked. The words themselves are unchanged. */
+function markMatches(text: string, matches: ContactMatch[]): ReactNode[] {
+  const parts: ReactNode[] = [];
+  let at = 0;
+  for (const match of matches) {
+    if (match.start > at) parts.push(text.slice(at, match.start));
+    parts.push(<mark key={match.start}>{text.slice(match.start, match.end)}</mark>);
+    at = match.end;
+  }
+  if (at < text.length) parts.push(text.slice(at));
+  return parts;
 }
 
 const toggleId = (key: string) => `question-${key}-toggle`;
@@ -83,10 +98,12 @@ export function CheckStep() {
                 {isOpen && (
                   <div id={panelId(finding.key)} className="question-body">
                     {index !== -1 && (
-                      <>
-                        <p>{fill(c.aboutIncident, { n: index + 1 })}</p>
-                        <blockquote>{state.incidents[index].description || copy.common.ellipsis}</blockquote>
-                      </>
+                      <IncidentQuote
+                        n={index + 1}
+                        description={state.incidents[index].description}
+                        place={state.incidents[index].place}
+                        matches={finding.matches}
+                      />
                     )}
                     <p id={questionTextId(finding.key)} className="question-text">
                       {finding.questionText}
@@ -129,6 +146,8 @@ export function CheckStep() {
         </ul>
       )}
 
+      <SafetyQuestions />
+
       <div className="button-row">
         <button type="button" className="btn" onClick={() => dispatch({ type: 'goTo', step: 'story' })}>
           {c.back}
@@ -138,5 +157,31 @@ export function CheckStep() {
         </button>
       </div>
     </div>
+  );
+}
+
+interface QuoteProps {
+  n: number;
+  description: string;
+  place: string;
+  matches?: ContactMatch[];
+}
+
+/** The incident a question is about. For contact details, the place is shown too if it has any. */
+function IncidentQuote({ n, description, place, matches = [] }: QuoteProps) {
+  const c = copy.check;
+  const inDescription = matches.filter((match) => match.field === 'description');
+  const inPlace = matches.filter((match) => match.field === 'place');
+  return (
+    <>
+      <p>{fill(c.aboutIncident, { n })}</p>
+      <blockquote>{description ? markMatches(description, inDescription) : copy.common.ellipsis}</blockquote>
+      {inPlace.length > 0 && (
+        <p>
+          {c.aboutPlace} <mark>{place}</mark>
+        </p>
+      )}
+      {matches.length > 0 && <p className="hint">{c.matchesHint}</p>}
+    </>
   );
 }

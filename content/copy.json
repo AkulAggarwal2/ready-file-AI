@@ -85,6 +85,8 @@
     "exactLabel": "Date",
     "approximateLabel": "About when",
     "approximateHint": "For example: early March, or the week before Thanksgiving.",
+    "placeLabel": "Where did it happen?",
+    "placeHint": "For example: outside my job, or at home. A general place is fine.",
     "descriptionLabel": "What happened",
     "howLabel": "How did it happen?",
     "how": {
@@ -123,7 +125,9 @@
     "toReview": "Go to review",
     "back": "Back to your story",
     "unverified": "Unverified rule: {ruleId}",
-    "allIncidents": "About all of your incidents"
+    "allIncidents": "About all of your incidents",
+    "aboutPlace": "Place:",
+    "matchesHint": "The marked text may be contact details. Nothing is changed unless you change it."
   },
   "review": {
     "heading": "Review your incidents",
@@ -145,12 +149,15 @@
     "caseType": "Type of protection order: {caseType}",
     "incident": "Incident {n}",
     "when": "When: {when}",
+    "where": "Where: {place}",
     "dateUnknown": "Date not known",
     "how": "How it happened: {how}",
     "what": "What happened:",
     "evidence": "Evidence or witnesses: {evidence}",
     "noIncidents": "No incidents were listed.",
-    "story": "Your story:"
+    "story": "Your story:",
+    "safety": "Safety questions:",
+    "safetyAnswer": "{question} {answer}"
   },
   "badges": {
     "heading": "Questions that may come up",
@@ -160,7 +167,9 @@
     "none": "No questions",
     "incidentCountBelow": "Other times?",
     "incidentDateMissing": "Date missing",
-    "incidentWordsBelow": "Could use more detail"
+    "incidentWordsBelow": "Could use more detail",
+    "incidentPlaceMissing": "Place missing",
+    "incidentContactInfo": "May include contact details"
   },
   "timeline": {
     "heading": "Timeline",
@@ -182,5 +191,16 @@
     "undone": "Done. Your change was undone. You now have {count}.",
     "expanded": "Editing incident {n}.",
     "collapsed": "Finished editing incident {n}."
+  },
+  "safety": {
+    "heading": "Safety questions",
+    "intro": "These questions are optional. Your answers are shown to court staff as you give them. They do not change whether your petition is accepted.",
+    "answers": {
+      "yes": "Yes",
+      "no": "No",
+      "unsure": "Not sure"
+    },
+    "clear": "Clear answer",
+    "unverified": "Unverified question: {id}"
   }
 }
