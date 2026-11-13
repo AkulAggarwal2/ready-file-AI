@@ -1,0 +1,36 @@
+{
+  "clock": {
+    "start": "2026-11-09T08:35",
+    "minutesPerAction": 2
+  },
+  "holdHours": 24,
+  "counter": {
+    "open": "08:00",
+    "close": "16:00",
+    "days": [1, 2, 3, 4, 5]
+  },
+  "timelineHours": 25,
+  "lineWidth": 66,
+  "checkedCaseTypes": ["stalking", "harassment"],
+  "callDays": {
+    "weeknights": [1, 2, 3, 4, 5],
+    "weekdays": [1, 2, 3, 4, 5],
+    "weekends": [0, 6],
+    "every-day": [0, 1, 2, 3, 4, 5, 6]
+  },
+  "outcomes": {
+    "stalking": ["granted-ex-parte", "hearing", "denied"],
+    "harassment": ["hearing", "denied"]
+  },
+  "denialReasons": {
+    "source": "PO-0102 booklet",
+    "sourceCitation": "PO-0102 petition booklet (team source K2)",
+    "verified": false,
+    "reasons": [
+      { "id": "definition", "label": "Facts don't meet the definition" },
+      { "id": "vague", "label": "Time, place, or acts are too vague" },
+      { "id": "secondhand", "label": "Facts are secondhand, with no affidavit" },
+      { "id": "other", "label": "Other" }
+    ]
+  }
+}

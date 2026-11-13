@@ -1,4 +1,4 @@
-export { runChecks } from './runChecks';
+export { runChecks, wordCount } from './runChecks';
 export { validateRules } from './validateRules';
 export { CASE_TYPES } from './types';
 export type {
@@ -9,5 +9,8 @@ export type {
   Condition,
   ConditionType,
   Finding,
+  FindingValues,
+  StaffText,
+  CheckRespondent,
   Rule,
 } from './types';

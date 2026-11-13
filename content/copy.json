@@ -157,7 +157,8 @@
     "none": "No questions",
     "incidentCountBelow": "Other times?",
     "incidentDateMissing": "Date missing",
-    "incidentWordsBelow": "Could use more detail"
+    "incidentWordsBelow": "Could use more detail",
+    "respondentDobBlank": "Date of birth missing"
   },
   "timeline": {
     "heading": "Timeline",

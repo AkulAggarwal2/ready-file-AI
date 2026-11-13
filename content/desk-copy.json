@@ -1,0 +1,425 @@
+{
+  "app": {
+    "name": "ReadyFile Desk",
+    "court": "Allen Superior Court",
+    "navLabel": "Desk sections",
+    "nav": {
+      "petitions": "Online petitions",
+      "review": "Ex parte review"
+    },
+    "users": {
+      "specialist": "T. Reyes, Protective order specialist",
+      "magistrate": "Magistrate, Protection order review"
+    },
+    "specialistName": "T. Reyes",
+    "userLabel": "Signed in as",
+    "liveRegionLabel": "Updates",
+    "breadcrumbLabel": "Breadcrumb"
+  },
+  "time": {
+    "weekdays": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+    "weekdaysShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    "months": [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ],
+    "am": "am",
+    "pm": "pm",
+    "noon": "Noon",
+    "midnight": "Midnight",
+    "clock": "{hour}:{minute} {period}",
+    "clockOnTheHour": "{hour} {period}",
+    "short": "{weekday} {time}",
+    "at": "{weekday} at {time}",
+    "long": "{weekday}, {month} {day} at {time}",
+    "range": "{start} to {end}",
+    "birthDate": "{month} {day}, {year}"
+  },
+  "caseTypes": {
+    "stalking": "Stalking",
+    "harassment": "Harassment",
+    "domestic-violence": "Domestic violence",
+    "sexual-assault": "Sexual assault",
+    "not-sure": "Not sure"
+  },
+  "how": {
+    "in-person": "In person",
+    "online": "Online",
+    "phone-or-text": "Phone or text",
+    "other": "Other",
+    "unknown": "How it happened isn't given"
+  },
+  "dates": {
+    "none": "No date"
+  },
+  "status": {
+    "notHeld": "Not held yet",
+    "inQueue": "In review queue",
+    "held": "Held until {time}",
+    "magistrateHold": "Magistrate asked for follow-up",
+    "sent": "Sent to review {time}"
+  },
+  "contact": {
+    "textsOk": "Texts OK.",
+    "textsNotOk": "No texts.",
+    "callsAnyTime": "Calls any time.",
+    "callsWindow": "Calls {days}, {range}.",
+    "callsNone": "No call times given.",
+    "callDays": {
+      "weeknights": "weeknights",
+      "weekdays": "weekdays",
+      "weekends": "weekends",
+      "every-day": "every day"
+    }
+  },
+  "list": {
+    "title": "Online petitions",
+    "summary": "Since the counter closed Friday at 4 pm, {total} came in online. {withQuestions}",
+    "summaryTotal": {
+      "zero": "no stalking or harassment petitions",
+      "one": "1 stalking or harassment petition",
+      "other": "{n} stalking and harassment petitions"
+    },
+    "summaryWithQuestions": {
+      "zero": "None have questions the counter would ask.",
+      "one": "1 has questions the counter would ask.",
+      "other": "{n} have questions the counter would ask."
+    },
+    "showNames": "Show petitioner names",
+    "updated": "Updated {time}",
+    "filtersLabel": "Show petitions",
+    "filters": {
+      "questions": "Questions found ({n})",
+      "none": "No questions ({n})",
+      "all": "All ({n})"
+    },
+    "scopeNote": "Desk checks stalking and harassment petitions. Domestic violence petitions go straight to review until those rules are written.",
+    "rowTitle": "{caseType}, {name}",
+    "filed": "Filed {time}",
+    "caseNumber": "Case {caseNumber}",
+    "questionsLabel": "Questions",
+    "noQuestions": "No questions found",
+    "contactLabel": "Contact",
+    "phoneGiven": "Phone given",
+    "noPhone": "No phone given",
+    "noPhoneNote": {
+      "one": "The question goes to review with the petition.",
+      "other": "The questions go to review with the petition."
+    },
+    "statusLabel": "Status",
+    "open": "Open petition",
+    "openFor": "for case {caseNumber}",
+    "empty": "No petitions match this filter.",
+    "notes": [
+      "Desk runs the same checks as ReadyFile on every online stalking and harassment petition. Each question traces to one rule and its source.",
+      "Nothing waits unless staff hold it. A hold lasts up to {hours} hours. Then the petition goes to the magistrate, answered or not."
+    ]
+  },
+  "petition": {
+    "title": "{caseType} petition from {name}",
+    "filed": "Filed online {date}. Respondent: {respondent}.",
+    "statusLabel": "Status",
+    "hold": {
+      "notHeldTitle": "Not held",
+      "notHeldBody": "It's in the magistrate's review queue now. Holding it gives the petitioner up to {hours} hours to answer.",
+      "noPhone": "No phone number, so there's no one to follow up with.",
+      "holdButton": "Hold for follow-up",
+      "heldTitle": "Hold ends {weekday} at {time}",
+      "heldBody": "You held it at {time} {weekday}. It goes to the magistrate then, answered or not.",
+      "heldByMagistrateBody": "It was held at {time} {weekday}. It goes to the magistrate then, answered or not.",
+      "magistrateAsked": "The magistrate asked for follow-up at {time}.",
+      "sendNow": "Send to magistrate now",
+      "preview": "Preview the bench summary",
+      "sentTitle": "Sent to the magistrate",
+      "sentBody": "Sent at {time}. The hold has ended."
+    },
+    "timeline": {
+      "lanes": {
+        "counter": "Counter open",
+        "calls": "Call times",
+        "texts": "Texts",
+        "hold": "Hold"
+      },
+      "callsNone": "None given",
+      "textsOk": "OK any time",
+      "textsNotOk": "Not OK",
+      "holdPreview": "If you hold it now: until {time}",
+      "held": "Held until {time}",
+      "holdEnded": "Hold ended {time}",
+      "notHeld": "Not held",
+      "now": "Now {time}",
+      "alternative": {
+        "heading": "Timeline, as text",
+        "range": "Timeline from {start} to {end}.",
+        "counter": "Counter open: {times}.",
+        "calls": "Call times: {times}.",
+        "callsNone": "Call times: none given.",
+        "textsOk": "Texts: OK any time.",
+        "textsNotOk": "Texts: not OK.",
+        "hold": "Hold: {times}.",
+        "holdPreview": "Hold: not held. If you hold it now, it lasts until {time}.",
+        "notHeld": "Hold: not held.",
+        "now": "Now: {time}.",
+        "none": "none in this time",
+        "join": "; "
+      },
+      "sentence": {
+        "noOverlapTexts": "The call times given don't overlap the counter's hours. A text link lets the petitioner add details before the hold ends.",
+        "noOverlapNoTexts": "The call times given don't overlap the counter's hours, and the petitioner asked not to get texts.",
+        "overlap": "The call times given overlap the counter's hours from {start} to {end}.",
+        "noCallTimes": "No call times were given."
+      }
+    },
+    "questions": {
+      "title": {
+        "zero": "No questions the counter would ask",
+        "one": "1 question the counter would ask",
+        "other": "{n} questions the counter would ask"
+      },
+      "none": "Desk found nothing the counter would ask about.",
+      "askLabel": "Question to ask:",
+      "rule": "Rule {id}",
+      "source": "Source: {source}",
+      "unverified": "Wording not approved yet",
+      "fallback": "Question from rule {id}"
+    },
+    "keepToInfo": {
+      "title": "Keep it to information",
+      "informationLabel": "Information",
+      "information": "Stalking is defined as two or more incidents. Are there other times you want to describe?",
+      "adviceLabel": "Advice"
+    },
+    "filedPetition": {
+      "title": "Petition as filed",
+      "wordsNote": "The petitioner's words, unchanged",
+      "fields": {
+        "basis": "Basis checked",
+        "relationship": "Relationship",
+        "respondent": "Respondent",
+        "dob": "Respondent's date of birth"
+      },
+      "blank": "Blank",
+      "original": "Original petition, filed {date}",
+      "amended": "Amended petition, filed {date}",
+      "narrativeLabel": "Narrative from the {version} petition, with line numbers",
+      "found": {
+        "zero": "Desk found no incidents",
+        "one": "Desk found 1 incident",
+        "other": "Desk found {n} incidents"
+      },
+      "incident": "{date}. {how}. {lines}.",
+      "line": "Line {a}",
+      "lines": "Lines {a} to {b}",
+      "splitNote": "Incidents are split by paragraph and date phrases, the same way ReadyFile splits them."
+    },
+    "contactPanel": {
+      "title": "Contact",
+      "petitioner": "Petitioner",
+      "phone": "Phone",
+      "noPhone": "No phone given",
+      "showNumber": "Show number",
+      "hideNumber": "Hide number",
+      "texts": "Texts",
+      "voicemail": "Voicemail",
+      "calls": "Calls",
+      "ok": "OK",
+      "notOk": "Not OK",
+      "callsAnyTime": "Any time",
+      "callsWindow": "{days}, {range}",
+      "callsNone": "None given",
+      "messageTitle": "Text the petitioner gets",
+      "message": "Hi, this is Allen County staff about the form you sent on {filedDay}. You can add more details here until {endDay} {endTime}: [link]. Reply STOP to end texts.",
+      "messageNote": "Neutral wording. It never names the case type or the other person.",
+      "holdFirst": "Hold the petition to follow up.",
+      "holdEnded": "The hold has ended.",
+      "textLink": "Text the link",
+      "textAgain": "Text the link again",
+      "linkTexted": "Link texted at {time}. Not opened yet.",
+      "linkUsed": "Link texted at {time}. Details added {added}.",
+      "noTexts": "The petitioner asked not to get texts.",
+      "logCall": "Log a call",
+      "callLegend": "How did the call go?",
+      "callResults": {
+        "reached": "Reached the petitioner",
+        "no-answer": "No answer",
+        "not-safe": "Not safe to talk now"
+      },
+      "outsideCallTimes": "It's outside the call times given.",
+      "saveCall": "Save call",
+      "cancel": "Cancel",
+      "pickResult": "Pick how the call went.",
+      "callSaved": "Call saved: {result}."
+    },
+    "activity": {
+      "title": "Activity",
+      "checked": {
+        "zero": "Desk checked the petition and found no questions.",
+        "one": "Desk checked the petition and found 1 question.",
+        "other": "Desk checked the petition and found {n} questions."
+      },
+      "checkedAmended": {
+        "zero": "Desk checked the amended petition and found no questions.",
+        "one": "Desk checked the amended petition and found 1 question.",
+        "other": "Desk checked the amended petition and found {n} questions."
+      },
+      "held": "Held for follow-up until {time}.",
+      "sentNow": "Sent to the magistrate before the hold ended.",
+      "holdEnded": "The hold ended, and the petition went to the magistrate.",
+      "texted": "Texted the link.",
+      "called": "Logged a call: {result}.",
+      "callResults": {
+        "reached": "reached the petitioner",
+        "no-answer": "no answer",
+        "not-safe": "not safe to talk now"
+      },
+      "amended": {
+        "zero": "The petitioner filed an amended petition.",
+        "one": "The petitioner filed an amended petition that adds 1 incident.",
+        "other": "The petitioner filed an amended petition that adds {n} incidents."
+      },
+      "askedFollowUp": "The magistrate asked for follow-up. Held until {time}.",
+      "outcome": "The magistrate recorded the outcome: {outcome}."
+    },
+    "demo": {
+      "title": "Demo controls",
+      "note": "Development only. These stand in for things that happen outside Desk. They don't appear in the real tool.",
+      "addIncidents": "The petitioner adds incidents through the link",
+      "addIncidentsHint": "Works on the sample petition that has an amendment, during a hold, after the link is texted.",
+      "jump": "Jump to the end of the hold",
+      "jumpHint": "Works during a hold.",
+      "reset": "Reset demo"
+    }
+  },
+  "review": {
+    "title": "Ex parte review",
+    "intro": "Petitions waiting for your review, oldest first.",
+    "tableLabel": "Petitions waiting for your review",
+    "columns": {
+      "case": "Case",
+      "type": "Case type",
+      "filed": "Filed",
+      "questions": "Open questions",
+      "followUp": "Follow-up",
+      "outcome": "Outcome",
+      "open": "Open the bench summary"
+    },
+    "caption": "{petitioner} v. {respondent}",
+    "none": "None",
+    "followedUp": {
+      "zero": "Followed up: nothing added",
+      "one": "Followed up: 1 incident added",
+      "other": "Followed up: {n} incidents added"
+    },
+    "amendedNoNew": "Followed up: petition amended",
+    "notFollowedUp": "Not followed up",
+    "noOutcome": "Not recorded",
+    "open": "Open",
+    "openFor": "{caption}, case {caseNumber}",
+    "empty": "No petitions are waiting for your review."
+  },
+  "bench": {
+    "title": "{petitioner} v. {respondent}",
+    "back": "Back to the petition",
+    "subtitle": "{caseType} petition. Filed online {filed}{amended}. {queue}",
+    "amended": ", amended {time}",
+    "queue": "In your review queue since {time}.",
+    "onHold": "On hold until {time}.",
+    "tabsLabel": "Petition views",
+    "tabs": {
+      "summary": "Bench summary",
+      "amended": "Amended petition",
+      "original": "Original petition"
+    },
+    "summaryTitle": "Bench summary",
+    "builtFrom": "Built from the {version} petition. The petitioner's words are unchanged and sorted by date. Desk doesn't judge whether the petition meets any legal standard.",
+    "versionNames": {
+      "amended": "amended",
+      "original": "original"
+    },
+    "fields": {
+      "petitioner": "Petitioner",
+      "respondent": "Respondent",
+      "relationship": "Relationship",
+      "basis": "Basis checked"
+    },
+    "incidentsTitle": {
+      "zero": "No incidents found",
+      "one": "1 incident, in date order",
+      "other": "{n} incidents, in date order"
+    },
+    "incident": "Incident {k}",
+    "versionTitles": {
+      "amended": "Amended",
+      "original": "Original"
+    },
+    "lineLink": "{version} petition, line {a}",
+    "linesLink": "{version} petition, lines {a} to {b}",
+    "notTied": "Not tied to one incident",
+    "questionsTitle": "Same questions the counter asks",
+    "questionsTableLabel": "Same questions the counter asks",
+    "questionsColumns": {
+      "question": "Question",
+      "status": "Status"
+    },
+    "answered": "Answered {time}",
+    "stillOpen": "Still open: {text}",
+    "noQuestion": "No question",
+    "recordTitle": "Follow-up record",
+    "recordNote": "Staff can't edit petition text in Desk. Every word above is the petitioner's.",
+    "petitionTab": {
+      "filed": "Filed online {date}.",
+      "highlightedLine": "Line {a} is highlighted.",
+      "highlightedLines": "Lines {a} to {b} are highlighted.",
+      "clear": "Clear highlight"
+    },
+    "outcome": {
+      "title": "Record the outcome",
+      "intro": "Enter your order as usual. Recording the outcome here shows the court why online petitions are denied.",
+      "legend": "Outcome",
+      "choices": {
+        "granted-ex-parte": "Granted ex parte",
+        "hearing": "Set for hearing",
+        "denied": "Denied"
+      },
+      "caseTypeNotes": {
+        "harassment": "Granted ex parte isn't offered for harassment. The PO-0102 booklet says harassment-only petitions need notice and a hearing before any relief (team source K2)."
+      },
+      "reasonsLegend": "Reason, if denied",
+      "reasonsSource": "From the common denial reasons in the {source}.",
+      "toldTitle": "What the petitioner will be told",
+      "told": {
+        "none": "Pick an outcome to see what the petitioner will be told.",
+        "granted-ex-parte": "If the petitioner signed up for notices, the court's usual notices go out when the order is granted and served.",
+        "hearing": "The petitioner gets the hearing date and time.",
+        "denied": "The petitioner gets a new denial notice: your reason in plain words and the options available, in wording the court approves. No such notice exists today."
+      },
+      "save": "Save outcome",
+      "needOutcome": "Pick an outcome first.",
+      "needReason": "Pick at least one reason, or Other.",
+      "saved": "Saved as {outcome}. Your order is still entered as usual."
+    },
+    "openQuestions": {
+      "title": {
+        "one": "1 question still open",
+        "other": "{n} questions still open"
+      },
+      "ask": "Ask the specialist to follow up",
+      "sent": "Sent to {specialist}. It comes back to you within {hours} hours.",
+      "noPhone": "No phone number, so there's no one to follow up with."
+    }
+  },
+  "adviceExamples": {
+    "advice": ["You should add more incidents.", "This will be denied as it is."],
+    "test": "The test: if it says \"you should,\" it's advice."
+  }
+}

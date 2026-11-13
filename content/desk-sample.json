@@ -1,0 +1,207 @@
+{
+  "note": "Fictional sample petitions for the ReadyFile Desk demo. Every person, case number, and phone number here is made up. Use 555-01xx phone numbers only. Each incident description is the petitioner's words exactly as filed, and must appear word for word in the narrative.",
+  "petitions": [
+    {
+      "id": "lena-moore",
+      "caseNumber": "02D01-2611-PO-000412",
+      "caseType": "stalking",
+      "petitioner": { "firstName": "Lena", "lastName": "Moore" },
+      "respondent": {
+        "firstName": "Dale",
+        "lastName": "Ostrander",
+        "relationship": "Neighbor. Not family, never dated.",
+        "address": "Unit B of her duplex",
+        "dateOfBirth": ""
+      },
+      "contact": {
+        "phone": "(260) 555-0141",
+        "textsOk": true,
+        "voicemailOk": false,
+        "calls": { "days": "weeknights", "from": "19:30", "to": "22:00" }
+      },
+      "original": {
+        "filedAt": "2026-11-08T23:52",
+        "narrative": "On Friday night around 7 pm I got home from work and he was on my porch again yelling at me. I went inside and shut the screen door and he pulled it open so hard the latch broke. He came into my living room and shoved me into the wall by the door. I screamed at him to get out and the lady across the street called the police. The police came and arrested him that night. This is not the first time he has done something but this was the worst. I am scared to be at home and I don't feel safe walking to my car anymore.",
+        "incidents": [
+          {
+            "date": { "kind": "approximate", "text": "Friday, November 6, about 7 pm" },
+            "how": "in-person",
+            "description": "On Friday night around 7 pm I got home from work and he was on my porch again yelling at me. I went inside and shut the screen door and he pulled it open so hard the latch broke. He came into my living room and shoved me into the wall by the door. I screamed at him to get out and the lady across the street called the police. The police came and arrested him that night. This is not the first time he has done something but this was the worst. I am scared to be at home and I don't feel safe walking to my car anymore."
+          }
+        ]
+      },
+      "amendment": {
+        "filedAt": "2026-11-09T20:21",
+        "narrative": "Mid-August, at home. He parked his truck across my driveway so I couldn't leave for work. When I asked him to move it he yelled that I would be sorry if I called anyone.\n\nEarly September, at my car. He followed me from my door to my car at 6:30 in the morning, right behind me, and stood by my window until I drove away.\n\nOctober 21, at night. I saw him in the yard filming me through my front window with his phone. I closed the blinds and he was still there 20 minutes later.\n\nFriday, November 6, about 7 pm. I got home from work and he was on my porch again yelling at me. I went inside and shut the screen door and he pulled it open so hard the latch broke. He came into my living room and shoved me into the wall by the door. I screamed at him to get out and the lady across the street called the police. The police came and arrested him that night.\n\nI am scared to be at home and I don't feel safe walking to my car anymore.",
+        "incidents": [
+          {
+            "date": { "kind": "approximate", "text": "Mid-August" },
+            "how": "in-person",
+            "description": "Mid-August, at home. He parked his truck across my driveway so I couldn't leave for work. When I asked him to move it he yelled that I would be sorry if I called anyone."
+          },
+          {
+            "date": { "kind": "approximate", "text": "Early September" },
+            "how": "in-person",
+            "description": "Early September, at my car. He followed me from my door to my car at 6:30 in the morning, right behind me, and stood by my window until I drove away."
+          },
+          {
+            "date": { "kind": "approximate", "text": "October 21" },
+            "how": "in-person",
+            "description": "October 21, at night. I saw him in the yard filming me through my front window with his phone. I closed the blinds and he was still there 20 minutes later."
+          },
+          {
+            "date": { "kind": "approximate", "text": "Friday, November 6, about 7 pm" },
+            "how": "in-person",
+            "description": "Friday, November 6, about 7 pm. I got home from work and he was on my porch again yelling at me. I went inside and shut the screen door and he pulled it open so hard the latch broke. He came into my living room and shoved me into the wall by the door. I screamed at him to get out and the lady across the street called the police. The police came and arrested him that night."
+          }
+        ]
+      }
+    },
+    {
+      "id": "keisha-turner",
+      "caseNumber": "02D01-2611-PO-000409",
+      "caseType": "harassment",
+      "petitioner": { "firstName": "Keisha", "lastName": "Turner" },
+      "respondent": {
+        "firstName": "Brandon",
+        "lastName": "Hale",
+        "relationship": "Former coworker",
+        "dateOfBirth": "1989-04-17"
+      },
+      "contact": {
+        "phone": null,
+        "textsOk": false,
+        "voicemailOk": false,
+        "calls": null
+      },
+      "original": {
+        "filedAt": "2026-11-07T14:16",
+        "narrative": "On October 30 he sent me twelve messages in one night saying he knows where I live and that I will regret reporting him at work.\n\nHe showed up in the parking lot at my new job and waited by my car until security walked me out.",
+        "incidents": [
+          {
+            "date": { "kind": "approximate", "text": "October 30" },
+            "how": "phone-or-text",
+            "description": "On October 30 he sent me twelve messages in one night saying he knows where I live and that I will regret reporting him at work."
+          },
+          {
+            "date": { "kind": "unknown" },
+            "how": "in-person",
+            "description": "He showed up in the parking lot at my new job and waited by my car until security walked me out."
+          }
+        ]
+      }
+    },
+    {
+      "id": "dana-whitfield",
+      "caseNumber": "02D01-2611-PO-000405",
+      "caseType": "stalking",
+      "petitioner": { "firstName": "Dana", "lastName": "Whitfield" },
+      "respondent": {
+        "firstName": "Kyle",
+        "lastName": "Brenner",
+        "relationship": "Former classmate",
+        "dateOfBirth": "1992-08-03"
+      },
+      "contact": {
+        "phone": "(260) 555-0187",
+        "textsOk": true,
+        "voicemailOk": true,
+        "calls": { "anyTime": true }
+      },
+      "original": {
+        "filedAt": "2026-11-06T21:40",
+        "narrative": "On September 12 he followed my car from the grocery store to my apartment and parked across the street for an hour.\n\nOn October 3 he left a note on my windshield that listed where I had been that whole week.\n\nHe was waiting outside my work again last night.",
+        "incidents": [
+          {
+            "date": { "kind": "approximate", "text": "September 12" },
+            "how": "in-person",
+            "description": "On September 12 he followed my car from the grocery store to my apartment and parked across the street for an hour."
+          },
+          {
+            "date": { "kind": "approximate", "text": "October 3" },
+            "how": "other",
+            "description": "On October 3 he left a note on my windshield that listed where I had been that whole week."
+          },
+          {
+            "date": { "kind": "approximate", "text": "Last night" },
+            "how": "in-person",
+            "description": "He was waiting outside my work again last night."
+          }
+        ]
+      }
+    },
+    {
+      "id": "marcus-reid",
+      "caseNumber": "02D01-2611-PO-000407",
+      "caseType": "harassment",
+      "petitioner": { "firstName": "Marcus", "lastName": "Reid" },
+      "respondent": {
+        "firstName": "Tara",
+        "lastName": "Quinn",
+        "relationship": "Former landlord",
+        "dateOfBirth": "1985-11-22"
+      },
+      "contact": {
+        "phone": "(260) 555-0123",
+        "textsOk": true,
+        "voicemailOk": true,
+        "calls": { "anyTime": true }
+      },
+      "original": {
+        "filedAt": "2026-11-07T10:05",
+        "narrative": "On October 18 she called my phone more than forty times in one afternoon and left messages calling me names.\n\nOn October 25 she posted my home address in a neighborhood group online and told people to come find me.",
+        "incidents": [
+          {
+            "date": { "kind": "approximate", "text": "October 18" },
+            "how": "phone-or-text",
+            "description": "On October 18 she called my phone more than forty times in one afternoon and left messages calling me names."
+          },
+          {
+            "date": { "kind": "approximate", "text": "October 25" },
+            "how": "online",
+            "description": "On October 25 she posted my home address in a neighborhood group online and told people to come find me."
+          }
+        ]
+      }
+    },
+    {
+      "id": "ana-perez",
+      "caseNumber": "02D01-2611-PO-000410",
+      "caseType": "stalking",
+      "petitioner": { "firstName": "Ana", "lastName": "Perez" },
+      "respondent": {
+        "firstName": "Victor",
+        "lastName": "Lane",
+        "relationship": "Former neighbor",
+        "dateOfBirth": "1979-02-09"
+      },
+      "contact": {
+        "phone": null,
+        "textsOk": false,
+        "voicemailOk": false,
+        "calls": null
+      },
+      "original": {
+        "filedAt": "2026-11-08T18:30",
+        "narrative": "On August 2 he sat in his car outside my house for two hours and drove off when I came outside.\n\nOn September 20 he came to my daughter's soccer game and stood behind me the whole time without saying anything.\n\nOn November 1 he mailed me photos of my front door that he had taken at night over several weeks.",
+        "incidents": [
+          {
+            "date": { "kind": "approximate", "text": "August 2" },
+            "how": "in-person",
+            "description": "On August 2 he sat in his car outside my house for two hours and drove off when I came outside."
+          },
+          {
+            "date": { "kind": "approximate", "text": "September 20" },
+            "how": "in-person",
+            "description": "On September 20 he came to my daughter's soccer game and stood behind me the whole time without saying anything."
+          },
+          {
+            "date": { "kind": "approximate", "text": "November 1" },
+            "how": "other",
+            "description": "On November 1 he mailed me photos of my front door that he had taken at night over several weeks."
+          }
+        ]
+      }
+    }
+  ]
+}

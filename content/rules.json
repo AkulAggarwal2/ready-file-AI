@@ -10,6 +10,12 @@
         "value": 2
       },
       "questionText": "Stalking means two or more incidents. Are there other times?",
+      "staffText": {
+        "count": "n",
+        "zero": "Stalking is checked, and no incidents are described",
+        "one": "Stalking is checked, and {n} incident is described",
+        "other": "Stalking is checked, and {n} incidents are described"
+      },
       "sourceCitation": "PO-0102 petition booklet (team source K2)",
       "verified": false
     },
@@ -26,6 +32,7 @@
         "type": "incidentDateMissing"
       },
       "questionText": "Do you remember about when this happened? A rough time, like \"early March,\" is fine.",
+      "staffText": "Incident {i} has no date",
       "sourceCitation": "TODO: team to supply source",
       "verified": false
     },
@@ -43,8 +50,31 @@
         "value": 15
       },
       "questionText": "Can you say more about what happened? For example, what the person did or said, and where you were.",
+      "staffText": {
+        "count": "words",
+        "one": "Incident {i} is very short ({words} word)",
+        "other": "Incident {i} is very short ({words} words)"
+      },
       "sourceCitation": "TODO: team to supply source",
       "verified": false
+    },
+    {
+      "id": "respondent-dob-missing",
+      "caseTypes": [
+        "stalking",
+        "harassment",
+        "domestic-violence",
+        "sexual-assault",
+        "not-sure"
+      ],
+      "condition": {
+        "type": "respondentDobBlank"
+      },
+      "questionText": "Do you know the other person's date of birth? Without it, the order goes into Indiana's registry but not the national one.",
+      "staffText": "The respondent's date of birth is blank",
+      "sourceCitation": "PO-0102 petition booklet (team source K2)",
+      "verified": false,
+      "todo": "Off in ReadyFile until it collects respondent details. It asks only when the checker's input includes them."
     },
     {
       "id": "harassment-rule",

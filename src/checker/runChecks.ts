@@ -1,4 +1,4 @@
-import type { CheckIncident, CheckInput, Finding, Rule } from './types';
+import type { CheckIncident, CheckInput, Finding, FindingValues, Rule } from './types';
 
 function isDateMissing(incident: CheckIncident): boolean {
   const { date } = incident;
@@ -7,19 +7,22 @@ function isDateMissing(incident: CheckIncident): boolean {
   return true;
 }
 
-function wordCount(text: string): number {
+export function wordCount(text: string): number {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
-function finding(rule: Rule, incidentId?: string): Finding {
+function finding(rule: Rule, values: FindingValues, incident?: { id: string; number: number }): Finding {
   return {
-    key: `${rule.id}:${incidentId ?? 'all'}`,
+    key: `${rule.id}:${incident?.id ?? 'all'}`,
     ruleId: rule.id,
     conditionType: rule.condition!.type,
     questionText: rule.questionText,
     sourceCitation: rule.sourceCitation,
     verified: rule.verified,
-    incidentId,
+    incidentId: incident?.id,
+    incidentNumber: incident?.number,
+    staffText: rule.staffText,
+    values,
   };
 }
 
@@ -29,6 +32,7 @@ function finding(rule: Rule, incidentId?: string): Finding {
  */
 export function runChecks(input: CheckInput, rules: Rule[]): Finding[] {
   const findings: Finding[] = [];
+  const n = input.incidents.length;
 
   for (const rule of rules) {
     const { condition } = rule;
@@ -36,18 +40,27 @@ export function runChecks(input: CheckInput, rules: Rule[]): Finding[] {
 
     switch (condition.type) {
       case 'incidentCountBelow':
-        if (input.incidents.length < condition.value) findings.push(finding(rule));
+        if (n < condition.value) findings.push(finding(rule, { n }));
         break;
       case 'incidentDateMissing':
-        for (const incident of input.incidents) {
-          if (isDateMissing(incident)) findings.push(finding(rule, incident.id));
-        }
+        input.incidents.forEach((incident, index) => {
+          if (isDateMissing(incident)) {
+            findings.push(finding(rule, { n, i: index + 1 }, { id: incident.id, number: index + 1 }));
+          }
+        });
         break;
       case 'incidentWordsBelow':
-        for (const incident of input.incidents) {
-          if (wordCount(incident.description) < condition.value) {
-            findings.push(finding(rule, incident.id));
+        input.incidents.forEach((incident, index) => {
+          const words = wordCount(incident.description);
+          if (words < condition.value) {
+            findings.push(finding(rule, { n, i: index + 1, words }, { id: incident.id, number: index + 1 }));
           }
+        });
+        break;
+      case 'respondentDobBlank':
+        // Asks only when the input has respondent details at all.
+        if (input.respondent && input.respondent.dateOfBirth.trim() === '') {
+          findings.push(finding(rule, { n }));
         }
         break;
     }

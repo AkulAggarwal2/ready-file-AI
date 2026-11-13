@@ -1,4 +1,4 @@
-import { CASE_TYPES, type CaseType, type Condition, type Rule } from './types';
+import { CASE_TYPES, type CaseType, type Condition, type Rule, type StaffText } from './types';
 
 function fail(index: number, id: unknown, problem: string): never {
   const name = typeof id === 'string' ? `"${id}"` : `#${index + 1}`;
@@ -15,6 +15,7 @@ function validateCondition(raw: unknown, index: number, id: unknown): Condition 
 
   switch (raw.type) {
     case 'incidentDateMissing':
+    case 'respondentDobBlank':
       return { type: raw.type };
     case 'incidentCountBelow':
     case 'incidentWordsBelow':
@@ -26,9 +27,28 @@ function validateCondition(raw: unknown, index: number, id: unknown): Condition 
       return fail(
         index,
         id,
-        `unknown condition type "${String(raw.type)}". Use incidentCountBelow, incidentDateMissing, or incidentWordsBelow.`,
+        `unknown condition type "${String(raw.type)}". Use incidentCountBelow, incidentDateMissing, incidentWordsBelow, or respondentDobBlank.`,
       );
   }
+}
+
+// The finding values that plural forms can count (see FindingValues).
+const STAFF_TEXT_COUNTS = ['n', 'i', 'words'];
+
+// staffText is optional: one text, or plural forms picked by a finding value.
+function validateStaffText(raw: unknown, index: number, id: unknown): StaffText | undefined {
+  if (raw === undefined) return undefined;
+  if (typeof raw === 'string') return raw;
+  const problem =
+    'staffText must be text, or plural forms like { "count": "n", "one": "...", "other": "..." } (with an optional "zero").';
+  if (!isRecord(raw)) fail(index, id, problem);
+  const { count, zero, one, other } = raw;
+  if (typeof count !== 'string' || typeof one !== 'string' || typeof other !== 'string') fail(index, id, problem);
+  if (zero !== undefined && typeof zero !== 'string') fail(index, id, problem);
+  if (!STAFF_TEXT_COUNTS.includes(count)) {
+    fail(index, id, `staffText "count" must be one of: ${STAFF_TEXT_COUNTS.join(', ')}.`);
+  }
+  return zero === undefined ? { count, one, other } : { count, zero, one, other };
 }
 
 /**
@@ -61,6 +81,7 @@ export function validateRules(raw: unknown): Rule[] {
       caseTypes: item.caseTypes,
       condition: validateCondition(item.condition, index, id),
       questionText: item.questionText,
+      staffText: validateStaffText(item.staffText, index, id),
       sourceCitation: item.sourceCitation,
       verified: item.verified,
       todo: typeof item.todo === 'string' ? item.todo : undefined,
