@@ -103,7 +103,8 @@
     "empty": "No petitions match this filter.",
     "notes": [
       "Desk runs the same checks as ReadyFile on every online stalking and harassment petition. Each question traces to one rule and its source.",
-      "Nothing waits unless staff hold it. A hold lasts up to 24 hours. Then the petition goes to the magistrate, answered or not."
+      "Nothing waits unless staff hold it. A hold lasts up to 24 hours. Then the petition goes to the magistrate, answered or not.",
+      "Flags show what the petitioner reported. They never reorder or hide a petition."
     ]
   },
   "contact": {
@@ -206,7 +207,7 @@
       "one": "Desk found 1 incident",
       "other": "Desk found {n} incidents"
     },
-    "incidentLine": "{date}. {how}. {lines}.",
+    "incidentLine": "{date}. {place}. {how}. {lines}.",
     "noDate": "No date",
     "lines": {
       "by": "count",
@@ -214,7 +215,8 @@
       "other": "Lines {a} to {b}"
     },
     "splitNote": "Incidents are split by paragraph and date phrases, the same way ReadyFile splits them.",
-    "lineNumber": "Line {n}"
+    "lineNumber": "Line {n}",
+    "noPlace": "No place"
   },
   "contactPanel": {
     "title": "Contact",
@@ -395,5 +397,19 @@
     "addIncidents": "Petitioner adds incidents through the link",
     "jumpEnd": "Jump to the end of the hold",
     "reset": "Reset demo"
+  },
+  "flags": {
+    "reported": "Petitioner reported",
+    "reviewPromptly": "Review promptly",
+    "noneReported": "None reported",
+    "note": "Flags show what the petitioner reported. They never reorder or hide a petition.",
+    "answersTitle": "Safety answers (as given)",
+    "answersIntro": "The petitioner's own answers to the optional safety questions. Desk doesn't score or judge them.",
+    "noAnswer": "No answer",
+    "answers": {
+      "yes": "Yes",
+      "no": "No",
+      "unsure": "Not sure"
+    }
   }
 }

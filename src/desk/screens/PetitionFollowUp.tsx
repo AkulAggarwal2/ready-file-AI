@@ -22,6 +22,7 @@ import {
   type Petition,
   type VersionName,
 } from '../model';
+import { SafetyAnswersPanel } from '../SafetyFlags';
 import { useDesk } from '../state';
 import { buildStrip, tickLabel } from '../timeline';
 import { day, formatBirthDate, formatShort, formatTime, month, weekday } from '../time';
@@ -70,6 +71,7 @@ export function PetitionFollowUp({ id }: { id: string }) {
           <FiledPanel petition={p} />
         </div>
         <div className="side-column">
+          <SafetyAnswersPanel petition={p} />
           <ContactPanel petition={p} now={state.clock} />
           <ActivityLog entries={p.followUp.log} title={deskCopy.activity.title} />
         </div>
@@ -311,6 +313,7 @@ function FiledPanel({ petition: p }: { petition: Petition }) {
                 <li key={incident.k}>
                   {plural(c.incidentLine, {
                     date: incident.date,
+                    place: incident.place,
                     how: incident.how,
                     lines: incident.lines ? linesText(incident.lines) : '',
                   })}

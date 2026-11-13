@@ -4,7 +4,7 @@ import deskConfigJson from '../../content/desk-config.json';
 import deskCopyJson from '../../content/desk-copy.json';
 import deskSampleJson from '../../content/desk-sample.json';
 import type { CheckDate, PluralText } from '../checker';
-import { fill } from '../content';
+import { fill, type SafetyAnswer } from '../content';
 
 export type DeskCaseType = 'stalking' | 'harassment';
 export type How = 'in-person' | 'online' | 'phone-or-text' | 'other' | 'unknown';
@@ -21,6 +21,8 @@ export interface TimeWindow {
 export interface SampleIncident {
   date: CheckDate;
   how: How;
+  // Where the petitioner said it happened.
+  place?: string;
   // The petitioner's words, exactly as filed.
   description: string;
   // Only for date order on the bench summary. Never shown.
@@ -49,6 +51,9 @@ export interface SamplePetition {
   original: PetitionVersion;
   // In v1 the amended petition is stored here, and the demo control files it.
   amended?: PetitionVersion;
+  // The petitioner's answers to the optional safety questions, by question id.
+  // A question with no entry wasn't answered.
+  safetyAnswers: Record<string, SafetyAnswer>;
 }
 
 export interface DeskConfig {

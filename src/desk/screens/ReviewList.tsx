@@ -1,6 +1,7 @@
 import { ScreenTitle } from '../components';
 import { deskCopy, plural } from '../content';
 import { caption, currentFindings, filedAt, inReview, wasHeld, type Petition } from '../model';
+import { SafetyFlags } from '../SafetyFlags';
 import { useDesk } from '../state';
 import { formatShort } from '../time';
 
@@ -50,6 +51,9 @@ export function ReviewList() {
                     <th scope="row">
                       {name}
                       <span className="meta tabular block">{p.sample.caseNumber}</span>
+                      <span className="block row-flags-inline">
+                        <SafetyFlags petition={p} />
+                      </span>
                     </th>
                     <td>{deskCopy.caseTypes[p.sample.caseType]}</td>
                     <td className="tabular">{formatShort(filedAt(p))}</td>

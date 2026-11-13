@@ -296,3 +296,54 @@ describe('15. Accessibility', () => {
     expect(screen.getByRole('tab', { name: deskCopy.bench.tabs.original })).toHaveAttribute('aria-selected', 'true');
   });
 });
+
+// Petition Review Flags, staff side. Flags show only what the petitioner reported.
+describe('17. Safety flags', () => {
+  const flagText = (row: HTMLElement) =>
+    Array.from(row.querySelectorAll('.reported-chip')).map((chip) => chip.textContent);
+
+  it('shows "Review promptly" only for "yes" answers, and never reorders the list', async () => {
+    const user = renderDesk();
+    await user.click(filterButton('all'));
+    expect(flagText(rowFor('lena'))).toEqual([deskCopy.flags.reviewPromptly, 'Recent incident']);
+    // Dana answered "Not sure" about children, which is not a flag.
+    expect(flagText(rowFor('dana'))).toEqual([deskCopy.flags.reviewPromptly, 'Weapon access']);
+    for (const id of ['keisha', 'marcus', 'ana']) {
+      expect(flagText(rowFor(id))).toEqual([]);
+      expect(rowFor(id)).toHaveTextContent(deskCopy.flags.noneReported);
+    }
+
+    // Oldest first, flags or not.
+    const order = [...samplePetitions].sort((a, b) => a.filedAt.localeCompare(b.filedAt)).map((s) => s.caseNumber);
+    expect(rows().map((row) => order.find((n) => row.textContent!.includes(n)))).toEqual(order);
+    expect(screen.getByText(deskCopy.flags.note)).toBeInTheDocument();
+  });
+
+  it('lists every safety answer as given, on the petition and the bench summary', async () => {
+    const user = renderDesk();
+    await openPetition(user, 'dana');
+    const panel = screen.getByRole('region', { name: deskCopy.flags.answersTitle });
+    const answerTo = (re: RegExp) => within(panel).getByText(re).nextElementSibling!.textContent;
+    expect(answerTo(/gun or other weapon/)).toBe('Yes');
+    expect(answerTo(/children at risk/)).toBe('Not sure');
+    expect(answerTo(/choked or strangled/)).toBe('No');
+
+    await goTo(user, 'petitions');
+    await openPetition(user, 'ana');
+    const ana = screen.getByRole('region', { name: deskCopy.flags.answersTitle });
+    expect(within(ana).getAllByText(deskCopy.flags.noAnswer)).toHaveLength(6);
+
+    await openBench(user, 'lena');
+    const bench = screen.getByRole('region', { name: deskCopy.flags.answersTitle });
+    expect(within(bench).getByText(/in the last 3 days/).nextElementSibling).toHaveTextContent('Yes');
+  });
+
+  it('the review list shows the same flags', async () => {
+    const user = renderDesk();
+    await goTo(user, 'review');
+    const dana = screen.getByRole('rowheader', { name: /Whitfield v\. Brenner/ });
+    expect(within(dana).getByText('Weapon access')).toBeInTheDocument();
+    const marcus = screen.getByRole('rowheader', { name: /Reid v\. Quinn/ });
+    expect(within(marcus).getByText(deskCopy.flags.noneReported)).toBeInTheDocument();
+  });
+});

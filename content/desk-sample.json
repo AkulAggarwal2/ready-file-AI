@@ -1,5 +1,5 @@
 {
-  "_note": "Fictional sample petitions for ReadyFile Desk. They describe no real person or event. Phone numbers use 555-01xx only. Each incident description is the petitioner's words exactly as filed. sortDate is used only to put the bench summary in date order and is never shown.",
+  "_note": "Fictional sample petitions for ReadyFile Desk. They describe no real person or event. Phone numbers use 555-01xx only. Each incident description is the petitioner's words exactly as filed. sortDate is used only to put the bench summary in date order and is never shown. place is where the petitioner said each incident happened. safetyAnswers are the petitioner's own answers to content/safety-questions.json; a question left out was not answered.",
   "petitions": [
     {
       "id": "lena",
@@ -47,6 +47,7 @@
               "text": "Friday, November 6, about 7 pm"
             },
             "how": "in-person",
+            "place": "At home",
             "description": "On Friday night around 7 pm I got home from work and he was on my porch again yelling at me. I went inside and shut the screen door and he pulled it open so hard the latch broke. He came into my living room and shoved me into the wall by the door. I screamed at him to get out and the lady across the street called the police. The police came and arrested him that night. This is not the first time he has done something but this was the worst. I am scared to be at home and I don't feel safe walking to my car anymore.",
             "sortDate": "2026-11-06"
           }
@@ -61,6 +62,7 @@
               "text": "Mid August"
             },
             "how": "in-person",
+            "place": "At home",
             "description": "Mid August, at home. He parked his truck across my driveway so I couldn't leave for work. When I asked him to move it he yelled that I would be sorry if I called anyone.",
             "sortDate": "2026-08-15"
           },
@@ -70,6 +72,7 @@
               "text": "Early September"
             },
             "how": "in-person",
+            "place": "At my car",
             "description": "Early September, at my car. He followed me from my door to my car at 6:30 in the morning, right behind me, and stood by my window until I drove away.",
             "sortDate": "2026-09-05"
           },
@@ -79,6 +82,7 @@
               "text": "October 21"
             },
             "how": "in-person",
+            "place": "At home, through the front window",
             "description": "October 21, at night. I saw him in the yard filming me through my front window with his phone. I closed the blinds and he was still there 20 minutes later.",
             "sortDate": "2026-10-21"
           },
@@ -88,10 +92,19 @@
               "text": "Friday, November 6, about 7 pm"
             },
             "how": "in-person",
+            "place": "At home",
             "description": "Friday, November 6, about 7 pm. I got home from work and he was on my porch again yelling at me. I went inside and shut the screen door and he pulled it open so hard the latch broke. He came into my living room and shoved me into the wall by the door. I screamed at him to get out and the lady across the street called the police. The police came and arrested him that night.",
             "sortDate": "2026-11-06"
           }
         ]
+      },
+      "safetyAnswers": {
+        "recent": "yes",
+        "threat": "no",
+        "weapon": "no",
+        "choke": "no",
+        "kids": "no",
+        "release": "no"
       }
     },
     {
@@ -124,6 +137,7 @@
               "text": "October 30"
             },
             "how": "phone-or-text",
+            "place": "Text messages",
             "description": "On October 30 he sent me twelve messages in one night saying he knows where I live and that I will regret reporting him at work.",
             "sortDate": "2026-10-30"
           },
@@ -132,9 +146,18 @@
               "kind": "unknown"
             },
             "how": "in-person",
+            "place": "Parking lot at my new job",
             "description": "He showed up in the parking lot at my new job and waited by my car until security walked me out."
           }
         ]
+      },
+      "safetyAnswers": {
+        "recent": "no",
+        "threat": "no",
+        "weapon": "no",
+        "choke": "no",
+        "kids": "no",
+        "release": "no"
       }
     },
     {
@@ -184,6 +207,7 @@
               "text": "September 12"
             },
             "how": "in-person",
+            "place": "Grocery store to my apartment",
             "description": "On September 12 he followed my car from the grocery store to my apartment and parked across the street for an hour.",
             "sortDate": "2026-09-12"
           },
@@ -193,6 +217,7 @@
               "text": "October 3"
             },
             "how": "other",
+            "place": "My car, at work",
             "description": "On October 3 he left a note on my windshield that listed where I had been that whole week.",
             "sortDate": "2026-10-03"
           },
@@ -202,10 +227,19 @@
               "text": "Last night"
             },
             "how": "in-person",
+            "place": "Outside my work",
             "description": "He was waiting outside my work again last night.",
             "sortDate": "2026-11-05"
           }
         ]
+      },
+      "safetyAnswers": {
+        "recent": "no",
+        "threat": "no",
+        "weapon": "yes",
+        "choke": "no",
+        "kids": "unsure",
+        "release": "no"
       }
     },
     {
@@ -255,6 +289,7 @@
               "text": "October 18"
             },
             "how": "phone-or-text",
+            "place": "Phone calls",
             "description": "On October 18 she called my phone more than forty times in one afternoon and left messages calling me names.",
             "sortDate": "2026-10-18"
           },
@@ -264,10 +299,19 @@
               "text": "October 25"
             },
             "how": "online",
+            "place": "Neighborhood group online",
             "description": "On October 25 she posted my home address in a neighborhood group online and told people to come find me.",
             "sortDate": "2026-10-25"
           }
         ]
+      },
+      "safetyAnswers": {
+        "recent": "no",
+        "threat": "no",
+        "weapon": "no",
+        "choke": "no",
+        "kids": "no",
+        "release": "no"
       }
     },
     {
@@ -300,6 +344,7 @@
               "text": "August 2"
             },
             "how": "in-person",
+            "place": "Outside my house",
             "description": "On August 2 he sat in his car outside my house for two hours and drove off when I came outside.",
             "sortDate": "2026-08-02"
           },
@@ -309,6 +354,7 @@
               "text": "September 20"
             },
             "how": "in-person",
+            "place": "Soccer game",
             "description": "On September 20 he came to my daughter's soccer game and stood behind me the whole time without saying anything.",
             "sortDate": "2026-09-20"
           },
@@ -318,11 +364,13 @@
               "text": "November 1"
             },
             "how": "other",
+            "place": "By mail",
             "description": "On November 1 he mailed me photos of my front door that he had taken at night over several weeks.",
             "sortDate": "2026-11-01"
           }
         ]
-      }
+      },
+      "safetyAnswers": {}
     }
   ]
 }

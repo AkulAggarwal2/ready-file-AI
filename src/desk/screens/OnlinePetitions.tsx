@@ -1,6 +1,7 @@
 import { QuestionIcon, ScreenTitle, StatusChip } from '../components';
 import { deskCopy, plural } from '../content';
 import { currentFindings, filedAt, fullName, initials, staffText, status, type Petition } from '../model';
+import { SafetyFlags } from '../SafetyFlags';
 import { withQuestions, useDesk, type Filter } from '../state';
 import { formatShort } from '../time';
 
@@ -97,6 +98,10 @@ function PetitionRow({ petition: p, showName }: { petition: Petition; showName: 
         <p className="meta tabular">
           {plural(c.filed, { time: formatShort(filedAt(p)) })} · <span className="nowrap">{p.sample.caseNumber}</span>
         </p>
+        <div className="row-flags">
+          <p className="meta">{deskCopy.flags.reported}</p>
+          <SafetyFlags petition={p} />
+        </div>
       </div>
       <div className="row-findings">
         {findings.length === 0 ? (

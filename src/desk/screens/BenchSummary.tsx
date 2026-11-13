@@ -21,6 +21,7 @@ import {
   type Petition,
   type VersionName,
 } from '../model';
+import { SafetyAnswersPanel } from '../SafetyFlags';
 import { useDesk } from '../state';
 import { formatShort, formatTime, weekday } from '../time';
 
@@ -180,13 +181,15 @@ function SummaryTab({ petition: p, onLines }: { petition: Petition; onLines: (v:
         </div>
       </dl>
 
+      <SafetyAnswersPanel petition={p} as="h3" />
+
       <h3>{plural(c.incidents, { n: incidents.length })}</h3>
       <ol className="bench-incidents">
         {incidents.map((incident, k) => (
           <li key={incident.k} className="bench-incident">
             <h4>{plural(c.incident, { k: k + 1 })}</h4>
             <p className="row-strong">
-              {incident.date} · {incident.how}
+              {incident.date} · {incident.place} · {incident.how}
             </p>
             <p className="verbatim">{incident.description}</p>
             {incident.lines && (

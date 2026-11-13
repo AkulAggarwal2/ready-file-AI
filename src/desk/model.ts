@@ -103,6 +103,7 @@ export interface NumberedIncident {
   k: number;
   date: string;
   how: string;
+  place: string;
   description: string;
   sortDate?: string;
   lines: LineRange | null;
@@ -134,6 +135,7 @@ export function numberVersion(p: Petition, name: VersionName): NumberedVersion {
       k: i + 1,
       date: dateText(incident.date),
       how: deskCopy.how[incident.how],
+      place: incident.place?.trim() || deskCopy.filed.noPlace,
       description: incident.description,
       sortDate: incident.sortDate,
       lines: findLines(lines, v.narrative, incident.description),

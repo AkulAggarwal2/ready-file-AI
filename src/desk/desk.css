@@ -32,6 +32,11 @@
   --texts-border: #a9c0e0;
   --track: #eef1f4;
   --focus: #b07a12;
+  /* What the petitioner reported in the safety questions: plum, so it never
+     reads as a court judgment (red) or a question (blue). 8.3:1 text, 6.1:1 border. */
+  --reported: #6b2c5f;
+  --reported-bg: #f6e9f2;
+  --reported-border: #8e4a80;
 
   --sans: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --serif: 'Literata', Georgia, 'Times New Roman', serif;
@@ -426,6 +431,66 @@ legend {
   border: 1px dashed var(--control);
   border-radius: var(--radius-control);
   color: var(--ink-2);
+}
+
+/* Safety flags: only what the petitioner reported. */
+.reported-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+}
+
+.reported-chip {
+  padding: 2px 8px;
+  border: 1px solid var(--reported-border);
+  border-radius: 999px;
+  background: var(--reported-bg);
+  color: var(--reported);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.reported-chip-lead {
+  background: var(--reported);
+  border-color: var(--reported);
+  color: #fff;
+}
+
+.row-flags {
+  margin-top: 8px;
+}
+
+.row-flags > .meta {
+  margin-bottom: 2px;
+}
+
+.row-flags-inline {
+  margin-top: 6px;
+  font-weight: 400;
+}
+
+.answers > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding: 6px 0;
+  border-top: 1px solid var(--line-light);
+}
+
+.answers dd {
+  font-weight: 600;
+}
+
+.answer-yes dd {
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--reported-bg);
+  color: var(--reported);
+}
+
+.tab-panel .safety-answers {
+  margin-top: 16px;
 }
 
 /* Screen 1 */

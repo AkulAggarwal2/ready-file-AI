@@ -117,10 +117,11 @@ describe('ReadyFile Desk content (DESK_PROMPT.md sections 10 and 12)', () => {
     expect(adviceExamples.some((text) => BANNED_PHRASES.some((phrase) => normalize(text).includes(phrase)))).toBe(true);
   });
 
-  it('desk-copy.json and every staffText use no he, she, her, him, hers, or his (acceptance test 16)', () => {
+  it('desk-copy.json, every staffText, and the safety staff labels use no he, she, her, him, hers, or his (acceptance test 16)', () => {
     const pronoun = /\b(she|he|her|him|hers|his)\b/i;
     const staffTexts = rulesJson.rules.flatMap((rule) => ('staffText' in rule ? allStrings(rule.staffText, rule.id) : []));
-    const hits = [...allStrings(deskCopyJson), ...staffTexts].filter(({ text }) => pronoun.test(text));
+    const staffLabels = safetyJson.questions.map((q) => ({ path: q.id, text: q.staffLabel }));
+    const hits = [...allStrings(deskCopyJson), ...staffTexts, ...staffLabels].filter(({ text }) => pronoun.test(text));
     expect(hits).toEqual([]);
   });
 
