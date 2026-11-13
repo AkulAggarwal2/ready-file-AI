@@ -5,6 +5,7 @@ import copyJson from '../content/copy.json';
 import rulesJson from '../content/rules.json';
 import resourcesJson from '../content/resources.json';
 import safetyJson from '../content/safety-questions.json';
+import deskCopyJson from '../content/desk-copy.json';
 import { validateRules } from '../src/checker';
 
 // Section 10. Matched case-insensitively, with curly apostrophes treated as straight ones.
@@ -98,5 +99,35 @@ describe('no storage or outside network calls in the source code (sections 8 and
   it('index.html loads nothing from another site', () => {
     const html = readFileSync('index.html', 'utf8');
     expect(html).not.toMatch(/(src|href)="(https?:)?\/\//);
+  });
+});
+
+describe('ReadyFile Desk content (DESK_PROMPT.md sections 10 and 12)', () => {
+  const normalize = (text: string) => text.toLowerCase().replace(/[‘’]/g, "'");
+  const { adviceExamples, ...deskWithoutAdvice } = deskCopyJson;
+
+  it('desk-copy.json has no banned phrases outside adviceExamples (acceptance test 14)', () => {
+    const hits = allStrings(deskWithoutAdvice).flatMap(({ path, text }) =>
+      BANNED_PHRASES.filter((phrase) => normalize(text).includes(phrase)).map((phrase) => `${path}: "${phrase}"`),
+    );
+    expect(hits).toEqual([]);
+  });
+
+  it('the advice examples do contain a banned phrase, on purpose', () => {
+    expect(adviceExamples.some((text) => BANNED_PHRASES.some((phrase) => normalize(text).includes(phrase)))).toBe(true);
+  });
+
+  it('desk-copy.json and every staffText use no he, she, her, him, hers, or his (acceptance test 16)', () => {
+    const pronoun = /\b(she|he|her|him|hers|his)\b/i;
+    const staffTexts = rulesJson.rules.flatMap((rule) => ('staffText' in rule ? allStrings(rule.staffText, rule.id) : []));
+    const hits = [...allStrings(deskCopyJson), ...staffTexts].filter(({ text }) => pronoun.test(text));
+    expect(hits).toEqual([]);
+  });
+
+  it('ReadyFile never imports from src/desk (acceptance test 13)', () => {
+    const offenders = filesUnder('src')
+      .filter((file) => !file.startsWith(join('src', 'desk')))
+      .filter((file) => /from ['"][./]*desk\//.test(readFileSync(file, 'utf8')));
+    expect(offenders).toEqual([]);
   });
 });

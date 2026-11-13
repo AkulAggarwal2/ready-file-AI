@@ -19,7 +19,12 @@ function contactMatches(incident: CheckIncident, kinds: ContactKind[]): ContactM
   );
 }
 
-function finding(rule: Rule, incidentId?: string, matches?: ContactMatch[]): Finding {
+function finding(
+  rule: Rule,
+  values: Record<string, number>,
+  incidentId?: string,
+  matches?: ContactMatch[],
+): Finding {
   return {
     key: `${rule.id}:${incidentId ?? 'all'}`,
     ruleId: rule.id,
@@ -28,6 +33,8 @@ function finding(rule: Rule, incidentId?: string, matches?: ContactMatch[]): Fin
     sourceCitation: rule.sourceCitation,
     verified: rule.verified,
     incidentId,
+    ...(rule.staffText !== undefined && { staffText: rule.staffText }),
+    values,
     ...(matches && { matches }),
   };
 }
@@ -44,31 +51,37 @@ export function runChecks(input: CheckInput, rules: Rule[]): Finding[] {
     if (!condition || !rule.caseTypes.includes(input.caseType)) continue;
 
     switch (condition.type) {
-      case 'incidentCountBelow':
-        if (input.incidents.length < condition.value) findings.push(finding(rule));
+      case 'incidentCountBelow': {
+        const n = input.incidents.length;
+        if (n < condition.value) findings.push(finding(rule, { n }));
         break;
+      }
       case 'incidentDateMissing':
-        for (const incident of input.incidents) {
-          if (isDateMissing(incident)) findings.push(finding(rule, incident.id));
-        }
+        input.incidents.forEach((incident, index) => {
+          if (isDateMissing(incident)) findings.push(finding(rule, { i: index + 1 }, incident.id));
+        });
         break;
       case 'incidentWordsBelow':
-        for (const incident of input.incidents) {
-          if (wordCount(incident.description) < condition.value) {
-            findings.push(finding(rule, incident.id));
-          }
-        }
+        input.incidents.forEach((incident, index) => {
+          const words = wordCount(incident.description);
+          if (words < condition.value) findings.push(finding(rule, { i: index + 1, words }, incident.id));
+        });
         break;
       case 'incidentPlaceMissing':
-        for (const incident of input.incidents) {
-          if (incident.place !== undefined && incident.place.trim() === '') findings.push(finding(rule, incident.id));
-        }
+        input.incidents.forEach((incident, index) => {
+          if (incident.place !== undefined && incident.place.trim() === '') {
+            findings.push(finding(rule, { i: index + 1 }, incident.id));
+          }
+        });
         break;
       case 'incidentContactInfo':
-        for (const incident of input.incidents) {
+        input.incidents.forEach((incident, index) => {
           const matches = contactMatches(incident, condition.kinds);
-          if (matches.length > 0) findings.push(finding(rule, incident.id, matches));
-        }
+          if (matches.length > 0) findings.push(finding(rule, { i: index + 1 }, incident.id, matches));
+        });
+        break;
+      case 'respondentDobBlank':
+        if (input.respondent && !input.respondent.dateOfBirth?.trim()) findings.push(finding(rule, {}));
         break;
     }
   }

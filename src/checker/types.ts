@@ -26,6 +26,9 @@ export interface CheckIncident {
 export interface CheckInput {
   caseType: CaseType;
   incidents: CheckIncident[];
+  // Left out by tools that don't collect respondent details, such as
+  // ReadyFile today, so respondent rules never ask them.
+  respondent?: { dateOfBirth?: string };
 }
 
 // Kinds of contact details the incidentContactInfo condition looks for. The
@@ -49,9 +52,21 @@ export type Condition =
   | { type: 'incidentDateMissing' }
   | { type: 'incidentWordsBelow'; value: number }
   | { type: 'incidentPlaceMissing' }
-  | { type: 'incidentContactInfo'; kinds: ContactKind[] };
+  | { type: 'incidentContactInfo'; kinds: ContactKind[] }
+  | { type: 'respondentDobBlank' };
 
 export type ConditionType = Condition['type'];
+
+/**
+ * Text with a count in it. The number named by `by` picks the form: `zero`
+ * for 0 (or `other` if there is no `zero`), `one` for 1, `other` otherwise.
+ */
+export interface PluralText {
+  by: string;
+  zero?: string;
+  one: string;
+  other: string;
+}
 
 export interface Rule {
   id: string;
@@ -61,6 +76,8 @@ export interface Rule {
   questionText: string;
   sourceCitation: string;
   verified: boolean;
+  // How the finding reads to court staff in Desk. ReadyFile ignores it.
+  staffText?: string | PluralText;
   todo?: string;
 }
 
@@ -73,6 +90,10 @@ export interface Finding {
   verified: boolean;
   // Set when the question is about one incident rather than the whole list.
   incidentId?: string;
+  staffText?: string | PluralText;
+  // The numbers staffText needs, so no one recomputes them: n (incident
+  // count), i (the incident's 1-based place in the input), words (word count).
+  values?: Record<string, number>;
   // For incidentContactInfo: where the possible contact details are, so the
   // UI can point them out without checking again.
   matches?: ContactMatch[];

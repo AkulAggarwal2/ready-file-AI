@@ -1,4 +1,12 @@
-import { CASE_TYPES, CONTACT_KINDS, type CaseType, type Condition, type ContactKind, type Rule } from './types';
+import {
+  CASE_TYPES,
+  CONTACT_KINDS,
+  type CaseType,
+  type Condition,
+  type ContactKind,
+  type PluralText,
+  type Rule,
+} from './types';
 
 function fail(index: number, id: unknown, problem: string): never {
   const name = typeof id === 'string' ? `"${id}"` : `#${index + 1}`;
@@ -16,6 +24,7 @@ function validateCondition(raw: unknown, index: number, id: unknown): Condition 
   switch (raw.type) {
     case 'incidentDateMissing':
     case 'incidentPlaceMissing':
+    case 'respondentDobBlank':
       return { type: raw.type };
     case 'incidentContactInfo':
       if (
@@ -36,9 +45,21 @@ function validateCondition(raw: unknown, index: number, id: unknown): Condition 
       return fail(
         index,
         id,
-        `unknown condition type "${String(raw.type)}". Use incidentCountBelow, incidentDateMissing, incidentWordsBelow, incidentPlaceMissing, or incidentContactInfo.`,
+        `unknown condition type "${String(raw.type)}". Use incidentCountBelow, incidentDateMissing, incidentWordsBelow, incidentPlaceMissing, incidentContactInfo, or respondentDobBlank.`,
       );
   }
+}
+
+function validateStaffText(raw: unknown, index: number, id: unknown): string | PluralText | undefined {
+  if (raw === undefined || typeof raw === 'string') return raw;
+  const problem = 'staffText must be text, or an object with "by", "one", and "other" (and optionally "zero").';
+  if (!isRecord(raw)) fail(index, id, problem);
+  const { by, zero, one, other } = raw;
+  if (typeof by !== 'string' || by === '' || typeof one !== 'string' || typeof other !== 'string') {
+    fail(index, id, problem);
+  }
+  if (zero !== undefined && typeof zero !== 'string') fail(index, id, problem);
+  return { by, one, other, ...(zero !== undefined && { zero }) };
 }
 
 /**
@@ -73,6 +94,7 @@ export function validateRules(raw: unknown): Rule[] {
       questionText: item.questionText,
       sourceCitation: item.sourceCitation,
       verified: item.verified,
+      staffText: validateStaffText(item.staffText, index, id),
       todo: typeof item.todo === 'string' ? item.todo : undefined,
     };
   });

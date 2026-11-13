@@ -12,5 +12,6 @@ export type {
   ContactKind,
   ContactMatch,
   Finding,
+  PluralText,
   Rule,
 } from './types';

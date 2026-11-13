@@ -169,7 +169,8 @@
     "incidentDateMissing": "Date missing",
     "incidentWordsBelow": "Could use more detail",
     "incidentPlaceMissing": "Place missing",
-    "incidentContactInfo": "May include contact details"
+    "incidentContactInfo": "May include contact details",
+    "respondentDobBlank": "Date of birth missing"
   },
   "timeline": {
     "heading": "Timeline",

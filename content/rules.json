@@ -12,6 +12,12 @@
       "questionText": "Stalking means two or more incidents. Are there other times?",
       "sourceCitation": "PO-0102 petition booklet (team source K2)",
       "verified": false,
+      "staffText": {
+        "by": "n",
+        "zero": "Stalking is checked, and no incidents are described",
+        "one": "Stalking is checked, and only 1 incident is described",
+        "other": "Stalking is checked, and {n} incidents are described"
+      },
       "todo": "Team: the Petition Review Flags design suggests: \"Stalking under IC 35-45-10-1 involves repeated or continuing conduct. If more than one incident happened, you can add each one separately.\" Confirm the wording and source before changing questionText."
     },
     {
@@ -28,7 +34,8 @@
       },
       "questionText": "Do you remember about when this happened? A rough time, like \"early March,\" is fine.",
       "sourceCitation": "TODO: team to supply source",
-      "verified": false
+      "verified": false,
+      "staffText": "Incident {i} has no date"
     },
     {
       "id": "incident-too-short",
@@ -45,7 +52,12 @@
       },
       "questionText": "Can you say more about what happened? For example, what the person did or said, and where you were.",
       "sourceCitation": "TODO: team to supply source",
-      "verified": false
+      "verified": false,
+      "staffText": {
+        "by": "words",
+        "one": "Incident {i} is very short (1 word)",
+        "other": "Incident {i} is very short ({words} words)"
+      }
     },
     {
       "id": "incident-place-missing",
@@ -61,7 +73,8 @@
       },
       "questionText": "Do you remember where this happened? A general place, like \"outside my job,\" is fine.",
       "sourceCitation": "TODO: team to supply source",
-      "verified": false
+      "verified": false,
+      "staffText": "Incident {i} has no place"
     },
     {
       "id": "incident-contact-info",
@@ -82,7 +95,25 @@
       },
       "questionText": "This incident may include a phone number, Social Security number, or street address. The court form has a confidential section for contact details, so the other person doesn't see them there. Do you want to move them?",
       "sourceCitation": "TODO: team to supply source (confidential information form)",
-      "verified": false
+      "verified": false,
+      "staffText": "Incident {i} may include contact details"
+    },
+    {
+      "id": "respondent-dob-missing",
+      "caseTypes": [
+        "stalking",
+        "harassment",
+        "domestic-violence",
+        "sexual-assault",
+        "not-sure"
+      ],
+      "condition": {
+        "type": "respondentDobBlank"
+      },
+      "questionText": "Do you know the other person's date of birth? Without it, the order goes into Indiana's registry but not the national one.",
+      "sourceCitation": "PO-0102 petition booklet (team source K2)",
+      "verified": false,
+      "staffText": "The respondent's date of birth is blank"
     },
     {
       "id": "harassment-rule",
