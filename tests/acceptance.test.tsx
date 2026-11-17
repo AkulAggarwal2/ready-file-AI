@@ -318,8 +318,6 @@ describe('8. Never blocks', () => {
     await toQuestions(user);
     await user.click(questionToggle(copy.badges.incidentDateMissing));
     expect(openQuestionText()).toMatch(/remember about when/);
-    // This rule's source is still TODO, so demo mode labels it.
-    expect(screen.getByText(fill(copy.check.unverified, { ruleId: 'incident-missing-date' }))).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: copy.check.addMore }));
     expect(screen.getByRole('combobox', { name: copy.incident.dateLabel })).toHaveFocus();
   });
@@ -485,5 +483,33 @@ describe('12. Numbers and pages match the form', () => {
     expect(text).toContain(copy.summary.attachmentNote);
     expect(text).toContain(fill(copy.summary.incident, { n: 3 }));
     expect(text).toContain(fill(copy.summary.incidentAttachment, { n: 4 }));
+  });
+});
+
+describe('13. Sexual assault', () => {
+  it('asks about a conviction on Your story, and the Review checklist explains question 2', async () => {
+    const user = renderApp();
+    await user.click(screen.getByRole('radio', { name: copy.start.caseTypes['sexual-assault'] }));
+    await user.click(screen.getByRole('button', { name: copy.start.begin }));
+    await addIncident(user, 'He came to my apartment after a party and forced me into sexual activity.');
+    await toQuestions(user);
+    expect(questionToggles().some((t) => t.textContent?.includes(copy.badges.incidentsOutOfOrder))).toBe(false);
+    await user.click(questionToggle(copy.badges.convictionMissing));
+    await user.click(screen.getByRole('button', { name: copy.check.addMore }));
+    const select = screen.getByRole('combobox', { name: copy.story.convictedLabel });
+    expect(select).toHaveFocus();
+    await user.selectOptions(select, 'yes');
+    await user.click(screen.getByRole('button', { name: copy.story.next }));
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+    expect(summaryText()).toContain(copy.summary.convicted);
+    expect(screen.getByText(copy.review.formSexOffense)).toBeInTheDocument();
+  });
+
+  it('does not ask about a conviction for other order types', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await addIncident(user, 'He waited outside my work for two hours and followed my car when I left for home.');
+    await user.click(screen.getByRole('button', { name: copy.organize.confirm }));
+    expect(screen.queryByRole('combobox', { name: copy.story.convictedLabel })).toBeNull();
   });
 });

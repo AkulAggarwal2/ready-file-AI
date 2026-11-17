@@ -86,7 +86,14 @@
       "no": "No"
     },
     "askedToStopDetailLabel": "When and how did you tell them? (optional)",
-    "askedToStopDetailHint": "For example: I texted him on March 2 to leave me alone."
+    "askedToStopDetailHint": "For example: I texted him on March 2 to leave me alone.",
+    "convictedLabel": "Was this person convicted of a sex crime against you? (optional)",
+    "convictedHint": "Criminal charges are not needed to ask for an order. If the person was convicted and must register as a sex or violent offender for life, the order can last with no end date.",
+    "convictedOptions": {
+      "unknown": "Choose one (optional)",
+      "yes": "Yes",
+      "no": "No, or not yet"
+    }
   },
   "organize": {
     "heading": "Add your incidents",
@@ -202,7 +209,8 @@
       "Your signature. You sign under penalty of perjury that what you wrote is true."
     ],
     "formHarassment": "Because you chose harassment: if your petition is based on harassment alone, the court must notify the person and hold a hearing before it can order anything.",
-    "formSource": "Based on the Indiana petition (PO-0100) and its instructions (PO-0102)."
+    "formSource": "Based on the Indiana petition (PO-0100) and its instructions (PO-0102).",
+    "formSexOffense": "Because you chose sexual assault: if the person was convicted and must register as a sex or violent offender for life, question 2 asks for the case number, the court and state, and the date of conviction."
   },
   "summary": {
     "title": "Incident summary",
@@ -229,7 +237,8 @@
       "no": "No"
     },
     "incidentAttachment": "Incident #{n} (Attachment 8a)",
-    "attachmentNote": "The form has room for 3 incidents. Write incidents 4 and up on a separate page labeled Attachment 8a, attach it, and count it in question 10 (number of pages attached)."
+    "attachmentNote": "The form has room for 3 incidents. Write incidents 4 and up on a separate page labeled Attachment 8a, attach it, and count it in question 10 (number of pages attached).",
+    "convicted": "The person was convicted of a sex crime against me. If they must register for life, the order can last with no end date (question 2)."
   },
   "badges": {
     "heading": "Questions that may come up",
@@ -249,7 +258,8 @@
     "relationshipNotHousehold": "How you know them",
     "presentThreatMissing": "Danger now?",
     "askedToStopMissing": "Asked them to stop?",
-    "incidentsOutOfOrder": "Dates out of order"
+    "incidentsOutOfOrder": "Dates out of order",
+    "convictionMissing": "Conviction?"
   },
   "timeline": {
     "heading": "Timeline",

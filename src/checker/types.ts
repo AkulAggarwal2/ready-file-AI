@@ -71,6 +71,8 @@ export interface CheckInput {
   threat?: string;
   // Whether she told the person to stop contacting her (Maurer v. Cobb-Maurer).
   askedToStop?: YesNoUnknown;
+  // Whether the person was convicted of a sex crime against her (PO-0100 question 2).
+  convicted?: YesNoUnknown;
   // Today's date as YYYY-MM-DD. Without it, dates are not checked against today.
   today?: string;
 }
@@ -90,7 +92,8 @@ export type Condition =
   | { type: 'relationshipNotHousehold' }
   | { type: 'presentThreatMissing' }
   | { type: 'askedToStopMissing' }
-  | { type: 'incidentsOutOfOrder' };
+  | { type: 'incidentsOutOfOrder' }
+  | { type: 'convictionMissing' };
 
 // Conditions that need no "value" in rules.json.
 export const SIMPLE_CONDITIONS = [
@@ -105,6 +108,7 @@ export const SIMPLE_CONDITIONS = [
   'presentThreatMissing',
   'askedToStopMissing',
   'incidentsOutOfOrder',
+  'convictionMissing',
 ] as const;
 
 export type ConditionType = Condition['type'];

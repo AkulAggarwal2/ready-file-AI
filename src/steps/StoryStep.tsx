@@ -7,6 +7,8 @@ import { StepHeading } from '../ui/StepHeading';
 
 export const THREAT_ID = 'threat';
 export const ASKED_TO_STOP_ID = 'asked-to-stop';
+export const CONVICTED_ID = 'convicted';
+const FOCUS_IDS = [THREAT_ID, ASKED_TO_STOP_ID, CONVICTED_ID];
 const ASKED_OPTIONS: YesNoUnknown[] = ['unknown', 'yes', 'no'];
 
 /**
@@ -20,7 +22,7 @@ export function StoryStep() {
 
   // After "Add more" on one of these questions, focus its field.
   useEffect(() => {
-    if (state.focusTarget !== THREAT_ID && state.focusTarget !== ASKED_TO_STOP_ID) return;
+    if (!state.focusTarget || !FOCUS_IDS.includes(state.focusTarget)) return;
     document.getElementById(state.focusTarget)?.focus();
     dispatch({ type: 'focusHandled' });
   }, [state.focusTarget, dispatch]);
@@ -82,6 +84,27 @@ export function StoryStep() {
             value={state.askedToStopDetail}
             onChange={(e) => setDetails({ askedToStopDetail: e.target.value })}
           />
+        </>
+      )}
+
+      {state.caseType === 'sexual-assault' && (
+        <>
+          <label htmlFor={CONVICTED_ID}>{c.convictedLabel}</label>
+          <p id="convicted-hint" className="hint">
+            {c.convictedHint}
+          </p>
+          <select
+            id={CONVICTED_ID}
+            aria-describedby="convicted-hint"
+            value={state.convicted}
+            onChange={(e) => setDetails({ convicted: e.target.value as YesNoUnknown })}
+          >
+            {ASKED_OPTIONS.map((value) => (
+              <option key={value} value={value}>
+                {c.convictedOptions[value]}
+              </option>
+            ))}
+          </select>
         </>
       )}
 

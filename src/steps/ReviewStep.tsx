@@ -58,6 +58,7 @@ export function ReviewStep() {
             <li key={item}>{item}</li>
           ))}
           {caseType === 'harassment' && <li>{c.formHarassment}</li>}
+          {caseType === 'sexual-assault' && <li>{c.formSexOffense}</li>}
         </ul>
         <p className="hint">{c.formSource}</p>
       </section>
