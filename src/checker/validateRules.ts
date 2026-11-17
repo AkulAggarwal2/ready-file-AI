@@ -1,4 +1,4 @@
-import { CASE_TYPES, SIMPLE_CONDITIONS, type CaseType, type Condition, type Rule } from './types';
+import { CASE_TYPES, SIMPLE_CONDITIONS, type CaseType, type Condition, type Rule, type SimpleConditionType } from './types';
 
 function fail(index: number, id: unknown, problem: string): never {
   const name = typeof id === 'string' ? `"${id}"` : `#${index + 1}`;
@@ -14,7 +14,7 @@ function validateCondition(raw: unknown, index: number, id: unknown): Condition 
   if (!isRecord(raw)) fail(index, id, 'condition must be an object or null.');
 
   if ((SIMPLE_CONDITIONS as readonly unknown[]).includes(raw.type)) {
-    return { type: raw.type as (typeof SIMPLE_CONDITIONS)[number] };
+    return { type: raw.type as SimpleConditionType };
   }
 
   switch (raw.type) {

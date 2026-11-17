@@ -1,10 +1,8 @@
-import { ACTS, type Act, type Firsthand } from '../checker';
+import { ACTS, isDateInFuture, YES_NO_UNKNOWN, type Act, type Firsthand } from '../checker';
 import { copy } from '../content';
 import { HOW_OPTIONS, type HowItHappened, type Incident, type IncidentDate } from '../organizer';
 import { todayIso } from '../state/findings';
 import { useAppState } from '../state/AppStateProvider';
-
-const FIRSTHAND_OPTIONS: Firsthand[] = ['unknown', 'yes', 'no'];
 
 const DATE_KINDS: IncidentDate['kind'][] = ['exact', 'approximate', 'unknown'];
 
@@ -31,7 +29,7 @@ export function IncidentFields({ incident }: { incident: Incident }) {
 
   const update = (changes: Partial<Incident>) => dispatch({ type: 'updateIncident', id, changes });
   const today = todayIso();
-  const inFuture = date.kind === 'exact' && date.value !== '' && date.value > today;
+  const inFuture = isDateInFuture(date, today);
   const toggleAct = (act: Act, on: boolean) =>
     update({ acts: ACTS.filter((a) => (a === act ? on : incident.acts.includes(a))) });
 
@@ -162,7 +160,7 @@ export function IncidentFields({ incident }: { incident: Incident }) {
         value={incident.firsthand}
         onChange={(e) => update({ firsthand: e.target.value as Firsthand })}
       >
-        {FIRSTHAND_OPTIONS.map((value) => (
+        {YES_NO_UNKNOWN.map((value) => (
           <option key={value} value={value}>
             {c.firsthandOptions[value]}
           </option>

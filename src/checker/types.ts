@@ -44,7 +44,10 @@ export const ACTS = [
 
 export type Act = (typeof ACTS)[number];
 
-export type YesNoUnknown = 'yes' | 'no' | 'unknown';
+// In the order the answer lists show them: no answer yet first.
+export const YES_NO_UNKNOWN = ['unknown', 'yes', 'no'] as const;
+
+export type YesNoUnknown = (typeof YES_NO_UNKNOWN)[number];
 
 // Whether she saw or heard the incident herself. If not, the court needs a
 // sworn statement from someone who did (PO-0102).
@@ -77,24 +80,6 @@ export interface CheckInput {
   today?: string;
 }
 
-// Rules can only use these conditions. Rules contain no code, so every
-// question traces back to one rule in a content file.
-export type Condition =
-  | { type: 'incidentCountBelow'; value: number }
-  | { type: 'incidentDateMissing' }
-  | { type: 'incidentWordsBelow'; value: number }
-  | { type: 'incidentDateInFuture' }
-  | { type: 'incidentPlaceMissing' }
-  | { type: 'incidentPeopleMissing' }
-  | { type: 'incidentNotFirsthand' }
-  | { type: 'incidentActsMissing' }
-  | { type: 'feelingMissing' }
-  | { type: 'relationshipNotHousehold' }
-  | { type: 'presentThreatMissing' }
-  | { type: 'askedToStopMissing' }
-  | { type: 'incidentsOutOfOrder' }
-  | { type: 'convictionMissing' };
-
 // Conditions that need no "value" in rules.json.
 export const SIMPLE_CONDITIONS = [
   'incidentDateMissing',
@@ -110,6 +95,16 @@ export const SIMPLE_CONDITIONS = [
   'incidentsOutOfOrder',
   'convictionMissing',
 ] as const;
+
+export type SimpleConditionType = (typeof SIMPLE_CONDITIONS)[number];
+
+// Rules can only use these conditions. Rules contain no code, so every
+// question traces back to one rule in a content file. Built from
+// SIMPLE_CONDITIONS, so the list and this type cannot drift apart.
+export type Condition =
+  | { type: 'incidentCountBelow'; value: number }
+  | { type: 'incidentWordsBelow'; value: number }
+  | { type: SimpleConditionType };
 
 export type ConditionType = Condition['type'];
 

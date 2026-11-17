@@ -53,7 +53,8 @@ export function mergeIncidents(first: Incident, second: Incident): Incident {
     date: first.date.kind === 'unknown' ? second.date : first.date,
     description: joinText(first.description, second.description),
     how: first.how === 'unknown' ? second.how : first.how,
-    place: first.place.trim() ? first.place : second.place,
+    // A one-line field, so both places go on one line.
+    place: [...new Set([first.place.trim(), second.place.trim()])].filter(Boolean).join('; '),
     present: joinText(first.present, second.present),
     firsthand: first.firsthand === 'unknown' ? second.firsthand : first.firsthand,
     acts: ACTS.filter((act) => first.acts.includes(act) || second.acts.includes(act)),

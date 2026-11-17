@@ -47,6 +47,9 @@ export interface AppState {
   // Id of the element to focus after a screen change, for keyboard and
   // screen reader users.
   focusTarget: string | null;
+  // The step to go back to after "Add more" sends her to an earlier step whose
+  // own button would otherwise move her on, such as Start.
+  returnTo: Step | null;
   // Spoken by the live region after organizing, merging, deleting, and so on.
   announcement: string;
   undo: UndoEntry | null;
@@ -67,6 +70,7 @@ export const initialState: AppState = {
   expanded: [],
   dismissed: [],
   focusTarget: null,
+  returnTo: null,
   announcement: '',
   undo: null,
 };
@@ -77,7 +81,7 @@ export type Action =
   | { type: 'setStory'; story: string }
   | { type: 'setPersonDetails'; changes: PersonDetails }
   | { type: 'loadSample'; story: string; incidents: Incident[] }
-  | { type: 'addMore'; focusTarget: string; expandId?: string; step?: Step }
+  | { type: 'addMore'; focusTarget: string; expandId?: string; step?: Step; returnTo?: Step }
   | { type: 'updateIncident'; id: string; changes: Partial<IncidentFields> }
   | { type: 'addIncident' }
   | { type: 'deleteIncident'; id: string }
@@ -118,9 +122,15 @@ function moveTo(state: AppState, from: number, to: number): AppState {
 export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'begin':
-      return { ...state, caseType: action.caseType, relationship: action.relationship, step: 'incidents' };
+      return {
+        ...state,
+        caseType: action.caseType,
+        relationship: action.relationship,
+        step: state.returnTo ?? 'incidents',
+        returnTo: null,
+      };
     case 'goTo':
-      return { ...state, step: action.step, undo: null };
+      return { ...state, step: action.step, returnTo: null, undo: null };
     case 'setStory':
       return { ...state, story: action.story };
     case 'setPersonDetails':
@@ -132,6 +142,7 @@ export function reducer(state: AppState, action: Action): AppState {
         ...state,
         step: action.step ?? 'incidents',
         focusTarget: action.focusTarget,
+        returnTo: action.returnTo ?? null,
         expanded:
           action.expandId && !state.expanded.includes(action.expandId)
             ? [...state.expanded, action.expandId]

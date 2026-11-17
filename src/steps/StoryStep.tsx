@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { YesNoUnknown } from '../checker';
+import { YES_NO_UNKNOWN, type YesNoUnknown } from '../checker';
 import { copy } from '../content';
 import type { PersonDetails } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
@@ -9,7 +9,6 @@ export const THREAT_ID = 'threat';
 export const ASKED_TO_STOP_ID = 'asked-to-stop';
 export const CONVICTED_ID = 'convicted';
 const FOCUS_IDS = [THREAT_ID, ASKED_TO_STOP_ID, CONVICTED_ID];
-const ASKED_OPTIONS: YesNoUnknown[] = ['unknown', 'yes', 'no'];
 
 /**
  * Her account in her own words, plus two questions about the person as a whole:
@@ -64,7 +63,7 @@ export function StoryStep() {
         value={state.askedToStop}
         onChange={(e) => setDetails({ askedToStop: e.target.value as YesNoUnknown })}
       >
-        {ASKED_OPTIONS.map((value) => (
+        {YES_NO_UNKNOWN.map((value) => (
           <option key={value} value={value}>
             {c.askedToStopOptions[value]}
           </option>
@@ -99,7 +98,7 @@ export function StoryStep() {
             value={state.convicted}
             onChange={(e) => setDetails({ convicted: e.target.value as YesNoUnknown })}
           >
-            {ASKED_OPTIONS.map((value) => (
+            {YES_NO_UNKNOWN.map((value) => (
               <option key={value} value={value}>
                 {c.convictedOptions[value]}
               </option>

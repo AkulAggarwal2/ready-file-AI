@@ -88,4 +88,11 @@ describe('mergeIncidents', () => {
       how: 'online',
     });
   });
+
+  it('keeps both places on one line, and the same place only once', () => {
+    const at = (place: string) => createIncident({ place });
+    expect(mergeIncidents(at('Her apartment'), at(' Kroger parking lot ')).place).toBe('Her apartment; Kroger parking lot');
+    expect(mergeIncidents(at('Work'), at('Work')).place).toBe('Work');
+    expect(mergeIncidents(at(''), at('Work')).place).toBe('Work');
+  });
 });

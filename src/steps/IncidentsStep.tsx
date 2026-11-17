@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { Finding } from '../checker';
 import { DEMO_MODE } from '../config';
 import { copy, fill } from '../content';
@@ -6,7 +6,7 @@ import { ManualExtractor } from '../organizer';
 import { LENA_FOUR_INCIDENTS, LENA_ONE_INCIDENT } from '../samples/lena';
 import { ADD_INCIDENT_ID, ORGANIZE_HEADING_ID } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
-import { findingsFor } from '../state/findings';
+import { useFindings } from '../state/findings';
 import { StepHeading } from '../ui/StepHeading';
 import { Timeline } from '../ui/Timeline';
 import { UndoToast } from '../ui/UndoToast';
@@ -33,7 +33,7 @@ export function IncidentsStep() {
   const expireUndo = useCallback(() => dispatch({ type: 'clearUndo' }), [dispatch]);
 
   // The questions that will come up in the next step, grouped by incident.
-  const findings = useMemo(() => findingsFor(state), [state.caseType, state.relationship, state.incidents]);
+  const findings = useFindings(state);
   const forIncident = (id: string): Finding[] => findings.filter((finding) => finding.incidentId === id);
   const forList = findings.filter((finding) => !finding.incidentId);
 
@@ -81,7 +81,7 @@ export function IncidentsStep() {
 
       <details className="disclosure">
         <summary>{copy.timeline.heading}</summary>
-        <Timeline incidents={state.incidents} numbering="list" />
+        <Timeline incidents={state.incidents} />
       </details>
 
       {state.incidents.length === 0 && <p>{c.empty}</p>}

@@ -18,12 +18,6 @@ export function partitionByDate(incidents: Incident[]): { dated: Incident[]; und
   return { dated, undated };
 }
 
-/** Exact-date incidents first, then the rest. */
-export function sortByDate(incidents: Incident[]): Incident[] {
-  const { dated, undated } = partitionByDate(incidents);
-  return [...dated, ...undated];
-}
-
 /** A date she typed as 2025-03-14, written for people: March 14, 2025. */
 export function formatExactDate(value: string): string {
   const [year, month, day] = value.split('-').map(Number);
@@ -138,8 +132,13 @@ export function buildSummary(
   relationship: Relationship | null = null,
   person: PersonAnswers = NO_ANSWERS,
 ): string {
+  return summaryText(summarySections(caseType, incidents, story, relationship, person));
+}
+
+/** The sections as plain text, one line each, with a blank line before each heading. */
+export function summaryText(sections: SummarySection[]): string {
   const out: string[] = [];
-  for (const section of summarySections(caseType, incidents, story, relationship, person)) {
+  for (const section of sections) {
     // A section with no heading continues the one before it.
     if (section.heading) {
       if (out.length > 0) out.push('');

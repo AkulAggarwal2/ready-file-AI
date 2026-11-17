@@ -980,7 +980,6 @@ blockquote {
 h1,
 h2,
 h3,
-label,
 .brand,
 .quick-exit,
 .btn,
@@ -996,8 +995,10 @@ label,
   white-space: nowrap;
 }
 
-/* Long sentences wrap, and are centered. A fieldset legend is a full question. */
+/* Long sentences wrap, and are centered. A fieldset legend or a field label is a
+   full question, like "Was this person convicted of a sex crime against you?". */
 legend,
+label,
 .hint,
 .note,
 .callout p,

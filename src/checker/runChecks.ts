@@ -1,4 +1,4 @@
-import type { CheckIncident, CheckInput, Finding, Rule } from './types';
+import type { CheckDate, CheckIncident, CheckInput, Finding, Rule } from './types';
 
 function isDateMissing(incident: CheckIncident): boolean {
   const { date } = incident;
@@ -13,16 +13,15 @@ function wordCount(text: string): number {
 
 const isBlank = (text: string | undefined) => !text || text.trim() === '';
 
-function isInFuture(incident: CheckIncident, today: string | undefined): boolean {
-  const { date } = incident;
-  // Dates are YYYY-MM-DD, so comparing the text compares the dates.
+/** Whether a full date is after today. Both are YYYY-MM-DD, so comparing the text compares the dates. */
+export function isDateInFuture(date: CheckDate, today: string | undefined): boolean {
   return Boolean(today) && date.kind === 'exact' && date.value !== '' && date.value > today!;
 }
 
 // Checks that ask once per incident.
 const PER_INCIDENT: Partial<Record<string, (incident: CheckIncident, input: CheckInput) => boolean>> = {
   incidentDateMissing: (incident) => isDateMissing(incident),
-  incidentDateInFuture: (incident, input) => isInFuture(incident, input.today),
+  incidentDateInFuture: (incident, input) => isDateInFuture(incident.date, input.today),
   incidentPlaceMissing: (incident) => isBlank(incident.place),
   incidentPeopleMissing: (incident) => isBlank(incident.present),
   incidentNotFirsthand: (incident) => incident.firsthand === 'no',
