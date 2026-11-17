@@ -85,6 +85,9 @@ export function runChecks(input: CheckInput, rules: Rule[]): Finding[] {
         if (dates.some((date, i) => i > 0 && date < dates[i - 1])) findings.push(finding(rule));
         break;
       }
+      case 'convictionMissing':
+        if (input.incidents.length > 0 && (input.convicted ?? 'unknown') === 'unknown') findings.push(finding(rule));
+        break;
       case 'askedToStopMissing':
         if (input.incidents.length > 0 && (input.askedToStop ?? 'unknown') === 'unknown') {
           findings.push(finding(rule));

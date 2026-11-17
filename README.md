@@ -76,6 +76,7 @@ one rule. Rules cannot contain code.
 | `relationshipNotHousehold` | she said the person is not a family or household member (PO-0100 question 2; asked once) |
 | `incidentsOutOfOrder` | two incidents with full dates are out of date order in her list (asked once) |
 | `presentThreatMissing` | she has incidents, but has not said why the person could hurt her now (asked once) |
+| `convictionMissing` | she has incidents, but has not said whether the person was convicted (asked once; used for sexual assault) |
 | `askedToStopMissing` | she has incidents, but has not said whether she told the person to stop (asked once) |
 | `null` | never. Use this for a placeholder rule. |
 
@@ -88,11 +89,10 @@ Another tool, such as a court e-filing site or an advocate tool, could import
 
 ## Rules and their sources
 
-Rules backed by the court's forms (PO-0100, PO-0102) or the team's checked
-Westlaw research are `verified: true`. Three are still `verified: false`:
-`incident-missing-date` and `incident-too-short` (sources are TODO, and the
-15-word limit is a placeholder), and `sexual-assault-rule` (a placeholder that
-never asks anything). In demo mode, only those show an "Unverified rule" label.
+Every rule is `verified: true`, backed by the court's forms (PO-0100, PO-0102)
+or the team's checked Westlaw research. A test fails if a rule is added
+without a source or without being verified. The 15-word limit in
+`incident-too-short` is a tool setting, not a legal rule.
 
 | Rule | Asks for | Source |
 | --- | --- | --- |
@@ -102,15 +102,16 @@ never asks anything). In demo mode, only those show an "Unverified rule" label.
 | `present-threat` | Whether the person could hurt her now | IC 34-26-5-9(f); *S.H. v. D.W.* (Ind. 2020); *S.D. v. G.D.* (Ind. 2023) |
 | `asked-to-stop` | Whether she told the person to stop (stalking, harassment) | *Maurer v. Cobb-Maurer* (Ind. Ct. App. 2013); IC 35-45-10-3 |
 | `feeling-stalking` / `feeling-harassment` | How the incidents made her feel, including fear of being hurt | PO-0102 definitions; *H.R. v. M.R.* (Ind. Ct. App. 2025); *Maurer* |
-| `incident-missing-date` | An incident with no date | TODO |
+| `incident-missing-date` | An incident with no date | PO-0100 question 8; PO-0102 |
 | `incidents-out-of-order` | Full dates out of order in her list | PO-0100 question 8; PO-0102 |
 | `incident-future-date` | A date after today | PO-0102 (vague times are a common reason for denial) |
 | `incident-missing-place` | An incident with no place | PO-0100 question 8 |
 | `incident-missing-people` | An incident with no one listed as present | PO-0100 question 8 |
 | `incident-not-firsthand` | An incident she did not see herself | PO-0102 |
 | `dv-acts` | Domestic violence incident with no act checked | PO-0100 question 7 |
-| `incident-too-short` | A description under 15 words (placeholder limit) | TODO |
-| `sexual-assault-rule` | Placeholder with no condition, so it never asks anything | TODO |
+| `incident-too-short` | A description under 15 words | PO-0102; *Maurer v. Cobb-Maurer* |
+| `sexual-assault-conviction` | Whether the person was convicted (an order can last with no end date) | PO-0100 questions 2 and 9; PO-0102 |
+| `sexual-assault-acts` | Sexual assault incident with no act checked | PO-0100 question 7; IC 35-42-4; IC 34-26-5-2(a)(2) |
 
 ## Following the petition (PO-0100)
 
@@ -185,9 +186,6 @@ The splitter uses the `IncidentExtractor` interface in
 
 ## Open TODOs
 
-- [ ] Team: supply sources for `incident-missing-date` and `incident-too-short`, then set `verified: true`.
-- [ ] Team: supply rules for sexual assault petitions.
-- [ ] Team: confirm the 15-word limit in `incident-too-short`.
 - [ ] Team: fill in and verify every entry in `resources.json`.
 - [ ] Team: review all text in `copy.json` for plain language and reading level.
 - [ ] Team: confirm the quick exit address (now `https://www.weather.com`).

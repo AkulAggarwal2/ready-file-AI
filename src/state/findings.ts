@@ -16,6 +16,7 @@ export function findingsFor(state: AppState): Finding[] {
       relationship: state.relationship,
       threat: state.threat,
       askedToStop: state.askedToStop,
+      convicted: state.convicted,
       incidents: state.incidents,
       today: todayIso(),
     },

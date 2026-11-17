@@ -53,9 +53,10 @@ export interface PersonAnswers {
   threat: string;
   askedToStop: YesNoUnknown;
   askedToStopDetail: string;
+  convicted: YesNoUnknown;
 }
 
-const NO_ANSWERS: PersonAnswers = { threat: '', askedToStop: 'unknown', askedToStopDetail: '' };
+const NO_ANSWERS: PersonAnswers = { threat: '', askedToStop: 'unknown', askedToStopDetail: '', convicted: 'unknown' };
 
 export interface SummarySection {
   heading?: string;
@@ -120,6 +121,8 @@ export function summarySections(
     const detail = person.askedToStop === 'yes' ? person.askedToStopDetail.trim() : '';
     sections.push({ lines: [fill(s.askedToStop, { answer: detail ? `${answer}. ${detail}` : answer })] });
   }
+
+  if (caseType === 'sexual-assault' && person.convicted === 'yes') sections.push({ lines: [s.convicted] });
 
   // Her own words come after the dated incidents.
   if (story.trim()) sections.push({ heading: s.story, lines: [], text: story.trim() });

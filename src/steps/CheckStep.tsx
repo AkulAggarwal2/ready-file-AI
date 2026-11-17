@@ -17,7 +17,7 @@ import {
   presentId,
 } from './IncidentEditor';
 import { RELATIONSHIP_ID } from './StartStep';
-import { ASKED_TO_STOP_ID, THREAT_ID } from './StoryStep';
+import { ASKED_TO_STOP_ID, CONVICTED_ID, THREAT_ID } from './StoryStep';
 
 /** Where "Add more" takes her: the screen and field the question is about. */
 function addMoreAction(finding: Finding, firstIncidentId: string | undefined): Action {
@@ -31,6 +31,8 @@ function addMoreAction(finding: Finding, firstIncidentId: string | undefined): A
       return { type: 'addMore', step: 'story', focusTarget: THREAT_ID };
     case 'askedToStopMissing':
       return { type: 'addMore', step: 'story', focusTarget: ASKED_TO_STOP_ID };
+    case 'convictionMissing':
+      return { type: 'addMore', step: 'story', focusTarget: CONVICTED_ID };
     case 'feelingMissing':
       // Asked about all incidents, so it opens the first one.
       return firstIncidentId
@@ -49,6 +51,9 @@ function addMoreAction(finding: Finding, firstIncidentId: string | undefined): A
   };
   return { type: 'addMore', focusTarget: targets[finding.conditionType] ?? descriptionId(id), expandId: id };
 }
+
+// Questions about the person as a whole, answered on the Your story step.
+const ABOUT_PERSON: Finding['conditionType'][] = ['presentThreatMissing', 'askedToStopMissing', 'convictionMissing'];
 
 const toggleId = (key: string) => `question-${key}-toggle`;
 const panelId = (key: string) => `question-${key}-panel`;
@@ -94,7 +99,7 @@ export function CheckStep() {
             const about =
               finding.conditionType === 'relationshipNotHousehold'
                 ? c.aboutRelationship
-                : finding.conditionType === 'presentThreatMissing' || finding.conditionType === 'askedToStopMissing'
+                : ABOUT_PERSON.includes(finding.conditionType)
                   ? c.aboutPerson
                   : index === -1
                   ? c.allIncidents

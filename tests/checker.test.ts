@@ -72,9 +72,28 @@ describe('runChecks with the seeded rules', () => {
     expect(findings.map((f) => [f.ruleId, f.incidentId])).toEqual([['incident-too-short', 'a']]);
   });
 
-  it('never runs a placeholder rule', () => {
-    const findings = runChecks({ ...answered, caseType: 'sexual-assault', incidents: [] }, rules);
-    expect(ruleIds(findings)).not.toContain('sexual-assault-rule');
+  it('never runs a placeholder rule (condition null)', () => {
+    const placeholder = validateRules([
+      { id: 'p', caseTypes: ['stalking'], condition: null, questionText: 'TODO', sourceCitation: 'TODO', verified: false },
+    ]);
+    expect(runChecks({ ...answered, caseType: 'stalking', incidents: [incident('a')] }, placeholder)).toEqual([]);
+  });
+
+  it('for sexual assault, asks about a conviction once and what the person did per incident', () => {
+    const ask = (input: Partial<Parameters<typeof runChecks>[0]>) =>
+      runChecks({ ...answered, caseType: 'sexual-assault', incidents: [incident('a', { acts: [] })], ...input }, rules).map(
+        (f) => [f.ruleId, f.incidentId],
+      );
+    expect(ask({})).toEqual([
+      ['sexual-assault-conviction', undefined],
+      ['sexual-assault-acts', 'a'],
+    ]);
+    expect(ask({ convicted: 'no', incidents: [incident('a')] })).toEqual([]);
+    expect(ask({ incidents: [] })).toEqual([]);
+  });
+
+  it('marks every seeded rule verified, with a source', () => {
+    expect(rules.filter((rule) => !rule.verified || /TODO/.test(rule.sourceCitation)).map((r) => r.id)).toEqual([]);
   });
 
   it('gives every finding a unique key and a rule it came from', () => {

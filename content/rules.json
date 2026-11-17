@@ -68,6 +68,18 @@
       "verified": true
     },
     {
+      "id": "sexual-assault-conviction",
+      "caseTypes": [
+        "sexual-assault"
+      ],
+      "condition": {
+        "type": "convictionMissing"
+      },
+      "questionText": "Was this person convicted of a sex crime against you? Criminal charges are not needed to ask for an order. But if the person was convicted and must register for life, the court can make the order last with no end date.",
+      "sourceCitation": "PO-0100 questions 2 and 9 (order effective indefinitely under I.C. 34-26-5-9 when the respondent must register for life under I.C. 11-8-8-19); PO-0102 (criminal charges are not required)",
+      "verified": true
+    },
+    {
       "id": "feeling-stalking",
       "caseTypes": [
         "stalking"
@@ -120,8 +132,8 @@
         "type": "incidentDateMissing"
       },
       "questionText": "Do you remember about when this happened? A rough time, like \"early March,\" is fine.",
-      "sourceCitation": "TODO: team to supply source",
-      "verified": false
+      "sourceCitation": "PO-0100 question 8 (Date of Incident); PO-0102: allegations without a clear time are a common reason petitions are denied",
+      "verified": true
     },
     {
       "id": "incident-future-date",
@@ -213,19 +225,20 @@
         "value": 15
       },
       "questionText": "Can you say more about what happened? For example, what the person did or said.",
-      "sourceCitation": "TODO: team to supply source",
-      "verified": false
+      "sourceCitation": "PO-0102: allegations without a clear description of the acts are a common reason petitions are denied; Maurer v. Cobb-Maurer, 994 N.E.2d 753 (Ind. Ct. App. 2013). The 15-word limit is a tool setting, not a legal rule.",
+      "verified": true
     },
     {
-      "id": "sexual-assault-rule",
+      "id": "sexual-assault-acts",
       "caseTypes": [
         "sexual-assault"
       ],
-      "condition": null,
-      "questionText": "TODO: team to supply question wording.",
-      "sourceCitation": "TODO: team to supply source",
-      "verified": false,
-      "todo": "The team will supply rules for Sexual assault. It is off until it has a condition."
+      "condition": {
+        "type": "incidentActsMissing"
+      },
+      "questionText": "What did the person do this time? Share only what you are comfortable with. You can choose from the list, like \"Forced me into sexual activity.\"",
+      "sourceCitation": "PO-0100 question 7; PO-0102 definition of a sex offense (Ind. Code § 35-42-4); Ind. Code § 34-26-5-2(a)(2)",
+      "verified": true
     }
   ]
 }

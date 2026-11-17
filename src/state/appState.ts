@@ -37,6 +37,8 @@ export interface AppState {
   threat: string;
   askedToStop: YesNoUnknown;
   askedToStopDetail: string;
+  // Asked only for sexual assault.
+  convicted: YesNoUnknown;
   incidents: Incident[];
   // Ids of incidents whose fields are open for editing.
   expanded: string[];
@@ -50,7 +52,7 @@ export interface AppState {
   undo: UndoEntry | null;
 }
 
-export type PersonDetails = Partial<Pick<AppState, 'threat' | 'askedToStop' | 'askedToStopDetail'>>;
+export type PersonDetails = Partial<Pick<AppState, 'threat' | 'askedToStop' | 'askedToStopDetail' | 'convicted'>>;
 
 export const initialState: AppState = {
   step: 'start',
@@ -60,6 +62,7 @@ export const initialState: AppState = {
   threat: '',
   askedToStop: 'unknown',
   askedToStopDetail: '',
+  convicted: 'unknown',
   incidents: [],
   expanded: [],
   dismissed: [],
