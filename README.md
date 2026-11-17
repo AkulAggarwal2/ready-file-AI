@@ -86,10 +86,13 @@ The checker ([src/checker/](src/checker/)) has no React and no app code.
 Another tool, such as a court e-filing site or an advocate tool, could import
 `runChecks(input, rules)` and use it directly.
 
-## Rules still unverified
+## Rules and their sources
 
-Every rule is `verified: false`. The team needs to confirm each question's
-wording and source before it is marked verified.
+Rules backed by the court's forms (PO-0100, PO-0102) or the team's checked
+Westlaw research are `verified: true`. Three are still `verified: false`:
+`incident-missing-date` and `incident-too-short` (sources are TODO, and the
+15-word limit is a placeholder), and `sexual-assault-rule` (a placeholder that
+never asks anything). In demo mode, only those show an "Unverified rule" label.
 
 | Rule | Asks for | Source |
 | --- | --- | --- |
@@ -182,7 +185,7 @@ The splitter uses the `IncidentExtractor` interface in
 
 ## Open TODOs
 
-- [ ] Team: verify the wording and source for all four rules, then set `verified: true`.
+- [ ] Team: supply sources for `incident-missing-date` and `incident-too-short`, then set `verified: true`.
 - [ ] Team: supply rules for sexual assault petitions.
 - [ ] Team: confirm the 15-word limit in `incident-too-short`.
 - [ ] Team: fill in and verify every entry in `resources.json`.
