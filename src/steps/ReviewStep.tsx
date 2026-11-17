@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import type { CaseType } from '../checker';
-import { copy, fill } from '../content';
-import type { Incident } from '../organizer';
-import { buildSummary, describeDate, sortByDate } from '../review/summary';
+import { copy } from '../content';
+import { buildSummary, summarySections, type SummarySection } from '../review/summary';
 import { ORGANIZE_HEADING_ID } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
 import { ConfirmButton } from '../ui/ConfirmButton';
@@ -13,7 +11,8 @@ export function ReviewStep() {
   const { state, dispatch } = useAppState();
   const [copyStatus, setCopyStatus] = useState('');
   const c = copy.review;
-  const summary = buildSummary(state.caseType ?? 'not-sure', state.incidents, state.story);
+  const caseType = state.caseType ?? 'not-sure';
+  const summary = buildSummary(caseType, state.incidents, state.story, state.relationship);
 
   async function copySummary() {
     try {
@@ -51,6 +50,18 @@ export function ReviewStep() {
       </p>
       <p className="hint">{c.clipboardNote}</p>
 
+      <section className="callout" aria-labelledby="form-heading">
+        <h2 id="form-heading">{c.formHeading}</h2>
+        <p>{c.formIntro}</p>
+        <ul className="form-checklist">
+          {c.formItems.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+          {caseType === 'harassment' && <li>{c.formHarassment}</li>}
+        </ul>
+        <p className="hint">{c.formSource}</p>
+      </section>
+
       <div className="button-row">
         <button type="button" className="btn" onClick={() => dispatch({ type: 'addMore', focusTarget: ORGANIZE_HEADING_ID })}>
           {c.edit}
@@ -64,37 +75,27 @@ export function ReviewStep() {
       </div>
       </div>
 
-      <PrintSummary caseType={state.caseType ?? 'not-sure'} incidents={state.incidents} story={state.story} />
+      <PrintSummary sections={summarySections(caseType, state.incidents, state.story, state.relationship)} />
     </div>
   );
 }
 
 /** The court-ready page. It is hidden on screen and is the only thing that prints. */
-function PrintSummary({ caseType, incidents, story }: { caseType: CaseType; incidents: Incident[]; story: string }) {
-  const s = copy.summary;
+function PrintSummary({ sections }: { sections: SummarySection[] }) {
   return (
     <article className="print-doc">
-      <h1>{s.title}</h1>
-      <p>{fill(s.caseType, { caseType: copy.start.caseTypes[caseType] })}</p>
-      {incidents.length === 0 && <p>{s.noIncidents}</p>}
-      {sortByDate(incidents).map((incident, index) => (
-        <section key={incident.id} className="print-incident">
-          <h2>{fill(s.incident, { n: index + 1 })}</h2>
-          <p>{fill(s.when, { when: describeDate(incident) })}</p>
-          <p>{fill(s.how, { how: copy.incident.how[incident.how] })}</p>
-          <p>
-            <strong>{s.what}</strong>
-          </p>
-          <p className="print-text">{incident.description.trim()}</p>
-          {incident.evidence.trim() && <p>{fill(s.evidence, { evidence: incident.evidence.trim() })}</p>}
-        </section>
-      ))}
-      {story.trim() && (
-        <section className="print-incident">
-          <h2>{s.story}</h2>
-          <p className="print-text">{story.trim()}</p>
-        </section>
-      )}
+      {sections.map((section, index) => {
+        const Heading = index === 0 ? 'h1' : 'h2';
+        return (
+          <section key={index} className="print-incident">
+            {section.heading && <Heading>{section.heading}</Heading>}
+            {section.lines.map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+            {section.text && <p className="print-text">{section.text}</p>}
+          </section>
+        );
+      })}
     </article>
   );
 }

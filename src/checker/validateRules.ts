@@ -1,4 +1,4 @@
-import { CASE_TYPES, type CaseType, type Condition, type Rule } from './types';
+import { CASE_TYPES, SIMPLE_CONDITIONS, type CaseType, type Condition, type Rule } from './types';
 
 function fail(index: number, id: unknown, problem: string): never {
   const name = typeof id === 'string' ? `"${id}"` : `#${index + 1}`;
@@ -13,9 +13,11 @@ function validateCondition(raw: unknown, index: number, id: unknown): Condition 
   if (raw === null) return null;
   if (!isRecord(raw)) fail(index, id, 'condition must be an object or null.');
 
+  if ((SIMPLE_CONDITIONS as readonly unknown[]).includes(raw.type)) {
+    return { type: raw.type as (typeof SIMPLE_CONDITIONS)[number] };
+  }
+
   switch (raw.type) {
-    case 'incidentDateMissing':
-      return { type: raw.type };
     case 'incidentCountBelow':
     case 'incidentWordsBelow':
       if (typeof raw.value !== 'number' || raw.value < 0) {
@@ -26,7 +28,7 @@ function validateCondition(raw: unknown, index: number, id: unknown): Condition 
       return fail(
         index,
         id,
-        `unknown condition type "${String(raw.type)}". Use incidentCountBelow, incidentDateMissing, or incidentWordsBelow.`,
+        `unknown condition type "${String(raw.type)}". Use incidentCountBelow, incidentWordsBelow, or one of: ${SIMPLE_CONDITIONS.join(', ')}.`,
       );
   }
 }

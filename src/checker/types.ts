@@ -14,15 +14,58 @@ export type CheckDate =
   | { kind: 'approximate'; text: string }
   | { kind: 'unknown' };
 
+// How she knows the person, in the words of question 2 on the petition
+// (PO-0100). Domestic or family violence orders need one of these, except
+// "none". "not-sure" means she did not say.
+export const RELATIONSHIPS = [
+  'spouse',
+  'dating',
+  'sexual',
+  'child-in-common',
+  'family',
+  'marriage',
+  'guardian',
+  'none',
+  'not-sure',
+] as const;
+
+export type Relationship = (typeof RELATIONSHIPS)[number];
+
+// The acts listed in question 7 on the petition (PO-0100), in that order.
+export const ACTS = [
+  'attempted-harm',
+  'threatened-harm',
+  'caused-harm',
+  'placed-in-fear',
+  'forced-sexual',
+  'animal-cruelty',
+  'unwanted-contact',
+] as const;
+
+export type Act = (typeof ACTS)[number];
+
+// Whether she saw or heard the incident herself. If not, the court needs a
+// sworn statement from someone who did (PO-0102).
+export type Firsthand = 'yes' | 'no' | 'unknown';
+
 export interface CheckIncident {
   id: string;
   date: CheckDate;
   description: string;
+  // Question 8 on the petition asks for the place and everyone who was there.
+  place?: string;
+  present?: string;
+  firsthand?: Firsthand;
+  feeling?: string;
+  acts?: Act[];
 }
 
 export interface CheckInput {
   caseType: CaseType;
   incidents: CheckIncident[];
+  relationship?: Relationship | null;
+  // Today's date as YYYY-MM-DD. Without it, dates are not checked against today.
+  today?: string;
 }
 
 // Rules can only use these conditions. Rules contain no code, so every
@@ -30,7 +73,26 @@ export interface CheckInput {
 export type Condition =
   | { type: 'incidentCountBelow'; value: number }
   | { type: 'incidentDateMissing' }
-  | { type: 'incidentWordsBelow'; value: number };
+  | { type: 'incidentWordsBelow'; value: number }
+  | { type: 'incidentDateInFuture' }
+  | { type: 'incidentPlaceMissing' }
+  | { type: 'incidentPeopleMissing' }
+  | { type: 'incidentNotFirsthand' }
+  | { type: 'incidentActsMissing' }
+  | { type: 'feelingMissing' }
+  | { type: 'relationshipNotHousehold' };
+
+// Conditions that need no "value" in rules.json.
+export const SIMPLE_CONDITIONS = [
+  'incidentDateMissing',
+  'incidentDateInFuture',
+  'incidentPlaceMissing',
+  'incidentPeopleMissing',
+  'incidentNotFirsthand',
+  'incidentActsMissing',
+  'feelingMissing',
+  'relationshipNotHousehold',
+] as const;
 
 export type ConditionType = Condition['type'];
 

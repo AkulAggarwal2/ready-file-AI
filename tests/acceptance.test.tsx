@@ -15,6 +15,7 @@ import {
   stepName,
   loadSample,
   openQuestionText,
+  questionToggle,
   questionToggles,
   renderApp,
   toQuestions,
@@ -37,9 +38,10 @@ describe('1. Lena, one incident', () => {
     expect(screen.getAllByRole('heading', { level: 2, name: /^Incident \d$/ })).toHaveLength(1);
     await toQuestions(user);
 
-    // The count is visible and nothing is open until she opens it.
-    expect(screen.getByText(fill(copy.check.total, { total: 1, open: 1 }))).toBeInTheDocument();
-    expect(questionToggles()).toHaveLength(1);
+    // The count is visible and nothing is open until she opens it. The sample
+    // has no place, people, or feelings, so those questions come up too.
+    expect(screen.getByText(fill(copy.check.total, { total: 4, open: 4 }))).toBeInTheDocument();
+    expect(questionToggles()).toHaveLength(4);
     expect(openQuestionText()).toBeNull();
 
     await user.click(questionToggles()[0]);
@@ -48,13 +50,13 @@ describe('1. Lena, one incident', () => {
 
     await user.click(screen.getByRole('button', { name: copy.check.continueAsIs }));
     expect(screen.getByText(copy.check.answered)).toBeInTheDocument();
-    expect(screen.getByText(fill(copy.check.total, { total: 1, open: 0 }))).toBeInTheDocument();
+    expect(screen.getByText(fill(copy.check.total, { total: 4, open: 3 }))).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
 
     expect(screen.getByRole('heading', { level: 1, name: copy.review.heading })).toBeInTheDocument();
     expect(screen.getByText(copy.review.notFiling)).toBeInTheDocument();
     expect(summaryText()).toContain('Type of protection order: Stalking');
-    expect(summaryText()).toContain('When: March 14');
+    expect(summaryText()).toContain(fill(copy.summary.when, { when: 'March 14' }));
     expect(summaryText()).toContain(LENA_ONE_INCIDENT);
 
     await user.click(screen.getByRole('button', { name: copy.review.copy }));
@@ -276,21 +278,21 @@ describe('8. Never blocks', () => {
   it('every question shows "Add more" and "Continue as is", and "Continue as is" always moves on', async () => {
     const user = renderApp();
     await begin(user, 'Stalking');
-    // One short, undated incident triggers all three seeded rules.
+    // One short, undated incident with nothing else filled in triggers six rules.
     await addIncident(user, 'He yelled at me.');
     await toQuestions(user);
 
-    expect(screen.getByText(fill(copy.check.total, { total: 3, open: 3 }))).toBeInTheDocument();
+    expect(screen.getByText(fill(copy.check.total, { total: 6, open: 6 }))).toBeInTheDocument();
     const seen: string[] = [];
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 6; i++) {
       await user.click(questionToggles()[i]);
       seen.push(openQuestionText()!);
       expect(screen.getByRole('button', { name: copy.check.addMore })).toBeEnabled();
       await user.click(screen.getByRole('button', { name: copy.check.continueAsIs }));
     }
-    expect(seen).toHaveLength(3);
+    expect(seen).toHaveLength(6);
     expect(seen[0]).toBe(STALKING_QUESTION);
-    expect(screen.getByText(fill(copy.check.total, { total: 3, open: 0 }))).toBeInTheDocument();
+    expect(screen.getByText(fill(copy.check.total, { total: 6, open: 0 }))).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
     expect(summaryText()).toContain('He yelled at me.');
@@ -298,7 +300,7 @@ describe('8. Never blocks', () => {
 
   it('she can continue with no incidents at all', async () => {
     const user = renderApp();
-    await begin(user, 'Harassment');
+    await begin(user, 'Not sure');
     expect(screen.getByText(copy.organize.empty)).toBeInTheDocument();
     await toQuestions(user);
     expect(screen.getByText(copy.check.totalNone)).toBeInTheDocument();
@@ -311,7 +313,7 @@ describe('8. Never blocks', () => {
     await begin(user, 'Harassment');
     await addIncident(user, 'He yelled at me.');
     await toQuestions(user);
-    await user.click(questionToggles()[0]);
+    await user.click(questionToggle(copy.badges.incidentDateMissing));
     expect(openQuestionText()).toMatch(/remember about when/);
     await user.click(screen.getByRole('button', { name: copy.check.addMore }));
     expect(screen.getByRole('combobox', { name: copy.incident.dateLabel })).toHaveFocus();
@@ -326,8 +328,9 @@ describe('9. Order and moving around', () => {
     await toQuestions(user);
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
     const text = summaryText();
-    expect(text.indexOf('Incident 1')).toBeGreaterThan(-1);
-    expect(text.indexOf(copy.summary.story)).toBeGreaterThan(text.indexOf('Incident 1'));
+    const first = fill(copy.summary.incident, { n: 1 });
+    expect(text.indexOf(first)).toBeGreaterThan(-1);
+    expect(text.indexOf(copy.summary.story)).toBeGreaterThan(text.indexOf(first));
   });
 
   it('the step bar goes to any step and keeps her answers', async () => {
@@ -344,5 +347,58 @@ describe('9. Order and moving around', () => {
     await goToStep(user, 'story');
     expect(screen.getByRole('textbox', { name: copy.story.label })).toHaveValue(LENA_ONE_INCIDENT);
     expect(screen.getByRole('button', { name: stepName('story') })).toHaveAttribute('aria-current', 'step');
+  });
+});
+
+describe('10. Follows the petition (PO-0100)', () => {
+  it('"Add more" on the place question goes to that incident\'s place field', async () => {
+    const user = renderApp();
+    await begin(user, 'Not sure');
+    await addIncident(user, 'He waited outside my work for two hours and followed my car when I left for home.');
+    await toQuestions(user);
+    await user.click(questionToggle(copy.badges.incidentPlaceMissing));
+    await user.click(screen.getByRole('button', { name: copy.check.addMore }));
+    expect(screen.getByRole('textbox', { name: copy.incident.placeLabel })).toHaveFocus();
+  });
+
+  it('puts the place, people present, and what the person did in the summary', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await addIncident(user, 'He waited outside my work for two hours and followed my car when I left for home.');
+    await user.type(screen.getByRole('textbox', { name: copy.incident.placeLabel }), 'Parking lot at my work');
+    await user.type(screen.getByRole('textbox', { name: copy.incident.presentLabel }), 'Me, my coworker Dana');
+    await user.click(screen.getByRole('checkbox', { name: copy.incident.acts['placed-in-fear'] }));
+    await user.selectOptions(screen.getByRole('combobox', { name: copy.incident.firsthandLabel }), 'no');
+    expect(screen.getByText(copy.incident.firsthandNote)).toBeInTheDocument();
+    await toQuestions(user);
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+
+    const text = summaryText();
+    expect(text).toContain(fill(copy.summary.place, { place: 'Parking lot at my work' }));
+    expect(text).toContain(fill(copy.summary.present, { present: 'Me, my coworker Dana' }));
+    expect(text).toContain(fill(copy.summary.acts, { acts: copy.incident.acts['placed-in-fear'] }));
+    expect(text).toContain(copy.summary.firsthandNo);
+    expect(screen.getByRole('heading', { level: 2, name: copy.review.formHeading })).toBeInTheDocument();
+  });
+
+  it('for domestic violence, "none of these" asks about the relationship and goes back to it', async () => {
+    const user = renderApp();
+    await user.click(screen.getByRole('radio', { name: copy.start.caseTypes['domestic-violence'] }));
+    await user.selectOptions(screen.getByRole('combobox', { name: copy.start.relationshipLabel }), 'none');
+    await user.click(screen.getByRole('button', { name: copy.start.begin }));
+    await toQuestions(user);
+    await user.click(questionToggle(copy.badges.relationshipNotHousehold));
+    await user.click(screen.getByRole('button', { name: copy.check.addMore }));
+    const select = screen.getByRole('combobox', { name: copy.start.relationshipLabel });
+    expect(select).toHaveFocus();
+    expect(select).toHaveValue('none');
+  });
+
+  it('shows the harassment hearing note only for harassment', async () => {
+    const user = renderApp();
+    await begin(user, 'Harassment');
+    await toQuestions(user);
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+    expect(screen.getByText(copy.review.formHarassment)).toBeInTheDocument();
   });
 });

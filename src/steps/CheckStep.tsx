@@ -1,18 +1,46 @@
 import { useEffect, useMemo, useState } from 'react';
-import { runChecks, type Finding } from '../checker';
+import { ACTS, type Finding } from '../checker';
 import { DEMO_MODE } from '../config';
-import { copy, fill, rules } from '../content';
-import { ADD_INCIDENT_ID } from '../state/appState';
+import { copy, fill } from '../content';
+import { ADD_INCIDENT_ID, type Action } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
+import { findingsFor } from '../state/findings';
 import { StepHeading } from '../ui/StepHeading';
-import { dateKindId, descriptionId } from './IncidentEditor';
+import {
+  actId,
+  dateKindId,
+  descriptionId,
+  exactDateId,
+  feelingId,
+  firsthandId,
+  placeId,
+  presentId,
+} from './IncidentEditor';
+import { RELATIONSHIP_ID } from './StartStep';
 
-/** Where "Add more" takes her: the field the question is about. */
-function addMoreTarget(finding: Finding): string {
-  if (!finding.incidentId) return ADD_INCIDENT_ID;
-  return finding.conditionType === 'incidentDateMissing'
-    ? dateKindId(finding.incidentId)
-    : descriptionId(finding.incidentId);
+/** Where "Add more" takes her: the screen and field the question is about. */
+function addMoreAction(finding: Finding, firstIncidentId: string | undefined): Action {
+  const id = finding.incidentId;
+  switch (finding.conditionType) {
+    case 'relationshipNotHousehold':
+      return { type: 'addMore', step: 'start', focusTarget: RELATIONSHIP_ID };
+    case 'feelingMissing':
+      // Asked about all incidents, so it opens the first one.
+      return firstIncidentId
+        ? { type: 'addMore', focusTarget: feelingId(firstIncidentId), expandId: firstIncidentId }
+        : { type: 'addMore', focusTarget: ADD_INCIDENT_ID };
+  }
+  if (!id) return { type: 'addMore', focusTarget: ADD_INCIDENT_ID };
+
+  const targets: Partial<Record<Finding['conditionType'], string>> = {
+    incidentDateMissing: dateKindId(id),
+    incidentDateInFuture: exactDateId(id),
+    incidentPlaceMissing: placeId(id),
+    incidentPeopleMissing: presentId(id),
+    incidentNotFirsthand: firsthandId(id),
+    incidentActsMissing: actId(id, ACTS[0]),
+  };
+  return { type: 'addMore', focusTarget: targets[finding.conditionType] ?? descriptionId(id), expandId: id };
 }
 
 const toggleId = (key: string) => `question-${key}-toggle`;
@@ -30,10 +58,7 @@ export function CheckStep() {
   // After she answers, focus goes back to that question's heading button.
   const [focusKey, setFocusKey] = useState<string | null>(null);
 
-  const findings = useMemo(
-    () => runChecks({ caseType: state.caseType ?? 'not-sure', incidents: state.incidents }, rules),
-    [state.caseType, state.incidents],
-  );
+  const findings = useMemo(() => findingsFor(state), [state.caseType, state.relationship, state.incidents]);
   const stillOpen = findings.filter((finding) => !state.dismissed.includes(finding.key)).length;
 
   useEffect(() => {
@@ -59,7 +84,12 @@ export function CheckStep() {
             const isOpen = openKeys.includes(finding.key);
             const answered = state.dismissed.includes(finding.key);
             const index = state.incidents.findIndex((incident) => incident.id === finding.incidentId);
-            const about = index === -1 ? c.allIncidents : fill(copy.timeline.incident, { n: index + 1 });
+            const about =
+              finding.conditionType === 'relationshipNotHousehold'
+                ? c.aboutRelationship
+                : index === -1
+                  ? c.allIncidents
+                  : fill(copy.timeline.incident, { n: index + 1 });
 
             return (
               <li key={finding.key} className="card question">
@@ -99,13 +129,7 @@ export function CheckStep() {
                       <button
                         type="button"
                         className="btn btn-choice"
-                        onClick={() =>
-                          dispatch({
-                            type: 'addMore',
-                            focusTarget: addMoreTarget(finding),
-                            expandId: finding.incidentId,
-                          })
-                        }
+                        onClick={() => dispatch(addMoreAction(finding, state.incidents[0]?.id))}
                       >
                         {c.addMore}
                       </button>

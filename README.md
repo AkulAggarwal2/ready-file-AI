@@ -66,7 +66,14 @@ one rule. Rules cannot contain code.
 | --- | --- |
 | `incidentCountBelow` | the number of incidents is below `value` (asked once) |
 | `incidentDateMissing` | an incident has no date (asked once per incident) |
+| `incidentDateInFuture` | an incident's exact date is after today (asked once per incident) |
+| `incidentPlaceMissing` | an incident has no place (PO-0100 question 8; once per incident) |
+| `incidentPeopleMissing` | an incident does not say who was there (PO-0100 question 8; once per incident) |
+| `incidentNotFirsthand` | she said she did not see or hear it herself, so a sworn statement is needed (PO-0102; once per incident) |
+| `incidentActsMissing` | no act from PO-0100 question 7 is checked for an incident (once per incident) |
 | `incidentWordsBelow` | an incident's description has fewer than `value` words (asked once per incident) |
+| `feelingMissing` | she has incidents, but none says how they made her feel (asked once) |
+| `relationshipNotHousehold` | she said the person is not a family or household member (PO-0100 question 2; asked once) |
 | `null` | never. Use this for a placeholder rule. |
 
 If `rules.json` has a mistake, such as an unknown condition type, the app
@@ -78,14 +85,34 @@ Another tool, such as a court e-filing site or an advocate tool, could import
 
 ## Rules still unverified
 
-All four rules are `verified: false`:
+Every rule is `verified: false`. The team needs to confirm each question's
+wording and source before it is marked verified.
 
-| Rule | Status |
-| --- | --- |
-| `stalking-two-incidents` | Wording from PO-0102 petition booklet (team source K2). Waiting for the team to confirm. |
-| `incident-missing-date` | The question wording is a draft, and the source is TODO. |
-| `incident-too-short` | The question wording is a draft, and the source is TODO. The 15-word limit is a placeholder. |
-| `harassment-rule` | Placeholder with no condition, so it never asks anything. The team will supply this rule. |
+| Rule | Asks for | Source |
+| --- | --- | --- |
+| `stalking-two-incidents` | Stalking with fewer than 2 incidents | PO-0102 (team source K2) |
+| `harassment-repeated` | Harassment with fewer than 2 incidents | PO-0102, Ind. Code § 34-6-2-51.5 |
+| `dv-relationship` | Domestic violence when the person is not family or household | PO-0102; PO-0100 question 2 |
+| `feeling-stalking` / `feeling-harassment` | How the incidents made her feel | PO-0102 definitions of stalking and harassment |
+| `incident-missing-date` | An incident with no date | TODO |
+| `incident-future-date` | A date after today | PO-0102 (vague times are a common reason for denial) |
+| `incident-missing-place` | An incident with no place | PO-0100 question 8 |
+| `incident-missing-people` | An incident with no one listed as present | PO-0100 question 8 |
+| `incident-not-firsthand` | An incident she did not see herself | PO-0102 |
+| `dv-acts` | Domestic violence incident with no act checked | PO-0100 question 7 |
+| `incident-too-short` | A description under 15 words (placeholder limit) | TODO |
+| `sexual-assault-rule` | Placeholder with no condition, so it never asks anything | TODO |
+
+## Following the petition (PO-0100)
+
+- **Start:** "How do you know this person?" matches question 2. It is optional.
+- **Each incident** asks for what question 8 asks: date, place, a description,
+  and everyone who was present. It also asks which acts from question 7
+  happened, whether she saw it herself, and how it made her feel.
+- **The summary** follows the form's order: question 2, question 7, then each
+  incident as "Incident #1", "Incident #2", and so on. Empty details are left out.
+- **Review** lists what the rest of the form asks for: questions 4, 5, 6 and 9,
+  the Confidential Form (PO-0104), and the signature.
 
 ## Safety features (section 8)
 
@@ -141,7 +168,7 @@ The splitter uses the `IncidentExtractor` interface in
 ## Open TODOs
 
 - [ ] Team: verify the wording and source for all four rules, then set `verified: true`.
-- [ ] Team: supply the harassment rule.
+- [ ] Team: supply rules for sexual assault petitions.
 - [ ] Team: confirm the 15-word limit in `incident-too-short`.
 - [ ] Team: fill in and verify every entry in `resources.json`.
 - [ ] Team: review all text in `copy.json` for plain language and reading level.

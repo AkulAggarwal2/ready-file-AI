@@ -1,18 +1,29 @@
-import { useState, type FormEvent } from 'react';
-import { CASE_TYPES, type CaseType } from '../checker';
+import { useEffect, useState, type FormEvent } from 'react';
+import { CASE_TYPES, RELATIONSHIPS, type CaseType, type Relationship } from '../checker';
 import { IDLE_TIMEOUT_MS } from '../config';
 import { copy, fill } from '../content';
 import { useAppState } from '../state/AppStateProvider';
 import { StepHeading } from '../ui/StepHeading';
 
+export const RELATIONSHIP_ID = 'relationship';
+
 export function StartStep() {
   const { state, dispatch } = useAppState();
   const [caseType, setCaseType] = useState<CaseType | null>(state.caseType);
+  const [relationship, setRelationship] = useState<Relationship | null>(state.relationship);
+  const r = copy.start.relationships;
+
+  // After "Add more" on the relationship question, focus the question.
+  useEffect(() => {
+    if (state.focusTarget !== RELATIONSHIP_ID) return;
+    document.getElementById(RELATIONSHIP_ID)?.focus();
+    dispatch({ type: 'focusHandled' });
+  }, [state.focusTarget, dispatch]);
 
   function begin(event: FormEvent) {
     event.preventDefault();
     // Never blocks: with no choice made, she continues as "Not sure".
-    dispatch({ type: 'begin', caseType: caseType ?? 'not-sure' });
+    dispatch({ type: 'begin', caseType: caseType ?? 'not-sure', relationship });
   }
 
   return (
@@ -44,6 +55,24 @@ export function StartStep() {
           </label>
         ))}
       </fieldset>
+
+      <label htmlFor={RELATIONSHIP_ID}>{copy.start.relationshipLabel}</label>
+      <p id="relationship-hint" className="hint">
+        {copy.start.relationshipHint}
+      </p>
+      <select
+        id={RELATIONSHIP_ID}
+        aria-describedby="relationship-hint"
+        value={relationship ?? ''}
+        onChange={(e) => setRelationship((e.target.value || null) as Relationship | null)}
+      >
+        <option value="">{r['']}</option>
+        {RELATIONSHIPS.map((value) => (
+          <option key={value} value={value}>
+            {r[value]}
+          </option>
+        ))}
+      </select>
 
       <div className="button-row">
         <button type="submit" className="btn btn-primary">

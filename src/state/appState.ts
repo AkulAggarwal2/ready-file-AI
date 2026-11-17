@@ -1,4 +1,4 @@
-import type { CaseType } from '../checker';
+import type { CaseType, Relationship } from '../checker';
 import { copy, fill } from '../content';
 import { createIncident, mergeIncidents, type Incident, type IncidentFields } from '../organizer';
 
@@ -29,6 +29,8 @@ export interface UndoEntry {
 export interface AppState {
   step: Step;
   caseType: CaseType | null;
+  // How she knows the person (question 2 on the petition). Optional.
+  relationship: Relationship | null;
   // Her account in her own words, written after the incidents.
   story: string;
   incidents: Incident[];
@@ -47,6 +49,7 @@ export interface AppState {
 export const initialState: AppState = {
   step: 'start',
   caseType: null,
+  relationship: null,
   story: '',
   incidents: [],
   expanded: [],
@@ -57,11 +60,11 @@ export const initialState: AppState = {
 };
 
 export type Action =
-  | { type: 'begin'; caseType: CaseType }
+  | { type: 'begin'; caseType: CaseType; relationship: Relationship | null }
   | { type: 'goTo'; step: Step }
   | { type: 'setStory'; story: string }
   | { type: 'loadSample'; story: string; incidents: Incident[] }
-  | { type: 'addMore'; focusTarget: string; expandId?: string }
+  | { type: 'addMore'; focusTarget: string; expandId?: string; step?: Step }
   | { type: 'updateIncident'; id: string; changes: Partial<IncidentFields> }
   | { type: 'addIncident' }
   | { type: 'deleteIncident'; id: string }
@@ -102,7 +105,7 @@ function moveTo(state: AppState, from: number, to: number): AppState {
 export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'begin':
-      return { ...state, caseType: action.caseType, step: 'incidents' };
+      return { ...state, caseType: action.caseType, relationship: action.relationship, step: 'incidents' };
     case 'goTo':
       return { ...state, step: action.step, undo: null };
     case 'setStory':
@@ -112,7 +115,7 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'addMore':
       return {
         ...state,
-        step: 'incidents',
+        step: action.step ?? 'incidents',
         focusTarget: action.focusTarget,
         expanded:
           action.expandId && !state.expanded.includes(action.expandId)

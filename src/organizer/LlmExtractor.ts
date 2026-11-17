@@ -9,7 +9,7 @@ import { ManualExtractor } from './ManualExtractor';
 // Lena sample, as a model would, and uses the manual splitter for anything else.
 const [january, february, earlyMarch, march14] = LENA_FOUR_INCIDENTS.split('\n\n');
 
-const PREPARED_DRAFTS: Record<string, IncidentFields[]> = {
+const PREPARED_DRAFTS: Record<string, Partial<IncidentFields>[]> = {
   [LENA_FOUR_INCIDENTS]: [
     { description: january, date: { kind: 'approximate', text: 'January' }, how: 'in-person', evidence: '' },
     { description: february, date: { kind: 'approximate', text: 'February' }, how: 'phone-or-text', evidence: '' },

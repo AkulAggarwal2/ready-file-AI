@@ -53,7 +53,21 @@
       "sexual-assault": "Sexual assault",
       "not-sure": "Not sure"
     },
-    "begin": "Start"
+    "begin": "Start",
+    "relationshipLabel": "How do you know this person?",
+    "relationshipHint": "The court's form asks this (question 2). It helps show which kind of order fits. You can skip it.",
+    "relationships": {
+      "": "Choose one (optional)",
+      "spouse": "We are or were married",
+      "dating": "We are dating or used to date",
+      "sexual": "We have or had a sexual relationship",
+      "child-in-common": "We have a child together",
+      "family": "We are related by blood or adoption",
+      "marriage": "We are or were related by marriage, like a stepparent or in-law",
+      "guardian": "One of us is or was the other's guardian, custodian, or foster parent",
+      "none": "None of these, like a neighbor, coworker, or stranger",
+      "not-sure": "Not sure, or I'd rather not say"
+    }
   },
   "story": {
     "heading": "Your story",
@@ -85,6 +99,8 @@
     "exactLabel": "Date",
     "approximateLabel": "About when",
     "approximateHint": "For example: early March, or the week before Thanksgiving.",
+    "placeLabel": "Where did it happen?",
+    "placeHint": "For example: my home, the parking lot at work, or online on Instagram.",
     "descriptionLabel": "What happened",
     "howLabel": "How did it happen?",
     "how": {
@@ -94,8 +110,8 @@
       "other": "Other",
       "unknown": "Not sure"
     },
-    "evidenceLabel": "Evidence or witnesses (optional)",
-    "evidenceHint": "For example: screenshots, photos, or people who saw it.",
+    "evidenceLabel": "Proof you have (optional)",
+    "evidenceHint": "For example: screenshots, photos, or a police report. Bring these to court.",
     "merge": "Merge with next",
     "delete": "Delete",
     "deleteQuestion": "Delete this incident?",
@@ -109,7 +125,30 @@
     "moveDown": "Move down",
     "dragHandle": "Drag to move",
     "reorderHint": "Use Move up and Move down to change the order of incidents. On a computer, you can also drag.",
-    "descriptionHint": "Short notes are fine. For example, what the person did or said, and where you were."
+    "descriptionHint": "Short notes are fine. For example, what the person did or said.",
+    "futureHint": "This date is after today. Please check it.",
+    "actsLegend": "What did the person do? (optional)",
+    "actsHint": "Check all that fit. These match question 7 on the court's form.",
+    "acts": {
+      "attempted-harm": "Tried to hurt me",
+      "threatened-harm": "Threatened to hurt me",
+      "caused-harm": "Hurt me",
+      "placed-in-fear": "Made me afraid I would be hurt",
+      "forced-sexual": "Forced me into sexual activity",
+      "animal-cruelty": "Hurt or killed an animal to scare or control me",
+      "unwanted-contact": "Kept contacting or following me when I didn't want it"
+    },
+    "presentLabel": "Who was there?",
+    "presentHint": "List everyone who was there. The court's form asks you to include your own name if you were there.",
+    "firsthandLabel": "Did you see or hear this yourself?",
+    "firsthandOptions": {
+      "unknown": "Choose one (optional)",
+      "yes": "Yes",
+      "no": "No, someone told me about it"
+    },
+    "firsthandNote": "If you did not see or hear it yourself, the court needs a signed statement (an affidavit) from someone who did.",
+    "feelingLabel": "How did it make you feel? (optional)",
+    "feelingHint": "For example: scared, threatened, or afraid to go home."
   },
   "check": {
     "heading": "A few questions",
@@ -123,7 +162,8 @@
     "toReview": "Go to review",
     "back": "Back to your story",
     "unverified": "Unverified rule: {ruleId}",
-    "allIncidents": "About all of your incidents"
+    "allIncidents": "About all of your incidents",
+    "aboutRelationship": "About how you know this person"
   },
   "review": {
     "heading": "Review your incidents",
@@ -138,19 +178,38 @@
     "edit": "Edit incidents",
     "clear": "Clear everything",
     "clearQuestion": "Clear everything you typed and start over?",
-    "clearYes": "Yes, clear everything"
+    "clearYes": "Yes, clear everything",
+    "formHeading": "The rest of the court's form",
+    "formIntro": "The form (PO-0100) asks for more than your incidents. Have these ready before you start it.",
+    "formItems": [
+      "Question 4: every court case that involves you, this person, or a child you have together. That includes divorce, custody, criminal, and other protection order cases. List the case name, case number, and county.",
+      "Question 5: why you are filing in this county. It can be where the person lives, where it happened, or where you live.",
+      "Question 6: a mailing address you are comfortable making public. Your private address goes on the Confidential Form (PO-0104) instead.",
+      "Question 9: what you want the court to order, like staying away, no contact, giving up guns, or who keeps the home or pets. Some of these need a hearing within 30 days.",
+      "The Confidential Form (PO-0104): the person's full name, date of birth, and current address, if you know them. Police need these to serve and enforce the order.",
+      "Your signature. You sign under penalty of perjury that what you wrote is true."
+    ],
+    "formHarassment": "Because you chose harassment: if your petition is based on harassment alone, the court must notify the person and hold a hearing before it can order anything.",
+    "formSource": "Based on the Indiana petition (PO-0100) and its instructions (PO-0102)."
   },
   "summary": {
     "title": "Incident summary",
     "caseType": "Type of protection order: {caseType}",
-    "incident": "Incident {n}",
-    "when": "When: {when}",
+    "incident": "Incident #{n}",
+    "when": "Date of incident: {when}",
     "dateUnknown": "Date not known",
     "how": "How it happened: {how}",
-    "what": "What happened:",
-    "evidence": "Evidence or witnesses: {evidence}",
+    "what": "Description of incident:",
+    "evidence": "Proof I have: {evidence}",
     "noIncidents": "No incidents were listed.",
-    "story": "Your story:"
+    "story": "Your story:",
+    "relationship": "How you know the person (question 2): {relationship}",
+    "acts": "What the person did (question 7): {acts}",
+    "incidentsHeading": "Incidents (question 8)",
+    "place": "Place of incident: {place}",
+    "present": "People present: {present}",
+    "firsthandNo": "I did not see or hear this myself. A signed statement from someone who did is needed.",
+    "feeling": "How it made me feel: {feeling}"
   },
   "badges": {
     "heading": "Questions that may come up",
@@ -160,7 +219,14 @@
     "none": "No questions",
     "incidentCountBelow": "Other times?",
     "incidentDateMissing": "Date missing",
-    "incidentWordsBelow": "Could use more detail"
+    "incidentWordsBelow": "Could use more detail",
+    "incidentDateInFuture": "Date after today",
+    "incidentPlaceMissing": "Place missing",
+    "incidentPeopleMissing": "Who was there?",
+    "incidentNotFirsthand": "Needs a signed statement",
+    "incidentActsMissing": "What did they do?",
+    "feelingMissing": "How did it feel?",
+    "relationshipNotHousehold": "How you know them"
   },
   "timeline": {
     "heading": "Timeline",
