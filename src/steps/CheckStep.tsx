@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ACTS, type Finding } from '../checker';
 import { DEMO_MODE } from '../config';
 import { copy, fill } from '../content';
-import { ADD_INCIDENT_ID, type Action } from '../state/appState';
+import { ADD_INCIDENT_ID, ORGANIZE_HEADING_ID, type Action } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
 import { findingsFor } from '../state/findings';
 import { StepHeading } from '../ui/StepHeading';
@@ -25,6 +25,8 @@ function addMoreAction(finding: Finding, firstIncidentId: string | undefined): A
   switch (finding.conditionType) {
     case 'relationshipNotHousehold':
       return { type: 'addMore', step: 'start', focusTarget: RELATIONSHIP_ID };
+    case 'incidentsOutOfOrder':
+      return { type: 'addMore', focusTarget: ORGANIZE_HEADING_ID };
     case 'presentThreatMissing':
       return { type: 'addMore', step: 'story', focusTarget: THREAT_ID };
     case 'askedToStopMissing':

@@ -192,3 +192,17 @@ describe('questions about the person (Westlaw research)', () => {
     expect(ask({ threat, caseType: 'not-sure' })).toEqual([]);
   });
 });
+
+describe('dates out of order', () => {
+  const exact = (id: string, value: string) => incident(id, { date: { kind: 'exact', value } });
+  const ask = (incidents: CheckIncident[]) =>
+    runChecks({ ...answered, caseType: 'not-sure', incidents }, rules).map((f) => f.ruleId);
+
+  it('asks once when two full dates are out of order, ignoring dates that are not full', () => {
+    expect(ask([exact('a', '2026-10-02'), exact('b', '2026-09-14'), exact('c', '2026-01-01')])).toEqual([
+      'incidents-out-of-order',
+    ]);
+    expect(ask([exact('a', '2026-09-14'), incident('b'), exact('c', '2026-10-02')])).toEqual([]);
+    expect(ask([incident('a', { date: { kind: 'approximate', text: 'January' } }), exact('b', '2026-03-14')])).toEqual([]);
+  });
+});

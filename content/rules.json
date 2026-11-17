@@ -92,6 +92,22 @@
       "verified": false
     },
     {
+      "id": "incidents-out-of-order",
+      "caseTypes": [
+        "stalking",
+        "harassment",
+        "domestic-violence",
+        "sexual-assault",
+        "not-sure"
+      ],
+      "condition": {
+        "type": "incidentsOutOfOrder"
+      },
+      "questionText": "Some of your incidents with a full date are not in date order. Putting them from oldest to newest can make them easier for the judge to follow. Do you want to move them?",
+      "sourceCitation": "PO-0100 question 8 (Incident #1, #2, #3); PO-0102 (a clear, understandable description of the time of each incident)",
+      "verified": false
+    },
+    {
       "id": "incident-missing-date",
       "caseTypes": [
         "stalking",

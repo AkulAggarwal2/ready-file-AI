@@ -19,6 +19,7 @@ import {
   questionToggles,
   renderApp,
   toQuestions,
+  type User,
 } from './helpers';
 
 vi.mock('../src/safety/leaveSite', () => ({ leaveSite: vi.fn() }));
@@ -432,5 +433,54 @@ describe('11. Questions about the person', () => {
     expect(text).toContain(copy.summary.threat);
     expect(text).toContain('He said he would be back.');
     expect(text).toContain(fill(copy.summary.askedToStop, { answer: 'Yes. I texted him on March 2.' }));
+  });
+});
+
+describe('12. Numbers and pages match the form', () => {
+  async function addDated(user: User, details: string, date: string) {
+    await addIncident(user, details);
+    const kinds = screen.getAllByRole('combobox', { name: copy.incident.dateLabel });
+    await user.selectOptions(kinds[kinds.length - 1], 'exact');
+    const dates = document.querySelectorAll<HTMLInputElement>('input[type="date"]');
+    fireEvent.change(dates[dates.length - 1], { target: { value: date } });
+  }
+
+  it('keeps her order and numbers everywhere, and asks once if full dates are out of order', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await addDated(user, 'Sent fourteen texts in one night saying he knew where I worked and lived.', '2026-10-02');
+    await addDated(user, 'Tried to force open my screen door late at night and yelled my name.', '2026-09-14');
+    await toQuestions(user);
+
+    // Incident 2 is still the screen door on the Questions step.
+    const placeQuestion = `${fill(copy.timeline.incident, { n: 2 })} · ${copy.badges.incidentPlaceMissing}`;
+    await user.click(questionToggle(placeQuestion));
+    expect(screen.getByText(/screen door/, { selector: 'blockquote' })).toBeInTheDocument();
+    await user.click(questionToggle(placeQuestion));
+
+    // "Add more" on the order question goes to the top of her list.
+    await user.click(questionToggle(copy.badges.incidentsOutOfOrder));
+    await user.click(screen.getByRole('button', { name: copy.check.addMore }));
+    expect(screen.getByRole('heading', { level: 1, name: copy.organize.heading })).toHaveFocus();
+
+    // The summary keeps her order and numbers, with readable dates.
+    await toQuestions(user);
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+    const text = summaryText();
+    expect(text.indexOf('fourteen texts')).toBeLessThan(text.indexOf('screen door'));
+    expect(text.indexOf(fill(copy.summary.incident, { n: 2 }))).toBeLessThan(text.indexOf('screen door'));
+    expect(text).toContain(fill(copy.summary.when, { when: 'September 14, 2026' }));
+  });
+
+  it('labels incidents 4 and up as Attachment 8a', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await loadSample(user, 'four');
+    await toQuestions(user);
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+    const text = summaryText();
+    expect(text).toContain(copy.summary.attachmentNote);
+    expect(text).toContain(fill(copy.summary.incident, { n: 3 }));
+    expect(text).toContain(fill(copy.summary.incidentAttachment, { n: 4 }));
   });
 });

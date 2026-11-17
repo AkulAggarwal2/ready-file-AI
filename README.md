@@ -74,6 +74,7 @@ one rule. Rules cannot contain code.
 | `incidentWordsBelow` | an incident's description has fewer than `value` words (asked once per incident) |
 | `feelingMissing` | she has incidents, but none says how they made her feel (asked once) |
 | `relationshipNotHousehold` | she said the person is not a family or household member (PO-0100 question 2; asked once) |
+| `incidentsOutOfOrder` | two incidents with full dates are out of date order in her list (asked once) |
 | `presentThreatMissing` | she has incidents, but has not said why the person could hurt her now (asked once) |
 | `askedToStopMissing` | she has incidents, but has not said whether she told the person to stop (asked once) |
 | `null` | never. Use this for a placeholder rule. |
@@ -99,6 +100,7 @@ wording and source before it is marked verified.
 | `asked-to-stop` | Whether she told the person to stop (stalking, harassment) | *Maurer v. Cobb-Maurer* (Ind. Ct. App. 2013); IC 35-45-10-3 |
 | `feeling-stalking` / `feeling-harassment` | How the incidents made her feel, including fear of being hurt | PO-0102 definitions; *H.R. v. M.R.* (Ind. Ct. App. 2025); *Maurer* |
 | `incident-missing-date` | An incident with no date | TODO |
+| `incidents-out-of-order` | Full dates out of order in her list | PO-0100 question 8; PO-0102 |
 | `incident-future-date` | A date after today | PO-0102 (vague times are a common reason for denial) |
 | `incident-missing-place` | An incident with no place | PO-0100 question 8 |
 | `incident-missing-people` | An incident with no one listed as present | PO-0100 question 8 |
@@ -117,7 +119,13 @@ wording and source before it is marked verified.
   she told the person to stop. Indiana courts deny orders without a present,
   credible threat, and weigh whether she asked for contact to stop.
 - **The summary** follows the form's order: question 2, question 7, then each
-  incident as "Incident #1", "Incident #2", and so on. Empty details are left out.
+  incident as "Incident #1", "Incident #2", and so on, with readable dates.
+  Empty details are left out. Incidents 4 and up are labeled "Attachment 8a",
+  because the form has room for 3.
+- **Numbers never change.** Incidents keep the order of her list, and the same
+  number, on every step and in the summary. If two full dates are out of
+  order, a question offers to fix it. The tool never reorders her list itself,
+  because a "January" incident cannot be placed against an exact date.
 - **Review** lists what the rest of the form asks for: questions 4, 5, 6 and 9,
   the Confidential Form (PO-0104), and the signature.
 

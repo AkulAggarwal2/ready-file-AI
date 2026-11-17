@@ -30,7 +30,7 @@ export function ReviewStep() {
       <p className="callout">{c.notFiling}</p>
 
       <h2 id="timeline-label">{copy.timeline.heading}</h2>
-      <Timeline incidents={state.incidents} numbering="timeline" />
+      <Timeline incidents={state.incidents} numbering="list" />
 
       <h2 id="summary-label">{c.summaryLabel}</h2>
       <pre className="summary" role="region" aria-labelledby="summary-label" tabIndex={0}>
