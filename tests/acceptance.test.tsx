@@ -48,7 +48,8 @@ describe('1. Lena, one incident', () => {
 
     await user.click(questionToggles()[0]);
     expect(openQuestionText()).toBe(STALKING_QUESTION);
-    expect(screen.getByText(fill(copy.check.unverified, { ruleId: 'stalking-two-incidents' }))).toBeInTheDocument();
+    // Verified rules show no "Unverified rule" label, even in demo mode.
+    expect(screen.queryByText(fill(copy.check.unverified, { ruleId: 'stalking-two-incidents' }))).toBeNull();
 
     await user.click(screen.getByRole('button', { name: copy.check.continueAsIs }));
     expect(screen.getByText(copy.check.answered)).toBeInTheDocument();
@@ -317,6 +318,8 @@ describe('8. Never blocks', () => {
     await toQuestions(user);
     await user.click(questionToggle(copy.badges.incidentDateMissing));
     expect(openQuestionText()).toMatch(/remember about when/);
+    // This rule's source is still TODO, so demo mode labels it.
+    expect(screen.getByText(fill(copy.check.unverified, { ruleId: 'incident-missing-date' }))).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: copy.check.addMore }));
     expect(screen.getByRole('combobox', { name: copy.incident.dateLabel })).toHaveFocus();
   });
