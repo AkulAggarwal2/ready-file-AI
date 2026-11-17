@@ -4,8 +4,19 @@ import { rules } from '../src/content';
 
 const longText = 'He came to my door at night and would not leave when I asked him to go away.';
 
+// A complete incident, so each test only sees the question it is about.
 function incident(id: string, fields: Partial<CheckIncident> = {}): CheckIncident {
-  return { id, date: { kind: 'approximate', text: 'early March' }, description: longText, ...fields };
+  return {
+    id,
+    date: { kind: 'approximate', text: 'early March' },
+    description: longText,
+    place: 'My apartment',
+    present: 'Me',
+    firsthand: 'yes',
+    feeling: 'Scared',
+    acts: ['placed-in-fear'],
+    ...fields,
+  };
 }
 
 const ruleIds = (findings: ReturnType<typeof runChecks>) => findings.map((f) => f.ruleId);
@@ -23,9 +34,10 @@ describe('runChecks with the seeded rules', () => {
   });
 
   it('does not ask the stalking question for harassment or not sure', () => {
-    for (const caseType of ['harassment', 'not-sure'] as const) {
-      expect(runChecks({ caseType, incidents: [incident('a')] }, rules)).toEqual([]);
-    }
+    expect(runChecks({ caseType: 'not-sure', incidents: [incident('a')] }, rules)).toEqual([]);
+    expect(ruleIds(runChecks({ caseType: 'harassment', incidents: [incident('a')] }, rules))).toEqual([
+      'harassment-repeated',
+    ]);
   });
 
   it('asks about each incident with no date, including blank exact or approximate dates', () => {
@@ -50,15 +62,15 @@ describe('runChecks with the seeded rules', () => {
 
   it('asks for more detail when a description is under the word limit', () => {
     const findings = runChecks(
-      { caseType: 'harassment', incidents: [incident('a', { description: 'He yelled at me.' })] },
+      { caseType: 'not-sure', incidents: [incident('a', { description: 'He yelled at me.' })] },
       rules,
     );
     expect(findings.map((f) => [f.ruleId, f.incidentId])).toEqual([['incident-too-short', 'a']]);
   });
 
-  it('never runs the harassment placeholder rule', () => {
-    const findings = runChecks({ caseType: 'harassment', incidents: [] }, rules);
-    expect(ruleIds(findings)).not.toContain('harassment-rule');
+  it('never runs a placeholder rule', () => {
+    const findings = runChecks({ caseType: 'sexual-assault', incidents: [] }, rules);
+    expect(ruleIds(findings)).not.toContain('sexual-assault-rule');
   });
 
   it('gives every finding a unique key and a rule it came from', () => {
@@ -97,5 +109,62 @@ describe('validateRules', () => {
     expect(() => validateRules([{ ...valid, caseTypes: ['divorce'] }])).toThrow(/caseTypes/);
     expect(() => validateRules([valid, valid])).toThrow(/more than one rule/);
     expect(() => validateRules([{ ...valid, verified: undefined }])).toThrow(/verified/);
+  });
+});
+
+describe('questions that follow the petition (PO-0100)', () => {
+  const ask = (input: Partial<Parameters<typeof runChecks>[0]>) =>
+    runChecks({ caseType: 'not-sure', incidents: [], ...input }, rules).map((f) => [f.ruleId, f.incidentId]);
+
+  it('asks for the place and the people present in each incident (question 8)', () => {
+    expect(ask({ incidents: [incident('a', { place: ' ' }), incident('b', { present: '' })] })).toEqual([
+      ['incident-missing-place', 'a'],
+      ['incident-missing-people', 'b'],
+    ]);
+  });
+
+  it('flags a date after today, but only when it knows today', () => {
+    const future = incident('a', { date: { kind: 'exact', value: '2027-03-01' } });
+    expect(ask({ incidents: [future], today: '2026-11-17' })).toEqual([['incident-future-date', 'a']]);
+    expect(ask({ incidents: [future] })).toEqual([]);
+    expect(ask({ incidents: [incident('b', { date: { kind: 'exact', value: '2026-11-17' } })], today: '2026-11-17' })).toEqual([]);
+  });
+
+  it('asks for a signed statement when she did not see it herself', () => {
+    expect(ask({ incidents: [incident('a', { firsthand: 'no' })] })).toEqual([['incident-not-firsthand', 'a']]);
+    expect(ask({ incidents: [incident('a', { firsthand: 'unknown' })] })).toEqual([]);
+  });
+
+  it('asks once how the incidents made her feel, for stalking and harassment', () => {
+    const incidents = [incident('a', { feeling: '' }), incident('b', { feeling: '' })];
+    expect(ask({ caseType: 'stalking', incidents })).toEqual([['feeling-stalking', undefined]]);
+    expect(ask({ caseType: 'harassment', incidents })).toEqual([['feeling-harassment', undefined]]);
+    expect(ask({ caseType: 'stalking', incidents: [incidents[0], incident('c')] })).toEqual([]);
+    expect(ask({ caseType: 'stalking', incidents: [] })).toEqual([['stalking-two-incidents', undefined]]);
+  });
+
+  it('for domestic violence, asks about the relationship and what the person did', () => {
+    expect(ask({ caseType: 'domestic-violence', relationship: 'none', incidents: [incident('a', { acts: [] })] })).toEqual([
+      ['dv-relationship', undefined],
+      ['dv-acts', 'a'],
+    ]);
+    expect(ask({ caseType: 'domestic-violence', relationship: 'dating', incidents: [incident('a')] })).toEqual([]);
+    expect(ask({ caseType: 'stalking', relationship: 'none', incidents: [incident('a'), incident('b')] })).toEqual([]);
+  });
+
+  it('accepts the new condition types in rules.json', () => {
+    const raw = ['incidentPlaceMissing', 'feelingMissing', 'relationshipNotHousehold'].map((type) => ({
+      id: type,
+      caseTypes: ['stalking'],
+      condition: { type },
+      questionText: 'Q',
+      sourceCitation: 'S',
+      verified: false,
+    }));
+    expect(validateRules(raw).map((rule) => rule.condition?.type)).toEqual([
+      'incidentPlaceMissing',
+      'feelingMissing',
+      'relationshipNotHousehold',
+    ]);
   });
 });

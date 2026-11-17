@@ -11,6 +11,24 @@ function wordCount(text: string): number {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
+const isBlank = (text: string | undefined) => !text || text.trim() === '';
+
+function isInFuture(incident: CheckIncident, today: string | undefined): boolean {
+  const { date } = incident;
+  // Dates are YYYY-MM-DD, so comparing the text compares the dates.
+  return Boolean(today) && date.kind === 'exact' && date.value !== '' && date.value > today!;
+}
+
+// Checks that ask once per incident.
+const PER_INCIDENT: Partial<Record<string, (incident: CheckIncident, input: CheckInput) => boolean>> = {
+  incidentDateMissing: (incident) => isDateMissing(incident),
+  incidentDateInFuture: (incident, input) => isInFuture(incident, input.today),
+  incidentPlaceMissing: (incident) => isBlank(incident.place),
+  incidentPeopleMissing: (incident) => isBlank(incident.present),
+  incidentNotFirsthand: (incident) => incident.firsthand === 'no',
+  incidentActsMissing: (incident) => !incident.acts || incident.acts.length === 0,
+};
+
 function finding(rule: Rule, incidentId?: string): Finding {
   return {
     key: `${rule.id}:${incidentId ?? 'all'}`,
@@ -34,14 +52,26 @@ export function runChecks(input: CheckInput, rules: Rule[]): Finding[] {
     const { condition } = rule;
     if (!condition || !rule.caseTypes.includes(input.caseType)) continue;
 
+    const perIncident = PER_INCIDENT[condition.type];
+    if (perIncident) {
+      for (const incident of input.incidents) {
+        if (perIncident(incident, input)) findings.push(finding(rule, incident.id));
+      }
+      continue;
+    }
+
     switch (condition.type) {
       case 'incidentCountBelow':
         if (input.incidents.length < condition.value) findings.push(finding(rule));
         break;
-      case 'incidentDateMissing':
-        for (const incident of input.incidents) {
-          if (isDateMissing(incident)) findings.push(finding(rule, incident.id));
+      case 'feelingMissing':
+        // Asked once: only when she has incidents and none says how they made her feel.
+        if (input.incidents.length > 0 && input.incidents.every((incident) => isBlank(incident.feeling))) {
+          findings.push(finding(rule));
         }
+        break;
+      case 'relationshipNotHousehold':
+        if (input.relationship === 'none') findings.push(finding(rule));
         break;
       case 'incidentWordsBelow':
         for (const incident of input.incidents) {

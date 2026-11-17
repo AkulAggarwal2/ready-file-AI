@@ -1,4 +1,4 @@
-import type { CheckDate } from '../checker';
+import { ACTS, type Act, type CheckDate, type Firsthand } from '../checker';
 
 export type IncidentDate = CheckDate;
 
@@ -12,6 +12,13 @@ export interface Incident {
   // Her words, unchanged unless she edits them.
   description: string;
   how: HowItHappened;
+  // Question 8 on the petition (PO-0100): the place, and everyone who was there.
+  place: string;
+  present: string;
+  firsthand: Firsthand;
+  // Question 7 on the petition: what the person did.
+  acts: Act[];
+  feeling: string;
   evidence: string;
 }
 
@@ -25,6 +32,11 @@ export function createIncident(fields: Partial<IncidentFields> = {}): Incident {
     date: { kind: 'unknown' },
     description: '',
     how: 'unknown',
+    place: '',
+    present: '',
+    firsthand: 'unknown',
+    acts: [],
+    feeling: '',
     evidence: '',
     ...fields,
   };
@@ -41,6 +53,11 @@ export function mergeIncidents(first: Incident, second: Incident): Incident {
     date: first.date.kind === 'unknown' ? second.date : first.date,
     description: joinText(first.description, second.description),
     how: first.how === 'unknown' ? second.how : first.how,
+    place: first.place.trim() ? first.place : second.place,
+    present: joinText(first.present, second.present),
+    firsthand: first.firsthand === 'unknown' ? second.firsthand : first.firsthand,
+    acts: ACTS.filter((act) => first.acts.includes(act) || second.acts.includes(act)),
+    feeling: joinText(first.feeling, second.feeling),
     evidence: joinText(first.evidence, second.evidence),
   };
 }

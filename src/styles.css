@@ -1170,3 +1170,37 @@ select {
     max-width: none;
   }
 }
+
+/* A gentle note under a field, such as a date after today. */
+.field-warning {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* Checkbox groups inside an incident match the size of the other field labels. */
+.card-fields fieldset legend {
+  font-size: inherit;
+}
+
+/* These labels are longer than the Start options, so they wrap on phones.
+   A fieldset is as wide as its longest line unless min-width is reset. */
+.card-fields fieldset {
+  min-width: 0;
+}
+
+.card-fields .choice {
+  white-space: normal;
+  text-align: center;
+}
+
+/* The rest-of-the-form checklist on Review reads as a list, so it is left-aligned. */
+.form-checklist {
+  text-align: left;
+  padding-left: var(--space-5);
+}
+
+.form-checklist li + li {
+  margin-top: var(--space-2);
+}

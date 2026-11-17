@@ -1,4 +1,4 @@
-import type { CaseType } from '../checker';
+import { ACTS, type Act, type CaseType, type Relationship } from '../checker';
 import { copy, fill } from '../content';
 import type { Incident } from '../organizer';
 
@@ -39,27 +39,82 @@ export function describeDate(incident: Incident): string {
   return copy.summary.dateUnknown;
 }
 
-/** Plain-text summary she can paste into the court's e-filing form or print. */
-export function buildSummary(caseType: CaseType, incidents: Incident[], story = ''): string {
-  const s = copy.summary;
-  const lines = [s.title, fill(s.caseType, { caseType: copy.start.caseTypes[caseType] }), ''];
+/** Every act she checked, across all incidents, in the order of question 7. */
+export function allActs(incidents: Incident[]): Act[] {
+  return ACTS.filter((act) => incidents.some((incident) => incident.acts.includes(act)));
+}
 
-  if (incidents.length === 0) lines.push(s.noIncidents);
+export interface SummarySection {
+  heading?: string;
+  lines: string[];
+  // Her own words, kept as she wrote them.
+  text?: string;
+}
+
+/**
+ * The summary in the order of the court's petition (PO-0100): how she knows
+ * the person (question 2), what the person did (question 7), then each
+ * incident with the details question 8 asks for. Empty details are left out.
+ */
+export function summarySections(
+  caseType: CaseType,
+  incidents: Incident[],
+  story = '',
+  relationship: Relationship | null = null,
+): SummarySection[] {
+  const s = copy.summary;
+  const header: string[] = [fill(s.caseType, { caseType: copy.start.caseTypes[caseType] })];
+  if (relationship && relationship !== 'not-sure') {
+    header.push(fill(s.relationship, { relationship: copy.start.relationships[relationship] }));
+  }
+  const acts = allActs(incidents);
+  if (acts.length > 0) {
+    header.push(fill(s.acts, { acts: acts.map((act) => copy.incident.acts[act]).join('; ') }));
+  }
+
+  const sections: SummarySection[] = [{ heading: s.title, lines: header }];
+  if (incidents.length === 0) {
+    sections.push({ lines: [s.noIncidents] });
+  } else {
+    sections.push({ heading: s.incidentsHeading, lines: [] });
+  }
 
   sortByDate(incidents).forEach((incident, index) => {
-    lines.push(
-      fill(s.incident, { n: index + 1 }),
-      fill(s.when, { when: describeDate(incident) }),
-      fill(s.how, { how: copy.incident.how[incident.how] }),
-      s.what,
-      incident.description.trim(),
-    );
-    if (incident.evidence.trim()) lines.push(fill(s.evidence, { evidence: incident.evidence.trim() }));
-    lines.push('');
+    const lines = [fill(s.when, { when: describeDate(incident) })];
+    if (incident.place.trim()) lines.push(fill(s.place, { place: incident.place.trim() }));
+    if (incident.how !== 'unknown') lines.push(fill(s.how, { how: copy.incident.how[incident.how] }));
+    lines.push(s.what);
+    const after: string[] = [];
+    if (incident.present.trim()) after.push(fill(s.present, { present: incident.present.trim() }));
+    if (incident.firsthand === 'no') after.push(s.firsthandNo);
+    if (incident.feeling.trim()) after.push(fill(s.feeling, { feeling: incident.feeling.trim() }));
+    if (incident.evidence.trim()) after.push(fill(s.evidence, { evidence: incident.evidence.trim() }));
+    sections.push({ heading: fill(s.incident, { n: index + 1 }), lines, text: incident.description.trim() });
+    if (after.length > 0) sections.push({ lines: after });
   });
 
   // Her own words come after the dated incidents.
-  if (story.trim()) lines.push(s.story, story.trim());
+  if (story.trim()) sections.push({ heading: s.story, lines: [], text: story.trim() });
 
-  return lines.join('\n').trim();
+  return sections;
+}
+
+/** Plain-text summary she can paste into the court's e-filing form or print. */
+export function buildSummary(
+  caseType: CaseType,
+  incidents: Incident[],
+  story = '',
+  relationship: Relationship | null = null,
+): string {
+  const out: string[] = [];
+  for (const section of summarySections(caseType, incidents, story, relationship)) {
+    // A section with no heading continues the one before it.
+    if (section.heading) {
+      if (out.length > 0) out.push('');
+      out.push(section.heading);
+    }
+    out.push(...section.lines);
+    if (section.text) out.push(section.text);
+  }
+  return out.join('\n').trim();
 }

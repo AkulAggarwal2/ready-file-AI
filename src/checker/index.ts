@@ -1,7 +1,8 @@
 export { runChecks } from './runChecks';
 export { validateRules } from './validateRules';
-export { CASE_TYPES } from './types';
+export { ACTS, CASE_TYPES, RELATIONSHIPS } from './types';
 export type {
+  Act,
   CaseType,
   CheckDate,
   CheckIncident,
@@ -9,5 +10,7 @@ export type {
   Condition,
   ConditionType,
   Finding,
+  Firsthand,
+  Relationship,
   Rule,
 } from './types';
