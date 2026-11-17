@@ -73,6 +73,15 @@ export function runChecks(input: CheckInput, rules: Rule[]): Finding[] {
       case 'relationshipNotHousehold':
         if (input.relationship === 'none') findings.push(finding(rule));
         break;
+      // These two are about the person, not one incident, and are asked once she has incidents.
+      case 'presentThreatMissing':
+        if (input.incidents.length > 0 && isBlank(input.threat)) findings.push(finding(rule));
+        break;
+      case 'askedToStopMissing':
+        if (input.incidents.length > 0 && (input.askedToStop ?? 'unknown') === 'unknown') {
+          findings.push(finding(rule));
+        }
+        break;
       case 'incidentWordsBelow':
         for (const incident of input.incidents) {
           if (wordCount(incident.description) < condition.value) {

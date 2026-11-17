@@ -1,4 +1,4 @@
-import type { CaseType, Relationship } from '../checker';
+import type { CaseType, Relationship, YesNoUnknown } from '../checker';
 import { copy, fill } from '../content';
 import { createIncident, mergeIncidents, type Incident, type IncidentFields } from '../organizer';
 
@@ -33,6 +33,10 @@ export interface AppState {
   relationship: Relationship | null;
   // Her account in her own words, written after the incidents.
   story: string;
+  // About the person as a whole, asked on the Your story step.
+  threat: string;
+  askedToStop: YesNoUnknown;
+  askedToStopDetail: string;
   incidents: Incident[];
   // Ids of incidents whose fields are open for editing.
   expanded: string[];
@@ -46,11 +50,16 @@ export interface AppState {
   undo: UndoEntry | null;
 }
 
+export type PersonDetails = Partial<Pick<AppState, 'threat' | 'askedToStop' | 'askedToStopDetail'>>;
+
 export const initialState: AppState = {
   step: 'start',
   caseType: null,
   relationship: null,
   story: '',
+  threat: '',
+  askedToStop: 'unknown',
+  askedToStopDetail: '',
   incidents: [],
   expanded: [],
   dismissed: [],
@@ -63,6 +72,7 @@ export type Action =
   | { type: 'begin'; caseType: CaseType; relationship: Relationship | null }
   | { type: 'goTo'; step: Step }
   | { type: 'setStory'; story: string }
+  | { type: 'setPersonDetails'; changes: PersonDetails }
   | { type: 'loadSample'; story: string; incidents: Incident[] }
   | { type: 'addMore'; focusTarget: string; expandId?: string; step?: Step }
   | { type: 'updateIncident'; id: string; changes: Partial<IncidentFields> }
@@ -110,6 +120,8 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, step: action.step, undo: null };
     case 'setStory':
       return { ...state, story: action.story };
+    case 'setPersonDetails':
+      return { ...state, ...action.changes };
     case 'loadSample':
       return { ...state, story: action.story, incidents: action.incidents, expanded: [], undo: null };
     case 'addMore':

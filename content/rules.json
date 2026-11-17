@@ -10,7 +10,7 @@
         "value": 2
       },
       "questionText": "Stalking means two or more incidents. Are there other times?",
-      "sourceCitation": "PO-0102 petition booklet (team source K2)",
+      "sourceCitation": "PO-0102 petition booklet (team source K2); R.W. v. J.W., 160 N.E.3d 195 (Ind. Ct. App. 2020) (\"repeated\" means more than once); C.S. v. T.K., 118 N.E.3d 78 (Ind. Ct. App. 2019) (one incident is not enough)",
       "verified": false
     },
     {
@@ -35,7 +35,36 @@
         "type": "relationshipNotHousehold"
       },
       "questionText": "Orders for domestic or family violence are for family or household members, like a spouse, partner, or relative. You said none of these fit. If this person stalked or harassed you, an order for stalking or harassment may fit instead. Do you want to look at your answer again?",
-      "sourceCitation": "PO-0102 instructions, who counts as a family or household member; PO-0100 question 2",
+      "sourceCitation": "PO-0102 instructions, who counts as a family or household member; PO-0100 question 2; M.R. v. B.C., 120 N.E.3d 220 (Ind. Ct. App. 2019) (a stalking order needs no family relationship)",
+      "verified": false
+    },
+    {
+      "id": "present-threat",
+      "caseTypes": [
+        "stalking",
+        "harassment",
+        "domestic-violence",
+        "sexual-assault",
+        "not-sure"
+      ],
+      "condition": {
+        "type": "presentThreatMissing"
+      },
+      "questionText": "Do you think this person could hurt you now? The court looks at whether the person is a real danger today, for example because of threats, past violence, or weapons.",
+      "sourceCitation": "Ind. Code § 34-26-5-9(f); S.H. v. D.W., 139 N.E.3d 214 (Ind. 2020) (the threat must be present and credible, viewed objectively); S.D. v. G.D., 211 N.E.3d 494 (Ind. 2023) (totality of the circumstances); 14 Ind. Prac., Family Law § 8:16 (factors)",
+      "verified": false
+    },
+    {
+      "id": "asked-to-stop",
+      "caseTypes": [
+        "stalking",
+        "harassment"
+      ],
+      "condition": {
+        "type": "askedToStopMissing"
+      },
+      "questionText": "Did you ever tell this person to stop contacting you? If you did, the court may ask when and how.",
+      "sourceCitation": "Maurer v. Cobb-Maurer, 994 N.E.2d 753 (Ind. Ct. App. 2013) (no evidence she asked him to stop); Ind. Code § 35-45-10-3 (impermissible contact)",
       "verified": false
     },
     {
@@ -46,8 +75,8 @@
       "condition": {
         "type": "feelingMissing"
       },
-      "questionText": "How did these incidents make you feel? For stalking, the court looks at whether they made you feel frightened, threatened, or intimidated.",
-      "sourceCitation": "PO-0102 instructions, definition of stalking (Ind. Code § 35-45-10-1)",
+      "questionText": "How did these incidents make you feel? For stalking, the court looks at whether they made you feel frightened, threatened, or intimidated, including afraid of being hurt.",
+      "sourceCitation": "PO-0102 instructions, definition of stalking (Ind. Code § 35-45-10-1); H.R. v. M.R., 262 N.E.3d 915 (Ind. Ct. App. 2025) (distress without fear of physical harm was not enough); Maurer v. Cobb-Maurer, 994 N.E.2d 753 (Ind. Ct. App. 2013)",
       "verified": false
     },
     {
@@ -59,7 +88,7 @@
         "type": "feelingMissing"
       },
       "questionText": "How did this contact affect you? For harassment, the court looks at whether it caused you emotional distress.",
-      "sourceCitation": "PO-0102 instructions, definition of harassment (Ind. Code § 34-6-2-51.5)",
+      "sourceCitation": "PO-0102 instructions, definition of harassment (Ind. Code § 34-6-2-51.5); Maurer v. Cobb-Maurer, 994 N.E.2d 753 (Ind. Ct. App. 2013) (no testimony about the effect of the contact)",
       "verified": false
     },
     {

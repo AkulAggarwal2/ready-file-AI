@@ -44,9 +44,11 @@ export const ACTS = [
 
 export type Act = (typeof ACTS)[number];
 
+export type YesNoUnknown = 'yes' | 'no' | 'unknown';
+
 // Whether she saw or heard the incident herself. If not, the court needs a
 // sworn statement from someone who did (PO-0102).
-export type Firsthand = 'yes' | 'no' | 'unknown';
+export type Firsthand = YesNoUnknown;
 
 export interface CheckIncident {
   id: string;
@@ -64,6 +66,11 @@ export interface CheckInput {
   caseType: CaseType;
   incidents: CheckIncident[];
   relationship?: Relationship | null;
+  // Why she thinks the person could hurt her now. Every order needs a present,
+  // credible threat (Ind. Code § 34-26-5-9(f); S.H. v. D.W., Ind. 2020).
+  threat?: string;
+  // Whether she told the person to stop contacting her (Maurer v. Cobb-Maurer).
+  askedToStop?: YesNoUnknown;
   // Today's date as YYYY-MM-DD. Without it, dates are not checked against today.
   today?: string;
 }
@@ -80,7 +87,9 @@ export type Condition =
   | { type: 'incidentNotFirsthand' }
   | { type: 'incidentActsMissing' }
   | { type: 'feelingMissing' }
-  | { type: 'relationshipNotHousehold' };
+  | { type: 'relationshipNotHousehold' }
+  | { type: 'presentThreatMissing' }
+  | { type: 'askedToStopMissing' };
 
 // Conditions that need no "value" in rules.json.
 export const SIMPLE_CONDITIONS = [
@@ -92,6 +101,8 @@ export const SIMPLE_CONDITIONS = [
   'incidentActsMissing',
   'feelingMissing',
   'relationshipNotHousehold',
+  'presentThreatMissing',
+  'askedToStopMissing',
 ] as const;
 
 export type ConditionType = Condition['type'];
