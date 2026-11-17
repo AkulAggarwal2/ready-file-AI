@@ -14,6 +14,8 @@ export function findingsFor(state: AppState): Finding[] {
     {
       caseType: state.caseType ?? 'not-sure',
       relationship: state.relationship,
+      threat: state.threat,
+      askedToStop: state.askedToStop,
       incidents: state.incidents,
       today: todayIso(),
     },

@@ -12,7 +12,7 @@ export function ReviewStep() {
   const [copyStatus, setCopyStatus] = useState('');
   const c = copy.review;
   const caseType = state.caseType ?? 'not-sure';
-  const summary = buildSummary(caseType, state.incidents, state.story, state.relationship);
+  const summary = buildSummary(caseType, state.incidents, state.story, state.relationship, state);
 
   async function copySummary() {
     try {
@@ -75,7 +75,7 @@ export function ReviewStep() {
       </div>
       </div>
 
-      <PrintSummary sections={summarySections(caseType, state.incidents, state.story, state.relationship)} />
+      <PrintSummary sections={summarySections(caseType, state.incidents, state.story, state.relationship, state)} />
     </div>
   );
 }

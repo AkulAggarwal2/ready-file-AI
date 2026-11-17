@@ -13,4 +13,5 @@ export type {
   Firsthand,
   Relationship,
   Rule,
+  YesNoUnknown,
 } from './types';

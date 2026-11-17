@@ -75,7 +75,18 @@
     "label": "Your story in your own words",
     "hint": "Write as much or as little as you want.",
     "back": "Back to incidents",
-    "next": "Go to questions"
+    "next": "Go to questions",
+    "personHeading": "About this person",
+    "threatLabel": "Do you think this person could hurt you now? (optional)",
+    "threatHint": "What makes you think so? For example: threats they made, past violence, weapons, or that they keep showing up. The court looks at whether the danger is real today, not only in the past.",
+    "askedToStopLabel": "Did you ever tell this person to stop contacting you?",
+    "askedToStopOptions": {
+      "unknown": "Choose one (optional)",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "askedToStopDetailLabel": "When and how did you tell them? (optional)",
+    "askedToStopDetailHint": "For example: I texted him on March 2 to leave me alone."
   },
   "organize": {
     "heading": "Add your incidents",
@@ -163,7 +174,8 @@
     "back": "Back to your story",
     "unverified": "Unverified rule: {ruleId}",
     "allIncidents": "About all of your incidents",
-    "aboutRelationship": "About how you know this person"
+    "aboutRelationship": "About how you know this person",
+    "aboutPerson": "About this person"
   },
   "review": {
     "heading": "Review your incidents",
@@ -209,7 +221,13 @@
     "place": "Place of incident: {place}",
     "present": "People present: {present}",
     "firsthandNo": "I did not see or hear this myself. A signed statement from someone who did is needed.",
-    "feeling": "How it made me feel: {feeling}"
+    "feeling": "How it made me feel: {feeling}",
+    "threat": "Why I think this person could hurt me now:",
+    "askedToStop": "I told this person to stop contacting me: {answer}",
+    "askedToStopAnswers": {
+      "yes": "Yes",
+      "no": "No"
+    }
   },
   "badges": {
     "heading": "Questions that may come up",
@@ -226,7 +244,9 @@
     "incidentNotFirsthand": "Needs a signed statement",
     "incidentActsMissing": "What did they do?",
     "feelingMissing": "How did it feel?",
-    "relationshipNotHousehold": "How you know them"
+    "relationshipNotHousehold": "How you know them",
+    "presentThreatMissing": "Danger now?",
+    "askedToStopMissing": "Asked them to stop?"
   },
   "timeline": {
     "heading": "Timeline",

@@ -17,6 +17,7 @@ import {
   presentId,
 } from './IncidentEditor';
 import { RELATIONSHIP_ID } from './StartStep';
+import { ASKED_TO_STOP_ID, THREAT_ID } from './StoryStep';
 
 /** Where "Add more" takes her: the screen and field the question is about. */
 function addMoreAction(finding: Finding, firstIncidentId: string | undefined): Action {
@@ -24,6 +25,10 @@ function addMoreAction(finding: Finding, firstIncidentId: string | undefined): A
   switch (finding.conditionType) {
     case 'relationshipNotHousehold':
       return { type: 'addMore', step: 'start', focusTarget: RELATIONSHIP_ID };
+    case 'presentThreatMissing':
+      return { type: 'addMore', step: 'story', focusTarget: THREAT_ID };
+    case 'askedToStopMissing':
+      return { type: 'addMore', step: 'story', focusTarget: ASKED_TO_STOP_ID };
     case 'feelingMissing':
       // Asked about all incidents, so it opens the first one.
       return firstIncidentId
@@ -87,7 +92,9 @@ export function CheckStep() {
             const about =
               finding.conditionType === 'relationshipNotHousehold'
                 ? c.aboutRelationship
-                : index === -1
+                : finding.conditionType === 'presentThreatMissing' || finding.conditionType === 'askedToStopMissing'
+                  ? c.aboutPerson
+                  : index === -1
                   ? c.allIncidents
                   : fill(copy.timeline.incident, { n: index + 1 });
 

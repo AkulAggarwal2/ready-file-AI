@@ -74,6 +74,8 @@ one rule. Rules cannot contain code.
 | `incidentWordsBelow` | an incident's description has fewer than `value` words (asked once per incident) |
 | `feelingMissing` | she has incidents, but none says how they made her feel (asked once) |
 | `relationshipNotHousehold` | she said the person is not a family or household member (PO-0100 question 2; asked once) |
+| `presentThreatMissing` | she has incidents, but has not said why the person could hurt her now (asked once) |
+| `askedToStopMissing` | she has incidents, but has not said whether she told the person to stop (asked once) |
 | `null` | never. Use this for a placeholder rule. |
 
 If `rules.json` has a mistake, such as an unknown condition type, the app
@@ -93,7 +95,9 @@ wording and source before it is marked verified.
 | `stalking-two-incidents` | Stalking with fewer than 2 incidents | PO-0102 (team source K2) |
 | `harassment-repeated` | Harassment with fewer than 2 incidents | PO-0102, Ind. Code § 34-6-2-51.5 |
 | `dv-relationship` | Domestic violence when the person is not family or household | PO-0102; PO-0100 question 2 |
-| `feeling-stalking` / `feeling-harassment` | How the incidents made her feel | PO-0102 definitions of stalking and harassment |
+| `present-threat` | Whether the person could hurt her now | IC 34-26-5-9(f); *S.H. v. D.W.* (Ind. 2020); *S.D. v. G.D.* (Ind. 2023) |
+| `asked-to-stop` | Whether she told the person to stop (stalking, harassment) | *Maurer v. Cobb-Maurer* (Ind. Ct. App. 2013); IC 35-45-10-3 |
+| `feeling-stalking` / `feeling-harassment` | How the incidents made her feel, including fear of being hurt | PO-0102 definitions; *H.R. v. M.R.* (Ind. Ct. App. 2025); *Maurer* |
 | `incident-missing-date` | An incident with no date | TODO |
 | `incident-future-date` | A date after today | PO-0102 (vague times are a common reason for denial) |
 | `incident-missing-place` | An incident with no place | PO-0100 question 8 |
@@ -109,6 +113,9 @@ wording and source before it is marked verified.
 - **Each incident** asks for what question 8 asks: date, place, a description,
   and everyone who was present. It also asks which acts from question 7
   happened, whether she saw it herself, and how it made her feel.
+- **Your story** also asks whether the person could hurt her now, and whether
+  she told the person to stop. Indiana courts deny orders without a present,
+  credible threat, and weigh whether she asked for contact to stop.
 - **The summary** follows the form's order: question 2, question 7, then each
   incident as "Incident #1", "Incident #2", and so on. Empty details are left out.
 - **Review** lists what the rest of the form asks for: questions 4, 5, 6 and 9,

@@ -1,4 +1,4 @@
-import { ACTS, type Act, type CaseType, type Relationship } from '../checker';
+import { ACTS, type Act, type CaseType, type Relationship, type YesNoUnknown } from '../checker';
 import { copy, fill } from '../content';
 import type { Incident } from '../organizer';
 
@@ -44,6 +44,15 @@ export function allActs(incidents: Incident[]): Act[] {
   return ACTS.filter((act) => incidents.some((incident) => incident.acts.includes(act)));
 }
 
+/** What she said about the person as a whole, on the Your story step. */
+export interface PersonAnswers {
+  threat: string;
+  askedToStop: YesNoUnknown;
+  askedToStopDetail: string;
+}
+
+const NO_ANSWERS: PersonAnswers = { threat: '', askedToStop: 'unknown', askedToStopDetail: '' };
+
 export interface SummarySection {
   heading?: string;
   lines: string[];
@@ -61,6 +70,7 @@ export function summarySections(
   incidents: Incident[],
   story = '',
   relationship: Relationship | null = null,
+  person: PersonAnswers = NO_ANSWERS,
 ): SummarySection[] {
   const s = copy.summary;
   const header: string[] = [fill(s.caseType, { caseType: copy.start.caseTypes[caseType] })];
@@ -93,6 +103,13 @@ export function summarySections(
     if (after.length > 0) sections.push({ lines: after });
   });
 
+  if (person.threat.trim()) sections.push({ heading: s.threat, lines: [], text: person.threat.trim() });
+  if (person.askedToStop !== 'unknown') {
+    const answer = s.askedToStopAnswers[person.askedToStop];
+    const detail = person.askedToStop === 'yes' ? person.askedToStopDetail.trim() : '';
+    sections.push({ lines: [fill(s.askedToStop, { answer: detail ? `${answer}. ${detail}` : answer })] });
+  }
+
   // Her own words come after the dated incidents.
   if (story.trim()) sections.push({ heading: s.story, lines: [], text: story.trim() });
 
@@ -105,9 +122,10 @@ export function buildSummary(
   incidents: Incident[],
   story = '',
   relationship: Relationship | null = null,
+  person: PersonAnswers = NO_ANSWERS,
 ): string {
   const out: string[] = [];
-  for (const section of summarySections(caseType, incidents, story, relationship)) {
+  for (const section of summarySections(caseType, incidents, story, relationship, person)) {
     // A section with no heading continues the one before it.
     if (section.heading) {
       if (out.length > 0) out.push('');

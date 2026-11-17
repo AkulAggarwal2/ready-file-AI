@@ -19,23 +19,26 @@ function incident(id: string, fields: Partial<CheckIncident> = {}): CheckInciden
   };
 }
 
+// Answers to the questions about the person, so tests only see what they are about.
+const answered = { threat: 'He said he would come back and hurt me.', askedToStop: 'yes' as const };
+
 const ruleIds = (findings: ReturnType<typeof runChecks>) => findings.map((f) => f.ruleId);
 
 describe('runChecks with the seeded rules', () => {
   it('asks the two-or-more question for stalking with one incident', () => {
-    const findings = runChecks({ caseType: 'stalking', incidents: [incident('a')] }, rules);
+    const findings = runChecks({ ...answered, caseType: 'stalking', incidents: [incident('a')] }, rules);
     expect(ruleIds(findings)).toEqual(['stalking-two-incidents']);
     expect(findings[0].questionText).toBe('Stalking means two or more incidents. Are there other times?');
   });
 
   it('does not ask it with two or more incidents', () => {
-    const findings = runChecks({ caseType: 'stalking', incidents: [incident('a'), incident('b')] }, rules);
+    const findings = runChecks({ ...answered, caseType: 'stalking', incidents: [incident('a'), incident('b')] }, rules);
     expect(findings).toEqual([]);
   });
 
   it('does not ask the stalking question for harassment or not sure', () => {
-    expect(runChecks({ caseType: 'not-sure', incidents: [incident('a')] }, rules)).toEqual([]);
-    expect(ruleIds(runChecks({ caseType: 'harassment', incidents: [incident('a')] }, rules))).toEqual([
+    expect(runChecks({ ...answered, caseType: 'not-sure', incidents: [incident('a')] }, rules)).toEqual([]);
+    expect(ruleIds(runChecks({ ...answered, caseType: 'harassment', incidents: [incident('a')] }, rules))).toEqual([
       'harassment-repeated',
     ]);
   });
@@ -43,6 +46,7 @@ describe('runChecks with the seeded rules', () => {
   it('asks about each incident with no date, including blank exact or approximate dates', () => {
     const findings = runChecks(
       {
+        ...answered,
         caseType: 'not-sure',
         incidents: [
           incident('a', { date: { kind: 'unknown' } }),
@@ -62,20 +66,20 @@ describe('runChecks with the seeded rules', () => {
 
   it('asks for more detail when a description is under the word limit', () => {
     const findings = runChecks(
-      { caseType: 'not-sure', incidents: [incident('a', { description: 'He yelled at me.' })] },
+      { ...answered, caseType: 'not-sure', incidents: [incident('a', { description: 'He yelled at me.' })] },
       rules,
     );
     expect(findings.map((f) => [f.ruleId, f.incidentId])).toEqual([['incident-too-short', 'a']]);
   });
 
   it('never runs a placeholder rule', () => {
-    const findings = runChecks({ caseType: 'sexual-assault', incidents: [] }, rules);
+    const findings = runChecks({ ...answered, caseType: 'sexual-assault', incidents: [] }, rules);
     expect(ruleIds(findings)).not.toContain('sexual-assault-rule');
   });
 
   it('gives every finding a unique key and a rule it came from', () => {
     const findings = runChecks(
-      { caseType: 'stalking', incidents: [incident('a', { description: 'Short.', date: { kind: 'unknown' } })] },
+      { ...answered, caseType: 'stalking', incidents: [incident('a', { description: 'Short.', date: { kind: 'unknown' } })] },
       rules,
     );
     const ids = new Set(rules.map((r) => r.id));
@@ -114,7 +118,7 @@ describe('validateRules', () => {
 
 describe('questions that follow the petition (PO-0100)', () => {
   const ask = (input: Partial<Parameters<typeof runChecks>[0]>) =>
-    runChecks({ caseType: 'not-sure', incidents: [], ...input }, rules).map((f) => [f.ruleId, f.incidentId]);
+    runChecks({ ...answered, caseType: 'not-sure', incidents: [], ...input }, rules).map((f) => [f.ruleId, f.incidentId]);
 
   it('asks for the place and the people present in each incident (question 8)', () => {
     expect(ask({ incidents: [incident('a', { place: ' ' }), incident('b', { present: '' })] })).toEqual([
@@ -166,5 +170,25 @@ describe('questions that follow the petition (PO-0100)', () => {
       'feelingMissing',
       'relationshipNotHousehold',
     ]);
+  });
+});
+
+describe('questions about the person (Westlaw research)', () => {
+  const ask = (input: Partial<Parameters<typeof runChecks>[0]>) =>
+    runChecks({ caseType: 'stalking', incidents: [incident('a'), incident('b')], ...input }, rules).map((f) => f.ruleId);
+
+  it('asks once about a present threat, for every order type, once she has incidents', () => {
+    expect(ask({ askedToStop: 'no' })).toEqual(['present-threat']);
+    expect(ask({ caseType: 'domestic-violence', relationship: 'dating', askedToStop: 'no' })).toEqual(['present-threat']);
+    expect(ask({ threat: 'He has a gun and said he would use it.', askedToStop: 'no' })).toEqual([]);
+    expect(ask({ incidents: [], askedToStop: 'no' })).toEqual(['stalking-two-incidents']);
+  });
+
+  it('asks whether she told them to stop, only for stalking and harassment, until she answers', () => {
+    const threat = 'He keeps showing up.';
+    expect(ask({ threat })).toEqual(['asked-to-stop']);
+    expect(ask({ threat, caseType: 'harassment' })).toEqual(['asked-to-stop']);
+    expect(ask({ threat, askedToStop: 'no' })).toEqual([]);
+    expect(ask({ threat, caseType: 'not-sure' })).toEqual([]);
   });
 });

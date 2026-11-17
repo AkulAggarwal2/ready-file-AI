@@ -39,9 +39,10 @@ describe('1. Lena, one incident', () => {
     await toQuestions(user);
 
     // The count is visible and nothing is open until she opens it. The sample
-    // has no place, people, or feelings, so those questions come up too.
-    expect(screen.getByText(fill(copy.check.total, { total: 4, open: 4 }))).toBeInTheDocument();
-    expect(questionToggles()).toHaveLength(4);
+    // has no place, people, or feelings, and she has not said whether he is a
+    // danger now or whether she told him to stop, so those questions come up too.
+    expect(screen.getByText(fill(copy.check.total, { total: 6, open: 6 }))).toBeInTheDocument();
+    expect(questionToggles()).toHaveLength(6);
     expect(openQuestionText()).toBeNull();
 
     await user.click(questionToggles()[0]);
@@ -50,7 +51,7 @@ describe('1. Lena, one incident', () => {
 
     await user.click(screen.getByRole('button', { name: copy.check.continueAsIs }));
     expect(screen.getByText(copy.check.answered)).toBeInTheDocument();
-    expect(screen.getByText(fill(copy.check.total, { total: 4, open: 3 }))).toBeInTheDocument();
+    expect(screen.getByText(fill(copy.check.total, { total: 6, open: 5 }))).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
 
     expect(screen.getByRole('heading', { level: 1, name: copy.review.heading })).toBeInTheDocument();
@@ -278,21 +279,21 @@ describe('8. Never blocks', () => {
   it('every question shows "Add more" and "Continue as is", and "Continue as is" always moves on', async () => {
     const user = renderApp();
     await begin(user, 'Stalking');
-    // One short, undated incident with nothing else filled in triggers six rules.
+    // One short, undated incident with nothing else filled in triggers eight rules.
     await addIncident(user, 'He yelled at me.');
     await toQuestions(user);
 
-    expect(screen.getByText(fill(copy.check.total, { total: 6, open: 6 }))).toBeInTheDocument();
+    expect(screen.getByText(fill(copy.check.total, { total: 8, open: 8 }))).toBeInTheDocument();
     const seen: string[] = [];
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 8; i++) {
       await user.click(questionToggles()[i]);
       seen.push(openQuestionText()!);
       expect(screen.getByRole('button', { name: copy.check.addMore })).toBeEnabled();
       await user.click(screen.getByRole('button', { name: copy.check.continueAsIs }));
     }
-    expect(seen).toHaveLength(6);
+    expect(seen).toHaveLength(8);
     expect(seen[0]).toBe(STALKING_QUESTION);
-    expect(screen.getByText(fill(copy.check.total, { total: 6, open: 0 }))).toBeInTheDocument();
+    expect(screen.getByText(fill(copy.check.total, { total: 8, open: 0 }))).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
     expect(summaryText()).toContain('He yelled at me.');
@@ -400,5 +401,36 @@ describe('10. Follows the petition (PO-0100)', () => {
     await toQuestions(user);
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
     expect(screen.getByText(copy.review.formHarassment)).toBeInTheDocument();
+  });
+});
+
+describe('11. Questions about the person', () => {
+  it('"Add more" on the danger question goes to that field on Your story', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await loadSample(user, 'one');
+    await toQuestions(user);
+    await user.click(questionToggle(copy.badges.presentThreatMissing));
+    await user.click(screen.getByRole('button', { name: copy.check.addMore }));
+    expect(screen.getByRole('heading', { level: 1, name: copy.story.heading })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: copy.story.threatLabel })).toHaveFocus();
+  });
+
+  it('puts the danger answer and "told them to stop" in the summary', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await loadSample(user, 'one');
+    await user.click(screen.getByRole('button', { name: copy.organize.confirm }));
+    await user.type(screen.getByRole('textbox', { name: copy.story.threatLabel }), 'He said he would be back.');
+    await user.selectOptions(screen.getByRole('combobox', { name: copy.story.askedToStopLabel }), 'yes');
+    await user.type(screen.getByRole('textbox', { name: copy.story.askedToStopDetailLabel }), 'I texted him on March 2.');
+    await user.click(screen.getByRole('button', { name: copy.story.next }));
+    expect(questionToggles().some((t) => t.textContent?.includes(copy.badges.presentThreatMissing))).toBe(false);
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+
+    const text = summaryText();
+    expect(text).toContain(copy.summary.threat);
+    expect(text).toContain('He said he would be back.');
+    expect(text).toContain(fill(copy.summary.askedToStop, { answer: 'Yes. I texted him on March 2.' }));
   });
 });
