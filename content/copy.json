@@ -135,7 +135,7 @@
     "moveUp": "Move up",
     "moveDown": "Move down",
     "dragHandle": "Drag to move",
-    "reorderHint": "Use Move up and Move down to change the order of incidents. On a computer, you can also drag.",
+    "reorderHint": "Use Move up and Move down to change the order of incidents. On a computer, you can also drag. Each incident keeps its number on every step and in your summary.",
     "descriptionHint": "Short notes are fine. For example, what the person did or said.",
     "futureHint": "This date is after today. Please check it.",
     "actsLegend": "What did the person do? (optional)",
@@ -180,7 +180,7 @@
   "review": {
     "heading": "Review your incidents",
     "notFiling": "This tool does not file your petition. To file, copy this summary into the court's online form, or print it.",
-    "order": "Incidents with a full date (day, month, and year) are listed first, from oldest to newest. The others come after, in the order you gave them.",
+    "order": "Here, incidents with a full date (day, month, and year) are shown first, from oldest to newest, and the others after. Your summary keeps the order of your list.",
     "summaryLabel": "Your summary",
     "copy": "Copy summary",
     "copied": "Copied.",
@@ -227,7 +227,9 @@
     "askedToStopAnswers": {
       "yes": "Yes",
       "no": "No"
-    }
+    },
+    "incidentAttachment": "Incident #{n} (Attachment 8a)",
+    "attachmentNote": "The form has room for 3 incidents. Write incidents 4 and up on a separate page labeled Attachment 8a, attach it, and count it in question 10 (number of pages attached)."
   },
   "badges": {
     "heading": "Questions that may come up",
@@ -246,7 +248,8 @@
     "feelingMissing": "How did it feel?",
     "relationshipNotHousehold": "How you know them",
     "presentThreatMissing": "Danger now?",
-    "askedToStopMissing": "Asked them to stop?"
+    "askedToStopMissing": "Asked them to stop?",
+    "incidentsOutOfOrder": "Dates out of order"
   },
   "timeline": {
     "heading": "Timeline",

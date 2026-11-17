@@ -89,7 +89,8 @@ export type Condition =
   | { type: 'feelingMissing' }
   | { type: 'relationshipNotHousehold' }
   | { type: 'presentThreatMissing' }
-  | { type: 'askedToStopMissing' };
+  | { type: 'askedToStopMissing' }
+  | { type: 'incidentsOutOfOrder' };
 
 // Conditions that need no "value" in rules.json.
 export const SIMPLE_CONDITIONS = [
@@ -103,6 +104,7 @@ export const SIMPLE_CONDITIONS = [
   'relationshipNotHousehold',
   'presentThreatMissing',
   'askedToStopMissing',
+  'incidentsOutOfOrder',
 ] as const;
 
 export type ConditionType = Condition['type'];

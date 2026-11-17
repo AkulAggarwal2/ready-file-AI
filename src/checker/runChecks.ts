@@ -77,6 +77,14 @@ export function runChecks(input: CheckInput, rules: Rule[]): Finding[] {
       case 'presentThreatMissing':
         if (input.incidents.length > 0 && isBlank(input.threat)) findings.push(finding(rule));
         break;
+      case 'incidentsOutOfOrder': {
+        // Only full dates can be compared. Asked once if any two are out of order.
+        const dates = input.incidents
+          .map((incident) => (incident.date.kind === 'exact' ? incident.date.value : ''))
+          .filter(Boolean);
+        if (dates.some((date, i) => i > 0 && date < dates[i - 1])) findings.push(finding(rule));
+        break;
+      }
       case 'askedToStopMissing':
         if (input.incidents.length > 0 && (input.askedToStop ?? 'unknown') === 'unknown') {
           findings.push(finding(rule));

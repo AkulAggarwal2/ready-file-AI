@@ -29,15 +29,19 @@ export function formatExactDate(value: string): string {
   const [year, month, day] = value.split('-').map(Number);
   const date = new Date(year, month - 1, day);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+  // US English, so the summary reads the same on every device and matches the court's form.
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 export function describeDate(incident: Incident): string {
   const { date } = incident;
-  if (date.kind === 'exact' && date.value) return date.value;
+  if (date.kind === 'exact' && date.value) return formatExactDate(date.value);
   if (date.kind === 'approximate' && date.text.trim()) return date.text.trim();
   return copy.summary.dateUnknown;
 }
+
+/** How many incidents fit in question 8 of the petition (PO-0100). */
+export const FORM_INCIDENT_SLOTS = 3;
 
 /** Every act she checked, across all incidents, in the order of question 7. */
 export function allActs(incidents: Incident[]): Act[] {
@@ -63,7 +67,8 @@ export interface SummarySection {
 /**
  * The summary in the order of the court's petition (PO-0100): how she knows
  * the person (question 2), what the person did (question 7), then each
- * incident with the details question 8 asks for. Empty details are left out.
+ * incident with the details question 8 asks for, in the order of her list.
+ * Empty details are left out.
  */
 export function summarySections(
   caseType: CaseType,
@@ -86,10 +91,15 @@ export function summarySections(
   if (incidents.length === 0) {
     sections.push({ lines: [s.noIncidents] });
   } else {
-    sections.push({ heading: s.incidentsHeading, lines: [] });
+    // The form has room for three incidents. The rest go on Attachment 8a.
+    sections.push({
+      heading: s.incidentsHeading,
+      lines: incidents.length > FORM_INCIDENT_SLOTS ? [s.attachmentNote] : [],
+    });
   }
 
-  sortByDate(incidents).forEach((incident, index) => {
+  // Her list order, so each incident has the same number on every step.
+  incidents.forEach((incident, index) => {
     const lines = [fill(s.when, { when: describeDate(incident) })];
     if (incident.place.trim()) lines.push(fill(s.place, { place: incident.place.trim() }));
     if (incident.how !== 'unknown') lines.push(fill(s.how, { how: copy.incident.how[incident.how] }));
@@ -99,7 +109,8 @@ export function summarySections(
     if (incident.firsthand === 'no') after.push(s.firsthandNo);
     if (incident.feeling.trim()) after.push(fill(s.feeling, { feeling: incident.feeling.trim() }));
     if (incident.evidence.trim()) after.push(fill(s.evidence, { evidence: incident.evidence.trim() }));
-    sections.push({ heading: fill(s.incident, { n: index + 1 }), lines, text: incident.description.trim() });
+    const heading = fill(index < FORM_INCIDENT_SLOTS ? s.incident : s.incidentAttachment, { n: index + 1 });
+    sections.push({ heading, lines, text: incident.description.trim() });
     if (after.length > 0) sections.push({ lines: after });
   });
 
