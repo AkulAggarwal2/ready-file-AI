@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ACTS, type Finding } from '../checker';
 import { DEMO_MODE } from '../config';
 import { copy, fill } from '../content';
-import { ADD_INCIDENT_ID, ORGANIZE_HEADING_ID, type Action } from '../state/appState';
+import { ADD_INCIDENT_ID, ORGANIZE_HEADING_ID, type Action, type Step } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
-import { findingsFor } from '../state/findings';
+import { useFindings } from '../state/findings';
 import { StepHeading } from '../ui/StepHeading';
 import {
   actId,
@@ -19,41 +19,71 @@ import {
 import { RELATIONSHIP_ID } from './StartStep';
 import { ASKED_TO_STOP_ID, CONVICTED_ID, THREAT_ID } from './StoryStep';
 
+type ConditionType = Finding['conditionType'];
+
+/**
+ * Where each question belongs:
+ * - "incident": about one incident. "Add more" opens it at this field.
+ * - "list": about the whole list. "Add more" goes to this element.
+ * - "first": about all incidents. "Add more" opens the first one at this field.
+ * - "elsewhere": answered on another step, with its own "about" label.
+ */
+type Place =
+  | { kind: 'incident'; field: (incidentId: string) => string }
+  | { kind: 'list'; target: string }
+  | { kind: 'first'; field: (incidentId: string) => string }
+  | { kind: 'elsewhere'; step: Step; target: string; about: 'aboutRelationship' | 'aboutPerson'; returnTo?: Step };
+
+// Every condition must be listed here, so a new one cannot be missed.
+const PLACES: Record<ConditionType, Place> = {
+  incidentCountBelow: { kind: 'list', target: ADD_INCIDENT_ID },
+  incidentsOutOfOrder: { kind: 'list', target: ORGANIZE_HEADING_ID },
+  feelingMissing: { kind: 'first', field: feelingId },
+  incidentDateMissing: { kind: 'incident', field: dateKindId },
+  incidentDateInFuture: { kind: 'incident', field: exactDateId },
+  incidentPlaceMissing: { kind: 'incident', field: placeId },
+  incidentPeopleMissing: { kind: 'incident', field: presentId },
+  incidentNotFirsthand: { kind: 'incident', field: firsthandId },
+  incidentActsMissing: { kind: 'incident', field: (id) => actId(id, ACTS[0]) },
+  incidentWordsBelow: { kind: 'incident', field: descriptionId },
+  // Start's own button moves on to the incidents, so this brings her back to the questions.
+  relationshipNotHousehold: {
+    kind: 'elsewhere',
+    step: 'start',
+    target: RELATIONSHIP_ID,
+    about: 'aboutRelationship',
+    returnTo: 'questions',
+  },
+  // The Your story step's own button already goes on to the questions.
+  presentThreatMissing: { kind: 'elsewhere', step: 'story', target: THREAT_ID, about: 'aboutPerson' },
+  askedToStopMissing: { kind: 'elsewhere', step: 'story', target: ASKED_TO_STOP_ID, about: 'aboutPerson' },
+  convictionMissing: { kind: 'elsewhere', step: 'story', target: CONVICTED_ID, about: 'aboutPerson' },
+};
+
 /** Where "Add more" takes her: the screen and field the question is about. */
 function addMoreAction(finding: Finding, firstIncidentId: string | undefined): Action {
-  const id = finding.incidentId;
-  switch (finding.conditionType) {
-    case 'relationshipNotHousehold':
-      return { type: 'addMore', step: 'start', focusTarget: RELATIONSHIP_ID };
-    case 'incidentsOutOfOrder':
-      return { type: 'addMore', focusTarget: ORGANIZE_HEADING_ID };
-    case 'presentThreatMissing':
-      return { type: 'addMore', step: 'story', focusTarget: THREAT_ID };
-    case 'askedToStopMissing':
-      return { type: 'addMore', step: 'story', focusTarget: ASKED_TO_STOP_ID };
-    case 'convictionMissing':
-      return { type: 'addMore', step: 'story', focusTarget: CONVICTED_ID };
-    case 'feelingMissing':
-      // Asked about all incidents, so it opens the first one.
-      return firstIncidentId
-        ? { type: 'addMore', focusTarget: feelingId(firstIncidentId), expandId: firstIncidentId }
+  const place = PLACES[finding.conditionType];
+  switch (place.kind) {
+    case 'elsewhere':
+      return { type: 'addMore', step: place.step, focusTarget: place.target, returnTo: place.returnTo };
+    case 'list':
+      return { type: 'addMore', focusTarget: place.target };
+    case 'incident':
+    case 'first': {
+      const id = place.kind === 'incident' ? finding.incidentId : firstIncidentId;
+      return id
+        ? { type: 'addMore', focusTarget: place.field(id), expandId: id }
         : { type: 'addMore', focusTarget: ADD_INCIDENT_ID };
+    }
   }
-  if (!id) return { type: 'addMore', focusTarget: ADD_INCIDENT_ID };
-
-  const targets: Partial<Record<Finding['conditionType'], string>> = {
-    incidentDateMissing: dateKindId(id),
-    incidentDateInFuture: exactDateId(id),
-    incidentPlaceMissing: placeId(id),
-    incidentPeopleMissing: presentId(id),
-    incidentNotFirsthand: firsthandId(id),
-    incidentActsMissing: actId(id, ACTS[0]),
-  };
-  return { type: 'addMore', focusTarget: targets[finding.conditionType] ?? descriptionId(id), expandId: id };
 }
 
-// Questions about the person as a whole, answered on the Your story step.
-const ABOUT_PERSON: Finding['conditionType'][] = ['presentThreatMissing', 'askedToStopMissing', 'convictionMissing'];
+/** What the question card says the question is about. */
+function aboutLabel(finding: Finding, incidentIndex: number): string {
+  const place = PLACES[finding.conditionType];
+  if (place.kind === 'elsewhere') return copy.check[place.about];
+  return incidentIndex === -1 ? copy.check.allIncidents : fill(copy.timeline.incident, { n: incidentIndex + 1 });
+}
 
 const toggleId = (key: string) => `question-${key}-toggle`;
 const panelId = (key: string) => `question-${key}-panel`;
@@ -70,7 +100,7 @@ export function CheckStep() {
   // After she answers, focus goes back to that question's heading button.
   const [focusKey, setFocusKey] = useState<string | null>(null);
 
-  const findings = useMemo(() => findingsFor(state), [state.caseType, state.relationship, state.incidents]);
+  const findings = useFindings(state);
   const stillOpen = findings.filter((finding) => !state.dismissed.includes(finding.key)).length;
 
   useEffect(() => {
@@ -96,14 +126,7 @@ export function CheckStep() {
             const isOpen = openKeys.includes(finding.key);
             const answered = state.dismissed.includes(finding.key);
             const index = state.incidents.findIndex((incident) => incident.id === finding.incidentId);
-            const about =
-              finding.conditionType === 'relationshipNotHousehold'
-                ? c.aboutRelationship
-                : ABOUT_PERSON.includes(finding.conditionType)
-                  ? c.aboutPerson
-                  : index === -1
-                  ? c.allIncidents
-                  : fill(copy.timeline.incident, { n: index + 1 });
+            const about = aboutLabel(finding, index);
 
             return (
               <li key={finding.key} className="card question">

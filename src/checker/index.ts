@@ -1,6 +1,6 @@
-export { runChecks } from './runChecks';
+export { isDateInFuture, runChecks } from './runChecks';
 export { validateRules } from './validateRules';
-export { ACTS, CASE_TYPES, RELATIONSHIPS } from './types';
+export { ACTS, CASE_TYPES, RELATIONSHIPS, YES_NO_UNKNOWN } from './types';
 export type {
   Act,
   CaseType,

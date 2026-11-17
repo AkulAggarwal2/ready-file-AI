@@ -2,21 +2,15 @@ import { copy, fill } from '../content';
 import type { Incident } from '../organizer';
 import { formatExactDate, partitionByDate } from '../review/summary';
 
-interface Props {
-  incidents: Incident[];
-  // "list": numbered by the order on the Incidents screen.
-  // "timeline": numbered by the order shown here, which matches the summary.
-  numbering: 'list' | 'timeline';
-}
-
-/** Exact-date incidents in order, then the ones without an exact date in a separate group. */
-export function Timeline({ incidents, numbering }: Props) {
+/**
+ * Exact-date incidents in order, then the ones without an exact date in a
+ * separate group. Each keeps its number from the Incidents screen.
+ */
+export function Timeline({ incidents }: { incidents: Incident[] }) {
   if (incidents.length === 0) return <p>{copy.timeline.empty}</p>;
 
   const { dated, undated } = partitionByDate(incidents);
-  const ordered = [...dated, ...undated];
-  const numberOf = (incident: Incident) =>
-    (numbering === 'list' ? incidents : ordered).findIndex((other) => other.id === incident.id) + 1;
+  const numberOf = (incident: Incident) => incidents.findIndex((other) => other.id === incident.id) + 1;
 
   return (
     <div className="timeline">

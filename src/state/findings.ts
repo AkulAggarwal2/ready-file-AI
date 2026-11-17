@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { runChecks, type Finding } from '../checker';
 import { rules } from '../content';
 import type { AppState } from './appState';
@@ -8,8 +9,11 @@ export function todayIso(now = new Date()): string {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
+/** Everything in the app state that the follow-up questions depend on. */
+export type FindingsInput = Pick<AppState, 'caseType' | 'relationship' | 'threat' | 'askedToStop' | 'convicted' | 'incidents'>;
+
 /** The follow-up questions for what she has entered so far. */
-export function findingsFor(state: AppState): Finding[] {
+function findingsFor(state: FindingsInput): Finding[] {
   return runChecks(
     {
       caseType: state.caseType ?? 'not-sure',
@@ -21,5 +25,14 @@ export function findingsFor(state: AppState): Finding[] {
       today: todayIso(),
     },
     rules,
+  );
+}
+
+/** The follow-up questions, worked out again only when one of their inputs changes. */
+export function useFindings(state: FindingsInput): Finding[] {
+  const { caseType, relationship, threat, askedToStop, convicted, incidents } = state;
+  return useMemo(
+    () => findingsFor({ caseType, relationship, threat, askedToStop, convicted, incidents }),
+    [caseType, relationship, threat, askedToStop, convicted, incidents],
   );
 }

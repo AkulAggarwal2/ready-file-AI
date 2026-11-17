@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { copy } from '../content';
-import { buildSummary, summarySections, type SummarySection } from '../review/summary';
+import { summarySections, summaryText, type SummarySection } from '../review/summary';
 import { ORGANIZE_HEADING_ID } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
 import { ConfirmButton } from '../ui/ConfirmButton';
@@ -12,7 +12,8 @@ export function ReviewStep() {
   const [copyStatus, setCopyStatus] = useState('');
   const c = copy.review;
   const caseType = state.caseType ?? 'not-sure';
-  const summary = buildSummary(caseType, state.incidents, state.story, state.relationship, state);
+  const sections = summarySections(caseType, state.incidents, state.story, state.relationship, state);
+  const summary = summaryText(sections);
 
   async function copySummary() {
     try {
@@ -30,7 +31,7 @@ export function ReviewStep() {
       <p className="callout">{c.notFiling}</p>
 
       <h2 id="timeline-label">{copy.timeline.heading}</h2>
-      <Timeline incidents={state.incidents} numbering="list" />
+      <Timeline incidents={state.incidents} />
 
       <h2 id="summary-label">{c.summaryLabel}</h2>
       <pre className="summary" role="region" aria-labelledby="summary-label" tabIndex={0}>
@@ -76,7 +77,7 @@ export function ReviewStep() {
       </div>
       </div>
 
-      <PrintSummary sections={summarySections(caseType, state.incidents, state.story, state.relationship, state)} />
+      <PrintSummary sections={sections} />
     </div>
   );
 }
