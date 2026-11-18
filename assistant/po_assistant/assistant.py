@@ -1,6 +1,6 @@
 """The whole question -> answer pipeline.
 
-retrieve -> coverage gate -> ask Claude -> validate (retry once) -> code-enforced guards.
+retrieve -> coverage gate -> ask Gemini -> validate (retry once) -> code-enforced guards.
 The guards (sources, contact details, advice referral, safety message) run in code so the model can't skip them.
 """
 
@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # An LLM is any function (system prompt, user message) -> reply text.
 # It raises LLMUnavailable if the service can't be reached and StoppedEarly if the
-# model stops before finishing. The real one calls Claude; tests pass a fake.
+# model stops before finishing. The real one calls Gemini; tests pass a fake.
 LLM = Callable[[str, str], str]
 
 ADVICE_PATTERN = re.compile(
@@ -87,37 +87,54 @@ class Trace:
     errors: list[str] = field(default_factory=list)
 
 
+# Finish reasons where Gemini declined to answer. Retrying the same request won't help.
+REFUSAL_REASONS = {"SAFETY", "RECITATION", "BLOCKLIST", "PROHIBITED_CONTENT", "SPII", "IMAGE_SAFETY"}
+
+
 @functools.cache
 def _client():
-    import anthropic
+    from google import genai
+    from google.genai import types
 
-    return anthropic.Anthropic()  # one client, so connections are reused across questions
+    # One client, so connections are reused across questions. The SDK default retries a 503
+    # ("high demand") for ~5 minutes with no timeout; cap it so a user gets "I don't know" fast.
+    return genai.Client(http_options=types.HttpOptions(
+        timeout=config.REQUEST_TIMEOUT_MS,
+        retry_options=types.HttpRetryOptions(attempts=3, max_delay=5),
+    ))
 
 
-def claude_llm(system: str, user: str) -> str:
-    import anthropic
+def gemini_llm(system: str, user: str) -> str:
+    import httpx
+    from google.genai import errors
 
     try:
         response = _create(system, user)
-    except anthropic.AnthropicError as e:  # API errors, plus setup errors like a missing key
+    # API errors, network errors, and setup errors (the SDK raises ValueError for a missing key)
+    except (errors.APIError, httpx.TransportError, ValueError) as e:
         raise LLMUnavailable(f"{type(e).__name__}: {e}") from e
-    # A refusal here already survived the server-side fallback model.
-    if response.stop_reason in ("refusal", "max_tokens"):
-        raise StoppedEarly(response.stop_reason)
-    return "".join(block.text for block in response.content if block.type == "text")
+    if not response.candidates:  # the prompt itself was blocked
+        raise StoppedEarly("refusal")
+    reason = response.candidates[0].finish_reason
+    reason = getattr(reason, "name", reason)
+    if reason == "MAX_TOKENS":
+        raise StoppedEarly("max_tokens")
+    if reason in REFUSAL_REASONS:
+        raise StoppedEarly("refusal")
+    return response.text or ""
 
 
 def _create(system: str, user: str):
-    return _client().beta.messages.create(
+    from google.genai import types
+
+    return _client().models.generate_content(
         model=config.MODEL,
-        max_tokens=config.MAX_TOKENS,
-        system=system,
-        messages=[{"role": "user", "content": user}],
-        thinking={"type": "adaptive"},
-        output_config={"effort": config.EFFORT},
-        # If a safety classifier declines, the API re-runs the request on a fallback model.
-        betas=["server-side-fallback-2026-07-01"],
-        fallbacks="default",
+        contents=user,
+        config=types.GenerateContentConfig(
+            system_instruction=system,
+            max_output_tokens=config.MAX_TOKENS,
+            response_mime_type="application/json",
+        ),
     )
 
 
@@ -158,7 +175,7 @@ def _idk(advice: bool) -> Response:
 class Assistant:
     def __init__(self, chunks: list[Chunk] | None = None, llm: LLM | None = None):
         self.index = Index(chunks if chunks is not None else load_chunks())
-        self.llm = llm or claude_llm
+        self.llm = llm or gemini_llm
 
     def answer(self, question: str) -> Response:
         return self.answer_with_trace(question)[0]
@@ -227,7 +244,7 @@ class Assistant:
                 trace.path = e.reason
                 return None
             except LLMUnavailable as e:  # don't retry, fail safe; other errors are bugs and propagate
-                log.warning("Claude API call failed: %s", e)
+                log.warning("Gemini API call failed: %s", e)
                 trace.errors.append(str(e))
                 trace.path = "api_error"
                 return None

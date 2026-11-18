@@ -1,6 +1,8 @@
 import json
 
+import httpx
 import pytest
+from google.genai import errors
 
 from po_assistant import config
 from po_assistant import assistant as assistant_mod
@@ -198,32 +200,47 @@ def test_programming_errors_are_not_hidden_as_idk():
 
 
 class FakeResponse:
-    def __init__(self, stop_reason, text='{"x": 1}'):
-        self.stop_reason = stop_reason
-        self.content = [type("Block", (), {"type": "text", "text": text})()]
+    def __init__(self, finish_reason, text='{"x": 1}'):
+        self.candidates = [type("Candidate", (), {"finish_reason": finish_reason})()]
+        self.text = text
 
 
-@pytest.mark.parametrize("stop_reason", ["refusal", "max_tokens"])
-def test_claude_llm_raises_stopped_early(monkeypatch, stop_reason):
-    monkeypatch.setattr(assistant_mod, "_create", lambda s, u: FakeResponse(stop_reason))
+@pytest.mark.parametrize(
+    "finish_reason,reason", [("SAFETY", "refusal"), ("PROHIBITED_CONTENT", "refusal"), ("MAX_TOKENS", "max_tokens")]
+)
+def test_gemini_llm_raises_stopped_early(monkeypatch, finish_reason, reason):
+    monkeypatch.setattr(assistant_mod, "_create", lambda s, u: FakeResponse(finish_reason))
     with pytest.raises(StoppedEarly) as e:
-        assistant_mod.claude_llm("sys", "user")
-    assert e.value.reason == stop_reason
+        assistant_mod.gemini_llm("sys", "user")
+    assert e.value.reason == reason
 
 
-def test_claude_llm_wraps_sdk_errors(monkeypatch):
-    import anthropic
+def test_gemini_llm_blocked_prompt_is_refusal(monkeypatch):
+    response = FakeResponse("STOP")
+    response.candidates = []
+    monkeypatch.setattr(assistant_mod, "_create", lambda s, u: response)
+    with pytest.raises(StoppedEarly) as e:
+        assistant_mod.gemini_llm("sys", "user")
+    assert e.value.reason == "refusal"
 
+
+def test_gemini_llm_returns_text(monkeypatch):
+    monkeypatch.setattr(assistant_mod, "_create", lambda s, u: FakeResponse("STOP", '{"ok": true}'))
+    assert assistant_mod.gemini_llm("sys", "user") == '{"ok": true}'
+
+
+@pytest.mark.parametrize("error", [httpx.ConnectError("down"), errors.ServerError(503, {"error": {"message": "busy"}})])
+def test_gemini_llm_wraps_sdk_errors(monkeypatch, error):
     def fail(s, u):
-        raise anthropic.APIConnectionError(request=None)
+        raise error
 
     monkeypatch.setattr(assistant_mod, "_create", fail)
     with pytest.raises(LLMUnavailable):
-        assistant_mod.claude_llm("sys", "user")
+        assistant_mod.gemini_llm("sys", "user")
 
 
 def test_client_is_reused(monkeypatch):
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key")
     assistant_mod._client.cache_clear()
     try:
         assert assistant_mod._client() is assistant_mod._client()

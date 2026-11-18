@@ -11,9 +11,9 @@ load_dotenv(ASSISTANT_DIR / ".env")
 DOCS_DIR = Path(os.getenv("PO_DOCS_DIR", ASSISTANT_DIR / "docs"))
 
 # Model settings
-MODEL = os.getenv("PO_MODEL", "claude-sonnet-5-5")
-EFFORT = os.getenv("PO_EFFORT", "medium")
+MODEL = os.getenv("PO_MODEL", "gemini-3.5-flash-lite")
 MAX_TOKENS = 16000
+REQUEST_TIMEOUT_MS = 60_000  # per attempt; up to 3 attempts
 
 # Retrieval settings
 CHUNK_WORDS = 200  # target words per chunk

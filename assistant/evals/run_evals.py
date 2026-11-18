@@ -1,6 +1,6 @@
 """Run every case in questions.json through the real pipeline and print a pass/fail table.
 
-    python evals/run_evals.py            # all cases (calls the Claude API)
+    python evals/run_evals.py            # all cases (calls the Gemini API)
     python evals/run_evals.py A1 U2      # only cases whose id starts with these
 
 Exit code is 0 only if every case passes. Full results go to evals/last_run.json.
@@ -110,7 +110,6 @@ def main(prefixes: list[str]) -> int:
     (EVALS_DIR / "last_run.json").write_text(json.dumps({
         "run_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "model": config.MODEL,
-        "effort": config.EFFORT,
         "results": results,
     }, indent=2))
     return 0 if total == len(results) else 1
