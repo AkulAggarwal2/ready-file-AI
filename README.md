@@ -189,7 +189,7 @@ for the team to decide.
 ## The incident splitter
 
 The splitter uses the `IncidentExtractor` interface in
-[src/organizer/](src/organizer/). It has two versions:
+[src/organizer/](src/organizer/). It has three versions:
 
 - **ManualExtractor (default):** starts a new incident at each paragraph, and
   inside a paragraph wherever a sentence starts with a date phrase such as
@@ -201,6 +201,62 @@ The splitter uses the `IncidentExtractor` interface in
   fictional four-incident Lena sample, and uses the manual splitter for
   anything else. Either way, she sees the result as a draft and confirms it
   herself.
+- **OnDeviceLlmExtractor (voice incidents; on in demo mode, or with
+  `VITE_ENABLE_ON_DEVICE_AI=true`):** uses the browser's built-in model
+  (Chrome's Prompt API, `LanguageModel`), which runs on this device, so her
+  words never leave it. It splits incidents even without a date ("another
+  time he…"), and fills in when, where, how, who else was there, how she felt,
+  and proof. **Her words are never rewritten:** the model only names each
+  incident's first words and the phrases that answer each question
+  ([src/organizer/modelDrafts.ts](src/organizer/modelDrafts.ts)). The app cuts
+  her own text at those points, and keeps a phrase only if it is really in that
+  incident's text, so anything the model made up is dropped. It never checks
+  the question 7 boxes. If the model is missing, still downloading, slower than
+  45 seconds (`ON_DEVICE_MODEL_TIMEOUT_MS`), or gives an answer that can't be
+  used, the manual splitter runs instead. Section 9 says an AI splitter is off
+  by default, so production builds leave it off unless the team turns it on.
+
+## Voice typing
+
+On **Incidents** and **Your story**, she can speak instead of type. The code
+is in [src/voice/](src/voice/).
+
+- **Incidents:** she tells her incidents in her own words. When she presses
+  Stop (or the browser stops after a silence), the incident splitter
+  (`getExtractor()`) sorts what she said into incidents and adds them to the
+  end of her list as drafts, open for her to check. With the on-device model,
+  the fields are filled in too (see "The incident splitter"). Pressing
+  "Speak your incidents" also starts the browser's one-time model download,
+  if it is needed.
+- **Answer by voice (each incident):** an open incident card asks its
+  questions one at a time, in the card's order: when, where, how, what
+  happened, who was there, did she see it herself, how it made her feel, and
+  proof. Focus moves to each field, and a panel at the bottom of the screen
+  shows the question, Skip, and Stop. She can also say "skip" or "stop".
+  Written answers keep her words and are added after anything already there.
+  They move on after a 2.5-second pause (`ANSWER_PAUSE_MS`). Choice answers
+  ("last week", "in person", "yes") move on once understood; if an answer
+  matches no option, she is asked again
+  ([src/voice/incidentAnswers.ts](src/voice/incidentAnswers.ts)). Voice never
+  checks the "What did the person do?" boxes (question 7), because a wrong
+  check on a sworn form is serious.
+- **Your story:** each phrase she says is added to the end of the story box.
+  What she already typed is never changed.
+- **Each pause ends a sentence.** Speech recognition often leaves out
+  punctuation, and the manual splitter finds sentences by their ending marks,
+  so a phrase without one gets a period. A date phrase after five or more
+  words of a sentence ("…away from him last week he sent…") also starts a new
+  sentence ([src/voice/transcript.ts](src/voice/transcript.ts)).
+
+**On this device only.** In many browsers, speech recognition sends the
+audio to the browser maker's server, which section 8 rules out. ReadyFile
+asks the browser for on-device recognition (`processLocally`) and shows
+voice typing only when the browser confirms it. Recent Chrome on a computer
+does. The first use downloads the speech model, which holds none of her
+words. Other browsers say voice typing is not available; in demo mode, the
+note also shows what the browser answered.
+The microphone turns off when she leaves the step, times out, or uses Quick
+exit. The listening language is `VOICE_LANGUAGE` in [src/config.ts](src/config.ts).
 
 ## ReadyFile Desk
 
@@ -259,8 +315,15 @@ Desk's code is in [src/desk/](src/desk/). ReadyFile never imports from it.
 - [ ] Team: confirm the quick exit address (now `https://www.weather.com`).
 - [ ] Decide whether to turn off spellcheck in the story box. Some browsers'
       "enhanced" spellcheck sends typed text to a server.
+- [ ] Team: decide whether real users get the on-device AI splitter
+      (`VITE_ENABLE_ON_DEVICE_AI`), and test it on the laptops petitioners
+      use. Chrome's built-in model needs a recent desktop Chrome, enough
+      memory, and a one-time download of about 2 GB.
 - [ ] Real AI splitter: needs a small server that holds the API key and keeps
       the no-storage rules. It should be used with fictional data only.
+- [ ] Team: decide whether to offer voice typing, and test it with a real
+      microphone and a screen reader. Check the words that "Answer by voice"
+      matches to choices (in [src/voice/incidentAnswers.ts](src/voice/incidentAnswers.ts)).
 - [ ] Accessibility check with a real screen reader (VoiceOver, NVDA) and a
       contrast checker.
 - [ ] Not built yet (section 6): field explainer, denial explainer, and
