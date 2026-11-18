@@ -8,7 +8,7 @@ import { findLines, wrapNarrative } from '../src/desk/lines';
 import { currentFindings, maskPhone, numberVersion, staffText, type Petition } from '../src/desk/model';
 import { deskReducer, initialDeskState } from '../src/desk/state';
 import { buildStrip } from '../src/desk/timeline';
-import { formatShort, parseTime } from '../src/desk/time';
+import { MINUTE, formatShort, parseTime } from '../src/desk/time';
 
 const petition = (id: string, state = initialDeskState()): Petition =>
   state.petitions.find((p) => p.sample.id === id)!;
@@ -119,6 +119,14 @@ describe('line numbers', () => {
       "I am scared to be at home and I don't feel safe walking to my car anymore.",
     ]);
   });
+
+  it('counts a paragraph that holds an incident, plus more, as tied', () => {
+    const p = petition('lena');
+    const [first] = p.sample.original.incidents;
+    const narrative = `Some background first. ${first.description}`;
+    const v = numberVersion({ ...p, sample: { ...p.sample, original: { ...p.sample.original, narrative } } }, 'original');
+    expect(v.notTied).toEqual([]);
+  });
 });
 
 describe('phone masking', () => {
@@ -174,6 +182,26 @@ describe('the demo clock and holds', () => {
     expect(ended.followUp.hold!.endedAt).toBe(hold.end);
     expect(ended.followUp.log.at(-1)!.text).toBe(deskCopy.log.holdEnded);
     expect(deskReducer(state, { type: 'hold', id: 'lena' })).toBe(state);
+  });
+
+  it('does not hold a petition the checker has no questions for', () => {
+    const state = initialDeskState();
+    expect(deskReducer(state, { type: 'hold', id: 'marcus' })).toBe(state);
+  });
+
+  it('does not text or log a call once the clock has ended the hold', () => {
+    let state = deskReducer(initialDeskState(), { type: 'hold', id: 'lena' });
+    const end = petition('lena', state).followUp.hold!.end;
+    state = { ...state, clock: end - MINUTE };
+    for (const action of [
+      { type: 'textLink', id: 'lena' },
+      { type: 'logCall', id: 'lena', result: 'noAnswer' },
+    ] as const) {
+      const after = petition('lena', deskReducer(state, action));
+      expect(after.followUp.hold!.endedAt).toBe(end);
+      expect(after.followUp.textedAt).toBeUndefined();
+      expect(after.followUp.log.at(-1)!.text).toBe(deskCopy.log.holdEnded);
+    }
   });
 
   it('starts each log at the filing time', () => {

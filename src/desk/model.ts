@@ -1,7 +1,7 @@
 // What Desk works out from a petition and its follow-up record. Nothing here
 // changes the petitioner's words. It numbers them, sorts them, and runs the
 // same checker ReadyFile uses.
-import { runChecks, type Finding, type Rule } from '../checker';
+import { runChecks, type ConditionType, type Finding, type Rule } from '../checker';
 import { rules } from '../content';
 import { deskConfig, deskCopy, plural, type CallResult, type Outcome, type PetitionVersion, type SamplePetition } from './content';
 import { findLines, paragraphsOf, wrapNarrative, type LineRange, type NumberedLine } from './lines';
@@ -65,6 +65,27 @@ export function findingsFor(sample: SamplePetition, v: PetitionVersion): Finding
     : [];
   findingsCache.set(v, findings);
   return findings;
+}
+
+// The conditions findingsFor can answer from what Desk passes the checker.
+// Rules about anything else (threat, feeling, acts, today's date...) never
+// ask on Desk, so the bench must not list them as if they were checked.
+const DESK_CONDITIONS: ReadonlySet<ConditionType> = new Set<ConditionType>([
+  'incidentCountBelow',
+  'incidentWordsBelow',
+  'incidentContactInfo',
+  'incidentDateMissing',
+  'incidentPlaceMissing',
+  'incidentsOutOfOrder',
+  'respondentDobBlank',
+]);
+
+/** The rules Desk checks for this petition's case type. */
+export function deskRules(sample: SamplePetition): Rule[] {
+  if (!deskConfig.checkedCaseTypes.includes(sample.caseType)) return [];
+  return rules.filter(
+    (rule) => rule.condition && DESK_CONDITIONS.has(rule.condition.type) && rule.caseTypes.includes(sample.caseType),
+  );
 }
 
 export const currentFindings = (p: Petition) => findingsFor(p.sample, version(p, currentVersionName(p)));
@@ -151,10 +172,14 @@ export function numberVersion(p: Petition, name: VersionName): NumberedVersion {
       lines: findLines(lines, v.narrative, incident.description),
     })),
     notTied: paragraphsOf(v.narrative)
-      .filter((paragraph) => !v.incidents.some((incident) => incident.description.includes(paragraph)))
+      // Tied if it's part of an incident's text or holds one; only wholly untied paragraphs are shown again.
+      .filter((paragraph) => !v.incidents.some((incident) => overlaps(incident.description.trim(), paragraph)))
       .map((text) => ({ text, lines: findLines(lines, v.narrative, text) })),
   };
 }
+
+const overlaps = (description: string, paragraph: string) =>
+  description !== '' && (description.includes(paragraph) || paragraph.includes(description));
 
 /** Date order by sortDate. Incidents without one go last; ties keep the filed order. */
 export function inDateOrder(incidents: NumberedIncident[]): NumberedIncident[] {

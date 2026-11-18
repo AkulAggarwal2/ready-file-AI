@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
-import { rules } from '../../content';
 import { ActivityLog, Breadcrumb, NumberedText, ScreenTitle } from '../components';
 import { deskConfig, deskCopy, plural, type Outcome } from '../content';
 import type { LineRange } from '../lines';
@@ -8,6 +7,7 @@ import {
   caption,
   currentFindings,
   currentVersionName,
+  deskRules,
   filedAt,
   findingsFor,
   fullName,
@@ -229,10 +229,12 @@ function SummaryTab({ petition: p, onLines }: { petition: Petition; onLines: (v:
 
 function QuestionsTable({ petition: p }: { petition: Petition }) {
   const c = deskCopy.bench;
-  const applies = rules.filter((rule) => rule.condition && rule.caseTypes.includes(p.sample.caseType));
+  const applies = deskRules(p.sample);
   const open = currentFindings(p);
   const asked = findingsFor(p.sample, p.sample.original);
   const amendedAt = p.followUp.amendedAt;
+  // Desk doesn't check this case type, so there's nothing to list.
+  if (applies.length === 0) return null;
 
   return (
     <>

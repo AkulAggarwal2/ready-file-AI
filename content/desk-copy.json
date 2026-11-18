@@ -126,6 +126,7 @@
     "notHeldBody": "It's in the magistrate's review queue now. Holding it gives the petitioner up to 24 hours to answer.",
     "holdButton": "Hold for follow-up",
     "noPhone": "No phone number, so there's no one to follow up with.",
+    "noQuestions": "The checker has no questions for this petition, so there's nothing to follow up on.",
     "heldTitle": "Hold ends {weekday} at {time}",
     "heldBody": "You held it at {time} {weekday}. It goes to the magistrate then, answered or not.",
     "heldBodyAsked": "The hold started at {time} {weekday}. It goes to the magistrate then, answered or not.",

@@ -88,6 +88,7 @@ function HoldPanel({ petition: p, now }: { petition: Petition; now: number }) {
   const hold = p.followUp.hold;
   const running = activeHold(p);
   const id = p.sample.id;
+  const hasQuestions = currentFindings(p).length > 0;
 
   let text;
   if (running) {
@@ -124,11 +125,12 @@ function HoldPanel({ petition: p, now }: { petition: Petition; now: number }) {
         <h2 className="panel-title">{c.notHeldTitle}</h2>
         <p>{c.notHeldBody}</p>
         {!hasPhone(p) && <p className="meta">{c.noPhone}</p>}
+        {hasPhone(p) && !hasQuestions && <p className="meta">{c.noQuestions}</p>}
         <div className="button-row">
           <button
             type="button"
             className="btn btn-primary"
-            disabled={!hasPhone(p)}
+            disabled={!hasPhone(p) || !hasQuestions}
             onClick={() => dispatch({ type: 'hold', id })}
           >
             {c.holdButton}
@@ -338,7 +340,8 @@ function ContactPanel({ petition: p, now }: { petition: Petition; now: number })
   const { phone, texts, voicemail, calls } = p.sample.contact;
   const running = activeHold(p);
   const hold = p.followUp.hold;
-  const until = hold ? hold.end : holdEndFrom(nextActionTime(now));
+  // A hold that ended early sent the petition on then, not at its planned end.
+  const until = hold ? (hold.endedAt ?? hold.end) : holdEndFrom(nextActionTime(now));
   const id = p.sample.id;
 
   const message = plural(c.messageTemplate, {

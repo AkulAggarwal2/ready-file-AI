@@ -120,7 +120,9 @@ export function deskReducer(state: DeskState, action: DeskAction): DeskState {
     case 'askFollowUp': {
       const p = find(state, action.id);
       // A petition can be held once, and only if there's someone to follow up with.
+      // The specialist holds only for the checker's questions; the magistrate may have their own.
       if (!p || wasHeld(p) || !hasPhone(p)) return state;
+      if (action.type === 'hold' && currentFindings(p).length === 0) return state;
       const next = tick(state);
       const start = next.clock;
       const end = holdEndFrom(start);
@@ -143,14 +145,17 @@ export function deskReducer(state: DeskState, action: DeskAction): DeskState {
       const p = find(state, action.id);
       if (!p || !activeHold(p) || !p.sample.contact.texts) return state;
       const next = tick(state);
-      return update(next, action.id, (q) => withLog({ ...q.followUp, textedAt: next.clock }, next.clock, log.texted));
+      // As in sendNow, the clock may have reached the hold's end on its own.
+      return update(next, action.id, (q) =>
+        activeHold(q) ? withLog({ ...q.followUp, textedAt: next.clock }, next.clock, log.texted) : q.followUp,
+      );
     }
     case 'logCall': {
       const p = find(state, action.id);
       if (!p || !activeHold(p)) return state;
       const next = tick(state);
       const text = plural(log.called, { result: callResultText(action.result) });
-      return update(next, action.id, (q) => withLog(q.followUp, next.clock, text));
+      return update(next, action.id, (q) => (activeHold(q) ? withLog(q.followUp, next.clock, text) : q.followUp));
     }
     case 'saveOutcome': {
       const next = tick(state);
