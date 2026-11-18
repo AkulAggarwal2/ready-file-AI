@@ -1,11 +1,30 @@
+import { useEffect } from 'react';
+import { YES_NO_UNKNOWN, type YesNoUnknown } from '../checker';
 import { copy } from '../content';
+import type { PersonDetails } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
 import { StepHeading } from '../ui/StepHeading';
 
-/** Her account in her own words. It comes after the dated incidents and is optional. */
+export const THREAT_ID = 'threat';
+export const ASKED_TO_STOP_ID = 'asked-to-stop';
+export const CONVICTED_ID = 'convicted';
+const FOCUS_IDS = [THREAT_ID, ASKED_TO_STOP_ID, CONVICTED_ID];
+
+/**
+ * Her account in her own words, plus two questions about the person as a whole:
+ * whether they could hurt her now, and whether she told them to stop. All optional.
+ */
 export function StoryStep() {
   const { state, dispatch } = useAppState();
   const c = copy.story;
+  const setDetails = (changes: PersonDetails) => dispatch({ type: 'setPersonDetails', changes });
+
+  // After "Add more" on one of these questions, focus its field.
+  useEffect(() => {
+    if (!state.focusTarget || !FOCUS_IDS.includes(state.focusTarget)) return;
+    document.getElementById(state.focusTarget)?.focus();
+    dispatch({ type: 'focusHandled' });
+  }, [state.focusTarget, dispatch]);
 
   return (
     <div>
@@ -23,6 +42,70 @@ export function StoryStep() {
         value={state.story}
         onChange={(e) => dispatch({ type: 'setStory', story: e.target.value })}
       />
+
+      <h2>{c.personHeading}</h2>
+
+      <label htmlFor={THREAT_ID}>{c.threatLabel}</label>
+      <p id="threat-hint" className="hint">
+        {c.threatHint}
+      </p>
+      <textarea
+        id={THREAT_ID}
+        rows={4}
+        aria-describedby="threat-hint"
+        value={state.threat}
+        onChange={(e) => setDetails({ threat: e.target.value })}
+      />
+
+      <label htmlFor={ASKED_TO_STOP_ID}>{c.askedToStopLabel}</label>
+      <select
+        id={ASKED_TO_STOP_ID}
+        value={state.askedToStop}
+        onChange={(e) => setDetails({ askedToStop: e.target.value as YesNoUnknown })}
+      >
+        {YES_NO_UNKNOWN.map((value) => (
+          <option key={value} value={value}>
+            {c.askedToStopOptions[value]}
+          </option>
+        ))}
+      </select>
+
+      {state.askedToStop === 'yes' && (
+        <>
+          <label htmlFor="asked-to-stop-detail">{c.askedToStopDetailLabel}</label>
+          <p id="asked-to-stop-detail-hint" className="hint">
+            {c.askedToStopDetailHint}
+          </p>
+          <textarea
+            id="asked-to-stop-detail"
+            rows={2}
+            aria-describedby="asked-to-stop-detail-hint"
+            value={state.askedToStopDetail}
+            onChange={(e) => setDetails({ askedToStopDetail: e.target.value })}
+          />
+        </>
+      )}
+
+      {state.caseType === 'sexual-assault' && (
+        <>
+          <label htmlFor={CONVICTED_ID}>{c.convictedLabel}</label>
+          <p id="convicted-hint" className="hint">
+            {c.convictedHint}
+          </p>
+          <select
+            id={CONVICTED_ID}
+            aria-describedby="convicted-hint"
+            value={state.convicted}
+            onChange={(e) => setDetails({ convicted: e.target.value as YesNoUnknown })}
+          >
+            {YES_NO_UNKNOWN.map((value) => (
+              <option key={value} value={value}>
+                {c.convictedOptions[value]}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
 
       <div className="button-row">
         <button type="button" className="btn" onClick={() => dispatch({ type: 'goTo', step: 'incidents' })}>

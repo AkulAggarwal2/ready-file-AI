@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { runChecks, type Finding } from '../checker';
+import { useCallback, useEffect, useState } from 'react';
+import type { Finding } from '../checker';
 import { DEMO_MODE } from '../config';
-import { copy, fill, rules } from '../content';
+import { copy, fill } from '../content';
 import { ManualExtractor } from '../organizer';
 import { LENA_FOUR_INCIDENTS, LENA_FOUR_PLACES, LENA_ONE_INCIDENT, LENA_ONE_PLACES } from '../samples/lena';
 import { ADD_INCIDENT_ID, ORGANIZE_HEADING_ID } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
+import { useFindings } from '../state/findings';
 import { StepHeading } from '../ui/StepHeading';
 import { Timeline } from '../ui/Timeline';
 import { UndoToast } from '../ui/UndoToast';
@@ -33,10 +34,7 @@ export function IncidentsStep() {
   const expireUndo = useCallback(() => dispatch({ type: 'clearUndo' }), [dispatch]);
 
   // The questions that will come up in the next step, grouped by incident.
-  const findings = useMemo(
-    () => runChecks({ caseType: state.caseType ?? 'not-sure', incidents: state.incidents }, rules),
-    [state.caseType, state.incidents],
-  );
+  const findings = useFindings(state);
   const forIncident = (id: string): Finding[] => findings.filter((finding) => finding.incidentId === id);
   const forList = findings.filter((finding) => !finding.incidentId);
 
@@ -84,7 +82,7 @@ export function IncidentsStep() {
 
       <details className="disclosure">
         <summary>{copy.timeline.heading}</summary>
-        <Timeline incidents={state.incidents} numbering="list" />
+        <Timeline incidents={state.incidents} />
       </details>
 
       {state.incidents.length === 0 && <p>{c.empty}</p>}

@@ -1,13 +1,20 @@
+import { ACTS, isDateInFuture, YES_NO_UNKNOWN, type Act, type Firsthand } from '../checker';
 import { copy } from '../content';
 import { HOW_OPTIONS, type HowItHappened, type Incident, type IncidentDate } from '../organizer';
+import { todayIso } from '../state/findings';
 import { useAppState } from '../state/AppStateProvider';
 
 const DATE_KINDS: IncidentDate['kind'][] = ['exact', 'approximate', 'unknown'];
 
 export const dateKindId = (incidentId: string) => `${incidentId}-date-kind`;
 export const descriptionId = (incidentId: string) => `${incidentId}-description`;
+export const exactDateId = (incidentId: string) => `${incidentId}-date`;
 export const placeId = (incidentId: string) => `${incidentId}-place`;
 export const evidenceId = (incidentId: string) => `${incidentId}-evidence`;
+export const presentId = (incidentId: string) => `${incidentId}-present`;
+export const firsthandId = (incidentId: string) => `${incidentId}-firsthand`;
+export const feelingId = (incidentId: string) => `${incidentId}-feeling`;
+export const actId = (incidentId: string, act: Act) => `${incidentId}-act-${act}`;
 
 function changeDateKind(date: IncidentDate, kind: IncidentDate['kind']): IncidentDate {
   if (kind === 'exact') return { kind, value: date.kind === 'exact' ? date.value : '' };
@@ -22,6 +29,10 @@ export function IncidentFields({ incident }: { incident: Incident }) {
   const c = copy.incident;
 
   const update = (changes: Partial<Incident>) => dispatch({ type: 'updateIncident', id, changes });
+  const today = todayIso();
+  const inFuture = isDateInFuture(date, today);
+  const toggleAct = (act: Act, on: boolean) =>
+    update({ acts: ACTS.filter((a) => (a === act ? on : incident.acts.includes(a))) });
 
   return (
     <>
@@ -40,14 +51,22 @@ export function IncidentFields({ incident }: { incident: Incident }) {
 
       {date.kind === 'exact' && (
         <>
-          <label htmlFor={`${id}-date`}>{c.exactLabel}</label>
+          <label htmlFor={exactDateId(id)}>{c.exactLabel}</label>
           <input
-            id={`${id}-date`}
+            id={exactDateId(id)}
             type="date"
             autoComplete="off"
+            max={today}
+            aria-invalid={inFuture || undefined}
+            aria-describedby={inFuture ? `${id}-date-future` : undefined}
             value={date.value}
             onChange={(e) => update({ date: { kind: 'exact', value: e.target.value } })}
           />
+          {inFuture && (
+            <p id={`${id}-date-future`} className="hint field-warning">
+              {c.futureHint}
+            </p>
+          )}
         </>
       )}
       {date.kind === 'approximate' && (
@@ -103,6 +122,67 @@ export function IncidentFields({ incident }: { incident: Incident }) {
         aria-describedby={`${id}-description-hint`}
         value={incident.description}
         onChange={(e) => update({ description: e.target.value })}
+      />
+
+      <fieldset aria-describedby={`${id}-acts-hint`}>
+        <legend>{c.actsLegend}</legend>
+        <p id={`${id}-acts-hint`} className="hint">
+          {c.actsHint}
+        </p>
+        {ACTS.map((act) => (
+          <label key={act} className="choice">
+            <input
+              id={actId(id, act)}
+              type="checkbox"
+              checked={incident.acts.includes(act)}
+              onChange={(e) => toggleAct(act, e.target.checked)}
+            />
+            {c.acts[act]}
+          </label>
+        ))}
+      </fieldset>
+
+      <label htmlFor={presentId(id)}>{c.presentLabel}</label>
+      <p id={`${id}-present-hint`} className="hint">
+        {c.presentHint}
+      </p>
+      <textarea
+        id={presentId(id)}
+        rows={2}
+        aria-describedby={`${id}-present-hint`}
+        value={incident.present}
+        onChange={(e) => update({ present: e.target.value })}
+      />
+
+      <label htmlFor={firsthandId(id)}>{c.firsthandLabel}</label>
+      <select
+        id={firsthandId(id)}
+        aria-describedby={incident.firsthand === 'no' ? `${id}-firsthand-note` : undefined}
+        value={incident.firsthand}
+        onChange={(e) => update({ firsthand: e.target.value as Firsthand })}
+      >
+        {YES_NO_UNKNOWN.map((value) => (
+          <option key={value} value={value}>
+            {c.firsthandOptions[value]}
+          </option>
+        ))}
+      </select>
+      {incident.firsthand === 'no' && (
+        <p id={`${id}-firsthand-note`} className="hint field-warning">
+          {c.firsthandNote}
+        </p>
+      )}
+
+      <label htmlFor={feelingId(id)}>{c.feelingLabel}</label>
+      <p id={`${id}-feeling-hint`} className="hint">
+        {c.feelingHint}
+      </p>
+      <textarea
+        id={feelingId(id)}
+        rows={2}
+        aria-describedby={`${id}-feeling-hint`}
+        value={incident.feeling}
+        onChange={(e) => update({ feeling: e.target.value })}
       />
 
       <label htmlFor={evidenceId(id)}>{c.evidenceLabel}</label>

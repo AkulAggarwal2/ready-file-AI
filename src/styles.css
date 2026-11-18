@@ -1019,7 +1019,6 @@ blockquote {
 h1,
 h2,
 h3,
-label,
 .brand,
 .quick-exit,
 .btn,
@@ -1035,8 +1034,10 @@ label,
   white-space: nowrap;
 }
 
-/* Long sentences wrap, and are centered. A fieldset legend is a full question. */
+/* Long sentences wrap, and are centered. A fieldset legend or a field label is a
+   full question, like "Was this person convicted of a sex crime against you?". */
 legend,
+label,
 .hint,
 .note,
 .callout p,
@@ -1208,4 +1209,38 @@ select {
     white-space: pre-wrap;
     max-width: none;
   }
+}
+
+/* A gentle note under a field, such as a date after today. */
+.field-warning {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* Checkbox groups inside an incident match the size of the other field labels. */
+.card-fields fieldset legend {
+  font-size: inherit;
+}
+
+/* These labels are longer than the Start options, so they wrap on phones.
+   A fieldset is as wide as its longest line unless min-width is reset. */
+.card-fields fieldset {
+  min-width: 0;
+}
+
+.card-fields .choice {
+  white-space: normal;
+  text-align: center;
+}
+
+/* The rest-of-the-form checklist on Review reads as a list, so it is left-aligned. */
+.form-checklist {
+  text-align: left;
+  padding-left: var(--space-5);
+}
+
+.form-checklist li + li {
+  margin-top: var(--space-2);
 }

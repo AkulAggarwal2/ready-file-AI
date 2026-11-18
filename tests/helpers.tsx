@@ -54,6 +54,13 @@ export function questionToggles(): HTMLElement[] {
   return Array.from(document.querySelectorAll<HTMLElement>('.question-toggle'));
 }
 
+/** The closed question row whose label shows this badge. */
+export function questionToggle(badge: string): HTMLElement {
+  const toggle = questionToggles().find((el) => el.textContent?.includes(badge));
+  if (!toggle) throw new Error(`No question with the label "${badge}"`);
+  return toggle;
+}
+
 /** Text of the open question, without the demo-mode badge. */
 export function openQuestionText(): string | null {
   return document.querySelector('.question-text')?.childNodes[0]?.textContent ?? null;

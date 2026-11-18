@@ -11,7 +11,7 @@ const [january, february, earlyMarch, march14] = LENA_FOUR_INCIDENTS.split('\n\n
 
 const [atWork, texts, apartment, home] = LENA_FOUR_PLACES;
 
-const PREPARED_DRAFTS: Record<string, IncidentFields[]> = {
+const PREPARED_DRAFTS: Record<string, Partial<IncidentFields>[]> = {
   [LENA_FOUR_INCIDENTS]: [
     { description: january, place: atWork, date: { kind: 'approximate', text: 'January' }, how: 'in-person', evidence: '' },
     { description: february, place: texts, date: { kind: 'approximate', text: 'February' }, how: 'phone-or-text', evidence: '' },

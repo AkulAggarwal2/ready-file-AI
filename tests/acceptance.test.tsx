@@ -16,9 +16,11 @@ import {
   stepName,
   loadSample,
   openQuestionText,
+  questionToggle,
   questionToggles,
   renderApp,
   toQuestions,
+  type User,
 } from './helpers';
 
 vi.mock('../src/safety/leaveSite', () => ({ leaveSite: vi.fn() }));
@@ -38,24 +40,28 @@ describe('1. Lena, one incident', () => {
     expect(screen.getAllByRole('heading', { level: 2, name: /^Incident \d$/ })).toHaveLength(1);
     await toQuestions(user);
 
-    // The count is visible and nothing is open until she opens it.
-    expect(screen.getByText(fill(copy.check.total, { total: 1, open: 1 }))).toBeInTheDocument();
-    expect(questionToggles()).toHaveLength(1);
+    // The count is visible and nothing is open until she opens it. The sample
+    // fills in her place, but has no people or feelings, and she has not said
+    // whether he is a danger now or whether she told him to stop, so those
+    // questions come up too.
+    expect(screen.getByText(fill(copy.check.total, { total: 5, open: 5 }))).toBeInTheDocument();
+    expect(questionToggles()).toHaveLength(5);
     expect(openQuestionText()).toBeNull();
 
     await user.click(questionToggles()[0]);
     expect(openQuestionText()).toBe(STALKING_QUESTION);
-    expect(screen.getByText(fill(copy.check.unverified, { ruleId: 'stalking-two-incidents' }))).toBeInTheDocument();
+    // Verified rules show no "Unverified rule" label, even in demo mode.
+    expect(screen.queryByText(fill(copy.check.unverified, { ruleId: 'stalking-two-incidents' }))).toBeNull();
 
     await user.click(screen.getByRole('button', { name: copy.check.continueAsIs }));
     expect(screen.getByText(copy.check.answered)).toBeInTheDocument();
-    expect(screen.getByText(fill(copy.check.total, { total: 1, open: 0 }))).toBeInTheDocument();
+    expect(screen.getByText(fill(copy.check.total, { total: 5, open: 4 }))).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
 
     expect(screen.getByRole('heading', { level: 1, name: copy.review.heading })).toBeInTheDocument();
     expect(screen.getByText(copy.review.notFiling)).toBeInTheDocument();
     expect(summaryText()).toContain('Type of protection order: Stalking');
-    expect(summaryText()).toContain('When: March 14');
+    expect(summaryText()).toContain(fill(copy.summary.when, { when: 'March 14' }));
     expect(summaryText()).toContain(LENA_ONE_INCIDENT);
 
     await user.click(screen.getByRole('button', { name: copy.review.copy }));
@@ -277,21 +283,21 @@ describe('8. Never blocks', () => {
   it('every question shows "Add more" and "Continue as is", and "Continue as is" always moves on', async () => {
     const user = renderApp();
     await begin(user, 'Stalking');
-    // One short incident with no date or place triggers four seeded rules.
+    // One short, undated incident with nothing else filled in triggers eight rules.
     await addIncident(user, 'He yelled at me.');
     await toQuestions(user);
 
-    expect(screen.getByText(fill(copy.check.total, { total: 4, open: 4 }))).toBeInTheDocument();
+    expect(screen.getByText(fill(copy.check.total, { total: 8, open: 8 }))).toBeInTheDocument();
     const seen: string[] = [];
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 8; i++) {
       await user.click(questionToggles()[i]);
       seen.push(openQuestionText()!);
       expect(screen.getByRole('button', { name: copy.check.addMore })).toBeEnabled();
       await user.click(screen.getByRole('button', { name: copy.check.continueAsIs }));
     }
-    expect(seen).toHaveLength(4);
+    expect(seen).toHaveLength(8);
     expect(seen[0]).toBe(STALKING_QUESTION);
-    expect(screen.getByText(fill(copy.check.total, { total: 4, open: 0 }))).toBeInTheDocument();
+    expect(screen.getByText(fill(copy.check.total, { total: 8, open: 0 }))).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
     expect(summaryText()).toContain('He yelled at me.');
@@ -299,7 +305,7 @@ describe('8. Never blocks', () => {
 
   it('she can continue with no incidents at all', async () => {
     const user = renderApp();
-    await begin(user, 'Harassment');
+    await begin(user, 'Not sure');
     expect(screen.getByText(copy.organize.empty)).toBeInTheDocument();
     await toQuestions(user);
     expect(screen.getByText(copy.check.totalNone)).toBeInTheDocument();
@@ -312,7 +318,7 @@ describe('8. Never blocks', () => {
     await begin(user, 'Harassment');
     await addIncident(user, 'He yelled at me.');
     await toQuestions(user);
-    await user.click(questionToggles()[0]);
+    await user.click(questionToggle(copy.badges.incidentDateMissing));
     expect(openQuestionText()).toMatch(/remember about when/);
     await user.click(screen.getByRole('button', { name: copy.check.addMore }));
     expect(screen.getByRole('combobox', { name: copy.incident.dateLabel })).toHaveFocus();
@@ -327,8 +333,9 @@ describe('9. Order and moving around', () => {
     await toQuestions(user);
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
     const text = summaryText();
-    expect(text.indexOf('Incident 1')).toBeGreaterThan(-1);
-    expect(text.indexOf(copy.summary.story)).toBeGreaterThan(text.indexOf('Incident 1'));
+    const first = fill(copy.summary.incident, { n: 1 });
+    expect(text.indexOf(first)).toBeGreaterThan(-1);
+    expect(text.indexOf(copy.summary.story)).toBeGreaterThan(text.indexOf(first));
   });
 
   it('the step bar goes to any step and keeps her answers', async () => {
@@ -348,8 +355,169 @@ describe('9. Order and moving around', () => {
   });
 });
 
+describe('10. Follows the petition (PO-0100)', () => {
+  it('"Add more" on the place question goes to that incident\'s place field', async () => {
+    const user = renderApp();
+    await begin(user, 'Not sure');
+    await addIncident(user, 'He waited outside my work for two hours and followed my car when I left for home.');
+    await toQuestions(user);
+    await user.click(questionToggle(copy.badges.incidentPlaceMissing));
+    await user.click(screen.getByRole('button', { name: copy.check.addMore }));
+    expect(screen.getByRole('textbox', { name: copy.incident.placeLabel })).toHaveFocus();
+  });
+
+  it('puts the place, people present, and what the person did in the summary', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await addIncident(user, 'He waited outside my work for two hours and followed my car when I left for home.');
+    await user.type(screen.getByRole('textbox', { name: copy.incident.placeLabel }), 'Parking lot at my work');
+    await user.type(screen.getByRole('textbox', { name: copy.incident.presentLabel }), 'Me, my coworker Dana');
+    await user.click(screen.getByRole('checkbox', { name: copy.incident.acts['placed-in-fear'] }));
+    await user.selectOptions(screen.getByRole('combobox', { name: copy.incident.firsthandLabel }), 'no');
+    expect(screen.getByText(copy.incident.firsthandNote)).toBeInTheDocument();
+    await toQuestions(user);
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+
+    const text = summaryText();
+    expect(text).toContain(fill(copy.summary.place, { place: 'Parking lot at my work' }));
+    expect(text).toContain(fill(copy.summary.present, { present: 'Me, my coworker Dana' }));
+    expect(text).toContain(fill(copy.summary.acts, { acts: copy.incident.acts['placed-in-fear'] }));
+    expect(text).toContain(copy.summary.firsthandNo);
+    expect(screen.getByRole('heading', { level: 2, name: copy.review.formHeading })).toBeInTheDocument();
+  });
+
+  it('for domestic violence, "none of these" asks about the relationship and goes back to it', async () => {
+    const user = renderApp();
+    await user.click(screen.getByRole('radio', { name: copy.start.caseTypes['domestic-violence'] }));
+    await user.selectOptions(screen.getByRole('combobox', { name: copy.start.relationshipLabel }), 'none');
+    await user.click(screen.getByRole('button', { name: copy.start.begin }));
+    await toQuestions(user);
+    await user.click(questionToggle(copy.badges.relationshipNotHousehold));
+    await user.click(screen.getByRole('button', { name: copy.check.addMore }));
+    const select = screen.getByRole('combobox', { name: copy.start.relationshipLabel });
+    expect(select).toHaveFocus();
+    expect(select).toHaveValue('none');
+  });
+
+  it('shows the harassment hearing note only for harassment', async () => {
+    const user = renderApp();
+    await begin(user, 'Harassment');
+    await toQuestions(user);
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+    expect(screen.getByText(copy.review.formHarassment)).toBeInTheDocument();
+  });
+});
+
+describe('11. Questions about the person', () => {
+  it('"Add more" on the danger question goes to that field on Your story', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await loadSample(user, 'one');
+    await toQuestions(user);
+    await user.click(questionToggle(copy.badges.presentThreatMissing));
+    await user.click(screen.getByRole('button', { name: copy.check.addMore }));
+    expect(screen.getByRole('heading', { level: 1, name: copy.story.heading })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: copy.story.threatLabel })).toHaveFocus();
+  });
+
+  it('puts the danger answer and "told them to stop" in the summary', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await loadSample(user, 'one');
+    await user.click(screen.getByRole('button', { name: copy.organize.confirm }));
+    await user.type(screen.getByRole('textbox', { name: copy.story.threatLabel }), 'He said he would be back.');
+    await user.selectOptions(screen.getByRole('combobox', { name: copy.story.askedToStopLabel }), 'yes');
+    await user.type(screen.getByRole('textbox', { name: copy.story.askedToStopDetailLabel }), 'I texted him on March 2.');
+    await user.click(screen.getByRole('button', { name: copy.story.next }));
+    expect(questionToggles().some((t) => t.textContent?.includes(copy.badges.presentThreatMissing))).toBe(false);
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+
+    const text = summaryText();
+    expect(text).toContain(copy.summary.threat);
+    expect(text).toContain('He said he would be back.');
+    expect(text).toContain(fill(copy.summary.askedToStop, { answer: 'Yes. I texted him on March 2.' }));
+  });
+});
+
+describe('12. Numbers and pages match the form', () => {
+  async function addDated(user: User, details: string, date: string) {
+    await addIncident(user, details);
+    const kinds = screen.getAllByRole('combobox', { name: copy.incident.dateLabel });
+    await user.selectOptions(kinds[kinds.length - 1], 'exact');
+    const dates = document.querySelectorAll<HTMLInputElement>('input[type="date"]');
+    fireEvent.change(dates[dates.length - 1], { target: { value: date } });
+  }
+
+  it('keeps her order and numbers everywhere, and asks once if full dates are out of order', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await addDated(user, 'Sent fourteen texts in one night saying he knew where I worked and lived.', '2026-10-02');
+    await addDated(user, 'Tried to force open my screen door late at night and yelled my name.', '2026-09-14');
+    await toQuestions(user);
+
+    // Incident 2 is still the screen door on the Questions step.
+    const placeQuestion = `${fill(copy.timeline.incident, { n: 2 })} · ${copy.badges.incidentPlaceMissing}`;
+    await user.click(questionToggle(placeQuestion));
+    expect(screen.getByText(/screen door/, { selector: 'blockquote' })).toBeInTheDocument();
+    await user.click(questionToggle(placeQuestion));
+
+    // "Add more" on the order question goes to the top of her list.
+    await user.click(questionToggle(copy.badges.incidentsOutOfOrder));
+    await user.click(screen.getByRole('button', { name: copy.check.addMore }));
+    expect(screen.getByRole('heading', { level: 1, name: copy.organize.heading })).toHaveFocus();
+
+    // The summary keeps her order and numbers, with readable dates.
+    await toQuestions(user);
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+    const text = summaryText();
+    expect(text.indexOf('fourteen texts')).toBeLessThan(text.indexOf('screen door'));
+    expect(text.indexOf(fill(copy.summary.incident, { n: 2 }))).toBeLessThan(text.indexOf('screen door'));
+    expect(text).toContain(fill(copy.summary.when, { when: 'September 14, 2026' }));
+  });
+
+  it('labels incidents 4 and up as Attachment 8a', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await loadSample(user, 'four');
+    await toQuestions(user);
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+    const text = summaryText();
+    expect(text).toContain(copy.summary.attachmentNote);
+    expect(text).toContain(fill(copy.summary.incident, { n: 3 }));
+    expect(text).toContain(fill(copy.summary.incidentAttachment, { n: 4 }));
+  });
+});
+
+describe('13. Sexual assault', () => {
+  it('asks about a conviction on Your story, and the Review checklist explains question 2', async () => {
+    const user = renderApp();
+    await user.click(screen.getByRole('radio', { name: copy.start.caseTypes['sexual-assault'] }));
+    await user.click(screen.getByRole('button', { name: copy.start.begin }));
+    await addIncident(user, 'He came to my apartment after a party and forced me into sexual activity.');
+    await toQuestions(user);
+    expect(questionToggles().some((t) => t.textContent?.includes(copy.badges.incidentsOutOfOrder))).toBe(false);
+    await user.click(questionToggle(copy.badges.convictionMissing));
+    await user.click(screen.getByRole('button', { name: copy.check.addMore }));
+    const select = screen.getByRole('combobox', { name: copy.story.convictedLabel });
+    expect(select).toHaveFocus();
+    await user.selectOptions(select, 'yes');
+    await user.click(screen.getByRole('button', { name: copy.story.next }));
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+    expect(summaryText()).toContain(copy.summary.convicted);
+    expect(screen.getByText(copy.review.formSexOffense)).toBeInTheDocument();
+  });
+
+  it('does not ask about a conviction for other order types', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await addIncident(user, 'He waited outside my work for two hours and followed my car when I left for home.');
+    await user.click(screen.getByRole('button', { name: copy.organize.confirm }));
+    expect(screen.queryByRole('combobox', { name: copy.story.convictedLabel })).toBeNull();
+  });
+});
+
 // Petition Review Flags, petitioner side. All data is fictional.
-describe('10. Petition review flags', () => {
+describe('14. Petition review flags', () => {
   it('marks a possible phone number, never changes her words, and "Continue as is" still works', async () => {
     const user = renderApp();
     await begin(user, 'Harassment');
@@ -358,9 +526,8 @@ describe('10. Petition review flags', () => {
     await user.type(screen.getByRole('textbox', { name: copy.incident.placeLabel }), 'Outside my job');
     await toQuestions(user);
 
-    // Date missing, then contact details.
-    expect(questionToggles()).toHaveLength(2);
-    await user.click(questionToggles()[1]);
+    // Harassment asks other questions too, so open this one by its badge.
+    await user.click(questionToggle(copy.badges.incidentContactInfo));
     expect(openQuestionText()).toMatch(/confidential section/);
     expect(document.querySelector('.question-body mark')?.textContent).toBe('260-555-0142');
     expect(document.querySelector('.question-body blockquote')?.textContent).toBe(words);
@@ -368,18 +535,7 @@ describe('10. Petition review flags', () => {
     await user.click(screen.getByRole('button', { name: copy.check.continueAsIs }));
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
     expect(summaryText()).toContain(words);
-    expect(summaryText()).toContain('Where: Outside my job');
-  });
-
-  it('"Add more" on a missing place goes to the place field', async () => {
-    const user = renderApp();
-    await begin(user, 'Harassment');
-    await addIncident(user, 'He sent me dozens of messages a day for two weeks and would not stop when I asked.');
-    await toQuestions(user);
-    await user.click(questionToggles()[1]);
-    expect(openQuestionText()).toMatch(/where this happened/);
-    await user.click(screen.getByRole('button', { name: copy.check.addMore }));
-    expect(screen.getByRole('textbox', { name: copy.incident.placeLabel })).toHaveFocus();
+    expect(summaryText()).toContain(fill(copy.summary.place, { place: 'Outside my job' }));
   });
 
   it('safety questions are optional, can be cleared, and only answered ones reach the summary', async () => {

@@ -1,11 +1,13 @@
 import {
   CASE_TYPES,
   CONTACT_KINDS,
+  SIMPLE_CONDITIONS,
   type CaseType,
   type Condition,
   type ContactKind,
   type PluralText,
   type Rule,
+  type SimpleConditionType,
 } from './types';
 
 function fail(index: number, id: unknown, problem: string): never {
@@ -21,11 +23,11 @@ function validateCondition(raw: unknown, index: number, id: unknown): Condition 
   if (raw === null) return null;
   if (!isRecord(raw)) fail(index, id, 'condition must be an object or null.');
 
+  if ((SIMPLE_CONDITIONS as readonly unknown[]).includes(raw.type)) {
+    return { type: raw.type as SimpleConditionType };
+  }
+
   switch (raw.type) {
-    case 'incidentDateMissing':
-    case 'incidentPlaceMissing':
-    case 'respondentDobBlank':
-      return { type: raw.type };
     case 'incidentContactInfo':
       if (
         !Array.isArray(raw.kinds) ||
@@ -45,7 +47,7 @@ function validateCondition(raw: unknown, index: number, id: unknown): Condition 
       return fail(
         index,
         id,
-        `unknown condition type "${String(raw.type)}". Use incidentCountBelow, incidentDateMissing, incidentWordsBelow, incidentPlaceMissing, incidentContactInfo, or respondentDobBlank.`,
+        `unknown condition type "${String(raw.type)}". Use incidentCountBelow, incidentWordsBelow, incidentContactInfo, or one of: ${SIMPLE_CONDITIONS.join(', ')}.`,
       );
   }
 }

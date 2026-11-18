@@ -1,4 +1,4 @@
-import type { CaseType } from '../checker';
+import type { CaseType, Relationship, YesNoUnknown } from '../checker';
 import { copy, fill, type SafetyAnswer } from '../content';
 import { createIncident, mergeIncidents, type Incident, type IncidentFields } from '../organizer';
 
@@ -29,8 +29,16 @@ export interface UndoEntry {
 export interface AppState {
   step: Step;
   caseType: CaseType | null;
+  // How she knows the person (question 2 on the petition). Optional.
+  relationship: Relationship | null;
   // Her account in her own words, written after the incidents.
   story: string;
+  // About the person as a whole, asked on the Your story step.
+  threat: string;
+  askedToStop: YesNoUnknown;
+  askedToStopDetail: string;
+  // Asked only for sexual assault.
+  convicted: YesNoUnknown;
   incidents: Incident[];
   // Ids of incidents whose fields are open for editing.
   expanded: string[];
@@ -42,30 +50,42 @@ export interface AppState {
   // Id of the element to focus after a screen change, for keyboard and
   // screen reader users.
   focusTarget: string | null;
+  // The step to go back to after "Add more" sends her to an earlier step whose
+  // own button would otherwise move her on, such as Start.
+  returnTo: Step | null;
   // Spoken by the live region after organizing, merging, deleting, and so on.
   announcement: string;
   undo: UndoEntry | null;
 }
 
+export type PersonDetails = Partial<Pick<AppState, 'threat' | 'askedToStop' | 'askedToStopDetail' | 'convicted'>>;
+
 export const initialState: AppState = {
   step: 'start',
   caseType: null,
+  relationship: null,
   story: '',
+  threat: '',
+  askedToStop: 'unknown',
+  askedToStopDetail: '',
+  convicted: 'unknown',
   incidents: [],
   expanded: [],
   dismissed: [],
   safetyAnswers: {},
   focusTarget: null,
+  returnTo: null,
   announcement: '',
   undo: null,
 };
 
 export type Action =
-  | { type: 'begin'; caseType: CaseType }
+  | { type: 'begin'; caseType: CaseType; relationship: Relationship | null }
   | { type: 'goTo'; step: Step }
   | { type: 'setStory'; story: string }
+  | { type: 'setPersonDetails'; changes: PersonDetails }
   | { type: 'loadSample'; story: string; incidents: Incident[] }
-  | { type: 'addMore'; focusTarget: string; expandId?: string }
+  | { type: 'addMore'; focusTarget: string; expandId?: string; step?: Step; returnTo?: Step }
   | { type: 'updateIncident'; id: string; changes: Partial<IncidentFields> }
   | { type: 'addIncident' }
   | { type: 'deleteIncident'; id: string }
@@ -107,18 +127,27 @@ function moveTo(state: AppState, from: number, to: number): AppState {
 export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'begin':
-      return { ...state, caseType: action.caseType, step: 'incidents' };
+      return {
+        ...state,
+        caseType: action.caseType,
+        relationship: action.relationship,
+        step: state.returnTo ?? 'incidents',
+        returnTo: null,
+      };
     case 'goTo':
-      return { ...state, step: action.step, undo: null };
+      return { ...state, step: action.step, returnTo: null, undo: null };
     case 'setStory':
       return { ...state, story: action.story };
+    case 'setPersonDetails':
+      return { ...state, ...action.changes };
     case 'loadSample':
       return { ...state, story: action.story, incidents: action.incidents, expanded: [], undo: null };
     case 'addMore':
       return {
         ...state,
-        step: 'incidents',
+        step: action.step ?? 'incidents',
         focusTarget: action.focusTarget,
+        returnTo: action.returnTo ?? null,
         expanded:
           action.expandId && !state.expanded.includes(action.expandId)
             ? [...state.expanded, action.expandId]

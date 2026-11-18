@@ -71,10 +71,25 @@ one rule. Rules cannot contain code.
 | --- | --- |
 | `incidentCountBelow` | the number of incidents is below `value` (asked once) |
 | `incidentDateMissing` | an incident has no date (asked once per incident) |
+| `incidentDateInFuture` | an incident's exact date is after today (asked once per incident) |
+| `incidentPlaceMissing` | an incident has no place (PO-0100 question 8; once per incident) |
+| `incidentPeopleMissing` | an incident does not say who was there (PO-0100 question 8; once per incident) |
+| `incidentNotFirsthand` | she said she did not see or hear it herself, so a sworn statement is needed (PO-0102; once per incident) |
+| `incidentActsMissing` | no act from PO-0100 question 7 is checked for an incident (once per incident) |
 | `incidentWordsBelow` | an incident's description has fewer than `value` words (asked once per incident) |
-| `incidentPlaceMissing` | an incident's place is blank (asked once per incident). Never asks a tool that doesn't send a place. |
-| `incidentContactInfo` | an incident's description or place may include contact details. `kinds` lists which: `phone`, `ssn`, `address`. The patterns are in [src/checker/detectors.ts](src/checker/detectors.ts). They are simple, so they can miss some formats or mark text that isn't one. |
-| `respondentDobBlank` | the respondent's date of birth is blank. Never asks a tool that doesn't send respondent details, such as ReadyFile today. |
+| `feelingMissing` | she has incidents, but none says how they made her feel (asked once) |
+| `relationshipNotHousehold` | she said the person is not a family or household member (PO-0100 question 2; asked once) |
+| `incidentsOutOfOrder` | two incidents with full dates are out of date order in her list (asked once) |
+| `presentThreatMissing` | she has incidents, but has not said why the person could hurt her now (asked once) |
+| `convictionMissing` | she has incidents, but has not said whether the person was convicted (asked once; used for sexual assault) |
+| `askedToStopMissing` | she has incidents, but has not said whether she told the person to stop (asked once) |
+| `incidentContactInfo` | an incident's description, place, or evidence may include contact details. `kinds` lists which: `phone`, `ssn`, `address`. The patterns are in [src/checker/detectors.ts](src/checker/detectors.ts). They are simple, so they can miss some formats or mark text that isn't one. |
+| `respondentDobBlank` | the respondent's date of birth is blank (asked once). |
+
+A tool that doesn't ask for a field leaves it out of the checker's input, and
+the conditions about that field never ask. ReadyFile sends every field except
+respondent details, so it never asks `respondentDobBlank`. Desk sends only
+dates, places, descriptions, and respondent details.
 | `null` | never. Use this for a placeholder rule. |
 
 If `rules.json` has a mistake, such as an unknown condition type, the app
@@ -89,20 +104,64 @@ Desk. ReadyFile ignores it. It is text, or a plural object such as
 `{ "by": "n", "zero": "…", "one": "…", "other": "…" }`, filled from the
 finding's `values` (`n` incident count, `i` incident number, `words`).
 
-## Rules still unverified
+## Rules and their sources
 
-Every rule and every safety question is `verified: false`:
+Every ReadyFile rule is `verified: true`, backed by the court's forms
+(PO-0100, PO-0102) or the team's checked Westlaw research. A test fails if a
+rule is added without a source or without being verified, so it fails until the
+two rules under "Still unverified" have sources. The 15-word limit in
+`incident-too-short` is a tool setting, not a legal rule.
+
+| Rule | Asks for | Source |
+| --- | --- | --- |
+| `stalking-two-incidents` | Stalking with fewer than 2 incidents | PO-0102 (team source K2) |
+| `harassment-repeated` | Harassment with fewer than 2 incidents | PO-0102, Ind. Code § 34-6-2-51.5 |
+| `dv-relationship` | Domestic violence when the person is not family or household | PO-0102; PO-0100 question 2 |
+| `present-threat` | Whether the person could hurt her now | IC 34-26-5-9(f); *S.H. v. D.W.* (Ind. 2020); *S.D. v. G.D.* (Ind. 2023) |
+| `asked-to-stop` | Whether she told the person to stop (stalking, harassment) | *Maurer v. Cobb-Maurer* (Ind. Ct. App. 2013); IC 35-45-10-3 |
+| `feeling-stalking` / `feeling-harassment` | How the incidents made her feel, including fear of being hurt | PO-0102 definitions; *H.R. v. M.R.* (Ind. Ct. App. 2025); *Maurer* |
+| `incident-missing-date` | An incident with no date | PO-0100 question 8; PO-0102 |
+| `incidents-out-of-order` | Full dates out of order in her list | PO-0100 question 8; PO-0102 |
+| `incident-future-date` | A date after today | PO-0102 (vague times are a common reason for denial) |
+| `incident-missing-place` | An incident with no place (also shown in Desk) | PO-0100 question 8 |
+| `incident-missing-people` | An incident with no one listed as present | PO-0100 question 8 |
+| `incident-not-firsthand` | An incident she did not see herself | PO-0102 |
+| `dv-acts` | Domestic violence incident with no act checked | PO-0100 question 7 |
+| `incident-too-short` | A description under 15 words | PO-0102; *Maurer v. Cobb-Maurer* |
+| `sexual-assault-conviction` | Whether the person was convicted (an order can last with no end date) | PO-0100 questions 2 and 9; PO-0102 |
+| `sexual-assault-acts` | Sexual assault incident with no act checked | PO-0100 question 7; IC 35-42-4; IC 34-26-5-2(a)(2) |
+
+### Still unverified
 
 | Rule | Status |
 | --- | --- |
-| `stalking-two-incidents` | Wording from PO-0102 petition booklet (team source K2). Waiting for the team to confirm. The Petition Review Flags design suggests wording that cites IC 35-45-10-1; it is in the rule's `todo` for the team to decide. |
-| `incident-missing-date` | The question wording is a draft, and the source is TODO. |
-| `incident-too-short` | The question wording is a draft, and the source is TODO. The 15-word limit is a placeholder. |
-| `incident-place-missing` | Draft wording, source TODO. |
 | `incident-contact-info` | Draft wording, source TODO. It names the court form's confidential section; the team must confirm that section and its name. |
-| `respondent-dob-missing` | From PO-0102 petition booklet (team source K2). Only Desk asks it. |
-| `harassment-rule` and the other placeholders | No condition, so they never ask anything. The team will supply these rules. |
+| `respondent-dob-missing` | From PO-0102 petition booklet (team source K2), not yet confirmed. Only Desk asks it. |
 | Safety questions | Wording from the Petition Review Flags design. Source TODO. |
+
+The Petition Review Flags design suggests new wording for
+`stalking-two-incidents` that cites IC 35-45-10-1. It is in the rule's `todo`
+for the team to decide.
+
+## Following the petition (PO-0100)
+
+- **Start:** "How do you know this person?" matches question 2. It is optional.
+- **Each incident** asks for what question 8 asks: date, place, a description,
+  and everyone who was present. It also asks which acts from question 7
+  happened, whether she saw it herself, and how it made her feel.
+- **Your story** also asks whether the person could hurt her now, and whether
+  she told the person to stop. Indiana courts deny orders without a present,
+  credible threat, and weigh whether she asked for contact to stop.
+- **The summary** follows the form's order: question 2, question 7, then each
+  incident as "Incident #1", "Incident #2", and so on, with readable dates.
+  Empty details are left out. Incidents 4 and up are labeled "Attachment 8a",
+  because the form has room for 3.
+- **Numbers never change.** Incidents keep the order of her list, and the same
+  number, on every step and in the summary. If two full dates are out of
+  order, a question offers to fix it. The tool never reorders her list itself,
+  because a "January" incident cannot be placed against an exact date.
+- **Review** lists what the rest of the form asks for: questions 4, 5, 6 and 9,
+  the Confidential Form (PO-0104), and the signature.
 
 ## Safety features (section 8)
 
@@ -194,9 +253,6 @@ Desk's code is in [src/desk/](src/desk/). ReadyFile never imports from it.
 
 ## Open TODOs
 
-- [ ] Team: verify the wording and source for all four rules, then set `verified: true`.
-- [ ] Team: supply the harassment rule.
-- [ ] Team: confirm the 15-word limit in `incident-too-short`.
 - [ ] Team: fill in and verify every entry in `resources.json`.
 - [ ] Team: review all text in `copy.json` for plain language and reading level.
 - [ ] Team: confirm the quick exit address (now `https://www.weather.com`).

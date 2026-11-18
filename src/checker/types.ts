@@ -14,13 +14,57 @@ export type CheckDate =
   | { kind: 'approximate'; text: string }
   | { kind: 'unknown' };
 
+// How she knows the person, in the words of question 2 on the petition
+// (PO-0100). Domestic or family violence orders need one of these, except
+// "none". "not-sure" means she did not say.
+export const RELATIONSHIPS = [
+  'spouse',
+  'dating',
+  'sexual',
+  'child-in-common',
+  'family',
+  'marriage',
+  'guardian',
+  'none',
+  'not-sure',
+] as const;
+
+export type Relationship = (typeof RELATIONSHIPS)[number];
+
+// The acts listed in question 7 on the petition (PO-0100), in that order.
+export const ACTS = [
+  'attempted-harm',
+  'threatened-harm',
+  'caused-harm',
+  'placed-in-fear',
+  'forced-sexual',
+  'animal-cruelty',
+  'unwanted-contact',
+] as const;
+
+export type Act = (typeof ACTS)[number];
+
+// In the order the answer lists show them: no answer yet first.
+export const YES_NO_UNKNOWN = ['unknown', 'yes', 'no'] as const;
+
+export type YesNoUnknown = (typeof YES_NO_UNKNOWN)[number];
+
+// Whether she saw or heard the incident herself. If not, the court needs a
+// sworn statement from someone who did (PO-0102).
+export type Firsthand = YesNoUnknown;
+
 export interface CheckIncident {
   id: string;
   date: CheckDate;
   description: string;
-  // Where it happened. Left out by tools that don't ask, so the place rule
-  // never asks them about it.
+  // Question 8 on the petition asks for the place and everyone who was there.
+  // Each field below is left out by tools that don't ask for it (such as
+  // Desk), so the rules about it never ask them.
   place?: string;
+  present?: string;
+  firsthand?: Firsthand;
+  feeling?: string;
+  acts?: Act[];
   // Evidence or witnesses, in her words. Only checked for contact details.
   evidence?: string;
 }
@@ -28,6 +72,18 @@ export interface CheckIncident {
 export interface CheckInput {
   caseType: CaseType;
   incidents: CheckIncident[];
+  // The fields below are left out by tools that don't ask for them, so the
+  // rules about them never ask. Desk leaves out all but respondent.
+  relationship?: Relationship | null;
+  // Why she thinks the person could hurt her now. Every order needs a present,
+  // credible threat (Ind. Code § 34-26-5-9(f); S.H. v. D.W., Ind. 2020).
+  threat?: string;
+  // Whether she told the person to stop contacting her (Maurer v. Cobb-Maurer).
+  askedToStop?: YesNoUnknown;
+  // Whether the person was convicted of a sex crime against her (PO-0100 question 2).
+  convicted?: YesNoUnknown;
+  // Today's date as YYYY-MM-DD. Without it, dates are not checked against today.
+  today?: string;
   // Left out by tools that don't collect respondent details, such as
   // ReadyFile today, so respondent rules never ask them.
   respondent?: { dateOfBirth?: string };
@@ -47,15 +103,33 @@ export interface ContactMatch {
   end: number;
 }
 
+// Conditions that need no "value" in rules.json.
+export const SIMPLE_CONDITIONS = [
+  'incidentDateMissing',
+  'incidentDateInFuture',
+  'incidentPlaceMissing',
+  'incidentPeopleMissing',
+  'incidentNotFirsthand',
+  'incidentActsMissing',
+  'feelingMissing',
+  'relationshipNotHousehold',
+  'presentThreatMissing',
+  'askedToStopMissing',
+  'incidentsOutOfOrder',
+  'convictionMissing',
+  'respondentDobBlank',
+] as const;
+
+export type SimpleConditionType = (typeof SIMPLE_CONDITIONS)[number];
+
 // Rules can only use these conditions. Rules contain no code, so every
-// question traces back to one rule in a content file.
+// question traces back to one rule in a content file. Built from
+// SIMPLE_CONDITIONS, so the list and this type cannot drift apart.
 export type Condition =
   | { type: 'incidentCountBelow'; value: number }
-  | { type: 'incidentDateMissing' }
   | { type: 'incidentWordsBelow'; value: number }
-  | { type: 'incidentPlaceMissing' }
   | { type: 'incidentContactInfo'; kinds: ContactKind[] }
-  | { type: 'respondentDobBlank' };
+  | { type: SimpleConditionType };
 
 export type ConditionType = Condition['type'];
 

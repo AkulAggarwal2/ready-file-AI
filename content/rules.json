@@ -10,8 +10,8 @@
         "value": 2
       },
       "questionText": "Stalking means two or more incidents. Are there other times?",
-      "sourceCitation": "PO-0102 petition booklet (team source K2)",
-      "verified": false,
+      "sourceCitation": "PO-0102 petition booklet (team source K2); R.W. v. J.W., 160 N.E.3d 195 (Ind. Ct. App. 2020) (\"repeated\" means more than once); C.S. v. T.K., 118 N.E.3d 78 (Ind. Ct. App. 2019) (one incident is not enough)",
+      "verified": true,
       "staffText": {
         "by": "n",
         "zero": "Stalking is checked, and no incidents are described",
@@ -19,6 +19,112 @@
         "other": "Stalking is checked, and {n} incidents are described"
       },
       "todo": "Team: the Petition Review Flags design suggests: \"Stalking under IC 35-45-10-1 involves repeated or continuing conduct. If more than one incident happened, you can add each one separately.\" Confirm the wording and source before changing questionText."
+    },
+    {
+      "id": "harassment-repeated",
+      "caseTypes": [
+        "harassment"
+      ],
+      "condition": {
+        "type": "incidentCountBelow",
+        "value": 2
+      },
+      "questionText": "Harassment means repeated or continuing contact. Are there other times?",
+      "sourceCitation": "PO-0102 instructions, definition of harassment (Ind. Code § 34-6-2-51.5)",
+      "verified": true
+    },
+    {
+      "id": "dv-relationship",
+      "caseTypes": [
+        "domestic-violence"
+      ],
+      "condition": {
+        "type": "relationshipNotHousehold"
+      },
+      "questionText": "Orders for domestic or family violence are for family or household members, like a spouse, partner, or relative. You said none of these fit. If this person stalked or harassed you, an order for stalking or harassment may fit instead. Do you want to look at your answer again?",
+      "sourceCitation": "PO-0102 instructions, who counts as a family or household member; PO-0100 question 2; M.R. v. B.C., 120 N.E.3d 220 (Ind. Ct. App. 2019) (a stalking order needs no family relationship)",
+      "verified": true
+    },
+    {
+      "id": "present-threat",
+      "caseTypes": [
+        "stalking",
+        "harassment",
+        "domestic-violence",
+        "sexual-assault",
+        "not-sure"
+      ],
+      "condition": {
+        "type": "presentThreatMissing"
+      },
+      "questionText": "Do you think this person could hurt you now? The court looks at whether the person is a real danger today, for example because of threats, past violence, or weapons.",
+      "sourceCitation": "Ind. Code § 34-26-5-9(f); S.H. v. D.W., 139 N.E.3d 214 (Ind. 2020) (the threat must be present and credible, viewed objectively); S.D. v. G.D., 211 N.E.3d 494 (Ind. 2023) (totality of the circumstances); 14 Ind. Prac., Family Law § 8:16 (factors)",
+      "verified": true
+    },
+    {
+      "id": "asked-to-stop",
+      "caseTypes": [
+        "stalking",
+        "harassment"
+      ],
+      "condition": {
+        "type": "askedToStopMissing"
+      },
+      "questionText": "Did you ever tell this person to stop contacting you? If you did, the court may ask when and how.",
+      "sourceCitation": "Maurer v. Cobb-Maurer, 994 N.E.2d 753 (Ind. Ct. App. 2013) (no evidence she asked him to stop); Ind. Code § 35-45-10-3 (impermissible contact)",
+      "verified": true
+    },
+    {
+      "id": "sexual-assault-conviction",
+      "caseTypes": [
+        "sexual-assault"
+      ],
+      "condition": {
+        "type": "convictionMissing"
+      },
+      "questionText": "Was this person convicted of a sex crime against you? Criminal charges are not needed to ask for an order. But if the person was convicted and must register for life, the court can make the order last with no end date.",
+      "sourceCitation": "PO-0100 questions 2 and 9 (order effective indefinitely under I.C. 34-26-5-9 when the respondent must register for life under I.C. 11-8-8-19); PO-0102 (criminal charges are not required)",
+      "verified": true
+    },
+    {
+      "id": "feeling-stalking",
+      "caseTypes": [
+        "stalking"
+      ],
+      "condition": {
+        "type": "feelingMissing"
+      },
+      "questionText": "How did these incidents make you feel? For stalking, the court looks at whether they made you feel frightened, threatened, or intimidated, including afraid of being hurt.",
+      "sourceCitation": "PO-0102 instructions, definition of stalking (Ind. Code § 35-45-10-1); H.R. v. M.R., 262 N.E.3d 915 (Ind. Ct. App. 2025) (distress without fear of physical harm was not enough); Maurer v. Cobb-Maurer, 994 N.E.2d 753 (Ind. Ct. App. 2013)",
+      "verified": true
+    },
+    {
+      "id": "feeling-harassment",
+      "caseTypes": [
+        "harassment"
+      ],
+      "condition": {
+        "type": "feelingMissing"
+      },
+      "questionText": "How did this contact affect you? For harassment, the court looks at whether it caused you emotional distress.",
+      "sourceCitation": "PO-0102 instructions, definition of harassment (Ind. Code § 34-6-2-51.5); Maurer v. Cobb-Maurer, 994 N.E.2d 753 (Ind. Ct. App. 2013) (no testimony about the effect of the contact)",
+      "verified": true
+    },
+    {
+      "id": "incidents-out-of-order",
+      "caseTypes": [
+        "stalking",
+        "harassment",
+        "domestic-violence",
+        "sexual-assault",
+        "not-sure"
+      ],
+      "condition": {
+        "type": "incidentsOutOfOrder"
+      },
+      "questionText": "Some of your incidents with a full date are not in date order. Putting them from oldest to newest can make them easier for the judge to follow. Do you want to move them?",
+      "sourceCitation": "PO-0100 question 8 (Incident #1, #2, #3); PO-0102 (a clear, understandable description of the time of each incident)",
+      "verified": true
     },
     {
       "id": "incident-missing-date",
@@ -33,9 +139,86 @@
         "type": "incidentDateMissing"
       },
       "questionText": "Do you remember about when this happened? A rough time, like \"early March,\" is fine.",
-      "sourceCitation": "TODO: team to supply source",
-      "verified": false,
+      "sourceCitation": "PO-0100 question 8 (Date of Incident); PO-0102: allegations without a clear time are a common reason petitions are denied",
+      "verified": true,
       "staffText": "Incident {i} has no date"
+    },
+    {
+      "id": "incident-future-date",
+      "caseTypes": [
+        "stalking",
+        "harassment",
+        "domestic-violence",
+        "sexual-assault",
+        "not-sure"
+      ],
+      "condition": {
+        "type": "incidentDateInFuture"
+      },
+      "questionText": "This date is after today. Can you check it?",
+      "sourceCitation": "PO-0102 instructions: vague or unclear times are a common reason petitions are denied",
+      "verified": true
+    },
+    {
+      "id": "incident-missing-place",
+      "caseTypes": [
+        "stalking",
+        "harassment",
+        "domestic-violence",
+        "sexual-assault",
+        "not-sure"
+      ],
+      "condition": {
+        "type": "incidentPlaceMissing"
+      },
+      "questionText": "Where did this happen? The court's form asks for the place of each incident.",
+      "sourceCitation": "PO-0100 question 8 (Place of Incident); PO-0102 lists a missing place as a common reason for denial",
+      "verified": true,
+      "staffText": "Incident {i} has no place"
+    },
+    {
+      "id": "incident-missing-people",
+      "caseTypes": [
+        "stalking",
+        "harassment",
+        "domestic-violence",
+        "sexual-assault",
+        "not-sure"
+      ],
+      "condition": {
+        "type": "incidentPeopleMissing"
+      },
+      "questionText": "Who was there? The court's form asks for everyone who was present, including you if you were there.",
+      "sourceCitation": "PO-0100 question 8 (people present during the incident)",
+      "verified": true
+    },
+    {
+      "id": "incident-not-firsthand",
+      "caseTypes": [
+        "stalking",
+        "harassment",
+        "domestic-violence",
+        "sexual-assault",
+        "not-sure"
+      ],
+      "condition": {
+        "type": "incidentNotFirsthand"
+      },
+      "questionText": "You said someone told you about this. The court needs a signed statement (an affidavit) from a person who saw or heard it, and that person may need to come to court. Who could give one?",
+      "sourceCitation": "PO-0102 instructions on petitions based on what other people saw; PO-0100 affirmation",
+      "verified": true
+    },
+    {
+      "id": "dv-acts",
+      "caseTypes": [
+        "domestic-violence"
+      ],
+      "condition": {
+        "type": "incidentActsMissing"
+      },
+      "questionText": "What did the person do this time? For example, did they hurt you, try to, threaten to, or make you afraid you would be hurt?",
+      "sourceCitation": "PO-0100 question 7; PO-0102 definition of domestic or family violence",
+      "verified": true
     },
     {
       "id": "incident-too-short",
@@ -50,9 +233,9 @@
         "type": "incidentWordsBelow",
         "value": 15
       },
-      "questionText": "Can you say more about what happened? For example, what the person did or said, and where you were.",
-      "sourceCitation": "TODO: team to supply source",
-      "verified": false,
+      "questionText": "Can you say more about what happened? For example, what the person did or said.",
+      "sourceCitation": "PO-0102: allegations without a clear description of the acts are a common reason petitions are denied; Maurer v. Cobb-Maurer, 994 N.E.2d 753 (Ind. Ct. App. 2013). The 15-word limit is a tool setting, not a legal rule.",
+      "verified": true,
       "staffText": {
         "by": "words",
         "one": "Incident {i} is very short (1 word)",
@@ -60,21 +243,16 @@
       }
     },
     {
-      "id": "incident-place-missing",
+      "id": "sexual-assault-acts",
       "caseTypes": [
-        "stalking",
-        "harassment",
-        "domestic-violence",
-        "sexual-assault",
-        "not-sure"
+        "sexual-assault"
       ],
       "condition": {
-        "type": "incidentPlaceMissing"
+        "type": "incidentActsMissing"
       },
-      "questionText": "Do you remember where this happened? A general place, like \"outside my job,\" is fine.",
-      "sourceCitation": "TODO: team to supply source",
-      "verified": false,
-      "staffText": "Incident {i} has no place"
+      "questionText": "What did the person do this time? Share only what you are comfortable with. You can choose from the list, like \"Forced me into sexual activity.\"",
+      "sourceCitation": "PO-0100 question 7; PO-0102 definition of a sex offense (Ind. Code § 35-42-4); Ind. Code § 34-26-5-2(a)(2)",
+      "verified": true
     },
     {
       "id": "incident-contact-info",
@@ -114,39 +292,6 @@
       "sourceCitation": "PO-0102 petition booklet (team source K2)",
       "verified": false,
       "staffText": "The respondent's date of birth is blank"
-    },
-    {
-      "id": "harassment-rule",
-      "caseTypes": [
-        "harassment"
-      ],
-      "condition": null,
-      "questionText": "TODO: team to supply question wording.",
-      "sourceCitation": "TODO: team to supply source",
-      "verified": false,
-      "todo": "The team will supply this rule. It is off until it has a condition."
-    },
-    {
-      "id": "domestic-violence-rule",
-      "caseTypes": [
-        "domestic-violence"
-      ],
-      "condition": null,
-      "questionText": "TODO: team to supply question wording.",
-      "sourceCitation": "TODO: team to supply source",
-      "verified": false,
-      "todo": "The team will supply rules for Domestic or family violence. It is off until it has a condition."
-    },
-    {
-      "id": "sexual-assault-rule",
-      "caseTypes": [
-        "sexual-assault"
-      ],
-      "condition": null,
-      "questionText": "TODO: team to supply question wording.",
-      "sourceCitation": "TODO: team to supply source",
-      "verified": false,
-      "todo": "The team will supply rules for Sexual assault. It is off until it has a condition."
     }
   ]
 }
