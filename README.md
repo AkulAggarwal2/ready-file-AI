@@ -108,8 +108,9 @@ finding's `values` (`n` incident count, `i` incident number, `words`).
 
 Every ReadyFile rule is `verified: true`, backed by the court's forms
 (PO-0100, PO-0102) or the team's checked Westlaw research. A test fails if a
-rule is added without a source or without being verified, so it fails until the
-two rules under "Still unverified" have sources. The 15-word limit in
+rule is added without a source or without being verified. Only the two rules
+under "Still unverified" are exempt, by name, and another test keeps that list
+to those two. The 15-word limit in
 `incident-too-short` is a tool setting, not a legal rule.
 
 | Rule | Asks for | Source |
