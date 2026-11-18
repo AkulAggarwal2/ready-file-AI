@@ -1,5 +1,5 @@
 import type { CaseType, Relationship, YesNoUnknown } from '../checker';
-import { copy, fill } from '../content';
+import { copy, fill, type SafetyAnswer } from '../content';
 import { createIncident, mergeIncidents, type Incident, type IncidentFields } from '../organizer';
 
 // All state lives in memory only (section 8). Nothing here is ever written to
@@ -44,6 +44,9 @@ export interface AppState {
   expanded: string[];
   // Keys of check questions she answered with "Continue as is".
   dismissed: string[];
+  // Her answers to the optional safety questions, by question id. A question
+  // she hasn't answered has no entry.
+  safetyAnswers: Record<string, SafetyAnswer>;
   // Id of the element to focus after a screen change, for keyboard and
   // screen reader users.
   focusTarget: string | null;
@@ -69,6 +72,7 @@ export const initialState: AppState = {
   incidents: [],
   expanded: [],
   dismissed: [],
+  safetyAnswers: {},
   focusTarget: null,
   returnTo: null,
   announcement: '',
@@ -92,6 +96,7 @@ export type Action =
   | { type: 'undo' }
   | { type: 'clearUndo' }
   | { type: 'dismissFinding'; key: string }
+  | { type: 'setSafetyAnswer'; id: string; answer: SafetyAnswer | null }
   | { type: 'focusHandled' }
   | { type: 'reset' };
 
@@ -246,6 +251,10 @@ export function reducer(state: AppState, action: Action): AppState {
       return state.dismissed.includes(action.key)
         ? state
         : { ...state, dismissed: [...state.dismissed, action.key] };
+    case 'setSafetyAnswer': {
+      const { [action.id]: _previous, ...rest } = state.safetyAnswers;
+      return { ...state, safetyAnswers: action.answer ? { ...rest, [action.id]: action.answer } : rest };
+    }
     case 'focusHandled':
       return { ...state, focusTarget: null };
     case 'reset':

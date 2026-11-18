@@ -10,3 +10,8 @@ export const LENA_FOUR_INCIDENTS = [
   'In early March he left a note on my car at my new apartment. I had not told him where I moved.',
   LENA_ONE_INCIDENT,
 ].join('\n\n');
+
+// Places for the sample incidents, in order. The splitter doesn't find places,
+// so the demo buttons fill these in.
+export const LENA_ONE_PLACES = ['At my house'];
+export const LENA_FOUR_PLACES = ['Coffee shop parking lot', 'Text messages', 'My new apartment', 'At my house'];

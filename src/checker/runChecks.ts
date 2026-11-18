@@ -1,4 +1,5 @@
-import type { CheckDate, CheckIncident, CheckInput, Finding, Rule } from './types';
+import { findContactDetails } from './detectors';
+import type { CheckDate, CheckIncident, CheckInput, ContactKind, ContactMatch, Finding, Rule } from './types';
 
 function isDateMissing(incident: CheckIncident): boolean {
   const { date } = incident;
@@ -11,7 +12,9 @@ function wordCount(text: string): number {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
-const isBlank = (text: string | undefined) => !text || text.trim() === '';
+// Blank, but not left out. A tool that doesn't ask for a field leaves it out,
+// so the rule about that field never asks them.
+const isAnsweredBlank = (text: string | undefined) => text !== undefined && text.trim() === '';
 
 /** Whether a full date is after today. Both are YYYY-MM-DD, so comparing the text compares the dates. */
 export function isDateInFuture(date: CheckDate, today: string | undefined): boolean {
@@ -22,21 +25,49 @@ export function isDateInFuture(date: CheckDate, today: string | undefined): bool
 const PER_INCIDENT: Partial<Record<string, (incident: CheckIncident, input: CheckInput) => boolean>> = {
   incidentDateMissing: (incident) => isDateMissing(incident),
   incidentDateInFuture: (incident, input) => isDateInFuture(incident.date, input.today),
-  incidentPlaceMissing: (incident) => isBlank(incident.place),
-  incidentPeopleMissing: (incident) => isBlank(incident.present),
+  incidentPlaceMissing: (incident) => isAnsweredBlank(incident.place),
+  incidentPeopleMissing: (incident) => isAnsweredBlank(incident.present),
   incidentNotFirsthand: (incident) => incident.firsthand === 'no',
-  incidentActsMissing: (incident) => !incident.acts || incident.acts.length === 0,
+  incidentActsMissing: (incident) => incident.acts !== undefined && incident.acts.length === 0,
 };
 
-function finding(rule: Rule, incidentId?: string): Finding {
+function contactMatches(incident: CheckIncident, kinds: ContactKind[]) {
+  const fields = { description: incident.description, place: incident.place ?? '', evidence: incident.evidence ?? '' };
+  const matches: ContactMatch[] = (Object.keys(fields) as ContactMatch['field'][]).flatMap((field) =>
+    findContactDetails(fields[field], kinds).map((span) => ({ ...span, field })),
+  );
+  const matchedText = matches.map((m) => `${m.field}:${fields[m.field].slice(m.start, m.end)}`).join('|');
+  return { matches, matchedText };
+}
+
+/** A short, id-safe fingerprint of the matched text. */
+function fingerprint(text: string): string {
+  let hash = 5381;
+  for (let i = 0; i < text.length; i++) hash = ((hash * 33) ^ text.charCodeAt(i)) >>> 0;
+  return hash.toString(36);
+}
+
+function finding(
+  rule: Rule,
+  values: Record<string, number>,
+  incidentId?: string,
+  matches?: ContactMatch[],
+  matchedText?: string,
+): Finding {
+  // A contact-details key also names what was matched, so "Continue as is" on
+  // one match doesn't cover details she adds to that incident later.
+  const base = `${rule.id}:${incidentId ?? 'all'}`;
   return {
-    key: `${rule.id}:${incidentId ?? 'all'}`,
+    key: matchedText === undefined ? base : `${base}:${fingerprint(matchedText)}`,
     ruleId: rule.id,
     conditionType: rule.condition!.type,
     questionText: rule.questionText,
     sourceCitation: rule.sourceCitation,
     verified: rule.verified,
     incidentId,
+    ...(rule.staffText !== undefined && { staffText: rule.staffText }),
+    values,
+    ...(matches && { matches }),
   };
 }
 
@@ -53,51 +84,59 @@ export function runChecks(input: CheckInput, rules: Rule[]): Finding[] {
 
     const perIncident = PER_INCIDENT[condition.type];
     if (perIncident) {
-      for (const incident of input.incidents) {
-        if (perIncident(incident, input)) findings.push(finding(rule, incident.id));
-      }
+      input.incidents.forEach((incident, index) => {
+        if (perIncident(incident, input)) findings.push(finding(rule, { i: index + 1 }, incident.id));
+      });
       continue;
     }
 
     switch (condition.type) {
-      case 'incidentCountBelow':
-        if (input.incidents.length < condition.value) findings.push(finding(rule));
+      case 'incidentCountBelow': {
+        const n = input.incidents.length;
+        if (n < condition.value) findings.push(finding(rule, { n }));
         break;
+      }
       case 'feelingMissing':
         // Asked once: only when she has incidents and none says how they made her feel.
-        if (input.incidents.length > 0 && input.incidents.every((incident) => isBlank(incident.feeling))) {
-          findings.push(finding(rule));
+        if (input.incidents.length > 0 && input.incidents.every((incident) => isAnsweredBlank(incident.feeling))) {
+          findings.push(finding(rule, {}));
         }
         break;
       case 'relationshipNotHousehold':
-        if (input.relationship === 'none') findings.push(finding(rule));
+        if (input.relationship === 'none') findings.push(finding(rule, {}));
         break;
       // These two are about the person, not one incident, and are asked once she has incidents.
       case 'presentThreatMissing':
-        if (input.incidents.length > 0 && isBlank(input.threat)) findings.push(finding(rule));
+        if (input.incidents.length > 0 && isAnsweredBlank(input.threat)) findings.push(finding(rule, {}));
         break;
       case 'incidentsOutOfOrder': {
         // Only full dates can be compared. Asked once if any two are out of order.
         const dates = input.incidents
           .map((incident) => (incident.date.kind === 'exact' ? incident.date.value : ''))
           .filter(Boolean);
-        if (dates.some((date, i) => i > 0 && date < dates[i - 1])) findings.push(finding(rule));
+        if (dates.some((date, i) => i > 0 && date < dates[i - 1])) findings.push(finding(rule, {}));
         break;
       }
       case 'convictionMissing':
-        if (input.incidents.length > 0 && (input.convicted ?? 'unknown') === 'unknown') findings.push(finding(rule));
+        if (input.incidents.length > 0 && input.convicted === 'unknown') findings.push(finding(rule, {}));
         break;
       case 'askedToStopMissing':
-        if (input.incidents.length > 0 && (input.askedToStop ?? 'unknown') === 'unknown') {
-          findings.push(finding(rule));
-        }
+        if (input.incidents.length > 0 && input.askedToStop === 'unknown') findings.push(finding(rule, {}));
         break;
       case 'incidentWordsBelow':
-        for (const incident of input.incidents) {
-          if (wordCount(incident.description) < condition.value) {
-            findings.push(finding(rule, incident.id));
-          }
-        }
+        input.incidents.forEach((incident, index) => {
+          const words = wordCount(incident.description);
+          if (words < condition.value) findings.push(finding(rule, { i: index + 1, words }, incident.id));
+        });
+        break;
+      case 'incidentContactInfo':
+        input.incidents.forEach((incident, index) => {
+          const { matches, matchedText } = contactMatches(incident, condition.kinds);
+          if (matches.length > 0) findings.push(finding(rule, { i: index + 1 }, incident.id, matches, matchedText));
+        });
+        break;
+      case 'respondentDobBlank':
+        if (input.respondent && !input.respondent.dateOfBirth?.trim()) findings.push(finding(rule, {}));
         break;
     }
   }

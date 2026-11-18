@@ -511,6 +511,45 @@ legend {
   transform: translateY(-60%) rotate(45deg);
 }
 
+/* Safety questions: Yes / No / Not sure side by side, wrapping on phones. */
+.safety-questions {
+  margin-top: var(--space-6);
+}
+
+.safety-question {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+}
+
+.safety-question legend {
+  font-size: var(--text-md);
+  float: left;
+  width: 100%;
+  margin-bottom: var(--space-2);
+}
+
+.choice-row {
+  clear: both;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.choice-row .choice {
+  margin: 0;
+  min-width: 7.5rem;
+}
+
+/* Possible contact details in her words. The words are unchanged. */
+mark {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  border-radius: 3px;
+  padding: 0 0.15em;
+  box-decoration-break: clone;
+}
+
 /* Buttons: at least 48px tall for easy tapping. */
 .btn {
   min-height: 48px;

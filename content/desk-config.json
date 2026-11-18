@@ -1,0 +1,55 @@
+{
+  "_note": "Settings for ReadyFile Desk. Times are local, written as YYYY-MM-DDTHH:MM.",
+  "demoClockStart": "2026-11-09T08:35",
+  "minutesPerAction": 2,
+  "holdHours": 24,
+  "counter": {
+    "opens": "08:00",
+    "closes": "16:00",
+    "days": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "checkedCaseTypes": [
+    "stalking",
+    "harassment"
+  ],
+  "lineWidth": 66,
+  "specialist": "T. Reyes",
+  "demoAmendTime": "2026-11-09T20:21",
+  "outcomes": {
+    "stalking": [
+      "granted",
+      "hearing",
+      "denied"
+    ],
+    "harassment": [
+      "hearing",
+      "denied"
+    ]
+  },
+  "outcomesSource": "Harassment-only petitions need notice and a hearing before any relief: PO-0102 petition booklet (team source K2).",
+  "denialReasons": [
+    {
+      "id": "definition",
+      "label": "Facts don't meet the definition"
+    },
+    {
+      "id": "vague",
+      "label": "Time, place, or acts are too vague"
+    },
+    {
+      "id": "secondhand",
+      "label": "Facts are secondhand, with no affidavit"
+    },
+    {
+      "id": "other",
+      "label": "Other"
+    }
+  ],
+  "denialReasonsSource": "From the common denial reasons in the PO-0102 booklet."
+}

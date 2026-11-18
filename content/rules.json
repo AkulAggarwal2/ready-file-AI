@@ -11,7 +11,14 @@
       },
       "questionText": "Stalking means two or more incidents. Are there other times?",
       "sourceCitation": "PO-0102 petition booklet (team source K2); R.W. v. J.W., 160 N.E.3d 195 (Ind. Ct. App. 2020) (\"repeated\" means more than once); C.S. v. T.K., 118 N.E.3d 78 (Ind. Ct. App. 2019) (one incident is not enough)",
-      "verified": true
+      "verified": true,
+      "staffText": {
+        "by": "n",
+        "zero": "Stalking is checked, and no incidents are described",
+        "one": "Stalking is checked, and only 1 incident is described",
+        "other": "Stalking is checked, and {n} incidents are described"
+      },
+      "todo": "Team: the Petition Review Flags design suggests: \"Stalking under IC 35-45-10-1 involves repeated or continuing conduct. If more than one incident happened, you can add each one separately.\" Confirm the wording and source before changing questionText."
     },
     {
       "id": "harassment-repeated",
@@ -133,7 +140,8 @@
       },
       "questionText": "Do you remember about when this happened? A rough time, like \"early March,\" is fine.",
       "sourceCitation": "PO-0100 question 8 (Date of Incident); PO-0102: allegations without a clear time are a common reason petitions are denied",
-      "verified": true
+      "verified": true,
+      "staffText": "Incident {i} has no date"
     },
     {
       "id": "incident-future-date",
@@ -165,7 +173,8 @@
       },
       "questionText": "Where did this happen? The court's form asks for the place of each incident.",
       "sourceCitation": "PO-0100 question 8 (Place of Incident); PO-0102 lists a missing place as a common reason for denial",
-      "verified": true
+      "verified": true,
+      "staffText": "Incident {i} has no place"
     },
     {
       "id": "incident-missing-people",
@@ -226,7 +235,12 @@
       },
       "questionText": "Can you say more about what happened? For example, what the person did or said.",
       "sourceCitation": "PO-0102: allegations without a clear description of the acts are a common reason petitions are denied; Maurer v. Cobb-Maurer, 994 N.E.2d 753 (Ind. Ct. App. 2013). The 15-word limit is a tool setting, not a legal rule.",
-      "verified": true
+      "verified": true,
+      "staffText": {
+        "by": "words",
+        "one": "Incident {i} is very short (1 word)",
+        "other": "Incident {i} is very short ({words} words)"
+      }
     },
     {
       "id": "sexual-assault-acts",
@@ -239,6 +253,45 @@
       "questionText": "What did the person do this time? Share only what you are comfortable with. You can choose from the list, like \"Forced me into sexual activity.\"",
       "sourceCitation": "PO-0100 question 7; PO-0102 definition of a sex offense (Ind. Code § 35-42-4); Ind. Code § 34-26-5-2(a)(2)",
       "verified": true
+    },
+    {
+      "id": "incident-contact-info",
+      "caseTypes": [
+        "stalking",
+        "harassment",
+        "domestic-violence",
+        "sexual-assault",
+        "not-sure"
+      ],
+      "condition": {
+        "type": "incidentContactInfo",
+        "kinds": [
+          "phone",
+          "ssn",
+          "address"
+        ]
+      },
+      "questionText": "This incident may include a phone number, Social Security number, or street address. The court form has a confidential section for contact details, so the other person doesn't see them there. Do you want to move them?",
+      "sourceCitation": "TODO: team to supply source (confidential information form)",
+      "verified": false,
+      "staffText": "Incident {i} may include contact details"
+    },
+    {
+      "id": "respondent-dob-missing",
+      "caseTypes": [
+        "stalking",
+        "harassment",
+        "domestic-violence",
+        "sexual-assault",
+        "not-sure"
+      ],
+      "condition": {
+        "type": "respondentDobBlank"
+      },
+      "questionText": "Do you know the other person's date of birth? Without it, the order goes into Indiana's registry but not the national one.",
+      "sourceCitation": "PO-0102 petition booklet (team source K2)",
+      "verified": false,
+      "staffText": "The respondent's date of birth is blank"
     }
   ]
 }

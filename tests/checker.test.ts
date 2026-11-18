@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { runChecks, validateRules, type CheckIncident, type Rule } from '../src/checker';
+import { findContactDetails, runChecks, validateRules, type CheckIncident, type Rule } from '../src/checker';
 import { rules } from '../src/content';
 
 const longText = 'He came to my door at night and would not leave when I asked him to go away.';
@@ -21,6 +21,8 @@ function incident(id: string, fields: Partial<CheckIncident> = {}): CheckInciden
 
 // Answers to the questions about the person, so tests only see what they are about.
 const answered = { threat: 'He said he would come back and hurt me.', askedToStop: 'yes' as const };
+// What ReadyFile sends before she answers them.
+const unanswered = { threat: '', askedToStop: 'unknown' as const, convicted: 'unknown' as const };
 
 const ruleIds = (findings: ReturnType<typeof runChecks>) => findings.map((f) => f.ruleId);
 
@@ -81,7 +83,7 @@ describe('runChecks with the seeded rules', () => {
 
   it('for sexual assault, asks about a conviction once and what the person did per incident', () => {
     const ask = (input: Partial<Parameters<typeof runChecks>[0]>) =>
-      runChecks({ ...answered, caseType: 'sexual-assault', incidents: [incident('a', { acts: [] })], ...input }, rules).map(
+      runChecks({ ...answered, convicted: 'unknown', caseType: 'sexual-assault', incidents: [incident('a', { acts: [] })], ...input }, rules).map(
         (f) => [f.ruleId, f.incidentId],
       );
     expect(ask({})).toEqual([
@@ -92,8 +94,18 @@ describe('runChecks with the seeded rules', () => {
     expect(ask({ incidents: [] })).toEqual([]);
   });
 
-  it('marks every seeded rule verified, with a source', () => {
-    expect(rules.filter((rule) => !rule.verified || /TODO/.test(rule.sourceCitation)).map((r) => r.id)).toEqual([]);
+  // Rules still waiting for the team to supply a source. Remove an id once its
+  // rule is verified. See "Still unverified" in the README.
+  const KNOWN_UNVERIFIED = ['incident-contact-info', 'respondent-dob-missing'];
+
+  it('marks every other seeded rule verified, with a source', () => {
+    const unverified = rules.filter((rule) => !rule.verified || /TODO/.test(rule.sourceCitation)).map((r) => r.id);
+    expect(unverified.filter((id) => !KNOWN_UNVERIFIED.includes(id))).toEqual([]);
+  });
+
+  it('allows only the two known unverified rules', () => {
+    expect(KNOWN_UNVERIFIED).toEqual(['incident-contact-info', 'respondent-dob-missing']);
+    expect(KNOWN_UNVERIFIED.filter((id) => !rules.some((rule) => rule.id === id))).toEqual([]);
   });
 
   it('gives every finding a unique key and a rule it came from', () => {
@@ -128,10 +140,96 @@ describe('validateRules', () => {
     );
   });
 
+  it('accepts the place and contact conditions, and checks contact kinds', () => {
+    expect(validateRules([{ ...valid, condition: { type: 'incidentPlaceMissing' } }])[0].condition).toEqual({
+      type: 'incidentPlaceMissing',
+    });
+    const contact = { type: 'incidentContactInfo', kinds: ['phone', 'address'] };
+    expect(validateRules([{ ...valid, condition: contact }])[0].condition).toEqual(contact);
+    expect(() => validateRules([{ ...valid, condition: { type: 'incidentContactInfo', kinds: [] } }])).toThrow(/kinds/);
+    expect(() => validateRules([{ ...valid, condition: { type: 'incidentContactInfo', kinds: ['email'] } }])).toThrow(
+      /kinds/,
+    );
+  });
+
   it('rejects unknown case types, duplicate ids, and a missing verified flag', () => {
     expect(() => validateRules([{ ...valid, caseTypes: ['divorce'] }])).toThrow(/caseTypes/);
     expect(() => validateRules([valid, valid])).toThrow(/more than one rule/);
     expect(() => validateRules([{ ...valid, verified: undefined }])).toThrow(/verified/);
+  });
+});
+
+// Petition Review Flags. All numbers and addresses are fictional (555-01xx).
+describe('place and contact details', () => {
+  it('asks about a missing place only when the input has a place field', () => {
+    const withoutField = runChecks({ ...answered, caseType: 'not-sure', incidents: [incident('a', { place: undefined })] }, rules);
+    expect(ruleIds(withoutField)).not.toContain('incident-missing-place');
+
+    const blank = runChecks({ ...answered, caseType: 'not-sure', incidents: [incident('a', { place: '  ' })] }, rules);
+    expect(blank.map((f) => [f.ruleId, f.incidentId])).toEqual([['incident-missing-place', 'a']]);
+
+    const given = runChecks({ ...answered, caseType: 'not-sure', incidents: [incident('a', { place: 'At work' })] }, rules);
+    expect(given).toEqual([]);
+  });
+
+  it('finds a phone number in the description and reports where it is', () => {
+    const description = `${longText} Call me at 260-555-0142 if needed.`;
+    const [found] = runChecks(
+      { ...answered, caseType: 'not-sure', incidents: [incident('a', { description, place: 'At work' })] },
+      rules,
+    );
+    expect(found.ruleId).toBe('incident-contact-info');
+    expect(found.matches).toHaveLength(1);
+    const [match] = found.matches!;
+    expect(match).toMatchObject({ kind: 'phone', field: 'description' });
+    expect(description.slice(match.start, match.end)).toBe('260-555-0142');
+  });
+
+  it('finds a street address in the place field', () => {
+    const [found] = runChecks(
+      { ...answered, caseType: 'stalking', incidents: [incident('a', { place: 'Apartment at 412 Oak Street' }), incident('b', { place: 'Park' })] },
+      rules,
+    );
+    expect(found.ruleId).toBe('incident-contact-info');
+    expect(found.incidentId).toBe('a');
+    expect(found.matches).toEqual([{ kind: 'address', field: 'place', start: 13, end: 27 }]);
+  });
+
+  it('detects phone, SSN, and address formats without overlaps', () => {
+    const text = 'Phone (260) 555-0187, SSN 000-55-0100, lives at 1200 North Main St. Waited 2 hours on Main Street.';
+    const spans = findContactDetails(text, ['phone', 'ssn', 'address']);
+    expect(spans.map((s) => [s.kind, text.slice(s.start, s.end)])).toEqual([
+      ['phone', '(260) 555-0187'],
+      ['ssn', '000-55-0100'],
+      ['address', '1200 North Main St.'],
+    ]);
+  });
+
+  it('does not take everyday phrases for street addresses', () => {
+    const text = 'He showed up at 9 at my place. He grabbed me 2 times in court. 3 more days this way.';
+    expect(findContactDetails(text, ['address'])).toEqual([]);
+    expect(findContactDetails('She lives at 88 5th Avenue now, or 412 Oak street.', ['address'])).toHaveLength(2);
+  });
+
+  it('finds contact details in the evidence field', () => {
+    const [found] = runChecks(
+      { ...answered, caseType: 'not-sure', incidents: [incident('a', { place: 'At work', evidence: 'Witness: my sister, (260) 555-0199' })] },
+      rules,
+    );
+    expect(found.ruleId).toBe('incident-contact-info');
+    expect(found.matches).toEqual([{ kind: 'phone', field: 'evidence', start: 20, end: 34 }]);
+  });
+
+  it('gives a new key when the contact details in an incident change', () => {
+    const keyFor = (description: string) =>
+      runChecks({ ...answered, caseType: 'not-sure', incidents: [incident('a', { description, place: 'At work' })] }, rules)[0].key;
+    const first = keyFor(`${longText} Call 260-555-0142.`);
+    expect(keyFor(`${longText} Call 260-555-0142. Really.`)).toBe(first);
+    expect(keyFor(`${longText} Call 260-555-0142 or 260-555-0143.`)).not.toBe(first);
+  });
+
+  it('only looks for the kinds the rule names', () => {
+    expect(findContactDetails('Call 260-555-0141', ['address'])).toEqual([]);
   });
 });
 
@@ -194,7 +292,7 @@ describe('questions that follow the petition (PO-0100)', () => {
 
 describe('questions about the person (Westlaw research)', () => {
   const ask = (input: Partial<Parameters<typeof runChecks>[0]>) =>
-    runChecks({ caseType: 'stalking', incidents: [incident('a'), incident('b')], ...input }, rules).map((f) => f.ruleId);
+    runChecks({ ...unanswered, caseType: 'stalking', incidents: [incident('a'), incident('b')], ...input }, rules).map((f) => f.ruleId);
 
   it('asks once about a present threat, for every order type, once she has incidents', () => {
     expect(ask({ askedToStop: 'no' })).toEqual(['present-threat']);

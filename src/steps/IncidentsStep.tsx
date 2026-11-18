@@ -3,7 +3,7 @@ import type { Finding } from '../checker';
 import { DEMO_MODE } from '../config';
 import { copy, fill } from '../content';
 import { ManualExtractor } from '../organizer';
-import { LENA_FOUR_INCIDENTS, LENA_ONE_INCIDENT } from '../samples/lena';
+import { LENA_FOUR_INCIDENTS, LENA_FOUR_PLACES, LENA_ONE_INCIDENT, LENA_ONE_PLACES } from '../samples/lena';
 import { ADD_INCIDENT_ID, ORGANIZE_HEADING_ID } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
 import { useFindings } from '../state/findings';
@@ -25,8 +25,9 @@ export function IncidentsStep() {
   }, [state.focusTarget, dispatch]);
 
   // Demo only: turns a fictional sample story into incidents, and keeps the story too.
-  async function loadSample(story: string) {
-    const incidents = await new ManualExtractor().extract(story);
+  async function loadSample(story: string, places: string[]) {
+    const split = await new ManualExtractor().extract(story);
+    const incidents = split.map((incident, i) => ({ ...incident, place: places[i] ?? '' }));
     dispatch({ type: 'loadSample', story, incidents });
   }
 
@@ -47,10 +48,10 @@ export function IncidentsStep() {
         <div className="dev-only">
           <p className="hint">{c.sampleNote}</p>
           <div className="button-row">
-            <button type="button" className="btn" onClick={() => loadSample(LENA_ONE_INCIDENT)}>
+            <button type="button" className="btn" onClick={() => loadSample(LENA_ONE_INCIDENT, LENA_ONE_PLACES)}>
               {c.sampleOne}
             </button>
-            <button type="button" className="btn" onClick={() => loadSample(LENA_FOUR_INCIDENTS)}>
+            <button type="button" className="btn" onClick={() => loadSample(LENA_FOUR_INCIDENTS, LENA_FOUR_PLACES)}>
               {c.sampleFour}
             </button>
           </div>

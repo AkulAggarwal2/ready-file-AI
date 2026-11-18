@@ -1,0 +1,47 @@
+{
+  "_note": "Optional safety questions from the Petition Review Flags design. ReadyFile asks them on the Questions step. Desk shows a \"yes\" as a staff flag (staffLabel). The team must verify the wording.",
+  "questions": [
+    {
+      "id": "recent",
+      "question": "Did an incident happen in the last 3 days?",
+      "staffLabel": "Recent incident",
+      "sourceCitation": "Petition Review Flags design (CS4535 Team 4). TODO: team to supply source",
+      "verified": false
+    },
+    {
+      "id": "threat",
+      "question": "Has the person threatened to kill you or someone close to you?",
+      "staffLabel": "Threat to kill",
+      "sourceCitation": "Petition Review Flags design (CS4535 Team 4). TODO: team to supply source",
+      "verified": false
+    },
+    {
+      "id": "weapon",
+      "question": "Does the person have access to a gun or other weapon?",
+      "staffLabel": "Weapon access",
+      "sourceCitation": "Petition Review Flags design (CS4535 Team 4). TODO: team to supply source",
+      "verified": false
+    },
+    {
+      "id": "choke",
+      "question": "Has the person ever choked or strangled you?",
+      "staffLabel": "Strangulation",
+      "sourceCitation": "Petition Review Flags design (CS4535 Team 4). TODO: team to supply source",
+      "verified": false
+    },
+    {
+      "id": "kids",
+      "question": "Are children at risk?",
+      "staffLabel": "Children at risk",
+      "sourceCitation": "Petition Review Flags design (CS4535 Team 4). TODO: team to supply source",
+      "verified": false
+    },
+    {
+      "id": "release",
+      "question": "Is the person about to be released or likely to contact you soon?",
+      "staffLabel": "Upcoming contact",
+      "sourceCitation": "Petition Review Flags design (CS4535 Team 4). TODO: team to supply source",
+      "verified": false
+    }
+  ]
+}

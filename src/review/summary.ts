@@ -1,5 +1,5 @@
 import { ACTS, type Act, type CaseType, type Relationship, type YesNoUnknown } from '../checker';
-import { copy, fill } from '../content';
+import { copy, fill, safetyQuestions, type SafetyAnswer } from '../content';
 import type { Incident } from '../organizer';
 
 const exactDate = (incident: Incident) =>
@@ -34,6 +34,13 @@ export function describeDate(incident: Incident): string {
   return copy.summary.dateUnknown;
 }
 
+/** The safety questions she answered, in question order, as "question answer" lines. */
+export function safetyLines(answers: Record<string, SafetyAnswer>): string[] {
+  return safetyQuestions
+    .filter((q) => answers[q.id])
+    .map((q) => fill(copy.summary.safetyAnswer, { question: q.question, answer: copy.safety.answers[answers[q.id]] }));
+}
+
 /** How many incidents fit in question 8 of the petition (PO-0100). */
 export const FORM_INCIDENT_SLOTS = 3;
 
@@ -63,7 +70,7 @@ export interface SummarySection {
  * The summary in the order of the court's petition (PO-0100): how she knows
  * the person (question 2), what the person did (question 7), then each
  * incident with the details question 8 asks for, in the order of her list.
- * Empty details are left out.
+ * Empty details are left out. Her safety answers come last.
  */
 export function summarySections(
   caseType: CaseType,
@@ -71,6 +78,7 @@ export function summarySections(
   story = '',
   relationship: Relationship | null = null,
   person: PersonAnswers = NO_ANSWERS,
+  safetyAnswers: Record<string, SafetyAnswer> = {},
 ): SummarySection[] {
   const s = copy.summary;
   const header: string[] = [fill(s.caseType, { caseType: copy.start.caseTypes[caseType] })];
@@ -121,6 +129,9 @@ export function summarySections(
   // Her own words come after the dated incidents.
   if (story.trim()) sections.push({ heading: s.story, lines: [], text: story.trim() });
 
+  const safety = safetyLines(safetyAnswers);
+  if (safety.length > 0) sections.push({ heading: s.safety, lines: safety });
+
   return sections;
 }
 
@@ -131,8 +142,9 @@ export function buildSummary(
   story = '',
   relationship: Relationship | null = null,
   person: PersonAnswers = NO_ANSWERS,
+  safetyAnswers: Record<string, SafetyAnswer> = {},
 ): string {
-  return summaryText(summarySections(caseType, incidents, story, relationship, person));
+  return summaryText(summarySections(caseType, incidents, story, relationship, person, safetyAnswers));
 }
 
 /** The sections as plain text, one line each, with a blank line before each heading. */

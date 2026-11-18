@@ -76,6 +76,11 @@ describe('extractors', () => {
 });
 
 describe('mergeIncidents', () => {
+  it('keeps both places', () => {
+    const merged = mergeIncidents(createIncident({ place: 'At my car' }), createIncident({ place: 'Outside my work' }));
+    expect(merged.place).toBe('At my car; Outside my work');
+  });
+
   it('joins descriptions and evidence and keeps the first known date and type', () => {
     const merged = mergeIncidents(
       createIncident({ description: 'First.', evidence: 'Photo' }),

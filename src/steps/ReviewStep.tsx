@@ -12,7 +12,7 @@ export function ReviewStep() {
   const [copyStatus, setCopyStatus] = useState('');
   const c = copy.review;
   const caseType = state.caseType ?? 'not-sure';
-  const sections = summarySections(caseType, state.incidents, state.story, state.relationship, state);
+  const sections = summarySections(caseType, state.incidents, state.story, state.relationship, state, state.safetyAnswers);
   const summary = summaryText(sections);
 
   async function copySummary() {

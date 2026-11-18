@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { ACTS, type Finding } from '../checker';
+import { useEffect, useState, type ReactNode } from 'react';
+import { ACTS, type ContactMatch, type Finding } from '../checker';
 import { DEMO_MODE } from '../config';
 import { copy, fill } from '../content';
 import { ADD_INCIDENT_ID, ORGANIZE_HEADING_ID, type Action, type Step } from '../state/appState';
@@ -10,12 +10,14 @@ import {
   actId,
   dateKindId,
   descriptionId,
+  evidenceId,
   exactDateId,
   feelingId,
   firsthandId,
   placeId,
   presentId,
 } from './IncidentEditor';
+import { SafetyQuestions } from './SafetyQuestions';
 import { RELATIONSHIP_ID } from './StartStep';
 import { ASKED_TO_STOP_ID, CONVICTED_ID, THREAT_ID } from './StoryStep';
 
@@ -29,10 +31,18 @@ type ConditionType = Finding['conditionType'];
  * - "elsewhere": answered on another step, with its own "about" label.
  */
 type Place =
-  | { kind: 'incident'; field: (incidentId: string) => string }
+  | { kind: 'incident'; field: (incidentId: string, finding: Finding) => string }
   | { kind: 'list'; target: string }
-  | { kind: 'first'; field: (incidentId: string) => string }
+  | { kind: 'first'; field: (incidentId: string, finding: Finding) => string }
   | { kind: 'elsewhere'; step: Step; target: string; about: 'aboutRelationship' | 'aboutPerson'; returnTo?: Step };
+
+/** The first field with a possible contact detail, in the order the editor shows them. */
+function contactField(incidentId: string, finding: Finding): string {
+  const fields = new Set(finding.matches?.map((match) => match.field));
+  if (!fields.has('description') && fields.has('place')) return placeId(incidentId);
+  if (!fields.has('description') && fields.has('evidence')) return evidenceId(incidentId);
+  return descriptionId(incidentId);
+}
 
 // Every condition must be listed here, so a new one cannot be missed.
 const PLACES: Record<ConditionType, Place> = {
@@ -46,6 +56,9 @@ const PLACES: Record<ConditionType, Place> = {
   incidentNotFirsthand: { kind: 'incident', field: firsthandId },
   incidentActsMissing: { kind: 'incident', field: (id) => actId(id, ACTS[0]) },
   incidentWordsBelow: { kind: 'incident', field: descriptionId },
+  incidentContactInfo: { kind: 'incident', field: contactField },
+  // ReadyFile doesn't collect respondent details, so it never asks this one.
+  respondentDobBlank: { kind: 'list', target: ADD_INCIDENT_ID },
   // Start's own button moves on to the incidents, so this brings her back to the questions.
   relationshipNotHousehold: {
     kind: 'elsewhere',
@@ -72,7 +85,7 @@ function addMoreAction(finding: Finding, firstIncidentId: string | undefined): A
     case 'first': {
       const id = place.kind === 'incident' ? finding.incidentId : firstIncidentId;
       return id
-        ? { type: 'addMore', focusTarget: place.field(id), expandId: id }
+        ? { type: 'addMore', focusTarget: place.field(id, finding), expandId: id }
         : { type: 'addMore', focusTarget: ADD_INCIDENT_ID };
     }
   }
@@ -83,6 +96,19 @@ function aboutLabel(finding: Finding, incidentIndex: number): string {
   const place = PLACES[finding.conditionType];
   if (place.kind === 'elsewhere') return copy.check[place.about];
   return incidentIndex === -1 ? copy.check.allIncidents : fill(copy.timeline.incident, { n: incidentIndex + 1 });
+}
+
+/** Her words, with possible contact details marked. The words themselves are unchanged. */
+function markMatches(text: string, matches: ContactMatch[]): ReactNode[] {
+  const parts: ReactNode[] = [];
+  let at = 0;
+  for (const match of matches) {
+    if (match.start > at) parts.push(text.slice(at, match.start));
+    parts.push(<mark key={match.start}>{text.slice(match.start, match.end)}</mark>);
+    at = match.end;
+  }
+  if (at < text.length) parts.push(text.slice(at));
+  return parts;
 }
 
 const toggleId = (key: string) => `question-${key}-toggle`;
@@ -150,10 +176,13 @@ export function CheckStep() {
                 {isOpen && (
                   <div id={panelId(finding.key)} className="question-body">
                     {index !== -1 && (
-                      <>
-                        <p>{fill(c.aboutIncident, { n: index + 1 })}</p>
-                        <blockquote>{state.incidents[index].description || copy.common.ellipsis}</blockquote>
-                      </>
+                      <IncidentQuote
+                        n={index + 1}
+                        description={state.incidents[index].description}
+                        place={state.incidents[index].place}
+                        evidence={state.incidents[index].evidence}
+                        matches={finding.matches}
+                      />
                     )}
                     <p id={questionTextId(finding.key)} className="question-text">
                       {finding.questionText}
@@ -190,6 +219,8 @@ export function CheckStep() {
         </ul>
       )}
 
+      <SafetyQuestions />
+
       <div className="button-row">
         <button type="button" className="btn" onClick={() => dispatch({ type: 'goTo', step: 'story' })}>
           {c.back}
@@ -199,5 +230,41 @@ export function CheckStep() {
         </button>
       </div>
     </div>
+  );
+}
+
+interface QuoteProps {
+  n: number;
+  description: string;
+  place: string;
+  evidence: string;
+  matches?: ContactMatch[];
+}
+
+/**
+ * The incident a question is about. For contact details, the place and the
+ * evidence are shown too if they have any.
+ */
+function IncidentQuote({ n, description, place, evidence, matches = [] }: QuoteProps) {
+  const c = copy.check;
+  const inDescription = matches.filter((match) => match.field === 'description');
+  const inPlace = matches.filter((match) => match.field === 'place');
+  const inEvidence = matches.filter((match) => match.field === 'evidence');
+  return (
+    <>
+      <p>{fill(c.aboutIncident, { n })}</p>
+      <blockquote>{description ? markMatches(description, inDescription) : copy.common.ellipsis}</blockquote>
+      {inPlace.length > 0 && (
+        <p>
+          {c.aboutPlace} <mark>{place}</mark>
+        </p>
+      )}
+      {inEvidence.length > 0 && (
+        <p>
+          {c.aboutEvidence} {markMatches(evidence, inEvidence)}
+        </p>
+      )}
+      {matches.length > 0 && <p className="hint">{c.matchesHint}</p>}
+    </>
   );
 }

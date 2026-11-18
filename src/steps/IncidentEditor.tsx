@@ -10,6 +10,7 @@ export const dateKindId = (incidentId: string) => `${incidentId}-date-kind`;
 export const descriptionId = (incidentId: string) => `${incidentId}-description`;
 export const exactDateId = (incidentId: string) => `${incidentId}-date`;
 export const placeId = (incidentId: string) => `${incidentId}-place`;
+export const evidenceId = (incidentId: string) => `${incidentId}-evidence`;
 export const presentId = (incidentId: string) => `${incidentId}-present`;
 export const firsthandId = (incidentId: string) => `${incidentId}-firsthand`;
 export const feelingId = (incidentId: string) => `${incidentId}-feeling`;
@@ -184,12 +185,12 @@ export function IncidentFields({ incident }: { incident: Incident }) {
         onChange={(e) => update({ feeling: e.target.value })}
       />
 
-      <label htmlFor={`${id}-evidence`}>{c.evidenceLabel}</label>
+      <label htmlFor={evidenceId(id)}>{c.evidenceLabel}</label>
       <p id={`${id}-evidence-hint`} className="hint">
         {c.evidenceHint}
       </p>
       <textarea
-        id={`${id}-evidence`}
+        id={evidenceId(id)}
         rows={2}
         aria-describedby={`${id}-evidence-hint`}
         value={incident.evidence}

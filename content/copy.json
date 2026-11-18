@@ -182,7 +182,10 @@
     "unverified": "Unverified rule: {ruleId}",
     "allIncidents": "About all of your incidents",
     "aboutRelationship": "About how you know this person",
-    "aboutPerson": "About this person"
+    "aboutPerson": "About this person",
+    "aboutPlace": "Place:",
+    "aboutEvidence": "Evidence or witnesses:",
+    "matchesHint": "The marked text may be contact details. Nothing is changed unless you change it."
   },
   "review": {
     "heading": "Review your incidents",
@@ -238,7 +241,9 @@
     },
     "incidentAttachment": "Incident #{n} (Attachment 8a)",
     "attachmentNote": "The form has room for 3 incidents. Write incidents 4 and up on a separate page labeled Attachment 8a, attach it, and count it in question 10 (number of pages attached).",
-    "convicted": "The person was convicted of a sex crime against me. If they must register for life, the order can last with no end date (question 2)."
+    "convicted": "The person was convicted of a sex crime against me. If they must register for life, the order can last with no end date (question 2).",
+    "safety": "Safety questions:",
+    "safetyAnswer": "{question} {answer}"
   },
   "badges": {
     "heading": "Questions that may come up",
@@ -259,7 +264,9 @@
     "presentThreatMissing": "Danger now?",
     "askedToStopMissing": "Asked them to stop?",
     "incidentsOutOfOrder": "Dates out of order",
-    "convictionMissing": "Conviction?"
+    "convictionMissing": "Conviction?",
+    "incidentContactInfo": "May include contact details",
+    "respondentDobBlank": "Date of birth missing"
   },
   "timeline": {
     "heading": "Timeline",
@@ -281,5 +288,16 @@
     "undone": "Done. Your change was undone. You now have {count}.",
     "expanded": "Editing incident {n}.",
     "collapsed": "Finished editing incident {n}."
+  },
+  "safety": {
+    "heading": "Safety questions",
+    "intro": "These questions are optional. Your answers are shown to court staff as you give them. They do not change whether your petition is accepted.",
+    "answers": {
+      "yes": "Yes",
+      "no": "No",
+      "unsure": "Not sure"
+    },
+    "clear": "Clear answer",
+    "unverified": "Unverified question: {id}"
   }
 }

@@ -7,6 +7,7 @@ import { IDLE_TIMEOUT_MS, TIMEOUT_WARNING_SECONDS } from '../src/config';
 import { copy, fill } from '../src/content';
 import { leaveSite } from '../src/safety/leaveSite';
 import { LENA_ONE_INCIDENT } from '../src/samples/lena';
+import { initialState, reducer } from '../src/state/appState';
 import {
   STALKING_QUESTION,
   addIncident,
@@ -40,10 +41,11 @@ describe('1. Lena, one incident', () => {
     await toQuestions(user);
 
     // The count is visible and nothing is open until she opens it. The sample
-    // has no place, people, or feelings, and she has not said whether he is a
-    // danger now or whether she told him to stop, so those questions come up too.
-    expect(screen.getByText(fill(copy.check.total, { total: 6, open: 6 }))).toBeInTheDocument();
-    expect(questionToggles()).toHaveLength(6);
+    // fills in her place, but has no people or feelings, and she has not said
+    // whether he is a danger now or whether she told him to stop, so those
+    // questions come up too.
+    expect(screen.getByText(fill(copy.check.total, { total: 5, open: 5 }))).toBeInTheDocument();
+    expect(questionToggles()).toHaveLength(5);
     expect(openQuestionText()).toBeNull();
 
     await user.click(questionToggles()[0]);
@@ -53,7 +55,7 @@ describe('1. Lena, one incident', () => {
 
     await user.click(screen.getByRole('button', { name: copy.check.continueAsIs }));
     expect(screen.getByText(copy.check.answered)).toBeInTheDocument();
-    expect(screen.getByText(fill(copy.check.total, { total: 6, open: 5 }))).toBeInTheDocument();
+    expect(screen.getByText(fill(copy.check.total, { total: 5, open: 4 }))).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
 
     expect(screen.getByRole('heading', { level: 1, name: copy.review.heading })).toBeInTheDocument();
@@ -511,5 +513,63 @@ describe('13. Sexual assault', () => {
     await addIncident(user, 'He waited outside my work for two hours and followed my car when I left for home.');
     await user.click(screen.getByRole('button', { name: copy.organize.confirm }));
     expect(screen.queryByRole('combobox', { name: copy.story.convictedLabel })).toBeNull();
+  });
+});
+
+// Petition Review Flags, petitioner side. All data is fictional.
+describe('14. Petition review flags', () => {
+  it('marks a possible phone number, never changes her words, and "Continue as is" still works', async () => {
+    const user = renderApp();
+    await begin(user, 'Harassment');
+    const words = 'He waited by my car after my shift and followed me home. Call me at 260-555-0142 if needed.';
+    await addIncident(user, words);
+    await user.type(screen.getByRole('textbox', { name: copy.incident.placeLabel }), 'Outside my job');
+    await toQuestions(user);
+
+    // Harassment asks other questions too, so open this one by its badge.
+    await user.click(questionToggle(copy.badges.incidentContactInfo));
+    expect(openQuestionText()).toMatch(/confidential section/);
+    expect(document.querySelector('.question-body mark')?.textContent).toBe('260-555-0142');
+    expect(document.querySelector('.question-body blockquote')?.textContent).toBe(words);
+
+    await user.click(screen.getByRole('button', { name: copy.check.continueAsIs }));
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+    expect(summaryText()).toContain(words);
+    expect(summaryText()).toContain(fill(copy.summary.place, { place: 'Outside my job' }));
+  });
+
+  it('safety questions are optional, can be cleared, and only answered ones reach the summary', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await loadSample(user, 'one');
+    await toQuestions(user);
+
+    expect(screen.getByRole('heading', { level: 2, name: copy.safety.heading })).toBeInTheDocument();
+    const choke = screen.getByRole('group', { name: /choked or strangled/ });
+    await user.click(within(choke).getByRole('radio', { name: copy.safety.answers.yes }));
+    const weapon = screen.getByRole('group', { name: /gun or other weapon/ });
+    await user.click(within(weapon).getByRole('radio', { name: copy.safety.answers.unsure }));
+    await user.click(within(weapon).getByRole('button', { name: new RegExp(copy.safety.clear) }));
+    expect(within(weapon).getByRole('radio', { name: copy.safety.answers.unsure })).not.toBeChecked();
+
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+    expect(summaryText()).toContain(copy.summary.safety);
+    expect(summaryText()).toContain('Has the person ever choked or strangled you? Yes');
+    expect(summaryText()).not.toContain('weapon');
+  });
+
+  it('quick exit and timeout (both reset) clear safety answers', () => {
+    const answered = reducer(initialState, { type: 'setSafetyAnswer', id: 'choke', answer: 'yes' });
+    expect(answered.safetyAnswers).toEqual({ choke: 'yes' });
+    expect(reducer(answered, { type: 'reset' }).safetyAnswers).toEqual({});
+  });
+
+  it('with no safety answers, the summary has no safety section', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await loadSample(user, 'one');
+    await toQuestions(user);
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+    expect(summaryText()).not.toContain(copy.summary.safety);
   });
 });
