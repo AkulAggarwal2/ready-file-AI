@@ -3,11 +3,6 @@ import { copy } from '../content';
 
 export type Theme = 'light' | 'dark';
 
-/** The device setting. jsdom has no matchMedia, so tests start in light mode. */
-export function preferredTheme(): Theme {
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
-
 /** Switches the color tokens in styles.css and the browser's address bar color. */
 export function applyTheme(theme: Theme): void {
   document.documentElement.dataset.theme = theme;
@@ -16,7 +11,7 @@ export function applyTheme(theme: Theme): void {
 }
 
 // The choice is kept in memory only (no storage, section 8), so each visit
-// starts from the device setting.
+// starts in light mode.
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>(() =>
     document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light',

@@ -40,7 +40,7 @@
   },
   "start": {
     "heading": "Get your story ready to file",
-    "intro": "This tool helps you organize what happened before you fill out the court's online form for a protection order. It asks the kind of questions court staff ask when they help people in person.",
+    "intro": "ReadyFile gets the incidents part of your protection order petition ready (question 8 on the court's form). When you finish, you copy it into the court's online form. It asks the kind of questions court staff ask in person.",
     "notFiling": "This tool does not file anything for you. It does not give legal advice.",
     "safetyHeading": "Before you start",
     "safetyNote": "If someone else uses this device, they may see what you type. Nothing is saved. To leave fast, use Quick exit at the top of the screen. Everything is cleared after {minutes} minutes with no activity.",
@@ -97,7 +97,7 @@
   },
   "organize": {
     "heading": "Add your incidents",
-    "intro": "An incident is one time something happened. Add each one with the date, if you know it, and a few details. Short notes are fine. On the next step, you can tell your story in your own words.",
+    "intro": "An incident is one time something happened. Add each one with the date, if you know it. Short notes are fine.",
     "empty": "There are no incidents yet. You can add one below.",
     "add": "Add an incident",
     "back": "Back",
@@ -138,15 +138,14 @@
       "empty": "No description yet."
     },
     "edit": "Edit",
-    "done": "Done editing",
+    "done": "Done",
     "moveUp": "Move up",
     "moveDown": "Move down",
     "dragHandle": "Drag to move",
-    "reorderHint": "Use Move up and Move down to change the order of incidents. On a computer, you can also drag. Each incident keeps its number on every step and in your summary.",
-    "descriptionHint": "Short notes are fine. For example, what the person did or said.",
+    "reorderHint": "To change the order, use Move up and Move down, or drag on a computer. Each incident has the same number on every step and in your summary.",
     "futureHint": "This date is after today. Please check it.",
     "actsLegend": "What did the person do? (optional)",
-    "actsHint": "Check all that fit. These match question 7 on the court's form.",
+    "actsHint": "Check all that fit (question 7 on the court's form).",
     "acts": {
       "attempted-harm": "Tried to hurt me",
       "threatened-harm": "Threatened to hurt me",
@@ -175,6 +174,7 @@
     "totalNone": "There are no questions right now.",
     "aboutIncident": "About incident {n}:",
     "answered": "Done",
+    "backToQuestion": "Back to the question",
     "addMore": "Add more",
     "continueAsIs": "Continue as is",
     "toReview": "Go to review",
@@ -247,7 +247,7 @@
   },
   "badges": {
     "heading": "Questions that may come up",
-    "summary": "Questions for the next step: {count}. You can add details now or answer them later.",
+    "summary": "Court staff may ask these on the Questions step. Number of questions: {count}. Choose one to add details now. The number goes down as you add details.",
     "summaryNone": "No questions are expected for this list.",
     "perIncident": "Questions for this incident:",
     "none": "No questions",

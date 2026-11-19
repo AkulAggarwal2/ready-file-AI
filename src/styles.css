@@ -60,7 +60,7 @@
 
 /* Dark mode: the same deep blue, lightened, on navy grays. Same contrast rules
    as above. Screen only, so the printed summary always uses the light colors.
-   main.tsx sets data-theme from the device setting; the header switch changes it. */
+   main.tsx starts every visit in light mode; the header switch changes it. */
 @media screen {
   :root[data-theme='dark'] {
     color-scheme: dark;
@@ -837,6 +837,20 @@ blockquote {
   color: var(--success-text);
 }
 
+/* A question chip that opens its incident at the field it is about. */
+.chip-button {
+  min-height: 32px;
+  border: 1px solid currentColor;
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chip-button:hover {
+  text-decoration: underline;
+}
+
 button:disabled {
   cursor: not-allowed;
 }
@@ -942,17 +956,14 @@ button:disabled {
     flex: 1 1 100%;
   }
 
-  /* Incident cards keep their actions two to a row (Edit gets a row of its
-     own), so a list of incidents does not turn into screens of buttons. */
+  /* Incident cards keep Edit, Move up, and Move down on one row (two to a
+     row on the smallest phones), so a list of incidents does not turn into
+     screens of buttons. */
   .card-actions > .btn {
-    flex: 1 1 calc(50% - var(--space-3));
-    padding-left: var(--space-3);
-    padding-right: var(--space-3);
+    flex: 1 1 5.5rem;
+    padding-left: var(--space-2);
+    padding-right: var(--space-2);
     font-size: var(--text-sm);
-  }
-
-  .card-actions > .btn[aria-expanded] {
-    flex-basis: 100%;
   }
 
   .content {
@@ -1106,9 +1117,18 @@ legend {
 }
 
 .header-row {
-  /* Keep brand and Quick exit on one centered row, even on a 320px phone. */
+  /* Brand on the left, the theme switch and Quick exit on the right, on one
+     row even on a 320px phone. The switch sits away from the name, so it
+     doesn't read as a logo. */
   flex-wrap: nowrap;
+  justify-content: space-between;
   gap: var(--space-2) clamp(0.5rem, 3vw, var(--space-4));
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.5rem, 3vw, var(--space-4));
 }
 
 .question-toggle {
@@ -1233,6 +1253,63 @@ select {
 .card-fields .choice {
   white-space: normal;
   text-align: center;
+  /* Tighter than the Start options, since an incident has seven of them. */
+  min-height: 44px;
+  margin: var(--space-1) 0;
+  padding-top: var(--space-1);
+  padding-bottom: var(--space-1);
+}
+
+/* Wider screens: short fields and the act choices sit two to a row, so an
+   open incident takes less scrolling. */
+@media (min-width: 40rem) {
+  .field-pair,
+  .act-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 var(--space-4);
+    align-items: start;
+  }
+
+  .act-grid {
+    gap: var(--space-2);
+  }
+
+  .card-fields .act-grid .choice {
+    margin: 0;
+    height: 100%;
+  }
+}
+
+/* The way back to a question, stuck to the bottom of the screen. */
+.return-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  margin: 0 calc(-1 * var(--space-4));
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.return-bar .btn {
+  flex: 0 1 24rem;
+}
+
+/* WCAG 2.4.11: a field that gets keyboard focus never scrolls in behind the bar. */
+html:has(.return-bar) {
+  scroll-padding-bottom: 5rem;
+}
+
+/* Desktop (Team 1): use more of the width. */
+@media (min-width: 64rem) {
+  .content,
+  .header-row,
+  .resources-panel {
+    max-width: 52rem;
+  }
 }
 
 /* The rest-of-the-form checklist on Review reads as a list, so it is left-aligned. */

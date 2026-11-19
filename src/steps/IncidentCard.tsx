@@ -7,6 +7,7 @@ import { headingId, moveButtonId } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
 import { ConfirmButton } from '../ui/ConfirmButton';
 import { IncidentFields } from './IncidentEditor';
+import { addMoreAction } from './questionTargets';
 
 interface Props {
   incident: Incident;
@@ -21,7 +22,11 @@ interface Props {
   onDropHere: (index: number) => void;
 }
 
-/** One incident as a card: date, how it happened, and a short preview. Editing opens inline. */
+/**
+ * One incident as a card: date, how it happened, and a short preview. Editing
+ * opens inline, one card at a time. Merge and Delete are inside the open card,
+ * so a closed card stays short.
+ */
 export function IncidentCard({
   incident,
   index,
@@ -40,6 +45,11 @@ export function IncidentCard({
   const fieldsId = `${id}-fields`;
   const when =
     date.kind === 'exact' && date.value ? formatExactDate(date.value) : describeDate(incident);
+
+  function finishEditing() {
+    dispatch({ type: 'toggleIncident', id });
+    document.getElementById(headingId(id))?.focus();
+  }
 
   function startDrag(event: DragEvent<HTMLSpanElement>) {
     event.dataTransfer.effectAllowed = 'move';
@@ -80,9 +90,17 @@ export function IncidentCard({
         {findings.length === 0 ? (
           <li className="chip chip-success">{copy.badges.none}</li>
         ) : (
+          // Each question opens this incident at the field it is about.
           findings.map((finding) => (
-            <li key={finding.key} className="chip chip-warning">
-              {copy.badges[finding.conditionType]}
+            <li key={finding.key}>
+              <button
+                type="button"
+                className="chip chip-warning chip-button"
+                aria-describedby={headingId(id)}
+                onClick={() => dispatch(addMoreAction(finding, undefined, false))}
+              >
+                {copy.badges[finding.conditionType]}
+              </button>
             </li>
           ))
         )}
@@ -124,22 +142,27 @@ export function IncidentCard({
       {expanded && (
         <div id={fieldsId} className="card-fields">
           <IncidentFields incident={incident} />
+
+          <div className="button-row card-actions">
+            <button type="button" className="btn btn-primary" aria-describedby={headingId(id)} onClick={finishEditing}>
+              {c.done}
+            </button>
+          </div>
+          <div className="button-row card-actions">
+            {index < total - 1 && (
+              <button type="button" className="btn" onClick={() => dispatch({ type: 'mergeWithNext', id })}>
+                {c.merge}
+              </button>
+            )}
+            <ConfirmButton
+              label={c.delete}
+              question={c.deleteQuestion}
+              confirmLabel={c.deleteYes}
+              onConfirm={() => dispatch({ type: 'deleteIncident', id })}
+            />
+          </div>
         </div>
       )}
-
-      <div className="button-row card-actions">
-        {index < total - 1 && (
-          <button type="button" className="btn" onClick={() => dispatch({ type: 'mergeWithNext', id })}>
-            {c.merge}
-          </button>
-        )}
-        <ConfirmButton
-          label={c.delete}
-          question={c.deleteQuestion}
-          confirmLabel={c.deleteYes}
-          onConfirm={() => dispatch({ type: 'deleteIncident', id })}
-        />
-      </div>
     </section>
   );
 }
