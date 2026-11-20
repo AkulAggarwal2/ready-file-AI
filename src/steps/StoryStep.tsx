@@ -4,6 +4,7 @@ import { copy } from '../content';
 import type { PersonDetails } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
 import { StepHeading } from '../ui/StepHeading';
+import { StoryDictation } from './StoryDictation';
 
 export const THREAT_ID = 'threat';
 export const ASKED_TO_STOP_ID = 'asked-to-stop';
@@ -35,6 +36,7 @@ export function StoryStep() {
       <p id="story-hint" className="hint">
         {c.hint}
       </p>
+      <StoryDictation />
       <textarea
         id="story"
         rows={12}

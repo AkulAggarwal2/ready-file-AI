@@ -7,6 +7,7 @@ import { headingId, moveButtonId } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
 import { ConfirmButton } from '../ui/ConfirmButton';
 import { IncidentFields } from './IncidentEditor';
+import { IncidentVoiceGuide } from './IncidentVoiceGuide';
 
 interface Props {
   incident: Incident;
@@ -123,7 +124,9 @@ export function IncidentCard({
 
       {expanded && (
         <div id={fieldsId} className="card-fields">
-          <IncidentFields incident={incident} />
+          <IncidentVoiceGuide incident={incident}>
+            <IncidentFields incident={incident} />
+          </IncidentVoiceGuide>
         </div>
       )}
 

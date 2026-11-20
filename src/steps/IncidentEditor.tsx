@@ -10,6 +10,7 @@ export const dateKindId = (incidentId: string) => `${incidentId}-date-kind`;
 export const descriptionId = (incidentId: string) => `${incidentId}-description`;
 export const exactDateId = (incidentId: string) => `${incidentId}-date`;
 export const placeId = (incidentId: string) => `${incidentId}-place`;
+export const howId = (incidentId: string) => `${incidentId}-how`;
 export const evidenceId = (incidentId: string) => `${incidentId}-evidence`;
 export const presentId = (incidentId: string) => `${incidentId}-present`;
 export const firsthandId = (incidentId: string) => `${incidentId}-firsthand`;
@@ -99,9 +100,9 @@ export function IncidentFields({ incident }: { incident: Incident }) {
         onChange={(e) => update({ place: e.target.value })}
       />
 
-      <label htmlFor={`${id}-how`}>{c.howLabel}</label>
+      <label htmlFor={howId(id)}>{c.howLabel}</label>
       <select
-        id={`${id}-how`}
+        id={howId(id)}
         value={incident.how}
         onChange={(e) => update({ how: e.target.value as HowItHappened })}
       >

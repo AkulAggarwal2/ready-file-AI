@@ -287,7 +287,8 @@
     "moved": "Incident moved to place {position} of {count}.",
     "undone": "Done. Your change was undone. You now have {count}.",
     "expanded": "Editing incident {n}.",
-    "collapsed": "Finished editing incident {n}."
+    "collapsed": "Finished editing incident {n}.",
+    "addedDrafts": "Draft incidents added from what you said: {added}. You now have {count} in all. Check each one."
   },
   "safety": {
     "heading": "Safety questions",
@@ -299,5 +300,45 @@
     },
     "clear": "Clear answer",
     "unverified": "Unverified question: {id}"
+  },
+  "voice": {
+    "incidentsHeading": "Say your incidents out loud (optional)",
+    "incidentsIntro": "Press the button and tell us about each time something happened, in any order and in your own words. When you press Stop, we sort what you said into incidents and fill in what we can. They are added below as drafts for you to check and change.",
+    "incidentsStart": "Speak your incidents",
+    "storyStart": "Speak your story",
+    "stop": "Stop listening",
+    "privacy": "Voice typing works on this device only. Your voice is not recorded or sent anywhere.",
+    "listening": "Listening. Talk when you are ready.",
+    "preparing": "Getting voice typing ready. The first time can take a minute.",
+    "errors": {
+      "blocked": "The microphone is off for this page. You can turn it on in your browser settings, or type instead.",
+      "noSpeech": "We did not hear anything. You can try again or type instead.",
+      "install": "Voice typing could not be set up. You can type instead.",
+      "other": "Voice typing stopped. You can try again or type instead."
+    },
+    "unavailableDemo": "(Demo only: the browser said “{detail}.”)",
+    "guide": {
+      "start": "Answer by voice",
+      "intro": "We ask the questions below one at a time, and your answers fill in the fields. Say “skip” to go to the next question, or “stop” to finish. The boxes for “What did the person do?” are not filled in by voice. You can check them yourself.",
+      "panelLabel": "Answering by voice",
+      "progress": "Question {n} of {total}",
+      "say": {
+        "date": "Say a date, like “March 3, 2026” or “last week.” You can also say “I don't remember.”",
+        "how": "Say “in person,” “online,” “phone or text,” or “other.”",
+        "firsthand": "Say “yes” or “no.”"
+      },
+      "textSay": "Take your time. The next question starts when you stop talking for a moment.",
+      "notUnderstood": "We did not catch that. You can say it again, choose from the list, or say “skip.”",
+      "paused": "Voice typing is paused.",
+      "skip": "Skip",
+      "stop": "Stop",
+      "resume": "Keep going by voice",
+      "finished": "Done. Check your answers and change anything that is wrong."
+    },
+    "unavailable": "Voice typing is not available in this browser. It works in recent versions of Chrome on a computer. You can type instead.",
+    "heardSoFar": "What we heard so far",
+    "sorting": "Sorting what you said into incidents. This can take a few seconds.",
+    "demoReport": "Demo only: split by {splitter} in {seconds} s ({reason}).",
+    "demoReportModelUsed": "the on-device model answered"
   }
 }
