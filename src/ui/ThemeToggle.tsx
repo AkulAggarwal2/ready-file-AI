@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { copy } from '../content';
+import { Tooltip } from './Tooltip';
 
 export type Theme = 'light' | 'dark';
 
@@ -25,22 +26,23 @@ export function ThemeToggle() {
   }
 
   return (
-    <button type="button" role="switch" aria-checked={dark} className="theme-toggle" onClick={toggle}>
-      <span className="sr-only">{copy.theme.label}</span>
-      <span className="theme-track" aria-hidden="true">
-        <span className="theme-thumb">
-          {dark ? (
-            <svg viewBox="0 0 16 16">
-              <path d="M13.5 10.2A6 6 0 0 1 5.8 2.5a6 6 0 1 0 7.7 7.7Z" fill="currentColor" />
-            </svg>
-          ) : (
-            <svg viewBox="0 0 16 16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-              <circle cx="8" cy="8" r="3" fill="currentColor" stroke="none" />
-              <path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3 3l1 1M12 12l1 1M3 13l1-1M12 4l1-1" />
-            </svg>
-          )}
+    <Tooltip text={copy.theme.label} labels>
+      <button type="button" role="switch" aria-checked={dark} className="theme-toggle" onClick={toggle}>
+        <span className="theme-track" aria-hidden="true">
+          <span className="theme-thumb">
+            {dark ? (
+              <svg viewBox="0 0 16 16">
+                <path d="M13.5 10.2A6 6 0 0 1 5.8 2.5a6 6 0 1 0 7.7 7.7Z" fill="currentColor" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 16 16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+                <circle cx="8" cy="8" r="3" fill="currentColor" stroke="none" />
+                <path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3 3l1 1M12 12l1 1M3 13l1-1M12 4l1-1" />
+              </svg>
+            )}
+          </span>
         </span>
-      </span>
-    </button>
+      </button>
+    </Tooltip>
   );
 }

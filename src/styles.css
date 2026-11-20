@@ -940,6 +940,23 @@ button:disabled {
   display: none;
 }
 
+/* Tooltip (src/ui/Tooltip.tsx): a short hint above a button, in inverted
+   colors so it reads as separate from the page. Tooltip.tsx sets top and left. */
+.tooltip {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  max-width: min(32ch, calc(100vw - 32px));
+  padding: 6px 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--text);
+  color: var(--bg);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  overflow: visible;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
