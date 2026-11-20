@@ -11,7 +11,6 @@ import { StepHeading } from '../ui/StepHeading';
 import { Timeline } from '../ui/Timeline';
 import { UndoToast } from '../ui/UndoToast';
 import { IncidentCard } from './IncidentCard';
-import { VoiceIncidents } from './VoiceIncidents';
 
 export function IncidentsStep() {
   const { state, dispatch } = useAppState();
@@ -58,8 +57,6 @@ export function IncidentsStep() {
           </div>
         </div>
       )}
-
-      <VoiceIncidents />
 
       {state.undo && (
         <UndoToast entry={state.undo} onUndo={() => dispatch({ type: 'undo' })} onExpire={expireUndo} />

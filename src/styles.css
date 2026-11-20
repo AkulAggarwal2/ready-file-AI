@@ -651,14 +651,6 @@ blockquote {
 }
 
 /* Voice typing */
-.dictation {
-  margin: var(--space-2) 0 var(--space-3);
-}
-
-.dictation .hint {
-  margin-bottom: 0;
-}
-
 .btn-voice {
   display: inline-flex;
   align-items: center;
@@ -702,32 +694,73 @@ blockquote {
   font-style: italic;
 }
 
-.voice-heard {
-  margin-top: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-}
-
-.voice .voice-heard p {
-  margin: 0;
-}
-
-.voice-heard-label {
-  color: var(--muted);
-  font-size: var(--text-sm);
-}
-
-.voice-heard-text {
-  white-space: pre-wrap;
-}
-
 .voice-unavailable {
   margin: var(--space-3) 0;
 }
 
 .dev-only-inline {
   font-family: ui-monospace, monospace;
+  font-size: var(--text-sm);
+}
+
+/* A microphone button in the corner of a text field */
+.voice-field-box {
+  position: relative;
+}
+
+.voice-field-box.has-mic > input,
+.voice-field-box.has-mic > textarea {
+  padding-right: 3.25rem;
+}
+
+.voice-field-mic {
+  position: absolute;
+  /* Lines up with the field, which has a small top margin. */
+  top: calc(var(--space-1) + 4px);
+  right: 4px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--primary);
+  cursor: pointer;
+}
+
+.voice-field-mic:hover {
+  background: var(--primary-soft);
+}
+
+.voice-field-mic:disabled {
+  color: var(--muted);
+  background: transparent;
+  cursor: default;
+}
+
+.voice-field-mic svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.voice-field-mic.is-listening,
+.voice-field-mic.is-listening:hover {
+  background: var(--primary);
+  color: var(--primary-text);
+}
+
+.voice-field-mic.is-listening svg {
+  animation: listening-pulse 1.4s ease-in-out infinite;
+}
+
+.voice-note {
+  margin-top: var(--space-2);
+}
+
+.voice-field-link {
+  min-height: 32px;
   font-size: var(--text-sm);
 }
 
@@ -1047,7 +1080,8 @@ button:disabled {
     transition: none !important;
   }
 
-  .btn-voice.is-listening svg {
+  .btn-voice.is-listening svg,
+  .voice-field-mic.is-listening svg {
     animation: none;
   }
 }

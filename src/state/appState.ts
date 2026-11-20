@@ -85,14 +85,12 @@ export type Action =
   | { type: 'begin'; caseType: CaseType; relationship: Relationship | null }
   | { type: 'goTo'; step: Step }
   | { type: 'setStory'; story: string }
-  | { type: 'appendStory'; phrase: string }
   | { type: 'setPersonDetails'; changes: PersonDetails }
   | { type: 'loadSample'; story: string; incidents: Incident[] }
   | { type: 'addMore'; focusTarget: string; expandId?: string; step?: Step; returnTo?: Step }
   | { type: 'updateIncident'; id: string; changes: Partial<IncidentFields> }
   | { type: 'appendToIncident'; id: string; field: TextField; phrase: string }
   | { type: 'addIncident' }
-  | { type: 'addIncidents'; incidents: Incident[] }
   | { type: 'deleteIncident'; id: string }
   | { type: 'mergeWithNext'; id: string }
   | { type: 'moveIncident'; id: string; direction: 'up' | 'down' }
@@ -143,8 +141,6 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, step: action.step, returnTo: null, undo: null };
     case 'setStory':
       return { ...state, story: action.story };
-    case 'appendStory':
-      return { ...state, story: appendSpoken(state.story, action.phrase) };
     case 'setPersonDetails':
       return { ...state, ...action.changes };
     case 'loadSample':
@@ -188,19 +184,6 @@ export function reducer(state: AppState, action: Action): AppState {
         expanded: [...state.expanded, incident.id],
         focusTarget: headingId(incident.id),
         announcement: fill(copy.announce.added, { count: state.incidents.length + 1 }),
-      };
-    }
-    case 'addIncidents': {
-      // Drafts from voice typing go at the end of her list, open for her to check.
-      if (action.incidents.length === 0) return state;
-      const incidents = [...state.incidents, ...action.incidents];
-      return {
-        ...state,
-        incidents,
-        expanded: [...state.expanded, ...action.incidents.map((incident) => incident.id)],
-        focusTarget: headingId(action.incidents[0].id),
-        announcement: fill(copy.announce.addedDrafts, { added: action.incidents.length, count: incidents.length }),
-        undo: null,
       };
     }
     case 'deleteIncident': {

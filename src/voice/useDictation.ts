@@ -47,6 +47,10 @@ function toDictationError(browserError: string): DictationError | null {
   }
 }
 
+// The browser has one microphone. Starting voice typing in one place turns it
+// off anywhere else, so two fields never hear the same words.
+let activeListener: Recognition | null = null;
+
 /**
  * Voice typing for one field. onPhrase gets each finished phrase (usually
  * what she said before a pause). The microphone turns off when the component
@@ -121,17 +125,21 @@ export function useDictation(onPhrase: (phrase: string) => void): Dictation {
     listener.onerror = (event) => setError(toDictationError(event.error));
     listener.onend = () => {
       recognition.current = null;
+      if (activeListener === listener) activeListener = null;
       if (!mounted.current) return;
       setPending('');
       setStatus('ready');
     };
 
+    activeListener?.abort();
+    activeListener = listener;
     recognition.current = listener;
     try {
       listener.start();
       setStatus('listening');
     } catch {
       recognition.current = null;
+      activeListener = null;
       setStatus('ready');
       setError('other');
     }

@@ -2,7 +2,7 @@ import { useEffect, type ReactNode } from 'react';
 import { copy, fill } from '../content';
 import type { Incident } from '../organizer';
 import { useAppState } from '../state/AppStateProvider';
-import { MicrophoneIcon } from '../voice/DictationControls';
+import { MicrophoneIcon } from '../voice/VoiceNotes';
 import { GUIDED_FIELDS, isChoiceField, type GuidedField } from '../voice/incidentAnswers';
 import { useIncidentInterview, type Interview } from '../voice/useIncidentInterview';
 import {
@@ -72,23 +72,27 @@ export function IncidentVoiceGuide({ incident, children }: Props) {
     element?.scrollIntoView?.({ block: 'center' });
   }, [id, field]);
 
-  if (dictation.status === 'checking' || dictation.status === 'unavailable') return <>{children}</>;
+  // The fields stay in the same place in the page whether or not voice
+  // typing is offered, so they aren't rebuilt once the browser answers.
+  const offered = dictation.status !== 'checking' && dictation.status !== 'unavailable';
 
   return (
     <>
-      <div className="voice-guide-start">
-        {!field && (
-          <button type="button" className="btn btn-voice" onClick={interview.begin}>
-            <MicrophoneIcon />
-            {g.start}
-          </button>
-        )}
-        <p className="hint">{g.intro}</p>
-        <p className="hint">{copy.voice.privacy}</p>
-        <p className="dictation-status" role="status">
-          {interview.finished ? g.finished : ''}
-        </p>
-      </div>
+      {offered && (
+        <div className="voice-guide-start">
+          {!field && (
+            <button type="button" className="btn btn-voice" onClick={interview.begin}>
+              <MicrophoneIcon />
+              {g.start}
+            </button>
+          )}
+          <p className="hint">{g.intro}</p>
+          <p className="hint">{copy.voice.privacy}</p>
+          <p className="dictation-status" role="status">
+            {interview.finished ? g.finished : ''}
+          </p>
+        </div>
+      )}
 
       {children}
 

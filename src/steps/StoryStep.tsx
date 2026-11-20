@@ -4,7 +4,8 @@ import { copy } from '../content';
 import type { PersonDetails } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
 import { StepHeading } from '../ui/StepHeading';
-import { StoryDictation } from './StoryDictation';
+import { VoiceTypingNote } from '../voice/VoiceNotes';
+import { VoiceField } from '../voice/VoiceField';
 
 export const THREAT_ID = 'threat';
 export const ASKED_TO_STOP_ID = 'asked-to-stop';
@@ -31,19 +32,27 @@ export function StoryStep() {
     <div>
       <StepHeading>{c.heading}</StepHeading>
       <p>{c.intro}</p>
+      <VoiceTypingNote />
 
       <label htmlFor="story">{c.label}</label>
       <p id="story-hint" className="hint">
         {c.hint}
       </p>
-      <StoryDictation />
-      <textarea
-        id="story"
-        rows={12}
-        aria-describedby="story-hint"
+      <VoiceField
+        fieldId="story"
+        label={c.label}
+        hint={c.hint}
         value={state.story}
-        onChange={(e) => dispatch({ type: 'setStory', story: e.target.value })}
-      />
+        onChange={(story) => dispatch({ type: 'setStory', story })}
+      >
+        <textarea
+          id="story"
+          rows={12}
+          aria-describedby="story-hint"
+          value={state.story}
+          onChange={(e) => dispatch({ type: 'setStory', story: e.target.value })}
+        />
+      </VoiceField>
 
       <h2>{c.personHeading}</h2>
 
@@ -51,13 +60,21 @@ export function StoryStep() {
       <p id="threat-hint" className="hint">
         {c.threatHint}
       </p>
-      <textarea
-        id={THREAT_ID}
-        rows={4}
-        aria-describedby="threat-hint"
+      <VoiceField
+        fieldId={THREAT_ID}
+        label={c.threatLabel}
+        hint={c.threatHint}
         value={state.threat}
-        onChange={(e) => setDetails({ threat: e.target.value })}
-      />
+        onChange={(threat) => setDetails({ threat })}
+      >
+        <textarea
+          id={THREAT_ID}
+          rows={4}
+          aria-describedby="threat-hint"
+          value={state.threat}
+          onChange={(e) => setDetails({ threat: e.target.value })}
+        />
+      </VoiceField>
 
       <label htmlFor={ASKED_TO_STOP_ID}>{c.askedToStopLabel}</label>
       <select
@@ -78,13 +95,21 @@ export function StoryStep() {
           <p id="asked-to-stop-detail-hint" className="hint">
             {c.askedToStopDetailHint}
           </p>
-          <textarea
-            id="asked-to-stop-detail"
-            rows={2}
-            aria-describedby="asked-to-stop-detail-hint"
+          <VoiceField
+            fieldId="asked-to-stop-detail"
+            label={c.askedToStopDetailLabel}
+            hint={c.askedToStopDetailHint}
             value={state.askedToStopDetail}
-            onChange={(e) => setDetails({ askedToStopDetail: e.target.value })}
-          />
+            onChange={(askedToStopDetail) => setDetails({ askedToStopDetail })}
+          >
+            <textarea
+              id="asked-to-stop-detail"
+              rows={2}
+              aria-describedby="asked-to-stop-detail-hint"
+              value={state.askedToStopDetail}
+              onChange={(e) => setDetails({ askedToStopDetail: e.target.value })}
+            />
+          </VoiceField>
         </>
       )}
 

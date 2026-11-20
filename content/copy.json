@@ -287,8 +287,7 @@
     "moved": "Incident moved to place {position} of {count}.",
     "undone": "Done. Your change was undone. You now have {count}.",
     "expanded": "Editing incident {n}.",
-    "collapsed": "Finished editing incident {n}.",
-    "addedDrafts": "Draft incidents added from what you said: {added}. You now have {count} in all. Check each one."
+    "collapsed": "Finished editing incident {n}."
   },
   "safety": {
     "heading": "Safety questions",
@@ -302,11 +301,6 @@
     "unverified": "Unverified question: {id}"
   },
   "voice": {
-    "incidentsHeading": "Say your incidents out loud (optional)",
-    "incidentsIntro": "Press the button and tell us about each time something happened, in any order and in your own words. When you press Stop, we sort what you said into incidents and fill in what we can. They are added below as drafts for you to check and change.",
-    "incidentsStart": "Speak your incidents",
-    "storyStart": "Speak your story",
-    "stop": "Stop listening",
     "privacy": "Voice typing works on this device only. Your voice is not recorded or sent anywhere.",
     "listening": "Listening. Talk when you are ready.",
     "preparing": "Getting voice typing ready. The first time can take a minute.",
@@ -336,9 +330,18 @@
       "finished": "Done. Check your answers and change anything that is wrong."
     },
     "unavailable": "Voice typing is not available in this browser. It works in recent versions of Chrome on a computer. You can type instead.",
-    "heardSoFar": "What we heard so far",
-    "sorting": "Sorting what you said into incidents. This can take a few seconds.",
-    "demoReport": "Demo only: split by {splitter} in {seconds} s ({reason}).",
-    "demoReportModelUsed": "the on-device model answered"
+    "field": {
+      "note": "To speak instead of type, press the microphone in a box. When you pause, what you said is added to the box. Voice typing works on this device only. Your voice is not recorded or sent anywhere.",
+      "speak": "Speak into “{field}”",
+      "stop": "Stop listening for “{field}”",
+      "listening": "Listening. When you pause, we add what you said.",
+      "checking": "Checking what you said. This can take a few seconds.",
+      "added": "Your words were added to “{field}”",
+      "addedTidied": "Added to “{field}”, with punctuation and grammar tidied up. You can change it in the box.",
+      "useExactWords": "Use my exact words instead",
+      "unrelated": "That didn’t sound like an answer to “{field}”, so nothing was added.",
+      "addAnyway": "Add it anyway",
+      "demoReport": "Demo only: not tidied ({reason})."
+    }
   }
 }

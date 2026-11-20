@@ -21,11 +21,17 @@ export const VOICE_LANGUAGE = 'en-US';
 // after this long with no speech, and the next question starts.
 export const ANSWER_PAUSE_MS = 2500;
 
-// Splitting spoken incidents with the browser's built-in model, which runs on
-// this device (src/organizer/onDeviceModel.ts). Section 9 says an AI splitter
-// is off by default, so it is on only in demo mode, or when built with
+// Voice typing in a text box stops after this long with no speech, and what
+// she said is added. Counted from the browser's last finished phrase, which
+// itself comes a moment after she stops talking.
+export const VOICE_PAUSE_MS = 1000;
+
+// Tidying voice typing with the browser's built-in model, which runs on this
+// device (src/voice/onDeviceModel.ts). Like the AI splitter (section 9), it is
+// off by default: on only in demo mode, or when built with
 // VITE_ENABLE_ON_DEVICE_AI=true. The team decides whether real users get it.
 export const ON_DEVICE_AI_ENABLED = DEMO_MODE || import.meta.env.VITE_ENABLE_ON_DEVICE_AI === 'true';
 
-// How long the on-device model may take before the rule-based splitter is used.
-export const ON_DEVICE_MODEL_TIMEOUT_MS = 45 * 1000;
+// How long tidying one field's voice typing may take before her words are
+// added as she said them. She is waiting at the field, so this is short.
+export const TIDY_TIMEOUT_MS = 20 * 1000;

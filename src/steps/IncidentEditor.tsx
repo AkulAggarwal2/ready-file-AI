@@ -3,6 +3,7 @@ import { copy } from '../content';
 import { HOW_OPTIONS, type HowItHappened, type Incident, type IncidentDate } from '../organizer';
 import { todayIso } from '../state/findings';
 import { useAppState } from '../state/AppStateProvider';
+import { VoiceField } from '../voice/VoiceField';
 
 const DATE_KINDS: IncidentDate['kind'][] = ['exact', 'approximate', 'unknown'];
 
@@ -76,14 +77,23 @@ export function IncidentFields({ incident }: { incident: Incident }) {
           <p id={`${id}-approx-hint`} className="hint">
             {c.approximateHint}
           </p>
-          <input
-            id={`${id}-approx`}
-            type="text"
-            autoComplete="off"
-            aria-describedby={`${id}-approx-hint`}
+          <VoiceField
+            fieldId={`${id}-approx`}
+            label={c.approximateLabel}
+            hint={c.approximateHint}
             value={date.text}
-            onChange={(e) => update({ date: { kind: 'approximate', text: e.target.value } })}
-          />
+            onChange={(text) => update({ date: { kind: 'approximate', text } })}
+            oneLine
+          >
+            <input
+              id={`${id}-approx`}
+              type="text"
+              autoComplete="off"
+              aria-describedby={`${id}-approx-hint`}
+              value={date.text}
+              onChange={(e) => update({ date: { kind: 'approximate', text: e.target.value } })}
+            />
+          </VoiceField>
         </>
       )}
 
@@ -91,14 +101,23 @@ export function IncidentFields({ incident }: { incident: Incident }) {
       <p id={`${id}-place-hint`} className="hint">
         {c.placeHint}
       </p>
-      <input
-        id={placeId(id)}
-        type="text"
-        autoComplete="off"
-        aria-describedby={`${id}-place-hint`}
+      <VoiceField
+        fieldId={placeId(id)}
+        label={c.placeLabel}
+        hint={c.placeHint}
         value={incident.place}
-        onChange={(e) => update({ place: e.target.value })}
-      />
+        onChange={(place) => update({ place })}
+        oneLine
+      >
+        <input
+          id={placeId(id)}
+          type="text"
+          autoComplete="off"
+          aria-describedby={`${id}-place-hint`}
+          value={incident.place}
+          onChange={(e) => update({ place: e.target.value })}
+        />
+      </VoiceField>
 
       <label htmlFor={howId(id)}>{c.howLabel}</label>
       <select
@@ -117,13 +136,21 @@ export function IncidentFields({ incident }: { incident: Incident }) {
       <p id={`${id}-description-hint`} className="hint">
         {c.descriptionHint}
       </p>
-      <textarea
-        id={descriptionId(id)}
-        rows={5}
-        aria-describedby={`${id}-description-hint`}
+      <VoiceField
+        fieldId={descriptionId(id)}
+        label={c.descriptionLabel}
+        hint={c.descriptionHint}
         value={incident.description}
-        onChange={(e) => update({ description: e.target.value })}
-      />
+        onChange={(description) => update({ description })}
+      >
+        <textarea
+          id={descriptionId(id)}
+          rows={5}
+          aria-describedby={`${id}-description-hint`}
+          value={incident.description}
+          onChange={(e) => update({ description: e.target.value })}
+        />
+      </VoiceField>
 
       <fieldset aria-describedby={`${id}-acts-hint`}>
         <legend>{c.actsLegend}</legend>
@@ -147,13 +174,21 @@ export function IncidentFields({ incident }: { incident: Incident }) {
       <p id={`${id}-present-hint`} className="hint">
         {c.presentHint}
       </p>
-      <textarea
-        id={presentId(id)}
-        rows={2}
-        aria-describedby={`${id}-present-hint`}
+      <VoiceField
+        fieldId={presentId(id)}
+        label={c.presentLabel}
+        hint={c.presentHint}
         value={incident.present}
-        onChange={(e) => update({ present: e.target.value })}
-      />
+        onChange={(present) => update({ present })}
+      >
+        <textarea
+          id={presentId(id)}
+          rows={2}
+          aria-describedby={`${id}-present-hint`}
+          value={incident.present}
+          onChange={(e) => update({ present: e.target.value })}
+        />
+      </VoiceField>
 
       <label htmlFor={firsthandId(id)}>{c.firsthandLabel}</label>
       <select
@@ -178,25 +213,41 @@ export function IncidentFields({ incident }: { incident: Incident }) {
       <p id={`${id}-feeling-hint`} className="hint">
         {c.feelingHint}
       </p>
-      <textarea
-        id={feelingId(id)}
-        rows={2}
-        aria-describedby={`${id}-feeling-hint`}
+      <VoiceField
+        fieldId={feelingId(id)}
+        label={c.feelingLabel}
+        hint={c.feelingHint}
         value={incident.feeling}
-        onChange={(e) => update({ feeling: e.target.value })}
-      />
+        onChange={(feeling) => update({ feeling })}
+      >
+        <textarea
+          id={feelingId(id)}
+          rows={2}
+          aria-describedby={`${id}-feeling-hint`}
+          value={incident.feeling}
+          onChange={(e) => update({ feeling: e.target.value })}
+        />
+      </VoiceField>
 
       <label htmlFor={evidenceId(id)}>{c.evidenceLabel}</label>
       <p id={`${id}-evidence-hint`} className="hint">
         {c.evidenceHint}
       </p>
-      <textarea
-        id={evidenceId(id)}
-        rows={2}
-        aria-describedby={`${id}-evidence-hint`}
+      <VoiceField
+        fieldId={evidenceId(id)}
+        label={c.evidenceLabel}
+        hint={c.evidenceHint}
         value={incident.evidence}
-        onChange={(e) => update({ evidence: e.target.value })}
-      />
+        onChange={(evidence) => update({ evidence })}
+      >
+        <textarea
+          id={evidenceId(id)}
+          rows={2}
+          aria-describedby={`${id}-evidence-hint`}
+          value={incident.evidence}
+          onChange={(e) => update({ evidence: e.target.value })}
+        />
+      </VoiceField>
     </>
   );
 }

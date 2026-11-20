@@ -189,7 +189,7 @@ for the team to decide.
 ## The incident splitter
 
 The splitter uses the `IncidentExtractor` interface in
-[src/organizer/](src/organizer/). It has three versions:
+[src/organizer/](src/organizer/). It has two versions:
 
 - **ManualExtractor (default):** starts a new incident at each paragraph, and
   inside a paragraph wherever a sentence starts with a date phrase such as
@@ -201,33 +201,11 @@ The splitter uses the `IncidentExtractor` interface in
   fictional four-incident Lena sample, and uses the manual splitter for
   anything else. Either way, she sees the result as a draft and confirms it
   herself.
-- **OnDeviceLlmExtractor (voice incidents; on in demo mode, or with
-  `VITE_ENABLE_ON_DEVICE_AI=true`):** uses the browser's built-in model
-  (Chrome's Prompt API, `LanguageModel`), which runs on this device, so her
-  words never leave it. It splits incidents even without a date ("another
-  time he…"), and fills in when, where, how, who else was there, how she felt,
-  and proof. **Her words are never rewritten:** the model only names each
-  incident's first words and the phrases that answer each question
-  ([src/organizer/modelDrafts.ts](src/organizer/modelDrafts.ts)). The app cuts
-  her own text at those points, and keeps a phrase only if it is really in that
-  incident's text, so anything the model made up is dropped. It never checks
-  the question 7 boxes. If the model is missing, still downloading, slower than
-  45 seconds (`ON_DEVICE_MODEL_TIMEOUT_MS`), or gives an answer that can't be
-  used, the manual splitter runs instead. Section 9 says an AI splitter is off
-  by default, so production builds leave it off unless the team turns it on.
 
 ## Voice typing
 
-On **Incidents** and **Your story**, she can speak instead of type. The code
-is in [src/voice/](src/voice/).
+She can speak instead of type. The code is in [src/voice/](src/voice/).
 
-- **Incidents:** she tells her incidents in her own words. When she presses
-  Stop (or the browser stops after a silence), the incident splitter
-  (`getExtractor()`) sorts what she said into incidents and adds them to the
-  end of her list as drafts, open for her to check. With the on-device model,
-  the fields are filled in too (see "The incident splitter"). Pressing
-  "Speak your incidents" also starts the browser's one-time model download,
-  if it is needed.
 - **Answer by voice (each incident):** an open incident card asks its
   questions one at a time, in the card's order: when, where, how, what
   happened, who was there, did she see it herself, how it made her feel, and
@@ -240,13 +218,49 @@ is in [src/voice/](src/voice/).
   ([src/voice/incidentAnswers.ts](src/voice/incidentAnswers.ts)). Voice never
   checks the "What did the person do?" boxes (question 7), because a wrong
   check on a sworn form is serious.
-- **Your story:** each phrase she says is added to the end of the story box.
-  What she already typed is never changed.
+- **Every text box** (her story, the questions about the person, and each
+  incident's text fields) has a small microphone button in its corner
+  ([src/voice/VoiceField.tsx](src/voice/VoiceField.tsx)). She talks, and when
+  she pauses for a second (`VOICE_PAUSE_MS`, counted from the browser's last
+  finished phrase), listening stops and what she said is added after what is
+  already in the box. What she already typed is never changed. She presses the
+  microphone again to keep going. Only one microphone listens at a time.
+- **Tidying (on with the on-device model):** in the bigger boxes, the
+  browser's built-in model fixes punctuation, grammar, and filler words like
+  "um" before her words are added
+  ([src/voice/tidyText.ts](src/voice/tidyText.ts)). Its instructions list the
+  only changes it may make, and forbid adding facts, swapping her words for
+  other words, or summarizing. It is asked to always pick its most likely
+  word (`topK: 1`), so it doesn't get creative; Chrome versions that refuse
+  that setting use a normal session.
+- **Only answers are added (on with the on-device model):** the model also
+  gets the box's question (its label and hint) and says whether what she said
+  answers it. If it clearly doesn't (she was talking to someone in the room,
+  or a TV was on), nothing is added, the status line says so, and an "Add it
+  anyway" link adds it. "I don't remember" counts as an answer, and when the
+  model isn't sure, it counts what she said as an answer. This check runs in
+  every box, including the short ones. She can edit the result
+  in the box, and a "Use my exact words instead" link under the box swaps in
+  exactly what she said, until she edits it. The app throws the tidied
+  version away, and adds her words as she said them, if it changes a number,
+  adds or drops a "not" or "never", or adds or drops more than 15% of
+  the words that carry facts (small words like "and then" or "like" and
+  verb endings don't count). Short one-line boxes (where, about when) are
+  never tidied. If the model is missing or takes over 20 seconds
+  (`TIDY_TIMEOUT_MS`), her words are added as she said them.
 - **Each pause ends a sentence.** Speech recognition often leaves out
   punctuation, and the manual splitter finds sentences by their ending marks,
-  so a phrase without one gets a period. A date phrase after five or more
-  words of a sentence ("…away from him last week he sent…") also starts a new
-  sentence ([src/voice/transcript.ts](src/voice/transcript.ts)).
+  so a phrase without one gets a period
+  ([src/voice/transcript.ts](src/voice/transcript.ts)).
+
+**Phones:** the microphones show only where the browser confirms on-device
+speech recognition, which most phone browsers don't offer today. There, the
+text boxes have no microphone, and a note says voice typing works in Chrome
+on a computer. Chrome's built-in model (for tidying) runs only on computers,
+so a phone that does offer on-device speech adds her words as she said them. She can still use her
+keyboard's own voice typing; that is the phone maker's feature, not
+ReadyFile's. The layout already works at phone width if phone browsers add
+on-device recognition later.
 
 **On this device only.** In many browsers, speech recognition sends the
 audio to the browser maker's server, which section 8 rules out. ReadyFile
@@ -293,7 +307,7 @@ Desk's code is in [src/desk/](src/desk/). ReadyFile never imports from it.
 
 ## Tests
 
-`npm test` runs 105 tests in [tests/](tests/):
+`npm test` runs 226 tests in [tests/](tests/):
 
 - **Acceptance tests 1–8 from section 12:** `acceptance.test.tsx` covers
   tests 1–6 and 8, and `content.test.ts` covers test 7, the banned-phrase
@@ -307,6 +321,22 @@ Desk's code is in [src/desk/](src/desk/). ReadyFile never imports from it.
   `content.test.ts` covers 13, 14, and 16.
 - **Source code scans:** checks that the code has no storage calls, network
   calls, history changes, or hardcoded phone numbers.
+- **Voice typing:** [tests/fakeVoice.ts](tests/fakeVoice.ts) stands in for the
+  browser's on-device speech recognition and built-in model, so tests can
+  "speak" and choose what the model answers.
+  - `voice-text.test.ts`: joining spoken words to a field, reading spoken
+    answers, the check that the tidied text keeps her meaning (numbers,
+    "not"s, added or dropped facts), and the model's instructions. Its worked
+    examples must pass the app's own check.
+  - `voice-browser.test.ts`: speech recognition only on the device, the model
+    not used until it is ready, no randomness (and the fallback where Chrome
+    refuses that), time limits, and closing sessions.
+  - `voice-field.test.tsx`: the microphone in each box, through the whole
+    app: stopping on a pause, tidying, "Use my exact words instead",
+    skipping what isn't an answer and "Add it anyway", one microphone at a
+    time, errors, and axe checks.
+  - `voice-guide.test.tsx`: "Answer by voice", including that it never
+    checks the question 7 boxes.
 
 ## Open TODOs
 
@@ -315,7 +345,7 @@ Desk's code is in [src/desk/](src/desk/). ReadyFile never imports from it.
 - [ ] Team: confirm the quick exit address (now `https://www.weather.com`).
 - [ ] Decide whether to turn off spellcheck in the story box. Some browsers'
       "enhanced" spellcheck sends typed text to a server.
-- [ ] Team: decide whether real users get the on-device AI splitter
+- [ ] Team: decide whether real users get tidying with the on-device model
       (`VITE_ENABLE_ON_DEVICE_AI`), and test it on the laptops petitioners
       use. Chrome's built-in model needs a recent desktop Chrome, enough
       memory, and a one-time download of about 2 GB.

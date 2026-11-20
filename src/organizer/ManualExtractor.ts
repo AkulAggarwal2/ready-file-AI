@@ -10,9 +10,9 @@ const WEEKDAYS = 'monday|tuesday|wednesday|thursday|friday|saturday|sunday';
 const UNITS = 'days?|weeks?|months?|years?';
 const NUMBER_WORDS = 'a|an|one|two|three|four|five|six|seven|eight|nine|ten|a few|several|\\d+';
 
-// Date phrases, as one regex source, most specific first. A bare month needs a word like "in" or a
+// Date phrases, most specific first. A bare month needs a word like "in" or a
 // day number after it, so "he may come back" is not read as a date.
-export const DATE_PHRASES = [
+const DATE_PHRASES = [
   `(?:${MONTHS})\\s+\\d{1,2}(?:st|nd|rd|th)?(?:,?\\s+\\d{4})?`,
   `(?:in|on|during|around|by|since|early|mid|late)\\s+(?:early\\s+|mid\\s+|late\\s+)?(?:${MONTHS})(?:\\s+\\d{1,2}(?:st|nd|rd|th)?)?(?:,?\\s+\\d{4})?`,
   `\\d{1,2}/\\d{1,2}/\\d{2,4}`,
