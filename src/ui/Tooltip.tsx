@@ -18,10 +18,17 @@ const GUTTER = 16;
 // Only one tooltip is open at a time. Opening one closes this one.
 let closeOpen: (() => void) | null = null;
 
+// Older browsers (Safari before 17, Firefox before 125) have no popover support.
+// There the tooltip is left out, since a hint must never be the only explanation.
+function popoverSupported(): boolean {
+  return typeof HTMLElement !== 'undefined' && 'showPopover' in HTMLElement.prototype;
+}
+
 interface TriggerProps {
   disabled?: boolean;
   'aria-describedby'?: string;
   'aria-labelledby'?: string;
+  'aria-label'?: string;
   onPointerEnter?: (event: PointerEvent<HTMLElement>) => void;
   onPointerLeave?: (event: PointerEvent<HTMLElement>) => void;
   onPointerDown?: (event: PointerEvent<HTMLElement>) => void;
@@ -71,6 +78,13 @@ export function Tooltip({ text, labels = false, children }: Props) {
 
   useEffect(() => () => clearTimeout(timer.current), []);
 
+  // A button that turns off while its hint is showing drops the hint, so the
+  // hint must start closed when the button turns on again.
+  const disabled = Boolean(children.props.disabled);
+  useEffect(() => {
+    if (disabled) hide();
+  }, [disabled]);
+
   useLayoutEffect(() => {
     const el = tip.current;
     if (!el || !open) return;
@@ -106,7 +120,11 @@ export function Tooltip({ text, labels = false, children }: Props) {
   }, [open]);
 
   const props = children.props;
-  if (props.disabled) return children;
+  if (disabled) return children;
+  if (!popoverSupported()) {
+    // An icon button still needs its name.
+    return labels ? cloneElement(children, { 'aria-label': text } as TriggerProps) : children;
+  }
 
   const attr = labels ? 'aria-labelledby' : 'aria-describedby';
 

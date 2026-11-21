@@ -58,3 +58,17 @@ describe('the way back to a question', () => {
     expect(reducer(sent, { type: 'goTo', step: 'story' }).returnQuestion).toBeNull();
   });
 });
+
+describe('chips on the Incidents step keep the way back', () => {
+  const sent = reducer(initialState, { type: 'addMore', focusTarget: 'x', returnQuestion: 'q1' });
+
+  it('keeps it when a chip opens another field', () => {
+    expect(reducer(sent, { type: 'addMore', focusTarget: 'y' }).returnQuestion).toBe('q1');
+  });
+
+  it('keeps it through Start, then returns to the incidents', () => {
+    const onStart = reducer(sent, { type: 'addMore', step: 'start', focusTarget: 'relationship' });
+    const after = reducer(onStart, { type: 'begin', caseType: 'stalking', relationship: 'none' });
+    expect(after).toMatchObject({ step: 'incidents', returnQuestion: 'q1' });
+  });
+});

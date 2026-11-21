@@ -140,7 +140,8 @@ export function reducer(state: AppState, action: Action): AppState {
         relationship: action.relationship,
         step: state.returnTo ?? 'incidents',
         returnTo: null,
-        returnQuestion: state.returnTo ? state.returnQuestion : null,
+        // Set only by "Add more", so she keeps the way back to her question.
+        returnQuestion: state.returnQuestion,
       };
     case 'goTo':
       return { ...state, step: action.step, returnTo: null, returnQuestion: null, undo: null };
@@ -161,7 +162,9 @@ export function reducer(state: AppState, action: Action): AppState {
         step: action.step ?? 'incidents',
         focusTarget: action.focusTarget,
         returnTo: action.returnTo ?? null,
-        returnQuestion: action.returnQuestion ?? null,
+        // A chip on the Incidents step has no question of its own, so it keeps
+        // the way back to the question she came from, if any.
+        returnQuestion: action.returnQuestion ?? state.returnQuestion,
         expanded: action.expandId ? [action.expandId] : state.expanded,
         undo: null,
       };

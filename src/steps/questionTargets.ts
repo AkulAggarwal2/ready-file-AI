@@ -69,14 +69,22 @@ export const PLACES: Record<ConditionType, Place> = {
 /**
  * Where "Add more" takes her: the screen and field the question is about.
  * From the Questions step, `fromQuestion` is true, so the screen she lands on
- * offers a way back to that question.
+ * offers a way back to that question. From elsewhere, any way back she already
+ * has is kept.
  */
 export function addMoreAction(finding: Finding, firstIncidentId: string | undefined, fromQuestion = true): Action {
   const place = PLACES[finding.conditionType];
   const returnQuestion = fromQuestion ? finding.key : undefined;
   switch (place.kind) {
     case 'elsewhere':
-      return { type: 'addMore', step: place.step, focusTarget: place.target, returnTo: place.returnTo, returnQuestion };
+      // place.returnTo leads back to the questions, so it only applies when she came from one.
+      return {
+        type: 'addMore',
+        step: place.step,
+        focusTarget: place.target,
+        returnTo: fromQuestion ? place.returnTo : undefined,
+        returnQuestion,
+      };
     case 'list':
       return { type: 'addMore', focusTarget: place.target, returnQuestion };
     case 'incident':

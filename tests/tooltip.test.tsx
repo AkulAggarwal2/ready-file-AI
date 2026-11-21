@@ -113,3 +113,52 @@ describe('Tooltip', () => {
     expect(screen.getByRole('switch', { name: 'Dark mode' })).toBeInTheDocument();
   });
 });
+
+describe('Tooltip when its button turns off and on', () => {
+  it('shows again on hover after the button is turned back on', async () => {
+    const user = userEvent.setup();
+    const view = (disabled: boolean) => (
+      <Tooltip text="Tip">
+        <button type="button" disabled={disabled}>
+          Hold
+        </button>
+      </Tooltip>
+    );
+    const { rerender } = render(view(false));
+    await user.tab();
+    expect(shown('Tip')).toBe(true);
+
+    rerender(view(true));
+    rerender(view(false));
+    expect(shown('Tip')).toBe(false);
+
+    vi.useFakeTimers();
+    fireEvent.pointerEnter(screen.getByRole('button', { name: 'Hold' }), { pointerType: 'mouse' });
+    act(() => vi.advanceTimersByTime(1000));
+    expect(shown('Tip')).toBe(true);
+  });
+});
+
+describe('Tooltip without popover support', () => {
+  it('leaves the hint out, but an icon button keeps its name', () => {
+    const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
+    const saved = proto.showPopover;
+    delete proto.showPopover;
+    try {
+      render(
+        <>
+          <Tooltip text="Plain tip">
+            <button type="button">Plain</button>
+          </Tooltip>
+          <Tooltip text="Dark mode" labels>
+            <button type="button" />
+          </Tooltip>
+        </>,
+      );
+      expect(screen.queryByText('Plain tip')).toBeNull();
+      expect(screen.getByRole('button', { name: 'Dark mode' })).toBeInTheDocument();
+    } finally {
+      proto.showPopover = saved;
+    }
+  });
+});

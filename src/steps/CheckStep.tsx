@@ -40,12 +40,17 @@ export const questionTextId = (key: string) => `question-${key}-text`;
 export function CheckStep() {
   const { state, dispatch } = useAppState();
   const c = copy.check;
-  // Coming back from "Add more", the question she came from is open again.
-  const [openKeys, setOpenKeys] = useState<string[]>(() => (state.returnQuestion ? [state.returnQuestion] : []));
-  // After she answers, or comes back, focus goes to that question's heading button.
-  const [focusKey, setFocusKey] = useState<string | null>(state.returnQuestion);
-
   const findings = useFindings(state);
+  // Coming back from "Add more", the question she came from is open again.
+  // If what she added answered it, the question is gone, and she is told so.
+  const [returned] = useState(() => {
+    const key = state.returnQuestion;
+    if (!key) return { key: null, resolved: false };
+    return findings.some((finding) => finding.key === key) ? { key, resolved: false } : { key: null, resolved: true };
+  });
+  const [openKeys, setOpenKeys] = useState<string[]>(returned.key ? [returned.key] : []);
+  // After she answers, or comes back, focus goes to that question's heading button.
+  const [focusKey, setFocusKey] = useState<string | null>(returned.key);
   const stillOpen = findings.filter((finding) => !state.dismissed.includes(finding.key)).length;
 
   useEffect(() => {
@@ -66,6 +71,7 @@ export function CheckStep() {
     <div>
       <StepHeading>{c.heading}</StepHeading>
       <p>{c.intro}</p>
+      {returned.resolved && <p className="note">{c.resolved}</p>}
       <p className="note" role="status">
         {findings.length > 0 ? fill(c.total, { total: findings.length, open: stillOpen }) : c.totalNone}
       </p>

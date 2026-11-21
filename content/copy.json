@@ -175,6 +175,7 @@
     "aboutIncident": "About incident {n}:",
     "answered": "Done",
     "backToQuestion": "Back to the question",
+    "resolved": "What you added answered the question you came from, so it is no longer on this list.",
     "addMore": "Add more",
     "continueAsIs": "Continue as is",
     "toReview": "Go to review",

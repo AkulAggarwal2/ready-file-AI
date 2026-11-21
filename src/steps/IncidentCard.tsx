@@ -97,7 +97,7 @@ export function IncidentCard({
                 type="button"
                 className="chip chip-warning chip-button"
                 aria-describedby={headingId(id)}
-                onClick={() => dispatch(addMoreAction(finding, undefined, false))}
+                onClick={() => dispatch(addMoreAction(finding, id, false))}
               >
                 {copy.badges[finding.conditionType]}
               </button>
