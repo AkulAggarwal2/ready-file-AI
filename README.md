@@ -260,9 +260,8 @@ Desk's code is in [src/desk/](src/desk/). ReadyFile never imports from it.
 
 ## Open TODOs
 
-- [ ] Team: verify each contact in `resources.json` (the ICADV and national
-      hotlines, 911, and icadvinc.org), then set `verified: true`. Fill in the
-      Allen County specialist, which stays hidden until then.
+- [ ] Team: fill in and check the Allen County specialist in `resources.json`
+      (the other contacts are checked). It stays hidden until then.
 - [ ] Team: review all text in `copy.json` for plain language and reading level.
 - [ ] Team: confirm the quick exit address (now `https://www.weather.com`).
 - [ ] Decide whether to turn off spellcheck in the story box. Some browsers'

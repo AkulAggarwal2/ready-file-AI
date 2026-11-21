@@ -6,7 +6,7 @@
       "description": "Call 911. If it is not safe to talk, you can stay on the line, or text 911 where your area allows it.",
       "contact": "Call 911",
       "url": "tel:911",
-      "verified": false
+      "verified": true
     },
     {
       "id": "statewide-hotline",
@@ -14,7 +14,7 @@
       "description": "A free, private hotline for people in Indiana, open 24 hours. An advocate can talk with you about safety and protection orders.",
       "contact": "1-800-332-7385",
       "url": "tel:18003327385",
-      "verified": false
+      "verified": true
     },
     {
       "id": "national-hotline",
@@ -22,7 +22,7 @@
       "description": "Free and private, open 24 hours. You can call, or text START to 88788. Help is also available by chat at thehotline.org.",
       "contact": "1-800-799-7233",
       "url": "tel:18007997233",
-      "verified": false
+      "verified": true
     },
     {
       "id": "local-advocates",
@@ -30,7 +30,7 @@
       "description": "The Indiana Coalition Against Domestic Violence lists advocate programs in each county.",
       "contact": "icadvinc.org",
       "url": "https://icadvinc.org",
-      "verified": false
+      "verified": true
     },
     {
       "id": "allen-county-specialist",
