@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { Tooltip } from '../../ui/Tooltip';
 import { ActivityLog, Breadcrumb, NumberedText, ScreenTitle } from '../components';
 import { deskConfig, deskCopy, plural, type Outcome } from '../content';
 import type { LineRange } from '../lines';
@@ -409,9 +410,11 @@ function OpenQuestionsPanel({ petition: p }: { petition: Petition }) {
       ) : wasHeld(p) ? (
         <p>{c.alreadyHeld}</p>
       ) : (
-        <button type="button" className="btn btn-primary" onClick={() => dispatch({ type: 'askFollowUp', id: p.sample.id })}>
-          {c.ask}
-        </button>
+        <Tooltip text={deskCopy.tooltips.ask}>
+          <button type="button" className="btn btn-primary" onClick={() => dispatch({ type: 'askFollowUp', id: p.sample.id })}>
+            {c.ask}
+          </button>
+        </Tooltip>
       )}
     </section>
   );

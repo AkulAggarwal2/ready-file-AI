@@ -48,8 +48,10 @@ function Shell() {
       <header ref={header} className="site-header">
         <div className="header-row">
           <span className="brand">{copy.app.name}</span>
-          <ThemeToggle />
-          <QuickExit />
+          <div className="header-actions">
+            <ThemeToggle />
+            <QuickExit />
+          </div>
         </div>
         <Resources />
       </header>

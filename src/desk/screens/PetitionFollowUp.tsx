@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { DEMO_MODE } from '../../config';
 import { ActivityLog, Breadcrumb, NumberedText, QuestionIcon, ScreenTitle, StatusChip } from '../components';
+import { Tooltip } from '../../ui/Tooltip';
 import { deskCopy, plural, type CallResult } from '../content';
 import {
   activeHold,
@@ -99,9 +100,11 @@ function HoldPanel({ petition: p, now }: { petition: Petition; now: number }) {
         <p>{plural(body, { time: formatTime(running.start), weekday: weekday(running.start) })}</p>
         {running.by === 'magistrate' && <p>{plural(c.askedBy, { time: formatShort(running.start) })}</p>}
         <div className="button-row">
-          <button type="button" className="btn btn-primary" onClick={() => dispatch({ type: 'sendNow', id })}>
-            {c.sendNow}
-          </button>
+          <Tooltip text={deskCopy.tooltips.sendNow}>
+            <button type="button" className="btn btn-primary" onClick={() => dispatch({ type: 'sendNow', id })}>
+              {c.sendNow}
+            </button>
+          </Tooltip>
           <button
             type="button"
             className="btn"
@@ -127,14 +130,16 @@ function HoldPanel({ petition: p, now }: { petition: Petition; now: number }) {
         {!hasPhone(p) && <p className="meta">{c.noPhone}</p>}
         {hasPhone(p) && !hasQuestions && <p className="meta">{c.noQuestions}</p>}
         <div className="button-row">
-          <button
-            type="button"
-            className="btn btn-primary"
-            disabled={!hasPhone(p) || !hasQuestions}
-            onClick={() => dispatch({ type: 'hold', id })}
-          >
-            {c.holdButton}
-          </button>
+          <Tooltip text={deskCopy.tooltips.hold}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              disabled={!hasPhone(p) || !hasQuestions}
+              onClick={() => dispatch({ type: 'hold', id })}
+            >
+              {c.holdButton}
+            </button>
+          </Tooltip>
         </div>
       </>
     );
@@ -377,14 +382,16 @@ function ContactPanel({ petition: p, now }: { petition: Petition; now: number })
             {phone ? (
               <>
                 <span className="tabular">{showPhone ? phone : maskPhone(phone)}</span>{' '}
-                <button
-                  type="button"
-                  className="link-button"
-                  aria-label={showPhone ? c.hideLabel : c.showLabel}
-                  onClick={() => setShowPhone(!showPhone)}
-                >
-                  {showPhone ? c.hide : c.show}
-                </button>
+                <Tooltip text={deskCopy.tooltips.showNumber}>
+                  <button
+                    type="button"
+                    className="link-button"
+                    aria-label={showPhone ? c.hideLabel : c.showLabel}
+                    onClick={() => setShowPhone(!showPhone)}
+                  >
+                    {showPhone ? c.hide : c.show}
+                  </button>
+                </Tooltip>
               </>
             ) : (
               c.noPhone
@@ -508,18 +515,24 @@ function DemoControls({ petition: p }: { petition: Petition }) {
       <p className="meta">{c.note}</p>
       <div className="button-row">
         {canAmend && (
-          <button type="button" className="btn" onClick={() => dispatch({ type: 'demoAmend', id })}>
-            {c.addIncidents}
-          </button>
+          <Tooltip text={deskCopy.tooltips.addIncidents}>
+            <button type="button" className="btn" onClick={() => dispatch({ type: 'demoAmend', id })}>
+              {c.addIncidents}
+            </button>
+          </Tooltip>
         )}
         {running && (
-          <button type="button" className="btn" onClick={() => dispatch({ type: 'demoJumpToHoldEnd', id })}>
-            {c.jumpEnd}
-          </button>
+          <Tooltip text={deskCopy.tooltips.jumpEnd}>
+            <button type="button" className="btn" onClick={() => dispatch({ type: 'demoJumpToHoldEnd', id })}>
+              {c.jumpEnd}
+            </button>
+          </Tooltip>
         )}
-        <button type="button" className="btn" onClick={() => dispatch({ type: 'reset' })}>
-          {c.reset}
-        </button>
+        <Tooltip text={deskCopy.tooltips.reset}>
+          <button type="button" className="btn" onClick={() => dispatch({ type: 'reset' })}>
+            {c.reset}
+          </button>
+        </Tooltip>
       </div>
     </section>
   );

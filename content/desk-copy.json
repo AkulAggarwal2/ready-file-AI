@@ -408,5 +408,14 @@
     "answersTitle": "Safety answers (as given)",
     "answersIntro": "The petitioner's own answers to the optional safety questions. Desk doesn't score or judge them.",
     "noAnswer": "No answer"
+  },
+  "tooltips": {
+    "hold": "Keeps it here for up to 24 hours so you can reach the petitioner. Then it goes to the magistrate.",
+    "sendNow": "Ends the hold now. The magistrate gets the petition as it is.",
+    "showNumber": "Numbers are hidden until you need them, to protect the petitioner's privacy.",
+    "ask": "Uses the petition's one 24-hour hold. The specialist tries to reach the petitioner.",
+    "addIncidents": "Demo only. Files the amended petition, as if the petitioner sent it.",
+    "jumpEnd": "Demo only. Moves the demo clock to when the hold ends.",
+    "reset": "Demo only. Puts every sample petition back the way it started."
   }
 }

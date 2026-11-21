@@ -37,13 +37,17 @@ See "The incident splitter" below.
 
 1. **Start:** she picks the kind of order, or "Not sure". If she picks
    nothing, she continues as "Not sure".
-2. **Incidents:** she adds each incident with a date, a place ("Where did it
-   happen?"), how it happened, and what happened. She can edit, merge, delete,
-   reorder, or undo, and she confirms the final list herself.
+2. **Incidents:** she adds each incident with a date (a new one opens on the
+   date picker), a place ("Where did it happen?"), how it happened, and what
+   happened. One incident is open at a time, and Done closes it. Merge and
+   Delete are inside the open incident. She can reorder or undo, and she
+   confirms the final list herself. Each question chip opens the incident at
+   the field it is about.
 3. **Your story:** optional, in her own words.
 4. **Questions:** every check question is listed, closed, with "Add more" and
    "Continue as is" at equal visual weight. "Add more" takes her to the field
-   the question is about. Possible contact details in an incident are marked
+   the question is about, and "Back to the question" (stuck to the bottom of
+   the screen on Incidents) brings her back to it, open. Possible contact details in an incident are marked
    in place; her words are never changed. Under the questions are six
    optional safety questions (Yes / No / Not sure, each can be cleared).
 5. **Review:** a plain-text summary she can copy or print, including the
@@ -183,6 +187,8 @@ for the team to decide.
 - **Advocate contacts:** "Talk to an advocate" is on every screen. All
   contacts come from `resources.json`, and the code contains no phone
   numbers.
+- **Light mode first:** every visit starts in light mode. The dark mode switch
+  is on the right of the header, next to Quick exit.
 - **No autofill history:** text inputs have `autocomplete="off"`, so the
   browser doesn't save what she types.
 
@@ -237,7 +243,7 @@ Desk's code is in [src/desk/](src/desk/). ReadyFile never imports from it.
 
 ## Tests
 
-`npm test` runs 105 tests in [tests/](tests/):
+`npm test` runs 146 tests in [tests/](tests/):
 
 - **Acceptance tests 1–8 from section 12:** `acceptance.test.tsx` covers
   tests 1–6 and 8, and `content.test.ts` covers test 7, the banned-phrase
@@ -254,7 +260,9 @@ Desk's code is in [src/desk/](src/desk/). ReadyFile never imports from it.
 
 ## Open TODOs
 
-- [ ] Team: fill in and verify every entry in `resources.json`.
+- [ ] Team: verify each contact in `resources.json` (the ICADV and national
+      hotlines, 911, and icadvinc.org), then set `verified: true`. Fill in the
+      Allen County specialist, which stays hidden until then.
 - [ ] Team: review all text in `copy.json` for plain language and reading level.
 - [ ] Team: confirm the quick exit address (now `https://www.weather.com`).
 - [ ] Decide whether to turn off spellcheck in the story box. Some browsers'
