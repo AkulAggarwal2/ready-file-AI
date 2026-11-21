@@ -1160,6 +1160,20 @@ legend {
   flex: 0 1 auto;
 }
 
+/* Paragraphs are capped at 68ch, so on a wide screen each one is a narrow box.
+   Rules like `.callout p { margin: 0 }` and `.hint { margin: ... }` wipe out the
+   auto side margins and leave that box stuck to the left edge, which is what made
+   lines look off-center. These selectors out-rank them. */
+.content p,
+.site-header p,
+.resources-panel p,
+.dialog p,
+p.hint,
+p.note {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* Typed text, the review summary, and the field labels are all centered. */
 textarea,
 .summary,
