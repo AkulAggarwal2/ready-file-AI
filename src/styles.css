@@ -482,6 +482,9 @@ legend {
    the selected option is shown by the blue highlight and a check mark on the right. */
 .choice {
   position: relative;
+  /* Equal padding on both sides keeps the label truly centered; the check mark
+     sits in the right-hand gutter. */
+  padding-left: calc(var(--space-4) + 2rem);
   padding-right: calc(var(--space-4) + 2rem);
 }
 
@@ -1157,20 +1160,36 @@ legend {
   flex: 0 1 auto;
 }
 
-/* Text boxes stay readable while typing, but their labels and boxes are centered. */
+/* Typed text, the review summary, and the field labels are all centered. */
 textarea,
-.summary {
-  text-align: left;
-}
-
+.summary,
 input[type='text'],
 input[type='date'],
 select {
   text-align: center;
 }
 
+/* A <select> centers its chosen option, but the dropdown list needs this too. */
+select {
+  text-align-last: center;
+}
+
+::placeholder {
+  text-align: center;
+}
+
 .badge {
   margin-left: 0;
+}
+
+/* Advocate panel: name, badge, description and contact each on their own
+   centered line, instead of the name and badge running together. */
+.resources-panel li strong {
+  display: block;
+}
+
+.resources-panel li .badge {
+  margin: var(--space-1) 0;
 }
 
 .timeline-list {
