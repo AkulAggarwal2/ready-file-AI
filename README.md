@@ -21,6 +21,10 @@ npm test           # runs all tests once
 npm run build      # type-checks and builds to dist/
 ```
 
+Continuous integration: every pull request to `main`, and every push to
+`main`, runs `npm test` and `npm run build` on GitHub Actions
+([.github/workflows/ci.yml](.github/workflows/ci.yml)). Nothing is deployed.
+
 In development mode (`npm run dev`):
 
 - The story screen shows two buttons that fill in the fictional "Lena"
