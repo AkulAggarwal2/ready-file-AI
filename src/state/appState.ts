@@ -1,4 +1,4 @@
-import type { CaseType, Relationship, YesNoUnknown } from '../checker';
+import type { Ground, Relationship, YesNoUnknown } from '../checker';
 import { copy, fill, type SafetyAnswer } from '../content';
 import { createIncident, mergeIncidents, type Incident, type IncidentFields } from '../organizer';
 
@@ -28,7 +28,8 @@ export interface UndoEntry {
 
 export interface AppState {
   step: Step;
-  caseType: CaseType | null;
+  // The grounds she checked (question 1 on the petition). Empty means not sure.
+  grounds: Ground[];
   // How she knows the person (question 2 on the petition). Optional.
   relationship: Relationship | null;
   // Her account in her own words, written after the incidents.
@@ -66,7 +67,7 @@ export type PersonDetails = Partial<Pick<AppState, 'threat' | 'askedToStop' | 'a
 
 export const initialState: AppState = {
   step: 'start',
-  caseType: null,
+  grounds: [],
   relationship: null,
   story: '',
   threat: '',
@@ -85,7 +86,7 @@ export const initialState: AppState = {
 };
 
 export type Action =
-  | { type: 'begin'; caseType: CaseType; relationship: Relationship | null }
+  | { type: 'begin'; grounds: Ground[]; relationship: Relationship | null }
   | { type: 'goTo'; step: Step }
   | { type: 'setStory'; story: string }
   | { type: 'setPersonDetails'; changes: PersonDetails }
@@ -136,7 +137,7 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'begin':
       return {
         ...state,
-        caseType: action.caseType,
+        grounds: action.grounds,
         relationship: action.relationship,
         step: state.returnTo ?? 'incidents',
         returnTo: null,

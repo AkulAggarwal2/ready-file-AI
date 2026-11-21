@@ -44,27 +44,34 @@
     "notFiling": "This tool does not file anything for you. It does not give legal advice.",
     "safetyHeading": "Before you start",
     "safetyNote": "If someone else uses this device, they may see what you type. Nothing is saved. To leave fast, use Quick exit at the top of the screen. Everything is cleared after {minutes} minutes with no activity.",
-    "caseTypeLegend": "What kind of protection order are you asking for?",
-    "caseTypeHint": "If you are not sure, pick \"Not sure.\" You can still finish.",
-    "caseTypes": {
-      "stalking": "Stalking",
-      "harassment": "Harassment",
+    "groundsLegend": "What happened? Check every one that applies.",
+    "groundsHint": "This is question 1 on the court's form. If you are not sure, leave them all unchecked. You can still finish.",
+    "grounds": {
       "domestic-violence": "Domestic or family violence",
-      "sexual-assault": "Sexual assault",
-      "not-sure": "Not sure"
+      "sex-offense": "A sex offense, like sexual assault",
+      "stalking": "Stalking",
+      "harassment": "Repeated harassment",
+      "sex-grooming": "Sex grooming of a child"
     },
     "begin": "Start",
     "relationshipLabel": "How do you know this person?",
     "relationshipHint": "The court's form asks this (question 2). It helps show which kind of order fits. You can skip it.",
     "relationships": {
       "": "Choose one (optional)",
-      "spouse": "We are or were married",
+      "spouse": "We are married",
+      "former-spouse": "We used to be married",
+      "lived-together": "We lived together in an intimate relationship",
+      "child-in-common": "We have a child together",
       "dating": "We are dating or used to date",
       "sexual": "We have or had a sexual relationship",
-      "child-in-common": "We have a child together",
-      "family": "We are related by blood or adoption",
+      "blood-adoption": "We are related by blood or adoption",
       "marriage": "We are or were related by marriage, like a stepparent or in-law",
-      "guardian": "One of us is or was the other's guardian, custodian, or foster parent",
+      "guardian": "The person is or was my guardian",
+      "ward": "The person is or was my ward (I was their guardian)",
+      "custodian": "The person is or was my custodian",
+      "foster-parent": "The person is or was my foster parent",
+      "minor-child-of": "I am the minor child of someone with one of these relationships to the person",
+      "adopted-their-child": "I adopted the person's child",
       "none": "None of these, like a neighbor, coworker, or stranger",
       "not-sure": "Not sure, or I'd rather not say"
     }
@@ -151,9 +158,11 @@
       "threatened-harm": "Threatened to hurt me",
       "caused-harm": "Hurt me",
       "placed-in-fear": "Made me afraid I would be hurt",
-      "forced-sexual": "Forced me into sexual activity",
+      "forced-sexual": "Forced me into sexual activity by force, threats, or pressure",
+      "stalking": "Stalked me",
+      "sex-offense": "Committed a sex offense against me",
       "animal-cruelty": "Hurt or killed an animal to scare or control me",
-      "unwanted-contact": "Kept contacting or following me when I didn't want it"
+      "harassment": "Harassed me again and again"
     },
     "presentLabel": "Who was there?",
     "presentHint": "List everyone who was there. The court's form asks you to include your own name if you were there.",
@@ -212,13 +221,14 @@
       "The Confidential Form (PO-0104): the person's full name, date of birth, and current address, if you know them. Police need these to serve and enforce the order.",
       "Your signature. You sign under penalty of perjury that what you wrote is true."
     ],
-    "formHarassment": "Because you chose harassment: if your petition is based on harassment alone, the court must notify the person and hold a hearing before it can order anything.",
+    "formHarassment": "Because you checked only harassment: if your petition is based on harassment alone, the court must notify the person and hold a hearing before it can order anything.",
     "formSource": "Based on the Indiana petition (PO-0100) and its instructions (PO-0102).",
-    "formSexOffense": "Because you chose sexual assault: if the person was convicted and must register as a sex or violent offender for life, question 2 asks for the case number, the court and state, and the date of conviction."
+    "formSexOffense": "Because you checked a sex offense: if the person was convicted and must register as a sex or violent offender for life, question 2 asks for the case number, the court and state, and the date of conviction."
   },
   "summary": {
     "title": "Incident summary",
-    "caseType": "Type of protection order: {caseType}",
+    "grounds": "Grounds for the order (question 1): {grounds}",
+    "groundsNotSure": "Grounds for the order (question 1): not sure yet",
     "incident": "Incident #{n}",
     "when": "Date of incident: {when}",
     "dateUnknown": "Date not known",

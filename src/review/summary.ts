@@ -1,4 +1,4 @@
-import { ACTS, type Act, type CaseType, type Relationship, type YesNoUnknown } from '../checker';
+import { ACTS, type Act, type Ground, type Relationship, type YesNoUnknown } from '../checker';
 import { copy, fill, safetyQuestions, type SafetyAnswer } from '../content';
 import type { Incident } from '../organizer';
 
@@ -68,12 +68,12 @@ export interface SummarySection {
 
 /**
  * The summary in the order of the court's petition (PO-0100): how she knows
- * the person (question 2), what the person did (question 7), then each
+ * the person (question 2) after the grounds she checked (question 1), what the person did (question 7), then each
  * incident with the details question 8 asks for, in the order of her list.
  * Empty details are left out. Her safety answers come last.
  */
 export function summarySections(
-  caseType: CaseType,
+  grounds: Ground[],
   incidents: Incident[],
   story = '',
   relationship: Relationship | null = null,
@@ -81,7 +81,11 @@ export function summarySections(
   safetyAnswers: Record<string, SafetyAnswer> = {},
 ): SummarySection[] {
   const s = copy.summary;
-  const header: string[] = [fill(s.caseType, { caseType: copy.start.caseTypes[caseType] })];
+  const header: string[] = [
+    grounds.length === 0
+      ? s.groundsNotSure
+      : fill(s.grounds, { grounds: grounds.map((g) => copy.start.grounds[g]).join('; ') }),
+  ];
   if (relationship && relationship !== 'not-sure') {
     header.push(fill(s.relationship, { relationship: copy.start.relationships[relationship] }));
   }
@@ -124,7 +128,7 @@ export function summarySections(
     sections.push({ lines: [fill(s.askedToStop, { answer: detail ? `${answer}. ${detail}` : answer })] });
   }
 
-  if (caseType === 'sexual-assault' && person.convicted === 'yes') sections.push({ lines: [s.convicted] });
+  if (grounds.includes('sex-offense') && person.convicted === 'yes') sections.push({ lines: [s.convicted] });
 
   // Her own words come after the dated incidents.
   if (story.trim()) sections.push({ heading: s.story, lines: [], text: story.trim() });
@@ -137,14 +141,14 @@ export function summarySections(
 
 /** Plain-text summary she can paste into the court's e-filing form or print. */
 export function buildSummary(
-  caseType: CaseType,
+  grounds: Ground[],
   incidents: Incident[],
   story = '',
   relationship: Relationship | null = null,
   person: PersonAnswers = NO_ANSWERS,
   safetyAnswers: Record<string, SafetyAnswer> = {},
 ): string {
-  return summaryText(summarySections(caseType, incidents, story, relationship, person, safetyAnswers));
+  return summaryText(summarySections(grounds, incidents, story, relationship, person, safetyAnswers));
 }
 
 /** The sections as plain text, one line each, with a blank line before each heading. */

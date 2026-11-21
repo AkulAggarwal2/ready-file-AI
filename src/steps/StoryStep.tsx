@@ -86,7 +86,7 @@ export function StoryStep() {
         </>
       )}
 
-      {state.caseType === 'sexual-assault' && (
+      {state.grounds.includes('sex-offense') && (
         <>
           <label htmlFor={CONVICTED_ID}>{c.convictedLabel}</label>
           <p id="convicted-hint" className="hint">

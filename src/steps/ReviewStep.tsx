@@ -11,8 +11,8 @@ export function ReviewStep() {
   const { state, dispatch } = useAppState();
   const [copyStatus, setCopyStatus] = useState('');
   const c = copy.review;
-  const caseType = state.caseType ?? 'not-sure';
-  const sections = summarySections(caseType, state.incidents, state.story, state.relationship, state, state.safetyAnswers);
+  const { grounds } = state;
+  const sections = summarySections(grounds, state.incidents, state.story, state.relationship, state, state.safetyAnswers);
   const summary = summaryText(sections);
 
   async function copySummary() {
@@ -58,8 +58,8 @@ export function ReviewStep() {
           {c.formItems.map((item) => (
             <li key={item}>{item}</li>
           ))}
-          {caseType === 'harassment' && <li>{c.formHarassment}</li>}
-          {caseType === 'sexual-assault' && <li>{c.formSexOffense}</li>}
+          {grounds.length === 1 && grounds[0] === 'harassment' && <li>{c.formHarassment}</li>}
+          {grounds.includes('sex-offense') && <li>{c.formSexOffense}</li>}
         </ul>
         <p className="hint">{c.formSource}</p>
       </section>

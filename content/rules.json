@@ -2,7 +2,7 @@
   "rules": [
     {
       "id": "stalking-two-incidents",
-      "caseTypes": [
+      "grounds": [
         "stalking"
       ],
       "condition": {
@@ -22,7 +22,7 @@
     },
     {
       "id": "harassment-repeated",
-      "caseTypes": [
+      "grounds": [
         "harassment"
       ],
       "condition": {
@@ -35,7 +35,7 @@
     },
     {
       "id": "dv-relationship",
-      "caseTypes": [
+      "grounds": [
         "domestic-violence"
       ],
       "condition": {
@@ -47,11 +47,12 @@
     },
     {
       "id": "present-threat",
-      "caseTypes": [
+      "grounds": [
         "stalking",
         "harassment",
         "domestic-violence",
-        "sexual-assault",
+        "sex-offense",
+        "sex-grooming",
         "not-sure"
       ],
       "condition": {
@@ -63,7 +64,7 @@
     },
     {
       "id": "asked-to-stop",
-      "caseTypes": [
+      "grounds": [
         "stalking",
         "harassment"
       ],
@@ -76,8 +77,8 @@
     },
     {
       "id": "sexual-assault-conviction",
-      "caseTypes": [
-        "sexual-assault"
+      "grounds": [
+        "sex-offense"
       ],
       "condition": {
         "type": "convictionMissing"
@@ -88,7 +89,7 @@
     },
     {
       "id": "feeling-stalking",
-      "caseTypes": [
+      "grounds": [
         "stalking"
       ],
       "condition": {
@@ -100,7 +101,7 @@
     },
     {
       "id": "feeling-harassment",
-      "caseTypes": [
+      "grounds": [
         "harassment"
       ],
       "condition": {
@@ -112,11 +113,12 @@
     },
     {
       "id": "incidents-out-of-order",
-      "caseTypes": [
+      "grounds": [
         "stalking",
         "harassment",
         "domestic-violence",
-        "sexual-assault",
+        "sex-offense",
+        "sex-grooming",
         "not-sure"
       ],
       "condition": {
@@ -128,11 +130,12 @@
     },
     {
       "id": "incident-missing-date",
-      "caseTypes": [
+      "grounds": [
         "stalking",
         "harassment",
         "domestic-violence",
-        "sexual-assault",
+        "sex-offense",
+        "sex-grooming",
         "not-sure"
       ],
       "condition": {
@@ -145,11 +148,12 @@
     },
     {
       "id": "incident-future-date",
-      "caseTypes": [
+      "grounds": [
         "stalking",
         "harassment",
         "domestic-violence",
-        "sexual-assault",
+        "sex-offense",
+        "sex-grooming",
         "not-sure"
       ],
       "condition": {
@@ -161,11 +165,12 @@
     },
     {
       "id": "incident-missing-place",
-      "caseTypes": [
+      "grounds": [
         "stalking",
         "harassment",
         "domestic-violence",
-        "sexual-assault",
+        "sex-offense",
+        "sex-grooming",
         "not-sure"
       ],
       "condition": {
@@ -178,11 +183,12 @@
     },
     {
       "id": "incident-missing-people",
-      "caseTypes": [
+      "grounds": [
         "stalking",
         "harassment",
         "domestic-violence",
-        "sexual-assault",
+        "sex-offense",
+        "sex-grooming",
         "not-sure"
       ],
       "condition": {
@@ -194,11 +200,12 @@
     },
     {
       "id": "incident-not-firsthand",
-      "caseTypes": [
+      "grounds": [
         "stalking",
         "harassment",
         "domestic-violence",
-        "sexual-assault",
+        "sex-offense",
+        "sex-grooming",
         "not-sure"
       ],
       "condition": {
@@ -210,7 +217,7 @@
     },
     {
       "id": "dv-acts",
-      "caseTypes": [
+      "grounds": [
         "domestic-violence"
       ],
       "condition": {
@@ -222,11 +229,12 @@
     },
     {
       "id": "incident-too-short",
-      "caseTypes": [
+      "grounds": [
         "stalking",
         "harassment",
         "domestic-violence",
-        "sexual-assault",
+        "sex-offense",
+        "sex-grooming",
         "not-sure"
       ],
       "condition": {
@@ -244,8 +252,8 @@
     },
     {
       "id": "sexual-assault-acts",
-      "caseTypes": [
-        "sexual-assault"
+      "grounds": [
+        "sex-offense"
       ],
       "condition": {
         "type": "incidentActsMissing"
@@ -256,11 +264,12 @@
     },
     {
       "id": "incident-contact-info",
-      "caseTypes": [
+      "grounds": [
         "stalking",
         "harassment",
         "domestic-violence",
-        "sexual-assault",
+        "sex-offense",
+        "sex-grooming",
         "not-sure"
       ],
       "condition": {
@@ -278,11 +287,12 @@
     },
     {
       "id": "respondent-dob-missing",
-      "caseTypes": [
+      "grounds": [
         "stalking",
         "harassment",
         "domestic-violence",
-        "sexual-assault",
+        "sex-offense",
+        "sex-grooming",
         "not-sure"
       ],
       "condition": {

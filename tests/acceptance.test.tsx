@@ -60,7 +60,7 @@ describe('1. Lena, one incident', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: copy.review.heading })).toBeInTheDocument();
     expect(screen.getByText(copy.review.notFiling)).toBeInTheDocument();
-    expect(summaryText()).toContain('Type of protection order: Stalking');
+    expect(summaryText()).toContain(fill(copy.summary.grounds, { grounds: copy.start.grounds.stalking }));
     expect(summaryText()).toContain(fill(copy.summary.when, { when: 'March 14' }));
     expect(summaryText()).toContain(LENA_ONE_INCIDENT);
 
@@ -96,6 +96,25 @@ describe('2. Lena, four incidents', () => {
   });
 });
 
+describe('2b. More than one ground (PO-0100 question 1: "check those which apply")', () => {
+  it('lists every ground she checked, in the form\'s order, and asks a shared question once', async () => {
+    const user = renderApp();
+    await user.click(screen.getByRole('checkbox', { name: copy.start.grounds.harassment }));
+    await user.click(screen.getByRole('checkbox', { name: copy.start.grounds.stalking }));
+    await user.click(screen.getByRole('button', { name: copy.start.begin }));
+    await loadSample(user, 'one');
+    await toQuestions(user);
+    // stalking-two-incidents and harassment-repeated ask the same thing; only one is listed.
+    expect(questionToggles().filter((t) => t.textContent?.includes(copy.badges.incidentCountBelow))).toHaveLength(1);
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+    expect(summaryText()).toContain(
+      fill(copy.summary.grounds, { grounds: `${copy.start.grounds.stalking}; ${copy.start.grounds.harassment}` }),
+    );
+    // Not harassment alone, so the harassment-only note is not shown.
+    expect(screen.queryByText(copy.review.formHarassment)).toBeNull();
+  });
+});
+
 describe('3. Not sure', () => {
   it('she can pick "Not sure" and finish', async () => {
     const user = renderApp();
@@ -103,7 +122,7 @@ describe('3. Not sure', () => {
     await loadSample(user, 'one');
     await toQuestions(user);
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
-    expect(summaryText()).toContain('Type of protection order: Not sure');
+    expect(summaryText()).toContain(copy.summary.groundsNotSure);
   });
 
   it('she is not forced to choose: Start with nothing picked continues as "Not sure"', async () => {
@@ -113,7 +132,7 @@ describe('3. Not sure', () => {
     await loadSample(user, 'one');
     await toQuestions(user);
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
-    expect(summaryText()).toContain('Type of protection order: Not sure');
+    expect(summaryText()).toContain(copy.summary.groundsNotSure);
   });
 });
 
@@ -138,7 +157,7 @@ describe('4. Quick exit', () => {
 
     // State is cleared: back on Start with nothing chosen, no incidents, and an empty story.
     expect(screen.getByRole('heading', { level: 1, name: copy.start.heading })).toBeInTheDocument();
-    expect(screen.getByRole('radio', { name: 'Stalking' })).not.toBeChecked();
+    expect(screen.getByRole('checkbox', { name: copy.start.grounds.stalking })).not.toBeChecked();
     await begin(user);
     expect(screen.getByText(copy.organize.empty)).toBeInTheDocument();
     await goToStep(user, 'story');
@@ -388,7 +407,7 @@ describe('10. Follows the petition (PO-0100)', () => {
 
   it('for domestic violence, "none of these" asks about the relationship and goes back to it', async () => {
     const user = renderApp();
-    await user.click(screen.getByRole('radio', { name: copy.start.caseTypes['domestic-violence'] }));
+    await user.click(screen.getByRole('checkbox', { name: copy.start.grounds['domestic-violence'] }));
     await user.selectOptions(screen.getByRole('combobox', { name: copy.start.relationshipLabel }), 'none');
     await user.click(screen.getByRole('button', { name: copy.start.begin }));
     await toQuestions(user);
@@ -488,10 +507,10 @@ describe('12. Numbers and pages match the form', () => {
   });
 });
 
-describe('13. Sexual assault', () => {
+describe('13. Sex offense', () => {
   it('asks about a conviction on Your story, and the Review checklist explains question 2', async () => {
     const user = renderApp();
-    await user.click(screen.getByRole('radio', { name: copy.start.caseTypes['sexual-assault'] }));
+    await user.click(screen.getByRole('checkbox', { name: copy.start.grounds['sex-offense'] }));
     await user.click(screen.getByRole('button', { name: copy.start.begin }));
     await addIncident(user, 'He came to my apartment after a party and forced me into sexual activity.');
     await toQuestions(user);

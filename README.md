@@ -66,7 +66,7 @@ them right away. For a production build, run `npm run build` again.
 | File | What it controls |
 | --- | --- |
 | [content/copy.json](content/copy.json) | All on-screen text, plus the quick exit address (`quickExit.url`). `{name}` marks a value the app fills in, such as `{n}` for an incident number. |
-| [content/rules.json](content/rules.json) | The check questions. Each rule has `id`, `caseTypes`, `condition`, `questionText`, `sourceCitation`, and `verified`. |
+| [content/rules.json](content/rules.json) | The check questions. Each rule has `id`, `grounds` (from PO-0100 question 1, plus `not-sure`), `condition`, `questionText`, `sourceCitation`, and `verified`. |
 | [content/resources.json](content/resources.json) | The advocate contacts behind "Talk to an advocate". An entry with `verified: false` shows a "Not checked yet" label. |
 | [content/safety-questions.json](content/safety-questions.json) | The optional safety questions (from the Petition Review Flags design). Each has `id`, `question` (what the petitioner sees), `staffLabel` (the chip Desk shows for a "yes"), `sourceCitation`, and `verified`. ReadyFile and Desk both read it. |
 
@@ -89,7 +89,7 @@ one rule. Rules cannot contain code.
 | `relationshipNotHousehold` | she said the person is not a family or household member (PO-0100 question 2; asked once) |
 | `incidentsOutOfOrder` | two incidents with full dates are out of date order in her list (asked once) |
 | `presentThreatMissing` | she has incidents, but has not said why the person could hurt her now (asked once) |
-| `convictionMissing` | she has incidents, but has not said whether the person was convicted (asked once; used for sexual assault) |
+| `convictionMissing` | she has incidents, but has not said whether the person was convicted (asked once; used when a sex offense is checked) |
 | `askedToStopMissing` | she has incidents, but has not said whether she told the person to stop (asked once) |
 | `incidentContactInfo` | an incident's description, place, or evidence may include contact details. `kinds` lists which: `phone`, `ssn`, `address`. The patterns are in [src/checker/detectors.ts](src/checker/detectors.ts). They are simple, so they can miss some formats or mark text that isn't one. |
 | `respondentDobBlank` | the respondent's date of birth is blank (asked once). |
@@ -138,7 +138,7 @@ to that one. The 15-word limit in
 | `dv-acts` | Domestic violence incident with no act checked | PO-0100 question 7 |
 | `incident-too-short` | A description under 15 words | PO-0102; *Maurer v. Cobb-Maurer* |
 | `sexual-assault-conviction` | Whether the person was convicted (an order can last with no end date) | PO-0100 questions 2 and 9; PO-0102 |
-| `sexual-assault-acts` | Sexual assault incident with no act checked | PO-0100 question 7; IC 35-42-4; IC 34-26-5-2(a)(2) |
+| `sexual-assault-acts` | Sex offense incident with no act checked | PO-0100 question 7; IC 35-42-4; IC 34-26-5-2(a)(2) |
 | `respondent-dob-missing` | The respondent's date of birth is blank (Desk only) | PO-0102: without a date of birth or Social Security number, the order can't go into the national registry |
 
 ### Still unverified
@@ -154,6 +154,13 @@ for the team to decide.
 
 ## Following the petition (PO-0100)
 
+- **Grounds:** the Start screen asks question 1 the way the form does: check
+  every ground that applies (domestic or family violence, a sex offense,
+  stalking, repeated harassment). None checked means not sure. A rule applies
+  if it lists any checked ground; when two rules ask the same thing, it is
+  asked once.
+- **Lists match the form:** the relationships follow question 2's lines and
+  the acts follow question 7's nine boxes, in the form's order.
 - **Start:** "How do you know this person?" matches question 2. It is optional.
 - **Each incident** asks for what question 8 asks: date, place, a description,
   and everyone who was present. It also asks which acts from question 7

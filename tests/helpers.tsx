@@ -12,9 +12,10 @@ export function renderApp() {
   return user;
 }
 
-/** Start screen: pick a case type (or none) and press Start. */
-export async function begin(user: User, caseType?: 'Stalking' | 'Harassment' | 'Not sure') {
-  if (caseType) await user.click(screen.getByRole('radio', { name: caseType }));
+/** Start screen: check one ground (or none, for "not sure") and press Start. */
+export async function begin(user: User, ground?: 'Stalking' | 'Harassment' | 'Not sure') {
+  const label = ground === 'Stalking' ? copy.start.grounds.stalking : ground === 'Harassment' ? copy.start.grounds.harassment : null;
+  if (label) await user.click(screen.getByRole('checkbox', { name: label }));
   await user.click(screen.getByRole('button', { name: copy.start.begin }));
 }
 
