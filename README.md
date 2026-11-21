@@ -116,14 +116,14 @@ finding's `values` (`n` incident count, `i` incident number, `words`).
 
 Every ReadyFile rule is `verified: true`, backed by the court's forms
 (PO-0100, PO-0102) or the team's checked Westlaw research. A test fails if a
-rule is added without a source or without being verified. Only the two rules
-under "Still unverified" are exempt, by name, and another test keeps that list
-to those two. The 15-word limit in
+rule is added without a source or without being verified. Only the one rule
+under "Still unverified" is exempt, by name, and another test keeps that list
+to that one. The 15-word limit in
 `incident-too-short` is a tool setting, not a legal rule.
 
 | Rule | Asks for | Source |
 | --- | --- | --- |
-| `stalking-two-incidents` | Stalking with fewer than 2 incidents | PO-0102 (team source K2) |
+| `stalking-two-incidents` | Stalking with fewer than 2 incidents | PO-0102 definition of stalking (two or more incidents) |
 | `harassment-repeated` | Harassment with fewer than 2 incidents | PO-0102, Ind. Code § 34-6-2-51.5 |
 | `dv-relationship` | Domestic violence when the person is not family or household | PO-0102; PO-0100 question 2 |
 | `present-threat` | Whether the person could hurt her now | IC 34-26-5-9(f); *S.H. v. D.W.* (Ind. 2020); *S.D. v. G.D.* (Ind. 2023) |
@@ -139,13 +139,13 @@ to those two. The 15-word limit in
 | `incident-too-short` | A description under 15 words | PO-0102; *Maurer v. Cobb-Maurer* |
 | `sexual-assault-conviction` | Whether the person was convicted (an order can last with no end date) | PO-0100 questions 2 and 9; PO-0102 |
 | `sexual-assault-acts` | Sexual assault incident with no act checked | PO-0100 question 7; IC 35-42-4; IC 34-26-5-2(a)(2) |
+| `respondent-dob-missing` | The respondent's date of birth is blank (Desk only) | PO-0102: without a date of birth or Social Security number, the order can't go into the national registry |
 
 ### Still unverified
 
 | Rule | Status |
 | --- | --- |
 | `incident-contact-info` | Draft wording, source TODO. It names the court form's confidential section; the team must confirm that section and its name. |
-| `respondent-dob-missing` | From PO-0102 petition booklet (team source K2), not yet confirmed. Only Desk asks it. |
 | Safety questions | Wording from the Petition Review Flags design. Source TODO. |
 
 The Petition Review Flags design suggests new wording for

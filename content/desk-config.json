@@ -32,7 +32,7 @@
       "denied"
     ]
   },
-  "outcomesSource": "Harassment-only petitions need notice and a hearing before any relief: PO-0102 petition booklet (team source K2).",
+  "outcomesSource": "Harassment-only petitions need notice and a hearing before any relief: PO-0102, Instructions for Petition for an Order for Protection (Filed by Person Seeking Protection), rev. 05/14/25 (\"petitions based on harassment alone require notice to Respondent and a hearing within thirty (30) days before ANY relief may be granted\"); PO-0100 question 9.",
   "denialReasons": [
     {
       "id": "definition",
@@ -51,5 +51,5 @@
       "label": "Other"
     }
   ],
-  "denialReasonsSource": "From the common denial reasons in the PO-0102 booklet."
+  "denialReasonsSource": "From the common denial reasons in PO-0102, Instructions for Petition for an Order for Protection (Filed by Person Seeking Protection), rev. 05/14/25."
 }

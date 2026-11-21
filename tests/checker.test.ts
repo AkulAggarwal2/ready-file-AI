@@ -96,15 +96,15 @@ describe('runChecks with the seeded rules', () => {
 
   // Rules still waiting for the team to supply a source. Remove an id once its
   // rule is verified. See "Still unverified" in the README.
-  const KNOWN_UNVERIFIED = ['incident-contact-info', 'respondent-dob-missing'];
+  const KNOWN_UNVERIFIED = ['incident-contact-info'];
 
   it('marks every other seeded rule verified, with a source', () => {
     const unverified = rules.filter((rule) => !rule.verified || /TODO/.test(rule.sourceCitation)).map((r) => r.id);
     expect(unverified.filter((id) => !KNOWN_UNVERIFIED.includes(id))).toEqual([]);
   });
 
-  it('allows only the two known unverified rules', () => {
-    expect(KNOWN_UNVERIFIED).toEqual(['incident-contact-info', 'respondent-dob-missing']);
+  it('allows only the one known unverified rule', () => {
+    expect(KNOWN_UNVERIFIED).toEqual(['incident-contact-info']);
     expect(KNOWN_UNVERIFIED.filter((id) => !rules.some((rule) => rule.id === id))).toEqual([]);
   });
 

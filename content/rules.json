@@ -10,7 +10,7 @@
         "value": 2
       },
       "questionText": "Stalking means two or more incidents. Are there other times?",
-      "sourceCitation": "PO-0102 petition booklet (team source K2); R.W. v. J.W., 160 N.E.3d 195 (Ind. Ct. App. 2020) (\"repeated\" means more than once); C.S. v. T.K., 118 N.E.3d 78 (Ind. Ct. App. 2019) (one incident is not enough)",
+      "sourceCitation": "PO-0102, Instructions for Petition for an Order for Protection (Filed by Person Seeking Protection), rev. 05/14/25, definition of stalking (\"course of conduct\" means two or more incidents); R.W. v. J.W., 160 N.E.3d 195 (Ind. Ct. App. 2020) (\"repeated\" means more than once); C.S. v. T.K., 118 N.E.3d 78 (Ind. Ct. App. 2019) (one incident is not enough)",
       "verified": true,
       "staffText": {
         "by": "n",
@@ -289,8 +289,8 @@
         "type": "respondentDobBlank"
       },
       "questionText": "Do you know the other person's date of birth? Without it, the order goes into Indiana's registry but not the national one.",
-      "sourceCitation": "PO-0102 petition booklet (team source K2)",
-      "verified": false,
+      "sourceCitation": "PO-0102, Instructions for Petition for an Order for Protection (Filed by Person Seeking Protection), rev. 05/14/25: without the respondent's date of birth or Social Security number, the order cannot be entered into the national Protection Order Registry",
+      "verified": true,
       "staffText": "The respondent's date of birth is blank"
     }
   ]
