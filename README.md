@@ -37,10 +37,16 @@ Neither appears in a production build.
 To try the AI splitter stub, start the app with `VITE_ENABLE_LLM=true npm run dev`.
 See "The incident splitter" below.
 
-## The five steps
+## The steps
 
-1. **Start:** she picks the kind of order, or "Not sure". If she picks
-   nothing, she continues as "Not sure".
+0. **Your situation:** one question at a time, it asks who the order is for
+   (her, a child, an employee, or she is the respondent) and what she is
+   trying to do, and lists the court forms that fit. Only the adult petition
+   continues into the steps below for now; other outcomes list their forms
+   and say ReadyFile does not fill them yet. The questions are in
+   `content/routing.json`.
+1. **Start:** she checks the grounds that apply (question 1), or none for
+   "not sure".
 2. **Incidents:** she adds each incident with a date (a new one opens on the
    date picker), a place ("Where did it happen?"), how it happened, and what
    happened. One incident is open at a time, and Done closes it. Merge and
@@ -68,6 +74,8 @@ them right away. For a production build, run `npm run build` again.
 | [content/copy.json](content/copy.json) | All on-screen text, plus the quick exit address (`quickExit.url`). `{name}` marks a value the app fills in, such as `{n}` for an incident number. |
 | [content/rules.json](content/rules.json) | The check questions. Each rule has `id`, `grounds` (from PO-0100 question 1, plus `not-sure`), `condition`, `questionText`, `sourceCitation`, and `verified`. |
 | [content/resources.json](content/resources.json) | The advocate contacts behind "Talk to an advocate". An entry with `verified: false` shows a "Not checked yet" label. |
+| [content/forms.json](content/forms.json) | Every form on the court's protection order forms page: number, official title, dates, Word and PDF links (for citation only), who fills it, and what ReadyFile makes from it. A test keeps it in step with the page's list. |
+| [content/routing.json](content/routing.json) | The Your situation questions. Each option goes to another question (`next`) or an outcome; each outcome lists its court forms. A test checks every option leads somewhere and every form exists. |
 | [content/safety-questions.json](content/safety-questions.json) | The optional safety questions (from the Petition Review Flags design). Each has `id`, `question` (what the petitioner sees), `staffLabel` (the chip Desk shows for a "yes"), `sourceCitation`, and `verified`. ReadyFile and Desk both read it. |
 
 ### Rule conditions

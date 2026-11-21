@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from '../src/App';
 import { copy, fill } from '../src/content';
@@ -12,8 +12,31 @@ export function renderApp() {
   return user;
 }
 
+/**
+ * Route screen: "Me" > "Ask for a new protection order" > "At or near my home",
+ * then on to the petition's Start screen. Does nothing if already past it.
+ */
+export async function toStart(user: User) {
+  if (!screen.queryByRole('heading', { level: 1, name: copy.route.heading })) return;
+  for (const option of ['Me', 'Ask for a new protection order', 'At or near my home']) {
+    await user.click(screen.getByRole('radio', { name: option }));
+    await user.click(screen.getByRole('button', { name: copy.route.continue }));
+  }
+  await user.click(screen.getByRole('button', { name: copy.route.toPetition }));
+}
+
+/** toStart without user-event, for tests on fake timers. */
+export function toStartSync() {
+  for (const option of ['Me', 'Ask for a new protection order', 'At or near my home']) {
+    fireEvent.click(screen.getByRole('radio', { name: option }));
+    fireEvent.click(screen.getByRole('button', { name: copy.route.continue }));
+  }
+  fireEvent.click(screen.getByRole('button', { name: copy.route.toPetition }));
+}
+
 /** Start screen: check one ground (or none, for "not sure") and press Start. */
 export async function begin(user: User, ground?: 'Stalking' | 'Harassment' | 'Not sure') {
+  await toStart(user);
   const label = ground === 'Stalking' ? copy.start.grounds.stalking : ground === 'Harassment' ? copy.start.grounds.harassment : null;
   if (label) await user.click(screen.getByRole('checkbox', { name: label }));
   await user.click(screen.getByRole('button', { name: copy.start.begin }));

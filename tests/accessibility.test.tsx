@@ -7,7 +7,7 @@ import { App } from '../src/App';
 import { IDLE_TIMEOUT_MS, TIMEOUT_WARNING_SECONDS } from '../src/config';
 import { copy } from '../src/content';
 import { LENA_ONE_INCIDENT } from '../src/samples/lena';
-import { begin, loadSample, questionToggles, renderApp, stepName } from './helpers';
+import { begin, loadSample, questionToggles, renderApp, stepName, toStartSync } from './helpers';
 
 vi.mock('../src/safety/leaveSite', () => ({ leaveSite: vi.fn() }));
 
@@ -78,9 +78,36 @@ describe('axe finds no violations', () => {
   });
 });
 
+describe('route screen (Your situation)', () => {
+  it('has no violations on a question with a note, the error, and a forms result', async () => {
+    const user = renderApp();
+    await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    expect(screen.getByRole('alert')).toHaveTextContent(copy.route.chooseOne);
+    await expectNoViolations();
+
+    await user.click(screen.getByRole('radio', { name: 'Me' }));
+    await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    await user.click(screen.getByRole('radio', { name: 'Ask for a new protection order' }));
+    await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    await user.click(screen.getByRole('radio', { name: 'At or near my work' }));
+    await expectNoViolations();
+
+    await user.click(screen.getByRole('button', { name: copy.route.back }));
+    await user.click(screen.getByRole('radio', { name: 'I already have a protection order' }));
+    await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    await user.click(screen.getByRole('radio', { name: 'An Indiana court' }));
+    await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    await user.click(screen.getByRole('radio', { name: 'Make the order last longer' }));
+    await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveFocus();
+    await expectNoViolations();
+  });
+});
+
 describe('names and focus', () => {
   it('the step bar buttons have unique names, so "Start" means one button', () => {
     render(<App />);
+    toStartSync();
     expect(screen.getAllByRole('button', { name: copy.start.begin })).toHaveLength(1);
     expect(screen.getByRole('button', { name: stepName('start') })).toHaveAttribute('aria-current', 'step');
   });
@@ -102,6 +129,7 @@ describe('timeout warning', () => {
 
   function showWarning() {
     render(<App />);
+    toStartSync();
     fireEvent.click(screen.getByRole('button', { name: copy.start.begin }));
     fireEvent.click(screen.getByRole('button', { name: stepName('story') }));
     const story = screen.getByRole('textbox', { name: copy.story.label });

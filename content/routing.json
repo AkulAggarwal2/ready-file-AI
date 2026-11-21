@@ -1,0 +1,519 @@
+{
+  "_about": "The questions that pick which court forms fit. Each option goes to another question (next) or to an outcome. 'petition' outcomes continue into ReadyFile's petition steps; 'forms' outcomes list the forms; 'info' outcomes explain and list no forms to fill.",
+  "start": "who",
+  "nodes": {
+    "who": {
+      "question": "Who is the protection order for?",
+      "hint": "This picks the court forms that fit your situation.",
+      "options": [
+        {
+          "id": "me",
+          "label": "Me",
+          "next": "meWhat"
+        },
+        {
+          "id": "child",
+          "label": "My child, or a child I am the guardian of",
+          "next": "childWhat"
+        },
+        {
+          "id": "employer",
+          "label": "An employee of my business or organization",
+          "next": "employerSize"
+        },
+        {
+          "id": "respondent",
+          "label": "Someone asked the court for an order against me",
+          "next": "respondentWhat"
+        }
+      ]
+    },
+    "meWhat": {
+      "question": "What are you trying to do?",
+      "options": [
+        {
+          "id": "new",
+          "label": "Ask for a new protection order",
+          "next": "meWhere"
+        },
+        {
+          "id": "have-order",
+          "label": "I already have a protection order",
+          "next": "orderWhere"
+        },
+        {
+          "id": "dismissed",
+          "label": "My petition was dismissed and I want it back",
+          "outcome": "reinstate"
+        },
+        {
+          "id": "withdraw",
+          "label": "I want to withdraw my petition",
+          "outcome": "withdraw"
+        },
+        {
+          "id": "no-contact",
+          "label": "I want a no contact order in a criminal case",
+          "outcome": "no-contact"
+        }
+      ]
+    },
+    "meWhere": {
+      "question": "Where did most of it happen?",
+      "hint": "Pick the closest one. You can describe each time later.",
+      "options": [
+        {
+          "id": "home",
+          "label": "At or near my home",
+          "outcome": "adult-new"
+        },
+        {
+          "id": "work",
+          "label": "At or near my work",
+          "outcome": "adult-new",
+          "note": "Only an employer can file the workplace violence forms (WV-0101). You can still ask for your own protection order, and you can ask your employer to file for you too."
+        },
+        {
+          "id": "school",
+          "label": "At or near my school",
+          "outcome": "adult-new",
+          "note": "The form asks for your school if you and the other person go to the same one. The court may then send a notice to the school (PO-0137)."
+        },
+        {
+          "id": "online",
+          "label": "By phone, text, or online",
+          "outcome": "adult-new"
+        },
+        {
+          "id": "elsewhere",
+          "label": "Somewhere else, or many places",
+          "outcome": "adult-new"
+        }
+      ]
+    },
+    "childWhat": {
+      "question": "What are you trying to do for the child?",
+      "options": [
+        {
+          "id": "new",
+          "label": "Ask for a new protection order",
+          "next": "childRole"
+        },
+        {
+          "id": "have-order",
+          "label": "The child already has a protection order",
+          "next": "orderWhere"
+        },
+        {
+          "id": "dismissed",
+          "label": "The child's petition was dismissed and I want it back",
+          "outcome": "reinstate"
+        },
+        {
+          "id": "withdraw",
+          "label": "I want to withdraw the child's petition",
+          "outcome": "withdraw"
+        }
+      ]
+    },
+    "childRole": {
+      "question": "How are you related to the child?",
+      "hint": "The petition for a child (PO-0101) asks this in question 1. You file as the child's \"next friend.\"",
+      "options": [
+        {
+          "id": "parent",
+          "label": "I am the child's parent",
+          "next": "childWhere"
+        },
+        {
+          "id": "guardian",
+          "label": "I am the child's guardian",
+          "next": "childWhere"
+        },
+        {
+          "id": "other",
+          "label": "I am another adult acting for the child",
+          "next": "childWhere"
+        }
+      ]
+    },
+    "childWhere": {
+      "question": "Where did most of it happen?",
+      "hint": "Pick the closest one. You can describe each time later.",
+      "options": [
+        {
+          "id": "home",
+          "label": "At or near the child's home",
+          "outcome": "child-new"
+        },
+        {
+          "id": "school",
+          "label": "At or near the child's school",
+          "outcome": "child-new",
+          "note": "The form asks for the school if the child and the other person go to the same one. The court may then send a notice to the school (PO-0137)."
+        },
+        {
+          "id": "online",
+          "label": "By phone, text, or online",
+          "outcome": "child-new"
+        },
+        {
+          "id": "elsewhere",
+          "label": "Somewhere else, or many places",
+          "outcome": "child-new"
+        }
+      ]
+    },
+    "orderWhere": {
+      "question": "Which state or nation issued the order?",
+      "options": [
+        {
+          "id": "indiana",
+          "label": "An Indiana court",
+          "next": "orderAction"
+        },
+        {
+          "id": "outside",
+          "label": "Another state, a tribe, or another country",
+          "next": "foreignWhat"
+        }
+      ]
+    },
+    "orderAction": {
+      "question": "What do you want to do with the order?",
+      "options": [
+        {
+          "id": "hearing",
+          "label": "Ask for a hearing on an order issued without one",
+          "outcome": "petitioner-hearing"
+        },
+        {
+          "id": "modify",
+          "label": "Change what the order says",
+          "outcome": "modify"
+        },
+        {
+          "id": "extend",
+          "label": "Make the order last longer",
+          "outcome": "extend"
+        },
+        {
+          "id": "end",
+          "label": "End the order",
+          "outcome": "end"
+        },
+        {
+          "id": "violated",
+          "label": "Tell the court the other person broke the order",
+          "outcome": "contempt"
+        }
+      ]
+    },
+    "foreignWhat": {
+      "question": "What do you want to do?",
+      "options": [
+        {
+          "id": "register",
+          "label": "Register the order in Indiana for the first time",
+          "outcome": "foreign-register"
+        },
+        {
+          "id": "changed",
+          "label": "Tell the court the order was changed, extended, or ended",
+          "outcome": "foreign-update"
+        }
+      ]
+    },
+    "employerSize": {
+      "question": "Has your business or organization had at least 2 employees in any work week?",
+      "hint": "Workplace violence orders are for employers (WV-0100). Volunteers and contractors who work at your workplace count as employees.",
+      "options": [
+        {
+          "id": "yes",
+          "label": "Yes",
+          "next": "employerConduct"
+        },
+        {
+          "id": "no",
+          "label": "No",
+          "outcome": "wv-not-employer"
+        }
+      ]
+    },
+    "employerConduct": {
+      "question": "What did the person do to the employee?",
+      "options": [
+        {
+          "id": "battery",
+          "label": "Hit, hurt, or touched the employee in a rude or angry way",
+          "next": "employerPlace"
+        },
+        {
+          "id": "stalking",
+          "label": "Stalked the employee",
+          "next": "employerPlace"
+        },
+        {
+          "id": "threat",
+          "label": "Made a believable threat of violence",
+          "next": "employerPlace"
+        },
+        {
+          "id": "none",
+          "label": "None of these",
+          "outcome": "wv-conduct-not-covered"
+        }
+      ]
+    },
+    "employerPlace": {
+      "question": "Did it happen at the workplace, or could it be carried out there?",
+      "options": [
+        {
+          "id": "yes",
+          "label": "Yes",
+          "next": "employerLabor"
+        },
+        {
+          "id": "no",
+          "label": "No",
+          "outcome": "wv-conduct-not-covered"
+        }
+      ]
+    },
+    "employerLabor": {
+      "question": "Is it part of a labor dispute, like a strike or picket line?",
+      "options": [
+        {
+          "id": "no",
+          "label": "No",
+          "next": "employerWhat"
+        },
+        {
+          "id": "yes",
+          "label": "Yes",
+          "outcome": "wv-conduct-not-covered"
+        }
+      ]
+    },
+    "employerWhat": {
+      "question": "What are you trying to do?",
+      "options": [
+        {
+          "id": "new",
+          "label": "Ask for a new workplace violence restraining order",
+          "outcome": "wv-new"
+        },
+        {
+          "id": "renew",
+          "label": "Renew an order that is ending",
+          "outcome": "wv-new",
+          "note": "A workplace violence order is renewed by filing a new petition (WV-0101)."
+        },
+        {
+          "id": "modify",
+          "label": "Change an order the court already issued",
+          "outcome": "wv-modify"
+        }
+      ]
+    },
+    "respondentWhat": {
+      "question": "What papers did you get?",
+      "options": [
+        {
+          "id": "po",
+          "label": "An order for protection issued without a hearing (ex parte), or a change to one",
+          "outcome": "respondent-hearing"
+        },
+        {
+          "id": "wv",
+          "label": "An Order to Show Cause about workplace violence",
+          "outcome": "wv-response"
+        },
+        {
+          "id": "contempt",
+          "label": "An Order to Appear about breaking an order",
+          "outcome": "respondent-contempt"
+        },
+        {
+          "id": "notice",
+          "label": "A Notice to Appear at a hearing",
+          "outcome": "respondent-notice"
+        }
+      ]
+    }
+  },
+  "outcomes": {
+    "adult-new": {
+      "flow": "petition",
+      "variant": "adult",
+      "title": "Petition for an order for protection",
+      "summary": "You will file the petition, the Confidential Form, and the Notice of Exclusion together. The court fills in the cover sheet.",
+      "packet": [
+        "PO-0100",
+        "PO-0104",
+        "PNW-0102",
+        "COVER"
+      ]
+    },
+    "child-new": {
+      "flow": "forms",
+      "variant": "child",
+      "title": "Petition for an order for protection for a child",
+      "summary": "You file as the child's next friend. The petition for a child, the Confidential Form, and the Notice of Exclusion are filed together.",
+      "packet": [
+        "PO-0101",
+        "PO-0104",
+        "PNW-0102",
+        "COVER"
+      ]
+    },
+    "reinstate": {
+      "flow": "forms",
+      "title": "Ask to reinstate a dismissed petition",
+      "summary": "This form is for a petition the court dismissed when it was not your fault, like missing a hearing for a good reason. If you dismissed it yourself, you can file a new petition instead.",
+      "packet": [
+        "PO-0111"
+      ]
+    },
+    "withdraw": {
+      "flow": "forms",
+      "title": "Withdraw a petition",
+      "summary": "The same form also ends an order that was already issued. The form asks for both your address and the other person's address, and it is not confidential.",
+      "packet": [
+        "PO-0108"
+      ]
+    },
+    "no-contact": {
+      "flow": "info",
+      "title": "No contact orders",
+      "summary": "A no contact order is made by the judge in a criminal case, usually when charges are filed. There is no form to file for one. The prosecutor's office or a victim advocate can tell you about it. You can also ask for your own protection order.",
+      "packet": []
+    },
+    "petitioner-hearing": {
+      "flow": "forms",
+      "title": "Ask for a hearing",
+      "summary": "Either side can ask for a hearing after an order is issued without one. The address on this form is shared with the other person.",
+      "packet": [
+        "PO-0107"
+      ]
+    },
+    "modify": {
+      "flow": "forms",
+      "title": "Change an order for protection",
+      "summary": "The court needs a big change in your situation since the order was issued.",
+      "packet": [
+        "PO-0115"
+      ]
+    },
+    "extend": {
+      "flow": "forms",
+      "title": "Extend an order for protection",
+      "summary": "File this before the order ends. The form asks for the other person's current address so they can be served.",
+      "packet": [
+        "PO-0116"
+      ]
+    },
+    "end": {
+      "flow": "forms",
+      "title": "End an order for protection",
+      "summary": "The form asks for both your address and the other person's address, and it is not confidential.",
+      "packet": [
+        "PO-0108"
+      ]
+    },
+    "contempt": {
+      "flow": "forms",
+      "title": "Tell the court the order was broken",
+      "summary": "The petition for contempt is filed with the Order to Appear. The court finishes the Order to Appear. If you did not see or hear what happened yourself, the court needs a sworn statement from someone who did.",
+      "packet": [
+        "PO-0126",
+        "PO-0128"
+      ]
+    },
+    "foreign-register": {
+      "flow": "forms",
+      "title": "Register an order from outside Indiana",
+      "summary": "Use Section A of the form. Bring a certified copy of the order. The court also needs a confidential data form for foreign orders, which the clerk has. The other person is not told about the registration.",
+      "packet": [
+        "PO-0119"
+      ]
+    },
+    "foreign-update": {
+      "flow": "forms",
+      "title": "Update a registered order from outside Indiana",
+      "summary": "Use Section B of the form. Bring a certified copy of the new order.",
+      "packet": [
+        "PO-0119"
+      ]
+    },
+    "wv-not-employer": {
+      "flow": "info",
+      "title": "Workplace violence orders are for employers",
+      "summary": "The workplace violence forms can be used only by an employer with at least 2 employees (WV-0100). The employee can ask for their own protection order.",
+      "packet": []
+    },
+    "wv-conduct-not-covered": {
+      "flow": "info",
+      "title": "This may not fit a workplace violence order",
+      "summary": "A workplace violence order covers violence, stalking, or a believable threat of violence that happened at the workplace or could be carried out there, and that is not part of a labor dispute (WV-0100). The employee can ask for their own protection order. A lawyer or the court clerk can help with other options.",
+      "packet": []
+    },
+    "wv-new": {
+      "flow": "forms",
+      "title": "Workplace violence restraining order",
+      "summary": "File one petition for each employee. You fill in the Order to Show Cause too, except the hearing dates, the case number, and the judge's signature. The blank Response and Proof of Service forms are served with the papers. Someone other than you serves the papers.",
+      "packet": [
+        "WV-0101",
+        "WV-0102",
+        "COVER",
+        "PO-0104",
+        "PNW-0102",
+        "WV-0104",
+        "WV-0105",
+        "WV-0103"
+      ]
+    },
+    "wv-modify": {
+      "flow": "forms",
+      "title": "Change a workplace violence restraining order",
+      "summary": "The court needs a big change since the order was issued.",
+      "packet": [
+        "WV-0107",
+        "WV-0103"
+      ]
+    },
+    "respondent-hearing": {
+      "flow": "forms",
+      "title": "Ask for a hearing",
+      "summary": "You can ask for a hearing at any time after you are served, and it is free. The address on this form is shared with the other person.",
+      "packet": [
+        "PO-0107"
+      ]
+    },
+    "wv-response": {
+      "flow": "forms",
+      "title": "Respond to a workplace violence petition",
+      "summary": "Fill in the Response and have someone else serve it on the employer. That person fills in the Proof of Service.",
+      "packet": [
+        "WV-0104",
+        "WV-0105"
+      ]
+    },
+    "respondent-contempt": {
+      "flow": "info",
+      "title": "An Order to Appear",
+      "summary": "There is no form to file. The order tells you when and where to go to court. If you do not go, the court can issue a warrant. A lawyer can help.",
+      "packet": [
+        "PO-0128"
+      ]
+    },
+    "respondent-notice": {
+      "flow": "info",
+      "title": "A Notice to Appear",
+      "summary": "There is no form to file. The notice tells you when and where the hearing is. At the hearing, the court can decide things like who lives in a home, property, parenting time, child support, and firearms.",
+      "packet": [
+        "PO-0106"
+      ]
+    }
+  }
+}

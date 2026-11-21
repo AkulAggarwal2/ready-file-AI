@@ -370,6 +370,26 @@ p:focus:not(:focus-visible) {
   font-weight: 700;
 }
 
+/* Petition steps stay closed until her situation leads to a petition. */
+.step-button:disabled {
+  cursor: default;
+  opacity: 0.55;
+  text-decoration: none;
+}
+
+.step-button:disabled:hover {
+  color: var(--muted);
+}
+
+/* The court forms an outcome on the route step lists. */
+.form-list {
+  padding-left: var(--space-3);
+}
+
+.form-list li {
+  margin-bottom: var(--space-2);
+}
+
 .hint {
   margin: var(--space-1) 0 var(--space-2);
 }

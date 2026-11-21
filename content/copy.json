@@ -5,6 +5,7 @@
     "stepsLabel": "Go to a step",
     "stepNumber": "Step {n}:",
     "steps": {
+      "route": "Your situation",
       "start": "Start",
       "incidents": "Incidents",
       "story": "Your story",
@@ -310,5 +311,28 @@
     },
     "clear": "Clear answer",
     "unverified": "Unverified question: {id}"
+  },
+  "route": {
+    "heading": "Your situation",
+    "intro": "A few questions pick the court forms that fit. Nothing is saved, and you can go back at any time.",
+    "continue": "Continue",
+    "back": "Back",
+    "startOver": "Start over",
+    "chooseOne": "Pick one to continue.",
+    "formsHeading": "The court forms for this",
+    "formsHeadingInfo": "Papers you may see",
+    "filledBy": {
+      "petitioner": "You fill this in",
+      "next-friend": "You fill this in for the child",
+      "employer": "The employer fills this in",
+      "respondent": "You fill this in",
+      "defendant": "You fill this in",
+      "server": "The person who serves the papers fills this in",
+      "court": "The court fills this in",
+      "clerk": "The clerk fills this in",
+      "reference": "Instructions"
+    },
+    "notFilledYet": "ReadyFile does not fill these forms in yet. The court clerk's office has them, and an advocate can help you with them for free.",
+    "toPetition": "Continue to your petition"
   }
 }

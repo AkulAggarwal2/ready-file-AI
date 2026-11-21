@@ -1,13 +1,16 @@
 import type { Ground, Relationship, YesNoUnknown } from '../checker';
 import { copy, fill, type SafetyAnswer } from '../content';
+import type { RouteAnswer } from '../forms/routing';
 import { createIncident, mergeIncidents, type Incident, type IncidentFields } from '../organizer';
 
 // All state lives in memory only (section 8). Nothing here is ever written to
 // browser storage, cookies, or a server.
 
-// The five steps, in order. They are also the labels in the step bar at the top.
-export type Step = 'start' | 'incidents' | 'story' | 'questions' | 'review';
-export const STEPS: Step[] = ['start', 'incidents', 'story', 'questions', 'review'];
+// The steps, in order. They are also the labels in the step bar at the top.
+// "route" asks who the order is for and what she is trying to do, which picks
+// the court forms (content/routing.json).
+export type Step = 'route' | 'start' | 'incidents' | 'story' | 'questions' | 'review';
+export const STEPS: Step[] = ['route', 'start', 'incidents', 'story', 'questions', 'review'];
 
 /**
  * What a delete or merge removed, kept so it can be undone. Only the removed
@@ -28,6 +31,8 @@ export interface UndoEntry {
 
 export interface AppState {
   step: Step;
+  // Her answers on the route step, in order. The last one decides the outcome.
+  route: RouteAnswer[];
   // The grounds she checked (question 1 on the petition). Empty means not sure.
   grounds: Ground[];
   // How she knows the person (question 2 on the petition). Optional.
@@ -66,7 +71,8 @@ export interface AppState {
 export type PersonDetails = Partial<Pick<AppState, 'threat' | 'askedToStop' | 'askedToStopDetail' | 'convicted'>>;
 
 export const initialState: AppState = {
-  step: 'start',
+  step: 'route',
+  route: [],
   grounds: [],
   relationship: null,
   story: '',
@@ -86,6 +92,10 @@ export const initialState: AppState = {
 };
 
 export type Action =
+  | { type: 'routeAnswer'; answer: RouteAnswer }
+  | { type: 'routeBack' }
+  | { type: 'routeReset' }
+  | { type: 'routeDone' }
   | { type: 'begin'; grounds: Ground[]; relationship: Relationship | null }
   | { type: 'goTo'; step: Step }
   | { type: 'setStory'; story: string }
@@ -134,6 +144,15 @@ function moveTo(state: AppState, from: number, to: number): AppState {
 
 export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
+    case 'routeAnswer':
+      return { ...state, route: [...state.route, action.answer] };
+    case 'routeBack':
+      return { ...state, route: state.route.slice(0, -1) };
+    case 'routeReset':
+      return { ...state, route: [] };
+    case 'routeDone':
+      // Only a petition outcome continues; RouteStep checks that.
+      return { ...state, step: 'start' };
     case 'begin':
       return {
         ...state,
