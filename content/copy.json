@@ -23,6 +23,11 @@
   "theme": {
     "label": "Dark mode"
   },
+  "glossary": {
+    "iconLabel": "What does \"{term}\" mean?",
+    "iconLabelMany": "What do {terms} mean?",
+    "and": "and"
+  },
   "resources": {
     "show": "Talk to an advocate",
     "hide": "Hide advocate contacts",

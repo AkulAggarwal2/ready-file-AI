@@ -7,6 +7,7 @@ import { useFindings } from '../state/findings';
 import { StepHeading } from '../ui/StepHeading';
 import { addMoreAction, PLACES } from './questionTargets';
 import { SafetyQuestions } from './SafetyQuestions';
+import { Glossed } from '../ui/Term';
 
 /** What the question card says the question is about. */
 function aboutLabel(finding: Finding, incidentIndex: number): string {
@@ -115,7 +116,7 @@ export function CheckStep() {
                       />
                     )}
                     <p id={questionTextId(finding.key)} className="question-text">
-                      {finding.questionText}
+                      <Glossed text={finding.questionText} />
                       {DEMO_MODE && !finding.verified && (
                         <span className="badge badge-dev">{fill(c.unverified, { ruleId: finding.ruleId })}</span>
                       )}

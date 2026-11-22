@@ -19,7 +19,9 @@ import {
   openQuestionText,
   questionToggle,
   questionToggles,
+  named,
   renderApp,
+  sentence,
   toQuestions,
   toStart,
   toStartSync,
@@ -62,7 +64,7 @@ describe('1. Lena, one incident', () => {
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
 
     expect(screen.getByRole('heading', { level: 1, name: copy.review.heading })).toBeInTheDocument();
-    expect(screen.getByText(copy.review.notFiling)).toBeInTheDocument();
+    expect(screen.getByText(sentence(copy.review.notFiling))).toBeInTheDocument();
     expect(summaryText()).toContain(fill(copy.summary.grounds, { grounds: copy.start.grounds.stalking }));
     expect(summaryText()).toContain(fill(copy.summary.when, { when: 'March 14' }));
     expect(summaryText()).toContain(LENA_ONE_INCIDENT);
@@ -115,7 +117,7 @@ describe('2b. More than one ground (PO-0100 question 1: "check those which apply
       fill(copy.summary.grounds, { grounds: `${copy.start.grounds.stalking}; ${copy.start.grounds.harassment}` }),
     );
     // Not harassment alone, so the harassment-only note is not shown.
-    expect(screen.queryByText(copy.review.formHarassment)).toBeNull();
+    expect(screen.queryByText(sentence(copy.review.formHarassment))).toBeNull();
   });
 });
 
@@ -402,7 +404,7 @@ describe('10. Follows the petition (PO-0100)', () => {
     await user.type(screen.getByRole('textbox', { name: copy.incident.presentLabel }), 'Me, my coworker Dana');
     await user.click(screen.getByRole('checkbox', { name: copy.incident.acts['placed-in-fear'] }));
     await user.selectOptions(screen.getByRole('combobox', { name: copy.incident.firsthandLabel }), 'no');
-    expect(screen.getByText(copy.incident.firsthandNote)).toBeInTheDocument();
+    expect(screen.getByText(sentence(copy.incident.firsthandNote))).toBeInTheDocument();
     await toQuestions(user);
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
 
@@ -433,7 +435,7 @@ describe('10. Follows the petition (PO-0100)', () => {
     await begin(user, 'Harassment');
     await toQuestions(user);
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
-    expect(screen.getByText(copy.review.formHarassment)).toBeInTheDocument();
+    expect(screen.getByText(sentence(copy.review.formHarassment))).toBeInTheDocument();
   });
 });
 
@@ -534,7 +536,7 @@ describe('13. Sex offense', () => {
     await user.click(screen.getByRole('button', { name: copy.check.backToQuestion }));
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
     expect(summaryText()).toContain(copy.summary.convicted);
-    expect(screen.getByText(copy.review.formSexOffense)).toBeInTheDocument();
+    expect(screen.getByText(sentence(copy.review.formSexOffense))).toBeInTheDocument();
   });
 
   it('does not ask about a conviction for other order types', async () => {
@@ -670,7 +672,7 @@ describe('15. Your situation picks the court forms', () => {
     await choose(user, 'Me', 'Ask for a new protection order', 'At or near my home');
     expect(screen.getByRole('heading', { level: 1, name: 'Petition for an order for protection' })).toBeInTheDocument();
     // Plain names first, with the court's title beneath.
-    expect(screen.getByText('The petition')).toBeInTheDocument();
+    expect(screen.getByText(sentence('The petition'))).toBeInTheDocument();
     expect(screen.getByText(courtForm('PO-0100').title)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: stepName('route') })).toHaveAttribute('aria-current', 'step');
     expect(screen.getByRole('button', { name: stepName('start') })).toBeEnabled();
@@ -937,9 +939,9 @@ describe('20. Workplace violence forms', () => {
     const user = renderApp();
     await choose(user, 'An employee of my business or organization', 'Yes', 'Stalked the employee', 'Yes', 'No', 'Ask for a new workplace violence restraining order');
     await user.click(screen.getByRole('button', { name: 'A temporary restraining order' }));
-    expect(screen.queryByRole('group', { name: 'How was the defendant told about this petition?' })).toBeNull();
+    expect(screen.queryByRole('group', { name: named('How was the defendant told about this petition?') })).toBeNull();
     await user.click(screen.getByRole('checkbox', { name: 'Ask for a temporary restraining order now' }));
-    expect(screen.getByRole('group', { name: 'How was the defendant told about this petition?' })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: named('How was the defendant told about this petition?') })).toBeInTheDocument();
   });
 
   it('the employer gets the petition and a separate Confidential Form about the employee', async () => {

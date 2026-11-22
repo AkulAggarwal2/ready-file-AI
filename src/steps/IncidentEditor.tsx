@@ -4,6 +4,7 @@ import { HOW_OPTIONS, type HowItHappened, type Incident, type IncidentDate } fro
 import { todayIso } from '../state/findings';
 import { useAppState } from '../state/AppStateProvider';
 import { useVariant } from '../state/useVariant';
+import { ChoiceHelp, Glossed } from '../ui/Term';
 
 const DATE_KINDS: IncidentDate['kind'][] = ['exact', 'approximate', 'unknown'];
 
@@ -135,15 +136,17 @@ export function IncidentFields({ incident }: { incident: Incident }) {
         </p>
         <div className="act-grid">
           {acts.map((act) => (
-            <label key={act} className="choice">
-              <input
-                id={actId(id, act)}
-                type="checkbox"
-                checked={incident.acts.includes(act)}
-                onChange={(e) => toggleAct(act, e.target.checked)}
-              />
-              {(c.acts as Record<string, string>)[act]}
-            </label>
+            <ChoiceHelp key={act} text={(c.acts as Record<string, string>)[act]}>
+              <label className="choice">
+                <input
+                  id={actId(id, act)}
+                  type="checkbox"
+                  checked={incident.acts.includes(act)}
+                  onChange={(e) => toggleAct(act, e.target.checked)}
+                />
+                {(c.acts as Record<string, string>)[act]}
+              </label>
+            </ChoiceHelp>
           ))}
         </div>
       </fieldset>
@@ -179,7 +182,7 @@ export function IncidentFields({ incident }: { incident: Incident }) {
           </select>
           {incident.firsthand === 'no' && (
             <p id={`${id}-firsthand-note`} className="hint field-warning">
-              {c.firsthandNote}
+              <Glossed text={c.firsthandNote} />
             </p>
           )}
         </div>

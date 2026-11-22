@@ -16,6 +16,7 @@ import { childRole } from '../forms/variant';
 import { printable, unprintable } from '../pdf/printable';
 import { useAppState } from '../state/AppStateProvider';
 import { StepHeading } from '../ui/StepHeading';
+import { ChoiceHelp, Glossed, LabelHelp } from '../ui/Term';
 
 const domId = (id: string) => `f-${id.replace(/[^\w-]/g, '-')}`;
 
@@ -115,7 +116,11 @@ function SectionForm({ section, n, total }: { section: Section; n: number; total
       </p>
       <StepHeading>{section.title}</StepHeading>
       {n === 1 && <p className="hint">{c.intro}</p>}
-      {section.intro && <p>{section.intro}</p>}
+      {section.intro && (
+        <p>
+          <Glossed text={section.intro} />
+        </p>
+      )}
       {rows.map((row) =>
         row.length > 1 ? (
           <NameRow key={row[0].id} fields={row} />
@@ -168,7 +173,7 @@ function Hint({ field, id }: { field: Field; id: string }) {
   return (
     <p id={id} className="hint">
       {field.required && <span className="sr-only">{c.requiredSr} </span>}
-      {field.hint}
+      {field.hint && <Glossed text={field.hint} />}
       {field.private && <> {c.private}</>}
     </p>
   );
@@ -201,10 +206,12 @@ function FieldInput({ field, short }: { field: Field; short?: string }) {
     case 'checkbox':
       return (
         <div className="field">
-          <label className="choice">
-            <input type="checkbox" id={id} aria-describedby={describedBy} checked={value === true} onChange={(e) => set(e.target.checked)} />
-            {field.label}
-          </label>
+          <ChoiceHelp text={field.label}>
+            <label className="choice">
+              <input type="checkbox" id={id} aria-describedby={describedBy} checked={value === true} onChange={(e) => set(e.target.checked)} />
+              {field.label}
+            </label>
+          </ChoiceHelp>
           <Hint field={field} id={hintId} />
         </div>
       );
@@ -214,15 +221,17 @@ function FieldInput({ field, short }: { field: Field; short?: string }) {
       return (
         <fieldset className="field" aria-describedby={describedBy}>
           <legend>
-            {field.label}
+            <Glossed text={field.label} />
             <Needed field={field} />
           </legend>
           <Hint field={field} id={hintId} />
           {options.map((option) => (
-            <label key={option.value} className="choice">
-              <input type="radio" name={id} value={option.value} checked={value === option.value} onChange={() => set(option.value)} />
-              {option.label}
-            </label>
+            <ChoiceHelp key={option.value} text={option.label}>
+              <label className="choice">
+                <input type="radio" name={id} value={option.value} checked={value === option.value} onChange={() => set(option.value)} />
+                {option.label}
+              </label>
+            </ChoiceHelp>
           ))}
         </fieldset>
       );
@@ -232,23 +241,25 @@ function FieldInput({ field, short }: { field: Field; short?: string }) {
       return (
         <fieldset className="field" aria-describedby={describedBy}>
           <legend>
-            {field.label}
+            <Glossed text={field.label} />
             <Needed field={field} />
           </legend>
           <Hint field={field} id={hintId} />
           {field.options!.map((option) => (
-            <label key={option.value} className="choice">
-              <input
-                type="checkbox"
-                value={option.value}
-                checked={picked.includes(option.value)}
-                onChange={(e) =>
-                  // Kept in the form's order, whatever order she checks them in.
-                  set(field.options!.map((o) => o.value).filter((v) => (v === option.value ? e.target.checked : picked.includes(v))))
-                }
-              />
-              {option.label}
-            </label>
+            <ChoiceHelp key={option.value} text={option.label}>
+              <label className="choice">
+                <input
+                  type="checkbox"
+                  value={option.value}
+                  checked={picked.includes(option.value)}
+                  onChange={(e) =>
+                    // Kept in the form's order, whatever order she checks them in.
+                    set(field.options!.map((o) => o.value).filter((v) => (v === option.value ? e.target.checked : picked.includes(v))))
+                  }
+                />
+                {option.label}
+              </label>
+            </ChoiceHelp>
           ))}
         </fieldset>
       );
@@ -258,17 +269,19 @@ function FieldInput({ field, short }: { field: Field; short?: string }) {
     default:
       return (
         <div className="field">
-          <label htmlFor={id}>
-            {short ? (
-              <>
-                <span aria-hidden="true">{short}</span>
-                <span className="sr-only">{field.label}</span>
-              </>
-            ) : (
-              field.label
-            )}
-            <Needed field={field} />
-          </label>
+          <LabelHelp text={short ? '' : field.label}>
+            <label htmlFor={id}>
+              {short ? (
+                <>
+                  <span aria-hidden="true">{short}</span>
+                  <span className="sr-only">{field.label}</span>
+                </>
+              ) : (
+                field.label
+              )}
+              <Needed field={field} />
+            </label>
+          </LabelHelp>
           <Hint field={field} id={hintId} />
           {field.type === 'textarea' ? (
             <textarea id={id} rows={field.rows ?? 3} aria-describedby={describedBy} aria-required={field.required || undefined} value={typeof value === 'string' ? value : ''} onChange={(e) => set(e.target.value)} />
@@ -301,9 +314,15 @@ function GroupInput({ field }: { field: Field }) {
 
   return (
     <fieldset className="field group" aria-describedby={`${id}-hint`}>
-      <legend>{field.label}</legend>
+      <legend>
+        <Glossed text={field.label} />
+      </legend>
       <p id={`${id}-hint`} className="hint">
-        {field.hint && <>{field.hint} </>}
+        {field.hint && (
+          <>
+            <Glossed text={field.hint} />{' '}
+          </>
+        )}
         {field.overflow && fill(c.fitsOnForm, { max: field.max ?? 0, label: field.overflow })}
       </p>
       {items.map((item, i) => {
@@ -324,19 +343,25 @@ function GroupInput({ field }: { field: Field }) {
               if (sub.type === 'choice') {
                 return (
                   <fieldset key={sub.id} className="field">
-                    <legend>{sub.label}</legend>
+                    <legend>
+                      <Glossed text={sub.label} />
+                    </legend>
                     {sub.options!.map((option) => (
-                      <label key={option.value} className="choice">
-                        <input type="radio" name={subId} value={option.value} checked={v === option.value} onChange={() => update(option.value)} />
-                        {option.label}
-                      </label>
+                      <ChoiceHelp key={option.value} text={option.label}>
+                        <label className="choice">
+                          <input type="radio" name={subId} value={option.value} checked={v === option.value} onChange={() => update(option.value)} />
+                          {option.label}
+                        </label>
+                      </ChoiceHelp>
                     ))}
                   </fieldset>
                 );
               }
               return (
                 <div key={sub.id} className="field">
-                  <label htmlFor={subId}>{sub.label}</label>
+                  <LabelHelp text={sub.label}>
+                    <label htmlFor={subId}>{sub.label}</label>
+                  </LabelHelp>
                   <input
                     id={subId}
                     type={sub.type === 'date' ? 'date' : 'text'}
@@ -349,7 +374,7 @@ function GroupInput({ field }: { field: Field }) {
                   {/* Under the box, so the labels in a row stay level. */}
                   {sub.hint && (
                     <p id={`${subId}-hint`} className="hint">
-                      {sub.hint}
+                      <Glossed text={sub.hint} />
                     </p>
                   )}
                   <PrintWarning id={`${subId}-print`} value={v} />
@@ -457,7 +482,9 @@ function Download() {
           return (
             <li key={form}>
               <span className="form-number">{f.number}</span>
-              <span className="form-title">{f.plainTitle}</span>
+              <span className="form-title">
+                <Glossed text={f.plainTitle} />
+              </span>
               <span className="form-official">{f.title}</span>
               <span className="form-meta">{copies === 1 ? c.copy : fill(c.copies, { copies })}</span>
             </li>
@@ -469,7 +496,9 @@ function Download() {
   return (
     <div className="forms-section">
       <StepHeading>{c.downloadHeading}</StepHeading>
-      <p>{c.downloadIntro}</p>
+      <p>
+        <Glossed text={c.downloadIntro} />
+      </p>
 
       {missing.length > 0 ? (
         <section aria-labelledby="missing-heading">
@@ -478,7 +507,9 @@ function Download() {
           </h2>
           <details className="disclosure missing">
             <summary>{missing.length === 1 ? c.missingSummaryOne : fill(c.missingSummary, { count: missing.length })}</summary>
-            <p className="hint">{c.missingIntro}</p>
+            <p className="hint">
+              <Glossed text={c.missingIntro} />
+            </p>
             {questionnaire.sections
               .filter((section) => missing.some((m) => m.section === section))
               .map((section) => (
@@ -510,7 +541,9 @@ function Download() {
       {(toCheck.length > 0 || incidentsToCheck) && (
         <section className="callout" aria-labelledby="print-check-heading">
           <h2 id="print-check-heading">{c.unprintableHeading}</h2>
-          <p>{c.unprintableIntro}</p>
+          <p>
+            <Glossed text={c.unprintableIntro} />
+          </p>
           <ul>
             {toCheck.map(({ section, label }) => (
               <li key={`${section.id}-${label}`}>
@@ -524,7 +557,11 @@ function Download() {
 
       <section aria-labelledby="public-heading">
         <h2 id="public-heading">{hasConfidential ? c.publicHeading : c.formsOnlyHeading}</h2>
-        {hasConfidential && <p>{c.publicIntro}</p>}
+        {hasConfidential && (
+          <p>
+            <Glossed text={c.publicIntro} />
+          </p>
+        )}
         {list(false)}
         <div className="button-row">
           <button type="button" className="btn btn-primary" onClick={() => make('public')} disabled={busy}>
@@ -536,7 +573,9 @@ function Download() {
       {hasConfidential && (
       <section className="callout confidential" aria-labelledby="confidential-heading">
         <h2 id="confidential-heading">{c.confidentialHeading}</h2>
-        <p>{c.confidentialIntro}</p>
+        <p>
+          <Glossed text={c.confidentialIntro} />
+        </p>
         {list(true)}
         <div className="button-row">
           <button type="button" className="btn btn-primary" onClick={() => make('confidential')} disabled={busy}>
@@ -549,7 +588,9 @@ function Download() {
       <p role="status" className="status">
         {status}
       </p>
-      <p className="hint">{c.afterDownload}</p>
+      <p className="hint">
+        <Glossed text={c.afterDownload} />
+      </p>
     </div>
   );
 }

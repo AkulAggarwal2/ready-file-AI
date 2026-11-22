@@ -6,6 +6,24 @@ import { STEPS, type Step } from '../src/state/appState';
 
 export type User = ReturnType<typeof userEvent.setup>;
 
+/**
+ * Matches the element whose whole text is this sentence, even when glossary
+ * terms (src/ui/Term.tsx) split it into several elements.
+ */
+export function sentence(text: string) {
+  return (_content: string, element: Element | null) =>
+    element?.textContent === text && ![...element.children].some((child) => child.textContent === text);
+}
+
+/**
+ * Matches an accessible name with a glossary term in it. jsdom treats the term's
+ * button as inline-block and adds spaces around it ("this petition ?"); a real
+ * browser, where the button is inline, doesn't.
+ */
+export function named(text: string) {
+  return (name: string) => name.replace(/\s+([?.,!;:])/g, '$1').replace(/\s+/g, ' ').trim() === text;
+}
+
 export function renderApp() {
   const user = userEvent.setup();
   render(<App />);
@@ -87,7 +105,12 @@ export function questionToggle(badge: string): HTMLElement {
 
 /** Text of the open question, without the demo-mode badge. */
 export function openQuestionText(): string | null {
-  return document.querySelector('.question-text')?.childNodes[0]?.textContent ?? null;
+  const text = document.querySelector('.question-text');
+  if (!text) return null;
+  // Leave out the demo-only "Unverified rule" badge.
+  const clone = text.cloneNode(true) as Element;
+  clone.querySelectorAll('.badge').forEach((badge) => badge.remove());
+  return clone.textContent;
 }
 
 export const STALKING_QUESTION = 'Stalking means two or more incidents. Are there other times?';

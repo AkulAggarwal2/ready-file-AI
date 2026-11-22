@@ -971,6 +971,160 @@ button:disabled {
   overflow: visible;
 }
 
+/* Glossary terms (src/ui/Term.tsx): a word with a dotted underline that opens
+   a short definition on tap, click, Enter, or mouse hover. */
+.term {
+  display: inline;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--primary);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  cursor: help;
+}
+
+.term:hover,
+.term[aria-expanded='true'] {
+  color: var(--primary);
+  text-decoration-style: solid;
+}
+
+/* The small "?" after a label whose words can't be a button (a checkbox). The
+   hit area is 44px; the circle inside is smaller. */
+.term-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--primary);
+  font: inherit;
+  cursor: help;
+}
+
+.term-icon > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.term-icon:hover > span,
+.term-icon[aria-expanded='true'] > span {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-text);
+}
+
+/* A choice (checkbox) with a "?" on the right, left of the check mark. The
+   "?" sits outside the label, so tapping it doesn't check the box. */
+.choice-wrap {
+  position: relative;
+}
+
+.choice-wrap > .choice {
+  /* Room for the "?" on both sides, so the words stay centered like the
+     choices around them that have no "?". */
+  padding-left: calc(var(--space-4) + 44px);
+  padding-right: calc(var(--space-4) + 2rem + 44px);
+}
+
+.choice-wrap > .term-icon {
+  position: absolute;
+  top: 50%;
+  right: calc(var(--space-4) + 1.5rem);
+  transform: translateY(-50%);
+  transition: transform 0.15s ease;
+}
+
+.choice-wrap:has(input:checked) > .term-icon {
+  color: var(--primary-text);
+  transform: translateY(calc(-50% - 2px));
+}
+
+.choice-wrap:has(input:checked) > .term-icon:hover > span,
+.choice-wrap:has(input:checked) > .term-icon[aria-expanded='true'] > span {
+  background: var(--primary-text);
+  border-color: var(--primary-text);
+  color: var(--primary);
+}
+
+/* The definition: a card above the word (or below it near the top of the
+   screen). Term.tsx sets top and left. */
+.term-tip {
+  position: fixed;
+  inset: auto;
+  z-index: 50;
+  margin: 0;
+  width: max-content;
+  max-width: min(36ch, calc(100vw - 32px));
+  padding: var(--space-3) var(--space-4);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: left;
+  overflow: visible;
+}
+
+.term-tip[hidden] {
+  display: none;
+}
+
+.term-tip-entry {
+  display: block;
+}
+
+.term-tip-entry + .term-tip-entry {
+  margin-top: var(--space-3);
+}
+
+/* A field's label with a "?" beside it. The "?" keeps its 44px hit area
+   without making the label's line taller. */
+.label-help {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  column-gap: var(--space-1);
+  margin-top: var(--space-4);
+}
+
+.label-help > label {
+  margin-top: 0;
+}
+
+.label-help > .term-icon {
+  flex: none;
+  margin-block: -10px;
+}
+
+.term-tip-title {
+  display: block;
+  margin-bottom: var(--space-1);
+  color: var(--primary);
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
