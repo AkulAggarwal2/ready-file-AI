@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { YES_NO_UNKNOWN, type YesNoUnknown } from '../checker';
-import { copy } from '../content';
+import { copyFor } from '../content';
 import type { PersonDetails } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
+import { useVariant } from '../state/useVariant';
 import { StepHeading } from '../ui/StepHeading';
 
 export const THREAT_ID = 'threat';
@@ -16,6 +17,7 @@ const FOCUS_IDS = [THREAT_ID, ASKED_TO_STOP_ID, CONVICTED_ID];
  */
 export function StoryStep() {
   const { state, dispatch } = useAppState();
+  const copy = copyFor(useVariant());
   const c = copy.story;
   const setDetails = (changes: PersonDetails) => dispatch({ type: 'setPersonDetails', changes });
 

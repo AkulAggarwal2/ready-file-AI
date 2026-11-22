@@ -164,7 +164,8 @@
       "stalking": "Stalked me",
       "sex-offense": "Committed a sex offense against me",
       "animal-cruelty": "Hurt or killed an animal to scare or control me",
-      "harassment": "Harassed me again and again"
+      "harassment": "Harassed me again and again",
+      "sex-grooming": "Contacted a child again and again to prepare them for sexual activity (sex grooming)"
     },
     "presentLabel": "Who was there?",
     "presentHint": "List everyone who was there. The court's form asks you to include your own name if you were there.",
@@ -353,28 +354,98 @@
     "limitReached": "The court can list up to {limit} people in one order. More need a second petition.",
     "sectionsLabel": "Sections",
     "downloadHeading": "Your forms",
-    "downloadIntro": "ReadyFile prints your answers on the court's official forms and makes one PDF. It is made on this device. Nothing is sent anywhere.",
-    "packetHeading": "In your PDF",
+    "downloadIntro": "ReadyFile prints your answers on the court's official forms. The PDFs are made on this device. Nothing is sent anywhere. There are two files, because the Confidential Form must never be printed with the petition.",
     "missingHeading": "Still blank",
     "missingIntro": "These are needed for the forms. You can still make the PDF and fill them in by hand.",
     "complete": "Everything the forms need is filled in.",
-    "download": "Make my PDF",
     "making": "Making your PDF...",
-    "made": "Your PDF is ready. Check your downloads.",
     "failed": "The PDF could not be made. Please try again.",
-    "fileName": "protection-order-forms.pdf",
     "copies": "{copies} copies",
     "copy": "1 copy",
-    "afterDownload": "The PDF is not saved in ReadyFile. If someone else uses this device, delete it from your downloads when you are done.",
-    "instructions": [
-      "This PDF has the court's forms with your answers printed on them. Read every page, and fix anything that is wrong by hand or in ReadyFile.",
-      "Sign and date the petition (PO-0100) by hand. You sign it under penalty of perjury. Some courts ask you to sign in front of the clerk, so you can wait until you file.",
-      "Print 4 copies of the petition (PO-0100), 1 copy of the Confidential Form (PO-0104), and 3 copies of the Notice of Exclusion (PNW-0102). Print page 2 of the Confidential Form on green paper if you can (Admin. Rule 9).",
+    "afterDownload": "The PDFs are not saved in ReadyFile. If someone else uses this device, delete them from your downloads when you are done, especially the Confidential Form.",
+    "sectionsSummary": "All sections",
+    "publicHeading": "1. The petition and Notice of Exclusion",
+    "publicIntro": "The petition is a public court record, and one copy is given to the other person.",
+    "downloadPublic": "Make the petition PDF",
+    "publicFileName": "protection-order-petition.pdf",
+    "madePublic": "The petition PDF is ready. Check your downloads.",
+    "confidentialHeading": "2. The Confidential Form (separate file)",
+    "confidentialIntro": "This has your home address and other private details. Only the court, the clerk, the prosecutor, and police see it. Print one copy, give it only to the clerk, and never put it with the copies of the petition.",
+    "downloadConfidential": "Make the Confidential Form PDF",
+    "confidentialFileName": "confidential-form-PO-0104.pdf",
+    "madeConfidential": "The Confidential Form PDF is ready. Check your downloads.",
+    "publicTitle": "Your petition: before you file (do not file this page)",
+    "publicInstructions": [
+      "This file has the petition and the Notice of Exclusion, with your answers printed on them. The Confidential Form is in a separate file. Do not print it with this one.",
+      "Read every page, and fix anything that is wrong by hand or in ReadyFile.",
+      "Sign and date the petition by hand. You sign it under penalty of perjury. Some courts ask you to sign in front of the clerk, so you can wait until you file.",
+      "Print 4 copies of the petition and 3 copies of the Notice of Exclusion (PNW-0102). One copy of the petition is given to the other person.",
       "Take everything to the clerk's office in the county where you are filing. There is no fee to file a petition for an order for protection.",
       "The clerk fills in the case number, the court's room, and the cover sheet. Leave those blank.",
       "If you based the petition on what others told you, attach sworn statements (affidavits) from the people who saw or heard it.",
       "This page is not part of your filing. Remove it before you file."
     ],
-    "sectionsSummary": "All sections"
+    "confidentialTitle": "CONFIDENTIAL: Confidential Form (PO-0104). Do not serve on the Respondent.",
+    "confidentialInstructions": [
+      "This file has the Confidential Form with your private details. It is confidential under Indiana law (Ind. Code 5-2-9-7). Only the court, the clerk, the prosecutor, and police see it.",
+      "Print 1 copy. Print page 2 on green paper if you can (Admin. Rule 9).",
+      "Give it only to the clerk, with your petition. Never staple it to a copy of the petition, and never give it to the other person.",
+      "The red line at the top and bottom of each page is from ReadyFile. It is there so this page is never mixed with the petition by mistake.",
+      "This page is not part of your filing. Remove it before you file."
+    ],
+    "confidentialBanner": "CONFIDENTIAL (Ind. Code 5-2-9-7) - GIVE ONLY TO THE CLERK - DO NOT SERVE ON THE RESPONDENT"
+  },
+  "child": {
+    "_about": "Wording for the petition filed on behalf of a child (PO-0101). Each key replaces the same key above when the petition is for a child.",
+    "start": {
+      "heading": "Get the child's story ready to file",
+      "intro": "ReadyFile gets the incidents part of a protection order petition for a child ready (question 8 on the court's form, PO-0101). You file it as the child's \"next friend.\" It asks the kind of questions court staff ask in person.",
+      "groundsLegend": "What happened to the child? Check every one that applies.",
+      "groundsHint": "If you are not sure, leave them all unchecked. You can still finish.",
+      "relationshipLabel": "How does this person know the child?",
+      "relationshipHint": "The court's form asks this (question 2). It helps show which kind of order fits. You can skip it.",
+      "relationships": {
+        "": "Choose one (optional)",
+        "spouse-lived": "The person is or was my spouse, and the child lived with us",
+        "lived-together": "The person and I lived together in an intimate relationship, and the child lived with us",
+        "parent": "The person is the child's parent",
+        "dating": "The person is dating or used to date the child",
+        "sexual": "The person has or had a sexual relationship with the child",
+        "child-in-common": "The person and the child have a child together",
+        "blood-adoption": "The person is related to the child by blood or adoption",
+        "marriage": "The person is or was related to the child by marriage, like a stepparent",
+        "guardian": "The person is or was the child's guardian",
+        "custodian": "The person is or was the child's custodian",
+        "foster-parent": "The person is or was the child's foster parent",
+        "minor-child-of": "The child is the minor child of someone with one of these relationships to the person",
+        "none": "None of these, like a neighbor, coach, or stranger",
+        "not-sure": "Not sure, or I'd rather not say"
+      }
+    },
+    "incident": {
+      "acts": {
+        "attempted-harm": "Tried to hurt the child",
+        "threatened-harm": "Threatened to hurt the child",
+        "caused-harm": "Hurt the child",
+        "placed-in-fear": "Made the child afraid of being hurt",
+        "forced-sexual": "Forced the child into sexual activity by force, threats, or pressure",
+        "stalking": "Stalked the child",
+        "sex-offense": "Committed a sex offense against the child",
+        "animal-cruelty": "Hurt or killed an animal to scare or control a family or household member",
+        "sex-grooming": "Contacted the child again and again to prepare them for sexual activity (sex grooming)",
+        "harassment": "Harassed the child again and again"
+      },
+      "firsthandLabel": "Did you see or hear this yourself?",
+      "feelingLabel": "How did it make the child feel? (optional)",
+      "feelingHint": "For example: scared, or afraid to go to school."
+    },
+    "story": {
+      "threatLabel": "Do you think this person could hurt the child now? (optional)",
+      "askedToStopLabel": "Did you or the child ever tell this person to stop contacting the child?",
+      "convictedLabel": "Was this person convicted of a sex crime against the child? (optional)"
+    },
+    "summary": {
+      "relationship": "How the person knows the child (question 2): {relationship}"
+    }
   }
 }

@@ -1,11 +1,14 @@
 import { PDFDocument, rgb, StandardFonts, type PDFFont, type PDFPage } from 'pdf-lib';
 import { courtForm } from '../forms';
-import { ADULT_PACKET_FORMS } from '../forms/packets';
+import type { Variant } from '../content';
+import { PACKET_FORMS } from '../forms/packets';
 import { fits, printable, stamp, wrap, type PdfMap, type StampValues } from './stamp';
 import { fullName, pnw0102Values, po0100Values, po0104Values, type Attachment, type FormValues, type PacketInput } from './values';
 
-// Builds the filled court forms as one PDF, in filing order, entirely in the
-// browser. Nothing is sent anywhere.
+// Builds the filled court forms entirely in the browser; nothing is sent
+// anywhere. Public forms and confidential forms are separate PDFs, so the
+// Confidential Form can never be printed into the copy served on the other
+// person.
 
 const maps = import.meta.glob<PdfMap>('../../content/pdfMaps/*.json', { eager: true, import: 'default' });
 
@@ -25,8 +28,10 @@ const BUILDERS: Record<string, (input: PacketInput) => FormValues> = {
   'PNW-0102': pnw0102Values,
 };
 
-// The adult packet's forms, in filing order, with what fills each one.
-export const ADULT_PACKET = ADULT_PACKET_FORMS.map((entry) => ({ ...entry, build: BUILDERS[entry.form] }));
+/** A packet's forms, in filing order, with what fills each one. */
+export function packetFor(variant: Variant) {
+  return PACKET_FORMS[variant].map((entry) => ({ ...entry, build: BUILDERS[entry.form] }));
+}
 
 const PAGE: [number, number] = [612, 792];
 const MARGIN = 72;
@@ -107,13 +112,16 @@ function drawAttachment(doc: PDFDocument, fonts: Fonts, attachment: Attachment, 
   return pages;
 }
 
-/** The first page: how to use the packet. It is not filed. */
-function drawInstructions(doc: PDFDocument, fonts: Fonts, lines: string[]) {
+/** The first page of a file: how to use it. It is not filed. */
+function drawInstructions(doc: PDFDocument, fonts: Fonts, title: string, lines: string[]) {
   const page = newPage(doc);
   const width = PAGE[0] - MARGIN * 2;
   let y = PAGE[1] - MARGIN;
-  page.drawText('Before you file (do not file this page)', { x: MARGIN, y, size: 15, font: fonts.bold });
-  y -= 28;
+  for (const line of wrap(title, fonts.bold, 15, width)) {
+    page.drawText(line, { x: MARGIN, y, size: 15, font: fonts.bold });
+    y -= 20;
+  }
+  y -= 8;
   for (const paragraph of lines) {
     for (const line of wrap(paragraph, fonts.regular, BODY, width)) {
       page.drawText(line, { x: MARGIN, y, size: BODY, font: fonts.regular });
@@ -123,29 +131,60 @@ function drawInstructions(doc: PDFDocument, fonts: Fonts, lines: string[]) {
   }
 }
 
+const WARNING = rgb(0.7, 0, 0);
+
+/** Marks every page of a confidential file, at the top and bottom edges the forms leave free. */
+function markConfidential(doc: PDFDocument, fonts: Fonts, banner: string) {
+  for (const page of doc.getPages()) {
+    const text = printable(banner);
+    const size = 8;
+    const x = (page.getWidth() - fonts.bold.widthOfTextAtSize(text, size)) / 2;
+    page.drawText(text, { x, y: page.getHeight() - 9, size, font: fonts.bold, color: WARNING });
+    page.drawText(text, { x, y: 8, size, font: fonts.bold, color: WARNING });
+  }
+}
+
+export interface PacketText {
+  publicTitle: string;
+  publicInstructions: string[];
+  confidentialTitle: string;
+  confidentialInstructions: string[];
+  confidentialBanner: string;
+}
+
 export interface PacketResult {
-  bytes: Uint8Array;
-  // The court forms in the file, and how many pages each one's attachments took.
-  forms: { form: string; attachmentPages: number }[];
+  // The petition and the other public forms.
+  public: Uint8Array;
+  // The Confidential Form, on its own.
+  confidential: Uint8Array;
+  // The court forms, and how many pages each one's attachments took.
+  forms: { form: string; confidential: boolean; attachmentPages: number }[];
+}
+
+async function newFile(title: string): Promise<{ doc: PDFDocument; fonts: Fonts }> {
+  const doc = await PDFDocument.create();
+  doc.setTitle(title);
+  doc.setProducer('ReadyFile');
+  doc.setCreator('ReadyFile');
+  return { doc, fonts: { regular: await doc.embedFont(StandardFonts.Helvetica), bold: await doc.embedFont(StandardFonts.HelveticaBold) } };
 }
 
 /**
- * Fills the adult petition packet. Signature and date lines, and anything the
- * clerk or court fills in, are left blank.
+ * Fills a petition packet. Signature and date lines, and anything the clerk
+ * or court fills in, are left blank.
  */
-export async function buildAdultPacket(input: PacketInput, load: TemplateLoader, instructions: string[]): Promise<PacketResult> {
-  const out = await PDFDocument.create();
-  out.setTitle('Protection order forms');
-  out.setProducer('ReadyFile');
-  out.setCreator('ReadyFile');
-  const fonts: Fonts = { regular: await out.embedFont(StandardFonts.Helvetica), bold: await out.embedFont(StandardFonts.HelveticaBold) };
-  drawInstructions(out, fonts, instructions);
+export async function buildPacket(variant: Variant, input: PacketInput, load: TemplateLoader, text: PacketText): Promise<PacketResult> {
+  const pub = await newFile(text.publicTitle);
+  const conf = await newFile(text.confidentialTitle);
+  drawInstructions(pub.doc, pub.fonts, text.publicTitle, text.publicInstructions);
+  drawInstructions(conf.doc, conf.fonts, text.confidentialTitle, text.confidentialInstructions);
 
-  const captionLine = `${fullName(input.answers, 'petitioner') || 'Petitioner'} v. ${fullName(input.answers, 'respondent') || 'Respondent'}`;
+  const captionLine = `${captionName(input)} v. ${fullName(input.answers, 'respondent') || 'Respondent'}`;
   const affidavitPages = Number(input.answers.affidavitPages) || 0;
   const forms: PacketResult['forms'] = [];
 
-  for (const { form, build } of ADULT_PACKET) {
+  for (const { form, build, confidential = false } of packetFor(variant)) {
+    const { doc: out, fonts } = confidential ? conf : pub;
     const map = pdfMap(form);
     const template = await PDFDocument.load(await load(form));
     const font = await template.embedFont(StandardFonts.Helvetica);
@@ -156,14 +195,20 @@ export async function buildAdultPacket(input: PacketInput, load: TemplateLoader,
     const scratch = await PDFDocument.create();
     const scratchFonts: Fonts = { regular: await scratch.embedFont(StandardFonts.Helvetica), bold: await scratch.embedFont(StandardFonts.HelveticaBold) };
     const attachmentPages = attachments.reduce((n, a) => n + drawAttachment(scratch, scratchFonts, a, captionLine), 0);
-    if (form === 'PO-0100') values.q10 = String(attachmentPages + affidavitPages);
+    if (map.fields.some((f) => f.key === 'q10')) values.q10 = String(attachmentPages + affidavitPages);
 
     await stamp(template, map, values);
     const pages = await out.copyPages(template, template.getPageIndices());
     pages.forEach((page) => out.addPage(page));
     for (const attachment of attachments) drawAttachment(out, fonts, attachment, captionLine);
-    forms.push({ form, attachmentPages });
+    forms.push({ form, confidential, attachmentPages });
   }
 
-  return { bytes: await out.save(), forms };
+  markConfidential(conf.doc, conf.fonts, text.confidentialBanner);
+  return { public: await pub.doc.save(), confidential: await conf.doc.save(), forms };
+}
+
+/** The petitioner as the caption names them: the adult, or the child by their next friend. */
+function captionName(input: PacketInput): string {
+  return fullName(input.answers, 'petitioner') || 'Petitioner';
 }

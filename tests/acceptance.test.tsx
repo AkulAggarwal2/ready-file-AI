@@ -764,10 +764,16 @@ describe('16. Court forms', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'The court and the people in the case' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: copy.forms.downloadHeading }));
-    await user.click(screen.getByRole('button', { name: copy.forms.download }));
-    await screen.findByText(copy.forms.made, {}, { timeout: 5000 });
-    expect(create).toHaveBeenCalledTimes(1);
-    expect(click).toHaveBeenCalledTimes(1);
+    await user.click(screen.getByRole('button', { name: copy.forms.downloadPublic }));
+    await screen.findByText(copy.forms.madePublic, {}, { timeout: 5000 });
+    // The Confidential Form is a separate file, so it is never printed with the petition.
+    const confidential = screen.getByRole('region', { name: copy.forms.confidentialHeading });
+    expect(within(confidential).getByText('PO-0104')).toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: copy.forms.publicHeading })).queryByText('PO-0104')).toBeNull();
+    await user.click(within(confidential).getByRole('button', { name: copy.forms.downloadConfidential }));
+    await screen.findByText(copy.forms.madeConfidential, {}, { timeout: 5000 });
+    expect(create).toHaveBeenCalledTimes(2);
+    expect(click).toHaveBeenCalledTimes(2);
     click.mockRestore();
   });
 

@@ -14,6 +14,8 @@ export interface PacketInput {
   relationship: Relationship | null;
   convicted: string;
   incidents: Incident[];
+  // For a child's petition: parent, guardian, or other (PO-0101 question 1).
+  childRole?: string;
 }
 
 /** One block of an attachment page: a heading and its lines or text. */
@@ -287,6 +289,7 @@ export function po0104Values(input: PacketInput): FormValues {
   for (const id of ['restrained.homeAddress', 'restrained.postalAddress', 'restrained.business', 'restrained.scars.description', 'petitioner.homeAddress', 'petitioner.postalAddress', 'petitioner.acpAddress', 'petitioner.sendTo', 'petitioner.otherAddress', 'petitioner.reachWhen']) {
     continuable[id] = { label: 'to Confidential Form', heading: 'Confidential Form (continued)' };
   }
+  values['restrained.name'] = fullName(a, 'respondent');
   values['restrained.dob'] = courtDate(text(a['restrained.dob']));
   values['petitioner.dob'] = courtDate(text(a['petitioner.dob']));
 

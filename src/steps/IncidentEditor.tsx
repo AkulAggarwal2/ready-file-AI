@@ -1,8 +1,9 @@
-import { ACTS, isDateInFuture, YES_NO_UNKNOWN, type Act, type Firsthand } from '../checker';
-import { copy } from '../content';
+import { ACTS, CHILD_ACTS, isDateInFuture, YES_NO_UNKNOWN, type Act, type Firsthand } from '../checker';
+import { copyFor } from '../content';
 import { HOW_OPTIONS, type HowItHappened, type Incident, type IncidentDate } from '../organizer';
 import { todayIso } from '../state/findings';
 import { useAppState } from '../state/AppStateProvider';
+import { useVariant } from '../state/useVariant';
 
 const DATE_KINDS: IncidentDate['kind'][] = ['exact', 'approximate', 'unknown'];
 
@@ -26,13 +27,16 @@ function changeDateKind(date: IncidentDate, kind: IncidentDate['kind']): Inciden
 export function IncidentFields({ incident }: { incident: Incident }) {
   const { dispatch } = useAppState();
   const { id, date } = incident;
+  const variant = useVariant();
+  const copy = copyFor(variant);
   const c = copy.incident;
+  const acts: readonly Act[] = variant === 'child' ? CHILD_ACTS : ACTS;
 
   const update = (changes: Partial<Incident>) => dispatch({ type: 'updateIncident', id, changes });
   const today = todayIso();
   const inFuture = isDateInFuture(date, today);
   const toggleAct = (act: Act, on: boolean) =>
-    update({ acts: ACTS.filter((a) => (a === act ? on : incident.acts.includes(a))) });
+    update({ acts: acts.filter((a) => (a === act ? on : incident.acts.includes(a))) });
 
   // On a wide screen, the short fields sit two to a row (.field-pair), so an
   // open incident takes less scrolling.
@@ -130,7 +134,7 @@ export function IncidentFields({ incident }: { incident: Incident }) {
           {c.actsHint}
         </p>
         <div className="act-grid">
-          {ACTS.map((act) => (
+          {acts.map((act) => (
             <label key={act} className="choice">
               <input
                 id={actId(id, act)}
@@ -138,7 +142,7 @@ export function IncidentFields({ incident }: { incident: Incident }) {
                 checked={incident.acts.includes(act)}
                 onChange={(e) => toggleAct(act, e.target.checked)}
               />
-              {c.acts[act]}
+              {(c.acts as Record<string, string>)[act]}
             </label>
           ))}
         </div>

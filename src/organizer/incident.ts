@@ -1,4 +1,4 @@
-import { ACTS, type Act, type CheckDate, type Firsthand } from '../checker';
+import { CHILD_ACTS, type Act, type CheckDate, type Firsthand } from '../checker';
 
 export type IncidentDate = CheckDate;
 
@@ -57,7 +57,8 @@ export function mergeIncidents(first: Incident, second: Incident): Incident {
     place: [...new Set([first.place.trim(), second.place.trim()])].filter(Boolean).join('; '),
     present: joinText(first.present, second.present),
     firsthand: first.firsthand === 'unknown' ? second.firsthand : first.firsthand,
-    acts: ACTS.filter((act) => first.acts.includes(act) || second.acts.includes(act)),
+    // CHILD_ACTS has every act, in the forms' order.
+    acts: CHILD_ACTS.filter((act) => first.acts.includes(act) || second.acts.includes(act)),
     feeling: joinText(first.feeling, second.feeling),
     evidence: joinText(first.evidence, second.evidence),
   };

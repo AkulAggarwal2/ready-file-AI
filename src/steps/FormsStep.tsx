@@ -10,7 +10,9 @@ import {
   type Field,
   type Section,
 } from '../forms/questionnaire';
-import { ADULT_PACKET_FORMS } from '../forms/packets';
+import { PACKET_FORMS } from '../forms/packets';
+import { childRole } from '../forms/variant';
+import { useVariant } from '../state/useVariant';
 import { useAppState } from '../state/AppStateProvider';
 import { StepHeading } from '../ui/StepHeading';
 
@@ -295,18 +297,22 @@ function Download() {
   const { state, dispatch } = useAppState();
   const earlier = useEarlier();
   const questionnaire = useQuestionnaire();
+  const variant = useVariant();
   const c = copy.forms;
   const [status, setStatus] = useState('');
   const [busy, setBusy] = useState(false);
   const missing = missingRequired(questionnaire, state.answers, earlier);
+  const forms = PACKET_FORMS[variant];
 
-  async function make() {
+  // Builds both files at once, so the two always match, then saves the one she asked for.
+  async function make(which: 'public' | 'confidential') {
     setBusy(true);
     setStatus(c.making);
     try {
-      // The PDF code is large, so it loads only when she asks for the PDF.
-      const [{ buildAdultPacket }, { loadTemplate }] = await Promise.all([import('../pdf/packet'), import('../pdf/templates')]);
-      const { bytes } = await buildAdultPacket(
+      // The PDF code is large, so it loads only when she asks for a PDF.
+      const [{ buildPacket }, { loadTemplate }] = await Promise.all([import('../pdf/packet'), import('../pdf/templates')]);
+      const result = await buildPacket(
+        variant,
         {
           questionnaire,
           answers: state.answers,
@@ -314,12 +320,19 @@ function Download() {
           relationship: state.relationship,
           convicted: state.convicted,
           incidents: state.incidents,
+          childRole: childRole(state.route),
         },
         loadTemplate,
-        c.instructions,
+        {
+          publicTitle: c.publicTitle,
+          publicInstructions: c.publicInstructions,
+          confidentialTitle: c.confidentialTitle,
+          confidentialInstructions: c.confidentialInstructions,
+          confidentialBanner: c.confidentialBanner,
+        },
       );
-      saveFile(bytes, c.fileName);
-      setStatus(c.made);
+      saveFile(result[which], which === 'public' ? c.publicFileName : c.confidentialFileName);
+      setStatus(which === 'public' ? c.madePublic : c.madeConfidential);
     } catch {
       setStatus(c.failed);
     } finally {
@@ -327,14 +340,11 @@ function Download() {
     }
   }
 
-  return (
-    <div>
-      <StepHeading>{c.downloadHeading}</StepHeading>
-      <p>{c.downloadIntro}</p>
-
-      <h2 id="packet-heading">{c.packetHeading}</h2>
-      <ul aria-labelledby="packet-heading" className="form-list">
-        {ADULT_PACKET_FORMS.map(({ form, copies }) => {
+  const list = (confidential: boolean) => (
+    <ul className="form-list">
+      {forms
+        .filter((f) => Boolean(f.confidential) === confidential)
+        .map(({ form, copies }) => {
           const f = courtForm(form);
           return (
             <li key={form}>
@@ -344,7 +354,13 @@ function Download() {
             </li>
           );
         })}
-      </ul>
+    </ul>
+  );
+
+  return (
+    <div>
+      <StepHeading>{c.downloadHeading}</StepHeading>
+      <p>{c.downloadIntro}</p>
 
       {missing.length > 0 ? (
         <section className="callout" aria-labelledby="missing-heading">
@@ -369,11 +385,28 @@ function Download() {
         <p className="note">{c.complete}</p>
       )}
 
-      <div className="button-row">
-        <button type="button" className="btn btn-primary" onClick={make} disabled={busy}>
-          {c.download}
-        </button>
-      </div>
+      <section aria-labelledby="public-heading">
+        <h2 id="public-heading">{c.publicHeading}</h2>
+        <p>{c.publicIntro}</p>
+        {list(false)}
+        <div className="button-row">
+          <button type="button" className="btn btn-primary" onClick={() => make('public')} disabled={busy}>
+            {c.downloadPublic}
+          </button>
+        </div>
+      </section>
+
+      <section className="callout" aria-labelledby="confidential-heading">
+        <h2 id="confidential-heading">{c.confidentialHeading}</h2>
+        <p>{c.confidentialIntro}</p>
+        {list(true)}
+        <div className="button-row">
+          <button type="button" className="btn btn-primary" onClick={() => make('confidential')} disabled={busy}>
+            {c.downloadConfidential}
+          </button>
+        </div>
+      </section>
+
       <p role="status" className="status">
         {status}
       </p>

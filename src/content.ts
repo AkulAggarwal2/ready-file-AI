@@ -28,6 +28,27 @@ export type SafetyAnswer = 'yes' | 'no' | 'unsure';
 export const SAFETY_ANSWERS: SafetyAnswer[] = ['yes', 'no', 'unsure'];
 
 export const copy = copyJson;
+
+/** Whose petition it is: the adult's own (PO-0100) or a child's (PO-0101). */
+export type Variant = 'adult' | 'child';
+
+type Copy = typeof copyJson;
+
+function merge<T>(base: T, over: unknown): T {
+  if (!over || typeof over !== 'object' || Array.isArray(over)) return (over ?? base) as T;
+  const out: Record<string, unknown> = { ...(base as Record<string, unknown>) };
+  for (const [key, value] of Object.entries(over)) {
+    out[key] = key in out && typeof out[key] === 'object' && !Array.isArray(out[key]) ? merge(out[key], value) : value;
+  }
+  return out as T;
+}
+
+const childCopy: Copy = merge(copyJson, copyJson.child);
+
+/** The UI text for an adult's own petition, or for a child's (copy.child replaces matching keys). */
+export function copyFor(variant: Variant): Copy {
+  return variant === 'child' ? childCopy : copyJson;
+}
 export const rules = validateRules(rulesJson.rules);
 export const resources: Resource[] = resourcesJson.resources;
 export const safetyQuestions: SafetyQuestion[] = safetyJson.questions;

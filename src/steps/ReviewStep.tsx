@@ -3,6 +3,7 @@ import { copy } from '../content';
 import { summarySections, summaryText, type SummarySection } from '../review/summary';
 import { ORGANIZE_HEADING_ID } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
+import { useVariant } from '../state/useVariant';
 import { ConfirmButton } from '../ui/ConfirmButton';
 import { StepHeading } from '../ui/StepHeading';
 import { Timeline } from '../ui/Timeline';
@@ -12,7 +13,8 @@ export function ReviewStep() {
   const [copyStatus, setCopyStatus] = useState('');
   const c = copy.review;
   const { grounds } = state;
-  const sections = summarySections(grounds, state.incidents, state.story, state.relationship, state, state.safetyAnswers);
+  const variant = useVariant();
+  const sections = summarySections(grounds, state.incidents, state.story, state.relationship, state, state.safetyAnswers, variant);
   const summary = summaryText(sections);
 
   async function copySummary() {

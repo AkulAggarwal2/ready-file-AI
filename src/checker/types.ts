@@ -46,7 +46,26 @@ export const RELATIONSHIPS = [
   'not-sure',
 ] as const;
 
-export type Relationship = (typeof RELATIONSHIPS)[number];
+// How the person knows the child: the lines of question 2 on the petition
+// filed for a child (PO-0101), in that order.
+export const CHILD_RELATIONSHIPS = [
+  'spouse-lived',
+  'lived-together',
+  'parent',
+  'dating',
+  'sexual',
+  'child-in-common',
+  'blood-adoption',
+  'marriage',
+  'guardian',
+  'custodian',
+  'foster-parent',
+  'minor-child-of',
+  'none',
+  'not-sure',
+] as const;
+
+export type Relationship = (typeof RELATIONSHIPS)[number] | (typeof CHILD_RELATIONSHIPS)[number];
 
 // The acts listed in question 7 on the adult petition (PO-0100), in that
 // order. The petition filed for a child (PO-0101) also lists sex grooming,
@@ -63,7 +82,21 @@ export const ACTS = [
   'harassment',
 ] as const;
 
-export type Act = (typeof ACTS)[number];
+// The acts in question 7 of the petition filed for a child (PO-0101).
+export const CHILD_ACTS = [
+  'attempted-harm',
+  'threatened-harm',
+  'caused-harm',
+  'placed-in-fear',
+  'forced-sexual',
+  'stalking',
+  'sex-offense',
+  'animal-cruelty',
+  'sex-grooming',
+  'harassment',
+] as const;
+
+export type Act = (typeof CHILD_ACTS)[number];
 
 // In the order the answer lists show them: no answer yet first.
 export const YES_NO_UNKNOWN = ['unknown', 'yes', 'no'] as const;

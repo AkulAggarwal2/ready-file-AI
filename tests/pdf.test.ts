@@ -1,10 +1,11 @@
 import { readFileSync, writeFileSync } from 'node:fs';
+import { inflateSync } from 'node:zlib';
 import { PDFDocument } from 'pdf-lib';
 import { describe, expect, it } from 'vitest';
 import { courtForms } from '../src/forms';
 import { questionnaires, validateQuestionnaire, type Answers, type Questionnaire } from '../src/forms/questionnaire';
 import { createIncident } from '../src/organizer';
-import { ADULT_PACKET, buildAdultPacket, pdfMap } from '../src/pdf/packet';
+import { buildPacket, packetFor, pdfMap, type PacketText } from '../src/pdf/packet';
 import { printable } from '../src/pdf/stamp';
 import { loadTemplate } from '../src/pdf/templates';
 import { courtDate, pnw0102Values, po0100Values, po0104Values, type PacketInput } from '../src/pdf/values';
@@ -68,6 +69,37 @@ const input: PacketInput = {
   convicted: 'unknown',
   incidents: lenaIncidents(),
 };
+
+const ADULT_PACKET = packetFor('adult');
+const TEXT: PacketText = {
+  publicTitle: 'Petition',
+  publicInstructions: ['Read every page.'],
+  confidentialTitle: 'CONFIDENTIAL',
+  confidentialInstructions: ['Give only to the clerk.'],
+  confidentialBanner: 'CONFIDENTIAL - DO NOT SERVE',
+};
+/** Every page content stream in a PDF, decompressed, upper-cased: text pdf-lib draws shows up as hex glyph codes. */
+function pageText(bytes: Uint8Array): string {
+  const raw = Buffer.from(bytes);
+  const parts: string[] = [];
+  let at = 0;
+  while ((at = raw.indexOf('stream', at)) !== -1) {
+    let start = at + 6;
+    if (raw[start] === 0x0d) start++;
+    if (raw[start] === 0x0a) start++;
+    const end = raw.indexOf('endstream', start);
+    if (end === -1) break;
+    const body = raw.subarray(start, end);
+    try {
+      parts.push(inflateSync(body).toString('latin1'));
+    } catch {
+      parts.push(body.toString('latin1'));
+    }
+    at = end + 9;
+  }
+  return parts.join('\n').toUpperCase();
+}
+const hex = (t: string) => [...t].map((ch) => ch.charCodeAt(0).toString(16).padStart(2, '0')).join('').toUpperCase();
 
 const fromDisk = async (form: string) => Uint8Array.from(readFileSync(`src/pdf/templates/${form}.pdf`));
 
@@ -172,6 +204,7 @@ describe('values for PO-0104 and PNW-0102', () => {
     const { values, attachments } = po0104Values(input);
     expect(values['restrained.phone.cell.area']).toBe('260');
     expect(values['restrained.phone.cell.number']).toBe('555-0142');
+    expect(values['restrained.name']).toBe('Sam Q. Sample');
     expect(values['restrained.sex.male']).toBe(true);
     expect(values['restrained.dob']).toBe('05/02/1991');
     expect(values['notify.text']).toBe(true);
@@ -197,22 +230,43 @@ describe('values for PO-0104 and PNW-0102', () => {
   });
 });
 
-describe('the packet PDF', () => {
-  it('has the instructions page, every form in filing order, and the attachments; question 10 counts them', async () => {
-    const result = await buildAdultPacket(input, fromDisk, ['Read every page.']);
-    const doc = await PDFDocument.load(result.bytes);
-    const attachmentPages = result.forms.reduce((n, f) => n + f.attachmentPages, 0);
-    expect(result.forms.map((f) => f.form)).toEqual(['PO-0100', 'PO-0104', 'PNW-0102']);
+describe('the packet PDFs', () => {
+  it('puts the public forms in one file and the Confidential Form alone in another', async () => {
+    const result = await buildPacket('adult', input, fromDisk, TEXT);
+    const pub = await PDFDocument.load(result.public);
+    const conf = await PDFDocument.load(result.confidential);
+    expect(result.forms.map((f) => [f.form, f.confidential])).toEqual([
+      ['PO-0100', false],
+      ['PNW-0102', false],
+      ['PO-0104', true],
+    ]);
     // PO-0100 has attachments 4a, 8a and 9(a); PO-0104 has one for the 4th protected person.
     expect(result.forms[0].attachmentPages).toBe(3);
-    expect(result.forms[1].attachmentPages).toBe(1);
-    expect(doc.getPageCount()).toBe(1 + 8 + 2 + 2 + attachmentPages);
-    if (process.env.PDF_OUT) writeFileSync(process.env.PDF_OUT, result.bytes);
+    expect(result.forms[2].attachmentPages).toBe(1);
+    // Instructions page + PO-0100 (8) + its 3 attachment pages + PNW-0102 (2).
+    expect(pub.getPageCount()).toBe(1 + 8 + 3 + 2);
+    // Instructions page + PO-0104 (2) + its attachment page.
+    expect(conf.getPageCount()).toBe(1 + 2 + 1);
+    expect(conf.getTitle()).toBe('CONFIDENTIAL');
+    if (process.env.PDF_OUT) {
+      writeFileSync(`${process.env.PDF_OUT}-public.pdf`, result.public);
+      writeFileSync(`${process.env.PDF_OUT}-confidential.pdf`, result.confidential);
+    }
+  });
+
+  it('never puts confidential details in the public file', async () => {
+    const secret = { ...input, answers: { ...answers, 'petitioner.homeAddress': '777 Hidden Way', 'restrained.ssn': '000-12-3456' } };
+    const result = await buildPacket('adult', secret, fromDisk, TEXT);
+    const pub = pageText(result.public);
+    for (const value of ['777 Hidden Way', '000-12-3456']) expect(pub.includes(hex(value))).toBe(false);
+    expect(pageText(result.confidential).includes(hex('777 Hidden Way'))).toBe(true);
+    // The petitioner's name is public, so the check itself can find text.
+    expect(pub.includes(hex('Lena Example'))).toBe(true);
   });
 
   it('moves text too long for its blank to an attachment instead of cutting it off', async () => {
     const long = { ...input, answers: { ...answers, q6: 'A very long public mailing address. '.repeat(12) } };
-    const result = await buildAdultPacket(long, fromDisk, []);
+    const result = await buildPacket('adult', long, fromDisk, TEXT);
     expect(result.forms[0].attachmentPages).toBe(4);
   });
 

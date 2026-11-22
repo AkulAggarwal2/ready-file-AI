@@ -1,5 +1,5 @@
-import { ACTS, type Act, type Ground, type Relationship, type YesNoUnknown } from '../checker';
-import { copy, fill, safetyQuestions, type SafetyAnswer } from '../content';
+import { CHILD_ACTS, type Act, type Ground, type Relationship, type YesNoUnknown } from '../checker';
+import { copy as adultCopy, copyFor, fill, safetyQuestions, type SafetyAnswer, type Variant } from '../content';
 import type { Incident } from '../organizer';
 
 const exactDate = (incident: Incident) =>
@@ -31,14 +31,14 @@ export function describeDate(incident: Incident): string {
   const { date } = incident;
   if (date.kind === 'exact' && date.value) return formatExactDate(date.value);
   if (date.kind === 'approximate' && date.text.trim()) return date.text.trim();
-  return copy.summary.dateUnknown;
+  return adultCopy.summary.dateUnknown;
 }
 
 /** The safety questions she answered, in question order, as "question answer" lines. */
 export function safetyLines(answers: Record<string, SafetyAnswer>): string[] {
   return safetyQuestions
     .filter((q) => answers[q.id])
-    .map((q) => fill(copy.summary.safetyAnswer, { question: q.question, answer: copy.safety.answers[answers[q.id]] }));
+    .map((q) => fill(adultCopy.summary.safetyAnswer, { question: q.question, answer: adultCopy.safety.answers[answers[q.id]] }));
 }
 
 /** How many incidents fit in question 8 of the petition (PO-0100). */
@@ -46,7 +46,7 @@ export const FORM_INCIDENT_SLOTS = 3;
 
 /** Every act she checked, across all incidents, in the order of question 7. */
 export function allActs(incidents: Incident[]): Act[] {
-  return ACTS.filter((act) => incidents.some((incident) => incident.acts.includes(act)));
+  return CHILD_ACTS.filter((act) => incidents.some((incident) => incident.acts.includes(act)));
 }
 
 /** What she said about the person as a whole, on the Your story step. */
@@ -79,7 +79,9 @@ export function summarySections(
   relationship: Relationship | null = null,
   person: PersonAnswers = NO_ANSWERS,
   safetyAnswers: Record<string, SafetyAnswer> = {},
+  variant: Variant = 'adult',
 ): SummarySection[] {
+  const copy = copyFor(variant);
   const s = copy.summary;
   const header: string[] = [
     grounds.length === 0
@@ -87,11 +89,11 @@ export function summarySections(
       : fill(s.grounds, { grounds: grounds.map((g) => copy.start.grounds[g]).join('; ') }),
   ];
   if (relationship && relationship !== 'not-sure') {
-    header.push(fill(s.relationship, { relationship: copy.start.relationships[relationship] }));
+    header.push(fill(s.relationship, { relationship: (copy.start.relationships as Record<string, string>)[relationship] }));
   }
   const acts = allActs(incidents);
   if (acts.length > 0) {
-    header.push(fill(s.acts, { acts: acts.map((act) => copy.incident.acts[act]).join('; ') }));
+    header.push(fill(s.acts, { acts: acts.map((act) => (copy.incident.acts as Record<string, string>)[act]).join('; ') }));
   }
 
   const sections: SummarySection[] = [{ heading: s.title, lines: header }];
