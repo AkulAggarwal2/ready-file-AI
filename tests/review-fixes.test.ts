@@ -6,7 +6,9 @@ import { missingRequired, questionnaires, visibleAnswers } from '../src/forms/qu
 import { createIncident } from '../src/organizer';
 import { buildPacket, type PacketText } from '../src/pdf/packet';
 import { wrap } from '../src/pdf/stamp';
-import { attachmentCaption, po0101Values, type PacketInput } from '../src/pdf/values';
+import { attachmentCaption, genericValues, po0101Values, type PacketInput } from '../src/pdf/values';
+import { courtForms } from '../src/forms';
+import { compareCatalog, parseCourtPage } from '../src/forms/courtPage';
 import { initialState, reducer, type AppState } from '../src/state/appState';
 
 // Regression tests for the code review of the official forms work.
@@ -83,5 +85,42 @@ describe('code review fixes', () => {
     }
     expect(state.grounds).toEqual(['stalking']);
     expect(state.relationship).toBeNull();
+  });
+
+  it('a 4th law enforcement agency on WV-0102, which has 3 lines, goes on an attachment', async () => {
+    const input = {
+      ...base('wv-new', { 'plaintiff.name': 'Example Bakery LLC', 'employee.name': 'Lena Example' }),
+      answers: {
+        'plaintiff.name': 'Example Bakery LLC',
+        'employee.name': 'Lena Example',
+        'respondent.first': 'Sam',
+        'respondent.last': 'Sample',
+        agencies: [1, 2, 3, 4].map((n) => ({ agency: `Agency ${n}`, address: `${n} Main St` })),
+      },
+    };
+    const result = await buildPacket(input, fromDisk, TEXT);
+    expect(result.forms.find((f) => f.form === 'WV-0101')?.attachmentPages).toBe(0);
+    expect(result.forms.find((f) => f.form === 'WV-0102')?.attachmentPages).toBe(1);
+  });
+
+  it('a blank expense amount never unchecks a box', () => {
+    const v = genericValues('PO-0115', base('modify', { 'q9.reimburse': true, 'q9.reimburse.medical.amount': '' })).values;
+    expect(v['q9.reimburse.medical']).toBeUndefined();
+    expect(v['q9.reimburse']).toBe(true);
+  });
+
+  it("switching from a child's petition to an adult's also drops the sex grooming act", () => {
+    let state: AppState = { ...initialState, incidents: [createIncident({ acts: ['sex-grooming', 'stalking'] })] };
+    for (const [node, option] of [['who', 'me'], ['meWhat', 'new'], ['meWhere', 'home']]) {
+      state = reducer(state, { type: 'routeAnswer', answer: { node, option } });
+    }
+    expect(state.incidents[0].acts).toEqual(['stalking']);
+  });
+
+  it('the court page check ignores entities, quote styles, and attributes on table rows', () => {
+    const page = readFileSync('tests/fixtures/po-forms-page.html', 'utf8')
+      .replace(/<tr>/g, '<tr class="row">')
+      .replace("Respondent's Verified", 'Respondent&rsquo;s Verified');
+    expect(compareCatalog(parseCourtPage(page), courtForms)).toEqual([]);
   });
 });

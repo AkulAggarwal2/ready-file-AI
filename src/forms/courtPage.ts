@@ -16,12 +16,14 @@ export interface CourtPageRow {
 
 const SITE = 'https://www.in.gov';
 
+const NAMED: Record<string, string> = { amp: '&', nbsp: ' ', quot: '"', apos: "'", rsquo: '’', lsquo: '‘', rdquo: '”', ldquo: '“', ndash: '–', mdash: '—', sect: '§' };
+
 const decode = (text: string) =>
   text
     .replace(/<[^>]+>/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&#39;|&rsquo;|&#8217;/g, '’')
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, n: string) => String.fromCodePoint(Number(n)))
+    .replace(/&(\w+);/g, (m, name: string) => NAMED[name] ?? m)
     .replace(/\s+/g, ' ')
     .trim();
 
@@ -41,7 +43,7 @@ export function formIdFromUrl(url: string): string | null {
 /** Every form row on the page: its number, title, dates, and links. */
 export function parseCourtPage(html: string): CourtPageRow[] {
   const rows: CourtPageRow[] = [];
-  for (const tr of html.matchAll(/<tr>([\s\S]*?)<\/tr>/g)) {
+  for (const tr of html.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/g)) {
     const cells = [...tr[1].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map((m) => m[1]);
     if (cells.length < 6) continue;
     const pdf = /href="([^"]*\.pdf[^"]*)"/.exec(cells[5])?.[1];
@@ -62,6 +64,9 @@ export function parseCourtPage(html: string): CourtPageRow[] {
   return rows;
 }
 
+/** Titles compare the same whatever quotes, dashes or spacing the site's editor used. */
+const sameText = (text: string) => text.replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, '-').replace(/\s+/g, ' ').trim();
+
 /** How the page differs from the app's catalog (content/forms.json), as sentences. Empty means they match. */
 export function compareCatalog(page: CourtPageRow[], catalog: CourtForm[]): string[] {
   const differences: string[] = [];
@@ -73,7 +78,7 @@ export function compareCatalog(page: CourtPageRow[], catalog: CourtForm[]): stri
       differences.push(`${row.id} is new on the court's page: "${row.title}".`);
       continue;
     }
-    if (form.title !== row.title) differences.push(`${row.id} title changed: "${form.title}" is now "${row.title}".`);
+    if (sameText(form.title) !== sameText(row.title)) differences.push(`${row.id} title changed: "${form.title}" is now "${row.title}".`);
     if (form.revised !== row.revised) differences.push(`${row.id} revised date changed: ${form.revised ?? 'none'} is now ${row.revised ?? 'none'}.`);
     if (form.pdfUrl !== row.pdfUrl) differences.push(`${row.id} PDF link changed (a new upload): ${row.pdfUrl}`);
     if (form.wordUrl !== row.wordUrl) differences.push(`${row.id} Word link changed: ${row.wordUrl ?? 'none'}`);

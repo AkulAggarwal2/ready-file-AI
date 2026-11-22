@@ -1,5 +1,5 @@
 import { copy, fill } from '../content';
-import { routeState, routing } from '../forms/routing';
+import { currentOutcome } from '../forms/routing';
 import { STEPS, type Step } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
 
@@ -11,8 +11,7 @@ import { useAppState } from '../state/AppStateProvider';
  */
 export function StepIndicator({ current }: { current: Step }) {
   const { state, dispatch } = useAppState();
-  const where = routeState(state.route);
-  const flow = 'outcome' in where ? routing.outcomes[where.outcome].flow : null;
+  const flow = currentOutcome(state.route)?.flow ?? null;
   const steps: Step[] = flow === 'form' ? ['route', 'forms'] : STEPS;
   const open = (step: Step) => step === 'route' || flow === 'petition' || flow === 'form';
   const currentIndex = steps.indexOf(current);
@@ -20,7 +19,7 @@ export function StepIndicator({ current }: { current: Step }) {
   return (
     <nav className="steps" aria-label={copy.app.stepsLabel}>
       <p className="sr-only">{fill(copy.app.progress, { current: currentIndex + 1, total: steps.length })}</p>
-      <ol className="step-list">
+      <ol className={steps.length > 5 ? 'step-list many' : 'step-list'}>
         {steps.map((step, index) => (
           <li key={step} className="step" data-state={index < currentIndex ? 'done' : index === currentIndex ? 'current' : 'todo'}>
             <button
@@ -37,6 +36,10 @@ export function StepIndicator({ current }: { current: Step }) {
           </li>
         ))}
       </ol>
+      {/* On a phone, seven step names don't fit; the bars stay, and this names the current step. */}
+      <p className="step-now" aria-hidden="true">
+        {fill(copy.app.stepNow, { current: currentIndex + 1, total: steps.length, step: copy.app.steps[current] })}
+      </p>
     </nav>
   );
 }

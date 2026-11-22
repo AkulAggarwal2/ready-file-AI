@@ -53,6 +53,8 @@ export interface Field {
 export interface Section {
   id: string;
   form: string;
+  // Where the section is on the form, like "questions 4 to 6".
+  ref?: string;
   title: string;
   intro?: string;
   fields: Field[];

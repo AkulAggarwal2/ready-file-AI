@@ -74,6 +74,18 @@ function moveOverflow(map: PdfMap, built: FormValues, font: PDFFont, labels: Map
   const moved = new Map<Attachment, Attachment['blocks']>();
   for (const field of map.fields) {
     const value = values[field.key];
+    // Table rows past the form's lines (like a 4th agency on WV-0102's 3 lines).
+    if (Array.isArray(value) && field.kind === 'lines' && value.length > field.lines.length) {
+      values[field.key] = value.slice(0, field.lines.length);
+      const label = `to ${map.form}`;
+      let attachment = attachments.find((a) => a.label === label && a.form === map.form);
+      if (!attachment) {
+        attachment = { label, form: map.form, blocks: [] };
+        attachments.push(attachment);
+      }
+      attachment.blocks.push({ heading: `${labels.get(field.key) ?? field.key} (continued)`, text: value.slice(field.lines.length).map((row) => row.join(', ')).join('\n') });
+      continue;
+    }
     if (typeof value !== 'string' || value === '' || fits(field, value, font)) continue;
     // A party's name in a caption shrinks to fit rather than saying "see attached".
     if (field.key.startsWith('caption.')) continue;
@@ -127,8 +139,12 @@ function drawAttachment(doc: PDFDocument, fonts: Fonts, attachment: Attachment, 
   header();
   for (const block of attachment.blocks) {
     ensure(LEADING * 2);
-    page.drawText(printable(block.heading), { x: MARGIN, y, size: BODY, font: fonts.bold });
-    y -= LEADING;
+    // Headings come from question labels and can be long, so they wrap too.
+    for (const line of wrap(block.heading, fonts.bold, BODY, width)) {
+      ensure(LEADING);
+      page.drawText(line, { x: MARGIN, y, size: BODY, font: fonts.bold });
+      y -= LEADING;
+    }
     for (const line of wrap(block.text, fonts.regular, BODY, width)) {
       ensure(LEADING);
       page.drawText(line, { x: MARGIN, y, size: BODY, font: fonts.regular, color: rgb(0, 0, 0.55) });

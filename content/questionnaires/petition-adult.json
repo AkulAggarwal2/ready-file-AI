@@ -89,7 +89,8 @@
     {
       "id": "q2-3",
       "form": "PO-0100",
-      "title": "Questions 2 and 3: about the other person",
+      "ref": "questions 2 and 3",
+      "title": "About the other person",
       "fields": [
         {
           "id": "q2.blood-adoption.detail",
@@ -192,7 +193,8 @@
     {
       "id": "q4-6",
       "form": "PO-0100",
-      "title": "Questions 4 to 6: other cases, the county, and your public address",
+      "ref": "questions 4 to 6",
+      "title": "Other cases, the county, and your public address",
       "fields": [
         {
           "id": "q4.cases",
@@ -231,7 +233,7 @@
           "id": "q5",
           "type": "multi",
           "label": "Why are you filing in this county?",
-          "hint": "Check all that apply. At least one is needed.",
+          "hint": "Check all that apply.",
           "required": true,
           "options": [
             {
@@ -270,7 +272,8 @@
     {
       "id": "q9a",
       "form": "PO-0100",
-      "title": "Question 9: orders the judge can make right away",
+      "ref": "question 9",
+      "title": "Orders the judge can make right away",
       "intro": "The judge can order these without a hearing. If your petition is based on harassment alone, the judge can order them only after a hearing within 30 days.",
       "fields": [
         {
@@ -366,7 +369,8 @@
     {
       "id": "q9b",
       "form": "PO-0100",
-      "title": "Question 9: orders that need a hearing within 30 days",
+      "ref": "question 9",
+      "title": "Orders that need a hearing within 30 days",
       "intro": "The judge can order these right away, but the court then holds a hearing within 30 days.",
       "fields": [
         {
@@ -570,7 +574,8 @@
     {
       "id": "q9c",
       "form": "PO-0100",
-      "title": "Question 9: orders only after a hearing",
+      "ref": "question 9",
+      "title": "Orders only after a hearing",
       "intro": "The judge can order these only after the other person is told and a hearing is held within 30 days. Bring papers that show any costs to the hearing.",
       "fields": [
         {

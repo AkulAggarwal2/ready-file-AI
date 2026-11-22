@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { copy } from '../content';
+import { copy, fill } from '../content';
 import { courtForm } from '../forms';
 import { routeState, routing, type RouteOutcome } from '../forms/routing';
 import { useAppState } from '../state/AppStateProvider';
@@ -40,6 +40,7 @@ function RouteQuestion({ nodeId }: { nodeId: string }) {
 
   return (
     <form onSubmit={next} autoComplete="off">
+      <p className="eyebrow">{fill(c.questionNumber, { n: state.route.length + 1 })}</p>
       <StepHeading>{c.heading}</StepHeading>
       {state.route.length === 0 && <p>{c.intro}</p>}
 
@@ -68,9 +69,9 @@ function RouteQuestion({ nodeId }: { nodeId: string }) {
       </fieldset>
 
       {note && (
-        <p className="callout" role="status">
-          {note}
-        </p>
+        <div className="callout" role="status">
+          <p>{note}</p>
+        </div>
       )}
       {showError && (
         <p className="hint" role="alert">
@@ -108,10 +109,9 @@ function RouteResult({ outcome }: { outcome: RouteOutcome }) {
           <ul className="form-list" aria-labelledby="route-forms-heading">
             {forms.map((form) => (
               <li key={form.id}>
-                <strong>{form.number ?? form.title}</strong>
-                {form.number && <> {form.title}</>}
-                <br />
-                <span className="hint">{c.filledBy[form.filler]}</span>
+                <span className="form-number">{form.number ?? c.coverTag}</span>
+                <span className="form-title">{form.title}</span>
+                <span className="form-meta">{c.filledBy[form.filler]}</span>
               </li>
             ))}
           </ul>

@@ -4,7 +4,6 @@
   "nodes": {
     "who": {
       "question": "Who is the protection order for?",
-      "hint": "This picks the court forms that fit your situation.",
       "options": [
         {
           "id": "me",

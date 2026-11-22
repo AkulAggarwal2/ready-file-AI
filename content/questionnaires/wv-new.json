@@ -110,7 +110,8 @@
     {
       "id": "parties",
       "form": "WV-0101",
-      "title": "Paragraphs 1 to 4: the employer, the employee, and the defendant",
+      "ref": "paragraphs 1 to 4",
+      "title": "The employer, the employee, and the defendant",
       "fields": [
         {
           "id": "plaintiff.type",
@@ -233,7 +234,8 @@
     {
       "id": "conduct",
       "form": "WV-0101",
-      "title": "Paragraph 5: what happened",
+      "ref": "paragraph 5",
+      "title": "What happened",
       "fields": [
         {
           "id": "conduct",
@@ -275,7 +277,8 @@
     {
       "id": "tro",
       "form": "WV-0101",
-      "title": "Paragraph 6: a temporary restraining order",
+      "ref": "paragraph 6",
+      "title": "A temporary restraining order",
       "intro": "A temporary restraining order lasts until the hearing.",
       "fields": [
         {
@@ -371,7 +374,8 @@
     {
       "id": "orders",
       "form": "WV-0101",
-      "title": "Paragraphs 8 and 9: the orders you are asking for",
+      "ref": "paragraphs 8 and 9",
+      "title": "The orders you are asking for",
       "fields": [
         {
           "id": "restraining",
@@ -626,7 +630,8 @@
     {
       "id": "more",
       "form": "WV-0101",
-      "title": "Paragraphs 10 to 15: costs, other orders, and other cases",
+      "ref": "paragraphs 10 to 15",
+      "title": "Costs, other orders, and other cases",
       "fields": [
         {
           "id": "costs",

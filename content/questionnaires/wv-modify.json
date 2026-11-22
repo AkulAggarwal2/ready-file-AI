@@ -92,7 +92,8 @@
     {
       "id": "injunction",
       "form": "WV-0107",
-      "title": "Paragraphs 1 to 3: the injunction and what changed",
+      "ref": "paragraphs 1 to 3",
+      "title": "The injunction and what changed",
       "fields": [
         {
           "id": "injunction.date",
@@ -118,7 +119,8 @@
     {
       "id": "orders",
       "form": "WV-0107",
-      "title": "Paragraph 4: the changes you are asking for",
+      "ref": "paragraph 4",
+      "title": "The changes you are asking for",
       "fields": [
         {
           "id": "protectedHousehold",
@@ -318,7 +320,8 @@
     {
       "id": "more",
       "form": "WV-0107",
-      "title": "Paragraphs 5 to 10: costs, other orders, and other cases",
+      "ref": "paragraphs 5 to 10",
+      "title": "Costs, other orders, and other cases",
       "fields": [
         {
           "id": "costs",

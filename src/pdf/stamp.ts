@@ -80,10 +80,13 @@ export function fits(field: MapField, text: string, font: PDFFont): boolean {
 
 const widthsOf = (boxes: MapBox[]) => boxes.map((b) => b.w);
 
-function drawFitted(page: PDFPage, font: PDFFont, text: string, box: MapBox, size = TEXT_SIZE) {
+// A party's name in a caption may shrink further, since it can't move to an attachment.
+const CAPTION_MIN_SIZE = 5;
+
+function drawFitted(page: PDFPage, font: PDFFont, text: string, box: MapBox, size = TEXT_SIZE, min = MIN_SIZE) {
   let s = size;
   const clean = printable(text);
-  while (s > MIN_SIZE && font.widthOfTextAtSize(clean, s) > box.w) s -= 0.5;
+  while (s > min && font.widthOfTextAtSize(clean, s) > box.w) s -= 0.5;
   page.drawText(clean, { x: box.x, y: box.y, size: s, font, color: INK });
 }
 
@@ -128,7 +131,7 @@ export async function stamp(doc: PDFDocument, map: PdfMap, values: StampValues, 
     if (field.kind === 'text') {
       const text = String(value);
       if (!fits(field, text, font)) overflow.push(field.key);
-      drawFitted(page, font, text, field, field.size);
+      drawFitted(page, font, text, field, field.size, field.key.startsWith('caption.') ? CAPTION_MIN_SIZE : MIN_SIZE);
       continue;
     }
 

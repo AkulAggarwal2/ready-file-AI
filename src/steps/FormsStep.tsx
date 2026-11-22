@@ -11,7 +11,7 @@ import {
   type Field,
   type Section,
 } from '../forms/questionnaire';
-import { routeState, routing } from '../forms/routing';
+import { currentOutcome } from '../forms/routing';
 import { childRole } from '../forms/variant';
 import { printable, unprintable } from '../pdf/printable';
 import { useAppState } from '../state/AppStateProvider';
@@ -24,9 +24,7 @@ const domId = (id: string) => `f-${id.replace(/[^\w-]/g, '-')}`;
  */
 function useQuestionnaire() {
   const { state } = useAppState();
-  const where = routeState(state.route);
-  const id = 'outcome' in where ? routing.outcomes[where.outcome].questionnaire : undefined;
-  return questionnaires[id ?? 'petition-adult'];
+  return questionnaires[currentOutcome(state.route)?.questionnaire ?? 'petition-adult'];
 }
 
 /**
@@ -99,18 +97,68 @@ function SectionForm({ section, n, total }: { section: Section; n: number; total
   const visible = visibleAnswers(questionnaire, state.answers, earlier);
   const shown = section.fields.filter((field) => isShown(field, visible, earlier));
 
+  // First, middle and last names share one row.
+  const rows: Field[][] = [];
+  for (const field of shown) {
+    const last = rows[rows.length - 1];
+    const isName = /\.(first|middle|last)$/.test(field.id);
+    const sameName = last && isName && last[0].id.replace(/\.\w+$/, '') === field.id.replace(/\.\w+$/, '');
+    if (sameName) last.push(field);
+    else rows.push([field]);
+  }
+  const where = section.ref ? fill(c.formRef, { number: form.number ?? '', ref: section.ref }) : fill(c.formLabel, { number: form.number ?? '' });
+
   return (
-    <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
-      <p className="hint">
-        {fill(c.sectionOf, { n, total })} · {fill(c.formLabel, { number: form.number ?? '' })}
+    <form className="forms-section" autoComplete="off" onSubmit={(e) => e.preventDefault()}>
+      <p className="eyebrow">
+        {fill(c.sectionOf, { n, total })} · {where}
       </p>
       <StepHeading>{section.title}</StepHeading>
-      {n === 1 && <p>{c.intro}</p>}
+      {n === 1 && <p className="hint">{c.intro}</p>}
       {section.intro && <p>{section.intro}</p>}
-      {shown.map((field) => (
-        <FieldInput key={field.id} field={field} />
-      ))}
+      {rows.map((row) =>
+        row.length > 1 ? (
+          <NameRow key={row[0].id} fields={row} />
+        ) : (
+          <FieldInput key={row[0].id} field={row[0]} />
+        ),
+      )}
     </form>
+  );
+}
+
+/**
+ * A person's first, middle and last name on one row, under one heading like
+ * "The other person's name". Each box shows a short label (First, Middle,
+ * Last) and keeps its full label for screen readers.
+ */
+function NameRow({ fields }: { fields: Field[] }) {
+  const c = copy.forms;
+  const heading = fields[0].label.replace(/ first name$/, ' name');
+  const hint = fields.find((f) => f.hint)?.hint;
+  const headingId = domId(`${fields[0].id}-row`);
+  return (
+    <div className="name-row" role="group" aria-labelledby={headingId}>
+      <p id={headingId} className="name-row-heading">
+        {heading}
+      </p>
+      {hint && <p className="hint">{hint}</p>}
+      <div className="field-row">
+        {fields.map((field) => (
+          <FieldInput key={field.id} field={{ ...field, hint: undefined }} short={c.nameParts[field.id.split('.').pop() as 'first' | 'middle' | 'last']} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** The small "Needed" tag after a required field's label. Screen readers get aria-required, or the hint, instead. */
+function Needed({ field }: { field: Field }) {
+  if (!field.required) return null;
+  return (
+    <span className="required-tag" aria-hidden="true">
+      {copy.forms.required}
+    </span>
   );
 }
 
@@ -119,7 +167,7 @@ function Hint({ field, id }: { field: Field; id: string }) {
   if (!field.hint && !field.private && !field.required) return null;
   return (
     <p id={id} className="hint">
-      {field.required && <span className="required-tag">{c.required}. </span>}
+      {field.required && <span className="sr-only">{c.requiredSr} </span>}
       {field.hint}
       {field.private && <> {c.private}</>}
     </p>
@@ -138,7 +186,7 @@ function PrintWarning({ id, value, long }: { id: string; value: string; long?: b
   );
 }
 
-function FieldInput({ field }: { field: Field }) {
+function FieldInput({ field, short }: { field: Field; short?: string }) {
   const { state, dispatch } = useAppState();
   const c = copy.forms;
   const id = domId(field.id);
@@ -165,7 +213,10 @@ function FieldInput({ field }: { field: Field }) {
       const options = field.type === 'yesno' ? [{ value: 'yes', label: c.yes }, { value: 'no', label: c.no }] : field.options!;
       return (
         <fieldset className="field" aria-describedby={describedBy}>
-          <legend>{field.label}</legend>
+          <legend>
+            {field.label}
+            <Needed field={field} />
+          </legend>
           <Hint field={field} id={hintId} />
           {options.map((option) => (
             <label key={option.value} className="choice">
@@ -180,7 +231,10 @@ function FieldInput({ field }: { field: Field }) {
       const picked = Array.isArray(value) ? (value as string[]) : [];
       return (
         <fieldset className="field" aria-describedby={describedBy}>
-          <legend>{field.label}</legend>
+          <legend>
+            {field.label}
+            <Needed field={field} />
+          </legend>
           <Hint field={field} id={hintId} />
           {field.options!.map((option) => (
             <label key={option.value} className="choice">
@@ -204,10 +258,20 @@ function FieldInput({ field }: { field: Field }) {
     default:
       return (
         <div className="field">
-          <label htmlFor={id}>{field.label}</label>
+          <label htmlFor={id}>
+            {short ? (
+              <>
+                <span aria-hidden="true">{short}</span>
+                <span className="sr-only">{field.label}</span>
+              </>
+            ) : (
+              field.label
+            )}
+            <Needed field={field} />
+          </label>
           <Hint field={field} id={hintId} />
           {field.type === 'textarea' ? (
-            <textarea id={id} rows={field.rows ?? 3} aria-describedby={describedBy} value={typeof value === 'string' ? value : ''} onChange={(e) => set(e.target.value)} />
+            <textarea id={id} rows={field.rows ?? 3} aria-describedby={describedBy} aria-required={field.required || undefined} value={typeof value === 'string' ? value : ''} onChange={(e) => set(e.target.value)} />
           ) : (
             <input
               id={id}
@@ -215,6 +279,7 @@ function FieldInput({ field }: { field: Field }) {
               inputMode={field.type === 'number' ? 'numeric' : field.inputMode}
               autoComplete="off"
               aria-describedby={describedBy}
+              aria-required={field.required || undefined}
               value={typeof value === 'string' ? value : ''}
               onChange={(e) => set(e.target.value)}
             />
@@ -245,7 +310,13 @@ function GroupInput({ field }: { field: Field }) {
         const itemLabel = fill(field.itemLabel ?? '{n}', { n: i + 1 });
         return (
           <div key={i} className="group-item" role="group" aria-label={itemLabel}>
-            <p className="group-item-label">{itemLabel}</p>
+            <div className="group-item-top">
+              <p className="group-item-label">{itemLabel}</p>
+              <button type="button" className="link-button" aria-label={fill(c.removeLabel, { item: itemLabel })} onClick={() => set(items.filter((_, j) => j !== i))}>
+                {c.remove}
+              </button>
+            </div>
+            <div className="field-row">
             {field.fields!.map((sub) => {
               const subId = `${id}-${i}-${sub.id}`;
               const v = item[sub.id] ?? '';
@@ -266,11 +337,6 @@ function GroupInput({ field }: { field: Field }) {
               return (
                 <div key={sub.id} className="field">
                   <label htmlFor={subId}>{sub.label}</label>
-                  {sub.hint && (
-                    <p id={`${subId}-hint`} className="hint">
-                      {sub.hint}
-                    </p>
-                  )}
                   <input
                     id={subId}
                     type={sub.type === 'date' ? 'date' : 'text'}
@@ -280,13 +346,17 @@ function GroupInput({ field }: { field: Field }) {
                     value={v}
                     onChange={(e) => update(e.target.value)}
                   />
+                  {/* Under the box, so the labels in a row stay level. */}
+                  {sub.hint && (
+                    <p id={`${subId}-hint`} className="hint">
+                      {sub.hint}
+                    </p>
+                  )}
                   <PrintWarning id={`${subId}-print`} value={v} />
                 </div>
               );
             })}
-            <button type="button" className="btn" onClick={() => set(items.filter((_, j) => j !== i))}>
-              {fill(c.remove, { item: itemLabel })}
-            </button>
+            </div>
           </div>
         );
       })}
@@ -337,7 +407,12 @@ function Download() {
       return [];
     }),
   );
-  const incidentsToCheck = state.incidents.some((incident) => [incident.description, incident.place, incident.present].some((t) => unprintable(t).length));
+  const printsIncidents = currentOutcome(state.route)?.flow === 'petition';
+  const incidentsToCheck =
+    printsIncidents &&
+    state.incidents.some((incident) =>
+      [incident.description, incident.place, incident.present, incident.date.kind === 'approximate' ? incident.date.text : ''].some((t) => unprintable(t).length),
+    );
 
   // Builds both files at once, so the two always match, then saves the one she asked for.
   async function make(which: 'public' | 'confidential') {
@@ -381,9 +456,9 @@ function Download() {
           const f = courtForm(form);
           return (
             <li key={form}>
-              <strong>{f.number}</strong> {f.title}
-              <br />
-              <span className="hint">{copies === 1 ? c.copy : fill(c.copies, { copies })}</span>
+              <span className="form-number">{f.number}</span>
+              <span className="form-title">{f.title}</span>
+              <span className="form-meta">{copies === 1 ? c.copy : fill(c.copies, { copies })}</span>
             </li>
           );
         })}
@@ -391,28 +466,41 @@ function Download() {
   );
 
   return (
-    <div>
+    <div className="forms-section">
       <StepHeading>{c.downloadHeading}</StepHeading>
       <p>{c.downloadIntro}</p>
 
       {missing.length > 0 ? (
-        <section className="callout" aria-labelledby="missing-heading">
-          <h2 id="missing-heading">{c.missingHeading}</h2>
-          <p>{c.missingIntro}</p>
-          <ul>
-            {missing.map(({ section, field }) => (
-              <li key={field.id}>
-                <button
-                  type="button"
-                  className="link-button"
-                  onClick={() => dispatch({ type: 'setFormSection', index: questionnaire.sections.indexOf(section) })}
-                >
-                  {field.label}
-                </button>{' '}
-                <span className="hint">({section.title})</span>
-              </li>
-            ))}
-          </ul>
+        <section aria-labelledby="missing-heading">
+          <h2 id="missing-heading" className="sr-only">
+            {c.missingHeading}
+          </h2>
+          <details className="disclosure missing">
+            <summary>{missing.length === 1 ? c.missingSummaryOne : fill(c.missingSummary, { count: missing.length })}</summary>
+            <p className="hint">{c.missingIntro}</p>
+            {questionnaire.sections
+              .filter((section) => missing.some((m) => m.section === section))
+              .map((section) => (
+                <div key={section.id} className="missing-group">
+                  <h3>{section.title}</h3>
+                  <ul className="plain-list">
+                    {missing
+                      .filter((m) => m.section === section)
+                      .map(({ field }) => (
+                        <li key={field.id}>
+                          <button
+                            type="button"
+                            className="link-button"
+                            onClick={() => dispatch({ type: 'setFormSection', index: questionnaire.sections.indexOf(section) })}
+                          >
+                            {field.label}
+                          </button>
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              ))}
+          </details>
         </section>
       ) : (
         <p className="note">{c.complete}</p>
@@ -445,7 +533,7 @@ function Download() {
       </section>
 
       {hasConfidential && (
-      <section className="callout" aria-labelledby="confidential-heading">
+      <section className="callout confidential" aria-labelledby="confidential-heading">
         <h2 id="confidential-heading">{c.confidentialHeading}</h2>
         <p>{c.confidentialIntro}</p>
         {list(true)}

@@ -689,7 +689,7 @@ describe('15. Your situation picks the court forms', () => {
     expect(screen.queryByRole('button', { name: copy.route.toPetition })).toBeNull();
     await user.click(screen.getByRole('button', { name: copy.route.toForm }));
     expect(screen.getByRole('textbox', { name: "The employer's full legal name" })).toBeInTheDocument();
-    expect(screen.getByText(/Form WV-0101/)).toBeInTheDocument();
+    expect(screen.getByText(/· WV-0101/)).toBeInTheDocument();
   });
 
   it('sends an employer without 2 employees to an explanation, and Start over goes back to the first question', async () => {
@@ -724,16 +724,16 @@ describe('16. Court forms', () => {
     const user = renderApp();
     await toForms(user);
     expect(screen.getByRole('heading', { level: 1, name: 'The court and the people in the case' })).toHaveFocus();
-    expect(screen.getByText(/Section 1 of \d+ · Form PO-0100/)).toBeInTheDocument();
+    expect(screen.getByText(/Section 1 of \d+ · PO-0100/)).toBeInTheDocument();
     await user.type(screen.getByRole('textbox', { name: 'County where you are filing' }), 'Allen');
 
-    await user.click(screen.getByRole('button', { name: 'Questions 4 to 6: other cases, the county, and your public address' }));
+    await user.click(screen.getByRole('button', { name: 'Other cases, the county, and your public address' }));
     const address = () => screen.queryByRole('textbox', { name: 'Your public mailing address' });
     expect(address()).toBeInTheDocument();
     await user.click(screen.getByRole('radio', { name: copy.forms.yes }));
     expect(address()).toBeNull();
 
-    await user.click(screen.getByRole('button', { name: 'Question 9: orders the judge can make right away' }));
+    await user.click(screen.getByRole('button', { name: 'Orders the judge can make right away' }));
     expect(screen.queryByRole('textbox', { name: 'Which place?' })).toBeNull();
     await user.click(screen.getByRole('checkbox', { name: /stay away from my home, school, work/ }));
     expect(screen.getByRole('textbox', { name: 'Which place?' })).toBeInTheDocument();
@@ -742,7 +742,7 @@ describe('16. Court forms', () => {
   it('adds and removes items in a list, and says where extra ones go', async () => {
     const user = renderApp();
     await toForms(user);
-    await user.click(screen.getByRole('button', { name: 'Questions 4 to 6: other cases, the county, and your public address' }));
+    await user.click(screen.getByRole('button', { name: 'Other cases, the county, and your public address' }));
     expect(screen.getByText(/5 fit on the form. Any more go on Attachment 4a/)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Add a case' }));
     await user.type(screen.getByRole('textbox', { name: 'Case name' }), 'Doe v. Doe');
@@ -828,7 +828,7 @@ describe('17. Petition for a child', () => {
     await goToStep(user, 'forms');
     expect(screen.getByRole('textbox', { name: "The child's first name" })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'How do you represent the child?' })).toBeInTheDocument();
-    expect(screen.getByText(/Form PO-0101/)).toBeInTheDocument();
+    expect(screen.getByText(/· PO-0101/)).toBeInTheDocument();
   });
 
   it('does not ask a parent how they represent the child', async () => {
@@ -854,7 +854,7 @@ describe('18. Forms for an existing order', () => {
     await choose(user, 'Me', 'I already have a protection order', 'An Indiana court', 'Make the order last longer');
     await user.click(screen.getByRole('button', { name: copy.route.toForm }));
     expect(screen.getByRole('heading', { level: 1, name: 'The case' })).toHaveFocus();
-    expect(screen.getByText(/Form PO-0116/)).toBeInTheDocument();
+    expect(screen.getByText(/· PO-0116/)).toBeInTheDocument();
     const steps = within(screen.getByRole('navigation', { name: copy.app.stepsLabel })).getAllByRole('button');
     expect(steps.map((b) => b.textContent)).toEqual([copy.app.steps.route, copy.app.steps.forms]);
     expect(screen.getByRole('textbox', { name: 'Case number' })).toBeInTheDocument();
@@ -926,7 +926,7 @@ describe('20. Workplace violence forms', () => {
   it('asks about the temporary restraining order notice only when one is requested', async () => {
     const user = renderApp();
     await choose(user, 'An employee of my business or organization', 'Yes', 'Stalked the employee', 'Yes', 'No', 'Ask for a new workplace violence restraining order');
-    await user.click(screen.getByRole('button', { name: 'Paragraph 6: a temporary restraining order' }));
+    await user.click(screen.getByRole('button', { name: 'A temporary restraining order' }));
     expect(screen.queryByRole('group', { name: 'How was the defendant told about this petition?' })).toBeNull();
     await user.click(screen.getByRole('checkbox', { name: 'Ask for a temporary restraining order now' }));
     expect(screen.getByRole('group', { name: 'How was the defendant told about this petition?' })).toBeInTheDocument();
@@ -946,6 +946,6 @@ describe('20. Workplace violence forms', () => {
     const user = renderApp();
     await choose(user, 'Someone asked the court for an order against me', 'An Order to Show Cause about workplace violence');
     expect(screen.getByRole('textbox', { name: 'Your first name' })).toBeInTheDocument();
-    expect(screen.getByText(/Form WV-0104/)).toBeInTheDocument();
+    expect(screen.getByText(/· WV-0104/)).toBeInTheDocument();
   });
 });

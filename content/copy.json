@@ -12,7 +12,8 @@
       "questions": "Questions",
       "review": "Review",
       "forms": "Court forms"
-    }
+    },
+    "stepNow": "Step {current} of {total}: {step}"
   },
   "quickExit": {
     "label": "Quick exit",
@@ -320,7 +321,7 @@
     "back": "Back",
     "startOver": "Start over",
     "chooseOne": "Pick one to continue.",
-    "formsHeading": "The court forms for this",
+    "formsHeading": "The forms for this",
     "formsHeadingInfo": "Papers you may see",
     "filledBy": {
       "petitioner": "You fill this in",
@@ -335,27 +336,29 @@
     },
     "notFilledYet": "ReadyFile does not fill these forms in yet. The court clerk's office has them, and an advocate can help you with them for free.",
     "toPetition": "Continue to your petition",
-    "toForm": "Continue to the form"
+    "toForm": "Continue to the form",
+    "questionNumber": "Question {n}",
+    "coverTag": "Cover"
   },
   "forms": {
     "heading": "Court forms",
     "intro": "These questions follow the court's forms, section by section. Your answers are printed on the official forms. Only fill in what you know.",
     "sectionOf": "Section {n} of {total}",
-    "formLabel": "Form {number}",
+    "formLabel": "{number}",
     "next": "Next section",
     "back": "Previous section",
     "toDownload": "Finish",
-    "required": "Needed for the form",
+    "required": "Needed",
     "private": "Only the court, the clerk, the prosecutor, and police see this.",
     "yes": "Yes",
     "no": "No",
     "chooseOne": "Choose one",
-    "remove": "Remove {item}",
+    "remove": "Remove",
     "fitsOnForm": "{max} fit on the form. Any more go on Attachment {label}, which is added for you.",
     "limitReached": "The court can list up to {limit} people in one order. More need a second petition.",
     "sectionsLabel": "Sections",
     "downloadHeading": "Your forms",
-    "downloadIntro": "ReadyFile prints your answers on the court's official forms. The PDF is made on this device. Nothing is sent anywhere. A Confidential Form, when there is one, is a separate file, because it must never be printed with the public forms.",
+    "downloadIntro": "ReadyFile prints your answers on the court's official forms. The PDFs are made on this device, and nothing is sent anywhere.",
     "missingHeading": "Still blank",
     "missingIntro": "These are needed for the forms. You can still make the PDF and fill them in by hand.",
     "complete": "Everything the forms need is filled in.",
@@ -389,7 +392,17 @@
     "unprintable": "The court's form can't print these letters: {letters}. It will show \"{shown}\". After you print, cross it out and write it correctly by hand.",
     "unprintableLong": "The court's form can't print these letters: {letters}. They will show as close letters or \"?\". After you print, correct them by hand.",
     "unprintableHeading": "Check these by hand",
-    "unprintableIntro": "Some letters you typed can't be printed on the court's forms. After you print, write these correctly by hand. The court needs names spelled exactly."
+    "unprintableIntro": "Some letters you typed can't be printed on the court's forms. After you print, write these correctly by hand. The court needs names spelled exactly.",
+    "formRef": "{number}, {ref}",
+    "requiredSr": "Needed for the form.",
+    "missingSummary": "{count} answers the forms need are still blank",
+    "missingSummaryOne": "1 answer the forms need is still blank",
+    "removeLabel": "Remove {item}",
+    "nameParts": {
+      "first": "First",
+      "middle": "Middle",
+      "last": "Last"
+    }
   },
   "child": {
     "_about": "Wording for the petition filed on behalf of a child (PO-0101). Each key replaces the same key above when the petition is for a child.",

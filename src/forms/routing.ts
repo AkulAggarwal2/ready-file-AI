@@ -112,6 +112,12 @@ export function pickedOption(answer: RouteAnswer): RouteOption {
   return option;
 }
 
+/** The outcome her answers have reached, or null while questions remain. */
+export function currentOutcome(answers: RouteAnswer[]): RouteOutcome | null {
+  const where = routeState(answers);
+  return 'outcome' in where ? routing.outcomes[where.outcome] : null;
+}
+
 /** Where her answers lead: the next question to ask, or the outcome. */
 export function routeState(answers: RouteAnswer[]): { node: string } | { outcome: string } {
   if (answers.length === 0) return { node: routing.start };

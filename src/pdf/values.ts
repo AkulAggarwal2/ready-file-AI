@@ -500,7 +500,8 @@ export function genericValues(form: string, input: PacketInput): FormValues {
   for (const [id, value] of Object.entries(values)) {
     const m = /^(.*)\.amount$/.exec(id);
     if (m && typeof value === 'string') {
-      values[m[1]] = Boolean(value);
+      // Only ever checks: a blank amount leaves a box she checked alone.
+      if (value) values[m[1]] = true;
       values[id] = value.replace(/^\$\s*/, '');
     }
   }
