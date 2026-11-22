@@ -39,7 +39,6 @@ See "The incident splitter" below.
 
 ## The steps
 
-The screens are centered, except the form screens (Your situation, Court forms, and the download page), which use a centered column with left-aligned labels and boxes, so long forms are easier to scan.
 
 0. **Your situation:** one question at a time ("Question 2" above each, and
    no step bar until her answers lead somewhere), it asks who the order is for

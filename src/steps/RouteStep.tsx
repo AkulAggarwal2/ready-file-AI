@@ -14,7 +14,7 @@ export function RouteStep() {
   const where = routeState(state.route);
   // Keyed by question, so each new question starts unpicked and its heading takes focus.
   return (
-    <div className="form-screen">
+    <div>
       {'node' in where ? (
         <RouteQuestion key={`${state.route.length}-${where.node}`} nodeId={where.node} />
       ) : (

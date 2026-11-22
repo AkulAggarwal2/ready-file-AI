@@ -1441,7 +1441,8 @@ h1,
 .group-item-top {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
+  justify-content: center;
+  gap: var(--space-3);
 }
 
 .group-item-label {
@@ -1455,13 +1456,14 @@ h1,
   max-width: 40rem;
   margin: 0 auto var(--space-4);
   padding: 0;
-  text-align: left;
 }
 
+/* Each form, centered: its number, plain name, the court's title, then copies or who fills it. */
 .form-list li {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0 var(--space-3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
   padding: var(--space-3) 0;
   border-bottom: 1px solid var(--border);
 }
@@ -1471,8 +1473,6 @@ h1,
 }
 
 .form-number {
-  grid-row: span 3;
-  align-self: start;
   min-width: 5.75rem;
   text-align: center;
   padding: 0.15rem var(--space-2);
@@ -1488,14 +1488,12 @@ h1,
 }
 
 .form-official {
-  grid-column: 2;
   color: var(--muted);
   font-size: var(--text-sm);
   font-style: italic;
 }
 
 .form-meta {
-  grid-column: 2;
   color: var(--muted);
   font-size: var(--text-sm);
 }
@@ -1514,7 +1512,6 @@ h1,
 .disclosure.missing {
   max-width: 40rem;
   margin: var(--space-4) auto;
-  text-align: left;
 }
 
 .disclosure.missing h3 {
@@ -1531,17 +1528,17 @@ h1,
 
 .plain-list .link-button {
   white-space: normal;
-  text-align: left;
 }
 
 .section-nav {
-  margin-bottom: var(--space-4);
+  max-width: 40rem;
+  margin: 0 auto var(--space-4);
 }
 
 .section-nav ol {
+  list-style: none;
   margin: var(--space-2) 0 0;
-  padding-left: var(--space-4);
-  text-align: left;
+  padding: 0;
 }
 
 .section-nav li {
@@ -1549,7 +1546,6 @@ h1,
 }
 
 .section-nav .link-button {
-  text-align: left;
   white-space: normal;
 }
 
@@ -1579,48 +1575,4 @@ h1,
   .step-list.many + .step-now {
     display: block;
   }
-}
-
-/* ---- Form screens: left-aligned --------------------------------------
-   The rest of the app is centered (see "Fluid and centered" above). Long
-   forms are easier to scan with labels, hints and boxes on one left edge,
-   so the route questions, the Court forms step and the download page use a
-   centered column with left-aligned content. */
-.form-screen {
-  max-width: 40rem;
-  margin: 0 auto;
-  text-align: left;
-}
-
-.form-screen p,
-.form-screen .hint,
-.form-screen h1,
-.form-screen h2,
-.form-screen legend {
-  margin-left: 0;
-  margin-right: 0;
-  text-align: left;
-  text-wrap: pretty;
-}
-
-.form-screen .choice,
-.form-screen .button-row,
-.form-screen .disclosure summary {
-  justify-content: flex-start;
-  text-align: left;
-}
-
-.form-screen .name-row-heading,
-.form-screen label {
-  text-align: left;
-}
-
-.form-screen .forms-section,
-.form-screen .form-list,
-.form-screen .disclosure.missing {
-  max-width: none;
-}
-
-.form-screen .callout {
-  text-align: left;
 }

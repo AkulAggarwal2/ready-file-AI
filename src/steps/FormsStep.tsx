@@ -40,7 +40,7 @@ export function FormsStep() {
   const go = (i: number) => dispatch({ type: 'setFormSection', index: i });
 
   return (
-    <div className="form-screen">
+    <div>
       <nav aria-label={c.sectionsLabel}>
         <details className="disclosure section-nav">
           <summary>{c.sectionsSummary}</summary>
