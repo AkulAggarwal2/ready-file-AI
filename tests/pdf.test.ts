@@ -142,8 +142,10 @@ describe('PDF maps', () => {
     }
   });
 
-  it('keep the court’s revision footer, so a new version of a form is caught', async () => {
-    // The footer text is in each template; a court update changes it.
+  // This only checks the bundled copies. Whether the court has published a
+  // newer version is checked against the live page by
+  // tests/court-forms.live.test.ts (npm run check:court-forms, run weekly).
+  it('are real PDFs and record the revision they were built from', async () => {
     for (const { form } of ADULT_PACKET) {
       const raw = new TextDecoder('latin1').decode(await fromDisk(form));
       expect(raw.startsWith('%PDF-'), form).toBe(true);
