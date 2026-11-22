@@ -187,3 +187,20 @@ describe('workplace violence packets', () => {
     expect(result.confidential).toBeNull();
   });
 });
+
+describe('workplace violence: more agencies than lines', () => {
+  const agencies = Array.from({ length: 5 }, (_, i) => ({ agency: `Agency ${i + 1}`, address: `${i + 1} Main St` }));
+
+  it('puts every agency past the form\'s lines on one attachment to that form', async () => {
+    const result = await buildPacket(input('wv-new', { agencies, 'case.number': '' }), fromDisk, TEXT);
+    const pages = Object.fromEntries(result.forms.map((f) => [f.form, f.attachmentPages]));
+    // WV-0101 has lines for 4 agencies, WV-0102 for 3: one attachment page each, none elsewhere.
+    expect(pages).toEqual(expect.objectContaining({ 'WV-0101': 1, 'WV-0102': 1, 'WV-0103': 0, 'WV-0104': 0, 'WV-0105': 0 }));
+    expect(wvValues('WV-0102', input('wv-new', { agencies })).values.agencies).toHaveLength(5);
+  });
+
+  it('fits a full case number in paragraph 15', () => {
+    const f = pdfMap('WV-0101').fields.find((x) => x.key === 'employeePO.number')!;
+    expect(f.kind === 'text' && f.w).toBeGreaterThanOrEqual(100);
+  });
+});

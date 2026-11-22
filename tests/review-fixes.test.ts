@@ -184,8 +184,13 @@ describe('printed packet review fixes', () => {
     expect(built.continuable['q9.phones.1.numberUser']).toEqual(expect.objectContaining({ label: '9(c)', heading: 'The phone numbers: Phone 1, Phone number and who uses it (continued)' }));
   });
 
-  it('PO-0115: phone answers start on the form\'s solid line', () => {
-    for (const n of [1, 2]) for (const part of ['numberUser', 'provider', 'holder']) expect(field('PO-0115', `q9.phones.${n}.${part}`).x).toBe(408);
+  it('PO-0115: phone answers start where their blanks start (x 342, measured with pdftotext) and use the whole blank', () => {
+    for (const n of [1, 2]) for (const part of ['numberUser', 'provider', 'holder']) {
+      const f = field('PO-0115', `q9.phones.${n}.${part}`);
+      expect(f.x).toBeGreaterThanOrEqual(342);
+      expect(f.x).toBeLessThan(350);
+      expect(f.w).toBeGreaterThan(160);
+    }
   });
 
   it('PO-0119: a 4th child is noted at question 11, and a long issuing court still moves to the attachment', async () => {

@@ -702,49 +702,49 @@
       "key": "q9.phones.1.numberUser",
       "page": 4,
       "kind": "text",
-      "x": 408,
+      "x": 344,
       "y": 238,
-      "w": 114
+      "w": 178
     },
     {
       "key": "q9.phones.1.provider",
       "page": 4,
       "kind": "text",
-      "x": 408,
+      "x": 344,
       "y": 224.2,
-      "w": 114
+      "w": 178
     },
     {
       "key": "q9.phones.1.holder",
       "page": 4,
       "kind": "text",
-      "x": 408,
+      "x": 344,
       "y": 210.4,
-      "w": 114
+      "w": 178
     },
     {
       "key": "q9.phones.2.numberUser",
       "page": 4,
       "kind": "text",
-      "x": 408,
+      "x": 344,
       "y": 182.8,
-      "w": 114
+      "w": 178
     },
     {
       "key": "q9.phones.2.provider",
       "page": 4,
       "kind": "text",
-      "x": 408,
+      "x": 344,
       "y": 169,
-      "w": 114
+      "w": 178
     },
     {
       "key": "q9.phones.2.holder",
       "page": 4,
       "kind": "text",
-      "x": 408,
+      "x": 344,
       "y": 155.2,
-      "w": 114
+      "w": 178
     },
     {
       "key": "printedName",

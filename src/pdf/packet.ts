@@ -228,7 +228,7 @@ export async function buildPacket(input: PacketInput, load: TemplateLoader, text
   const forms: PacketResult['forms'] = [];
 
   const packet = packetFor(input.questionnaire);
-  for (const { form, build, confidential = false } of packet) {
+  for (const { form, build, confidential = false, captionOnly = false } of packet) {
     const { doc: out, fonts } = confidential ? conf : pub;
     const map = pdfMap(form);
     const template = await PDFDocument.load(await load(form));
@@ -241,9 +241,12 @@ export async function buildPacket(input: PacketInput, load: TemplateLoader, text
     const scratchFonts: Fonts = { regular: await scratch.embedFont(StandardFonts.Helvetica), bold: await scratch.embedFont(StandardFonts.HelveticaBold) };
     const attachmentPages = attachments.reduce((n, a) => n + drawAttachment(scratch, scratchFonts, a, captionLine), 0);
     // "Number of pages attached" and "Page _ of _ pages" count the attachments.
-    for (const key of ['q10', 'q20', 'pagesAttached']) if (map.fields.some((f) => f.key === key)) values[key] = String(attachmentPages + affidavitPages);
-    const totalPages = String(template.getPageCount() + attachmentPages);
-    for (const field of map.fields) if (field.key.startsWith('pageCount.')) values[field.key] = totalPages;
+    // A form left blank for someone else keeps these blank too: they may attach pages.
+    if (!captionOnly) {
+      for (const key of ['q10', 'q20', 'pagesAttached']) if (map.fields.some((f) => f.key === key)) values[key] = String(attachmentPages + affidavitPages);
+      const totalPages = String(template.getPageCount() + attachmentPages);
+      for (const field of map.fields) if (field.key.startsWith('pageCount.')) values[field.key] = totalPages;
+    }
 
     await stamp(template, map, values);
     const pages = await out.copyPages(template, template.getPageIndices());

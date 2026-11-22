@@ -508,7 +508,10 @@ export function genericValues(form: string, input: PacketInput): FormValues {
         const line = (item: Record<string, string>) =>
           field.fields!.map((sub) => (sub.type === 'date' ? courtDate(item[sub.id] ?? '') : (item[sub.id] ?? '').trim())).filter(Boolean).join(', ');
         if (field.table) {
-          values[field.mapAs ?? id] = items.slice(0, max).map((item) => field.fields!.map((sub) => (item[sub.id] ?? '').trim()));
+          // Every row: the packet keeps as many as the form has lines for and
+          // puts the rest on one attachment to this form.
+          values[prefix] = items.map((item) => field.fields!.map((sub) => (item[sub.id] ?? '').trim()));
+          break;
         } else if (field.join) {
           values[field.mapAs ?? id] = items.slice(0, max).map(line).join('\n');
         } else {

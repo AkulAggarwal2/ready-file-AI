@@ -581,48 +581,42 @@
    "page": 4,
    "find": "Telephone Number and User",
    "nth": 0,
-   "blank": 0,
-   "padLeft": 66
+   "blank": 0
   },
   {
    "key": "q9.phones.1.provider",
    "page": 4,
    "find": "Wireless Service Provider",
    "nth": 0,
-   "blank": 0,
-   "padLeft": 66
+   "blank": 0
   },
   {
    "key": "q9.phones.1.holder",
    "page": 4,
    "find": "Current Account Holder",
    "nth": 0,
-   "blank": 0,
-   "padLeft": 66
+   "blank": 0
   },
   {
    "key": "q9.phones.2.numberUser",
    "page": 4,
    "find": "Telephone Number and User",
    "nth": 1,
-   "blank": 0,
-   "padLeft": 66
+   "blank": 0
   },
   {
    "key": "q9.phones.2.provider",
    "page": 4,
    "find": "Wireless Service Provider",
    "nth": 1,
-   "blank": 0,
-   "padLeft": 66
+   "blank": 0
   },
   {
    "key": "q9.phones.2.holder",
    "page": 4,
    "find": "Current Account Holder",
    "nth": 1,
-   "blank": 0,
-   "padLeft": 66
+   "blank": 0
   },
   {
    "key": "printedName",

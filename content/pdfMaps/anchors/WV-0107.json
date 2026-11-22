@@ -501,7 +501,8 @@
    "page": 3,
    "find": "County, Case No",
    "nth": 1,
-   "blank": 1
+   "blank": 1,
+   "w": 105
   },
   {
    "key": "def.sex.male",
