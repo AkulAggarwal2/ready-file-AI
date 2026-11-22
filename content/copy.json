@@ -23,6 +23,9 @@
   "theme": {
     "label": "Dark mode"
   },
+  "glossary": {
+    "iconLabel": "What does \"{term}\" mean?"
+  },
   "resources": {
     "show": "Talk to an advocate",
     "hide": "Hide advocate contacts",

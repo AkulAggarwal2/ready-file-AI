@@ -7,6 +7,7 @@ import { useVariant } from '../state/useVariant';
 import { ConfirmButton } from '../ui/ConfirmButton';
 import { StepHeading } from '../ui/StepHeading';
 import { Timeline } from '../ui/Timeline';
+import { Glossed } from '../ui/Term';
 
 export function ReviewStep() {
   const { state, dispatch } = useAppState();
@@ -30,7 +31,9 @@ export function ReviewStep() {
     <div>
       <div className="screen-only">
       <StepHeading>{c.heading}</StepHeading>
-      <p className="callout">{c.notFiling}</p>
+      <p className="callout">
+        <Glossed text={c.notFiling} />
+      </p>
 
       <h2 id="timeline-label">{copy.timeline.heading}</h2>
       <Timeline incidents={state.incidents} />
@@ -58,10 +61,12 @@ export function ReviewStep() {
         <p>{c.formIntro}</p>
         <ul className="form-checklist">
           {c.formItems.map((item) => (
-            <li key={item}>{item}</li>
+            <li key={item}>
+              <Glossed text={item} />
+            </li>
           ))}
-          {grounds.length === 1 && grounds[0] === 'harassment' && <li>{c.formHarassment}</li>}
-          {grounds.includes('sex-offense') && <li>{c.formSexOffense}</li>}
+          {grounds.length === 1 && grounds[0] === 'harassment' && <li><Glossed text={c.formHarassment} /></li>}
+          {grounds.includes('sex-offense') && <li><Glossed text={c.formSexOffense} /></li>}
         </ul>
         <p className="hint">{c.formSource}</p>
         <div className="button-row">

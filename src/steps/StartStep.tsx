@@ -5,6 +5,7 @@ import { copyFor, fill } from '../content';
 import { useAppState } from '../state/AppStateProvider';
 import { useVariant } from '../state/useVariant';
 import { StepHeading } from '../ui/StepHeading';
+import { Glossed, Term } from '../ui/Term';
 
 export const RELATIONSHIP_ID = 'relationship';
 
@@ -44,7 +45,9 @@ export function StartStep() {
   return (
     <form onSubmit={begin} autoComplete="off">
       <StepHeading>{copy.start.heading}</StepHeading>
-      <p>{copy.start.intro}</p>
+      <p>
+        <Glossed text={copy.start.intro} />
+      </p>
       <p className="note">{copy.start.notFiling}</p>
 
       <section className="callout" aria-labelledby="safety-heading">
@@ -58,18 +61,21 @@ export function StartStep() {
           {copy.start.groundsHint}
         </p>
         {groundList.map((ground) => (
-          <label key={ground} className="choice">
-            <input
-              type="checkbox"
-              name="grounds"
-              value={ground}
-              checked={grounds.includes(ground)}
-              onChange={(e) =>
-                setGrounds(e.target.checked ? [...grounds, ground] : grounds.filter((g) => g !== ground))
-              }
-            />
-            {copy.start.grounds[ground]}
-          </label>
+          <div key={ground} className="choice-wrap">
+            <label className="choice">
+              <input
+                type="checkbox"
+                name="grounds"
+                value={ground}
+                checked={grounds.includes(ground)}
+                onChange={(e) =>
+                  setGrounds(e.target.checked ? [...grounds, ground] : grounds.filter((g) => g !== ground))
+                }
+              />
+              {copy.start.grounds[ground]}
+            </label>
+            <Term id={ground} />
+          </div>
         ))}
       </fieldset>
 

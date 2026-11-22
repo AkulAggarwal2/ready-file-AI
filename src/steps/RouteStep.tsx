@@ -4,6 +4,7 @@ import { courtForm } from '../forms';
 import { routeState, routing, type RouteOutcome } from '../forms/routing';
 import { useAppState } from '../state/AppStateProvider';
 import { StepHeading } from '../ui/StepHeading';
+import { Glossed } from '../ui/Term';
 
 /**
  * Asks who the order is for and what she is trying to do, one question at a
@@ -52,7 +53,7 @@ function RouteQuestion({ nodeId }: { nodeId: string }) {
         <legend id={legendId}>{node.question}</legend>
         {node.hint && (
           <p id={`route-${nodeId}-hint`} className="hint">
-            {node.hint}
+            <Glossed text={node.hint} />
           </p>
         )}
         {node.options.map((option) => (
@@ -74,7 +75,9 @@ function RouteQuestion({ nodeId }: { nodeId: string }) {
 
       {note && (
         <div className="callout" role="status">
-          <p>{note}</p>
+          <p>
+            <Glossed text={note} />
+          </p>
         </div>
       )}
       {showError && (
@@ -105,7 +108,9 @@ function RouteResult({ outcome }: { outcome: RouteOutcome }) {
   return (
     <div>
       <StepHeading>{outcome.title}</StepHeading>
-      <p>{outcome.summary}</p>
+      <p>
+        <Glossed text={outcome.summary} />
+      </p>
 
       {forms.length > 0 && (
         <>
@@ -123,7 +128,9 @@ function RouteResult({ outcome }: { outcome: RouteOutcome }) {
         </>
       )}
 
-      {outcome.flow === 'forms' && <p className="note">{c.notFilledYet}</p>}
+      {outcome.flow === 'forms' && <p className="note">
+          <Glossed text={c.notFilledYet} />
+        </p>}
 
       <div className="button-row">
         <button type="button" className="btn" onClick={() => dispatch({ type: 'routeBack' })}>

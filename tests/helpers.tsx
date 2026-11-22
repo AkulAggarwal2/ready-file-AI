@@ -6,6 +6,15 @@ import { STEPS, type Step } from '../src/state/appState';
 
 export type User = ReturnType<typeof userEvent.setup>;
 
+/**
+ * Matches the element whose whole text is this sentence, even when glossary
+ * terms (src/ui/Term.tsx) split it into several elements.
+ */
+export function sentence(text: string) {
+  return (_content: string, element: Element | null) =>
+    element?.textContent === text && ![...element.children].some((child) => child.textContent === text);
+}
+
 export function renderApp() {
   const user = userEvent.setup();
   render(<App />);

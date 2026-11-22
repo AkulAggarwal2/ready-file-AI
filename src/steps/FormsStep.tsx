@@ -16,6 +16,7 @@ import { childRole } from '../forms/variant';
 import { printable, unprintable } from '../pdf/printable';
 import { useAppState } from '../state/AppStateProvider';
 import { StepHeading } from '../ui/StepHeading';
+import { Glossed } from '../ui/Term';
 
 const domId = (id: string) => `f-${id.replace(/[^\w-]/g, '-')}`;
 
@@ -115,7 +116,11 @@ function SectionForm({ section, n, total }: { section: Section; n: number; total
       </p>
       <StepHeading>{section.title}</StepHeading>
       {n === 1 && <p className="hint">{c.intro}</p>}
-      {section.intro && <p>{section.intro}</p>}
+      {section.intro && (
+        <p>
+          <Glossed text={section.intro} />
+        </p>
+      )}
       {rows.map((row) =>
         row.length > 1 ? (
           <NameRow key={row[0].id} fields={row} />
@@ -168,7 +173,7 @@ function Hint({ field, id }: { field: Field; id: string }) {
   return (
     <p id={id} className="hint">
       {field.required && <span className="sr-only">{c.requiredSr} </span>}
-      {field.hint}
+      {field.hint && <Glossed text={field.hint} />}
       {field.private && <> {c.private}</>}
     </p>
   );
@@ -303,7 +308,11 @@ function GroupInput({ field }: { field: Field }) {
     <fieldset className="field group" aria-describedby={`${id}-hint`}>
       <legend>{field.label}</legend>
       <p id={`${id}-hint`} className="hint">
-        {field.hint && <>{field.hint} </>}
+        {field.hint && (
+          <>
+            <Glossed text={field.hint} />{' '}
+          </>
+        )}
         {field.overflow && fill(c.fitsOnForm, { max: field.max ?? 0, label: field.overflow })}
       </p>
       {items.map((item, i) => {
@@ -524,7 +533,11 @@ function Download() {
 
       <section aria-labelledby="public-heading">
         <h2 id="public-heading">{hasConfidential ? c.publicHeading : c.formsOnlyHeading}</h2>
-        {hasConfidential && <p>{c.publicIntro}</p>}
+        {hasConfidential && (
+          <p>
+            <Glossed text={c.publicIntro} />
+          </p>
+        )}
         {list(false)}
         <div className="button-row">
           <button type="button" className="btn btn-primary" onClick={() => make('public')} disabled={busy}>
@@ -536,7 +549,9 @@ function Download() {
       {hasConfidential && (
       <section className="callout confidential" aria-labelledby="confidential-heading">
         <h2 id="confidential-heading">{c.confidentialHeading}</h2>
-        <p>{c.confidentialIntro}</p>
+        <p>
+          <Glossed text={c.confidentialIntro} />
+        </p>
         {list(true)}
         <div className="button-row">
           <button type="button" className="btn btn-primary" onClick={() => make('confidential')} disabled={busy}>

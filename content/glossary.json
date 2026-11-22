@@ -1,0 +1,197 @@
+{
+  "_about": "Plain-language definitions shown when someone taps or hovers an underlined term (src/ui/Term.tsx). 'matches' lists the words that get underlined, in any capitalization; only the first one in each paragraph is underlined. Keep definitions short (under about 40 words), in the same plain voice as copy.json. They explain words, never give legal advice. Set 'verified' to true once a team member has checked the definition against its source.",
+  "terms": [
+    {
+      "id": "protection-order",
+      "term": "Protection order",
+      "matches": ["protection order", "protection orders", "order for protection", "orders for protection", "protective order"],
+      "definition": "A court order that tells a person to stay away from you and stop contacting, threatening, or hurting you. If they break it, police can arrest them.",
+      "source": "Ind. Code 34-26-5 (Civil Protection Order Act)",
+      "verified": false
+    },
+    {
+      "id": "petition",
+      "term": "Petition",
+      "matches": ["petition", "petitions"],
+      "definition": "The court form you fill out to ask a judge for something, like a protection order. It says who you are, who the other person is, and what happened.",
+      "source": "PO-0100 and its instructions (PO-0102)",
+      "verified": false
+    },
+    {
+      "id": "petitioner",
+      "term": "Petitioner",
+      "matches": ["petitioner", "petitioners"],
+      "definition": "The person who files the petition and asks for the order. If you are filing for yourself, that is you.",
+      "source": "PO-0102",
+      "verified": false
+    },
+    {
+      "id": "respondent",
+      "term": "Respondent",
+      "matches": ["respondent", "respondents"],
+      "definition": "The person the petition is about. The order would be against them. The court's forms call them the Respondent.",
+      "source": "PO-0102",
+      "verified": false
+    },
+    {
+      "id": "next-friend",
+      "term": "Next friend",
+      "matches": ["next friend"],
+      "definition": "An adult who files court papers for a child, because a child can't file alone. This is usually a parent or guardian.",
+      "source": "PO-0101",
+      "verified": false
+    },
+    {
+      "id": "serve",
+      "term": "Serve",
+      "matches": ["serve", "served", "serves", "serving"],
+      "definition": "To deliver court papers to a person in an official way, so the court knows they got them. Usually the sheriff or another adult does this, not you.",
+      "source": "Ind. Trial Rule 4.1; PO-0102",
+      "verified": false
+    },
+    {
+      "id": "hearing",
+      "term": "Hearing",
+      "matches": ["hearing", "hearings"],
+      "definition": "A set time in court when a judge listens to both sides and decides what to order. You can bring proof and people who saw what happened.",
+      "source": "Ind. Code 34-26-5-10",
+      "verified": false
+    },
+    {
+      "id": "ex-parte",
+      "term": "Ex parte",
+      "matches": ["ex parte"],
+      "definition": "Without the other person there. A judge can issue an ex parte order from your petition alone, before the other person is told or a hearing is held.",
+      "source": "Ind. Code 34-26-5-9",
+      "verified": false
+    },
+    {
+      "id": "affidavit",
+      "term": "Affidavit",
+      "matches": ["signed statement", "sworn statement", "affidavit", "affidavits"],
+      "definition": "A written statement that a person signs, swearing that it is true. Someone who saw or heard what happened can write one for the court.",
+      "source": "PO-0102",
+      "verified": false
+    },
+    {
+      "id": "perjury",
+      "term": "Perjury",
+      "matches": ["perjury"],
+      "definition": "Lying on purpose in something you swear or sign is true. It is a crime. That is why you sign that what you wrote in the petition is true.",
+      "source": "Ind. Code 35-44.1-2-1",
+      "verified": false
+    },
+    {
+      "id": "confidential-form",
+      "term": "Confidential Form",
+      "matches": ["Confidential Form"],
+      "definition": "A separate form (PO-0104) with your private details, like your home address. Only the court, the clerk, the prosecutor, and police see it. The other person does not get a copy.",
+      "source": "PO-0104; Ind. Code 5-2-9-7",
+      "verified": false
+    },
+    {
+      "id": "notice-of-exclusion",
+      "term": "Notice of Exclusion",
+      "matches": ["Notice of Exclusion"],
+      "definition": "A form (PNW-0102) that tells the clerk to keep certain papers, like the Confidential Form, out of the public court record.",
+      "source": "PNW-0102; Admin. Rule 9",
+      "verified": false
+    },
+    {
+      "id": "clerk",
+      "term": "Clerk",
+      "matches": ["court clerk", "clerk's office", "clerk"],
+      "definition": "The court office that takes and files court papers and keeps the court's records. Clerk staff can explain how to file, but they can't give legal advice.",
+      "source": "PO-0102",
+      "verified": false
+    },
+    {
+      "id": "prosecutor",
+      "term": "Prosecutor",
+      "matches": ["prosecutor's office", "prosecutor"],
+      "definition": "The government lawyer who decides whether to bring criminal charges. You do not need the prosecutor to ask for a protection order.",
+      "source": "Ind. Code 33-39",
+      "verified": false
+    },
+    {
+      "id": "no-contact-order",
+      "term": "No contact order",
+      "matches": ["no contact order", "no contact orders"],
+      "definition": "An order a judge makes in a criminal case, telling the person charged not to contact the victim. It is separate from a protection order.",
+      "source": "Ind. Code 35-33-8-3.2",
+      "verified": false
+    },
+    {
+      "id": "dismissed",
+      "term": "Dismissed",
+      "matches": ["dismissed", "dismiss", "dismissal"],
+      "definition": "When the court ends a case or petition without granting an order. For example, a petition can be dismissed if no one comes to the hearing.",
+      "source": "PO-0102",
+      "verified": false
+    },
+    {
+      "id": "contempt",
+      "term": "Contempt",
+      "matches": ["contempt"],
+      "definition": "Disobeying a court order. If the other person breaks the order, the court can find them in contempt and punish them, for example with a fine or jail.",
+      "source": "Ind. Code 34-47",
+      "verified": false
+    },
+    {
+      "id": "certified-copy",
+      "term": "Certified copy",
+      "matches": ["certified copy", "certified copies"],
+      "definition": "A copy of a court paper that the clerk stamps or signs to show it is a true copy of the original.",
+      "source": "PO-0102",
+      "verified": false
+    },
+    {
+      "id": "workplace-violence-order",
+      "term": "Workplace violence restraining order",
+      "matches": ["workplace violence restraining order", "workplace violence order", "workplace violence orders"],
+      "definition": "An order an employer can ask for to protect an employee from violence or threats at work. Only the employer can file for it.",
+      "source": "Ind. Code 34-26-6; WV-0100",
+      "verified": false
+    },
+    {
+      "id": "domestic-violence",
+      "term": "Domestic or family violence",
+      "matches": ["domestic or family violence", "domestic violence", "family violence"],
+      "definition": "When a family or household member hurts you, tries to or threatens to hurt you, makes you afraid of being hurt, forces you into sexual activity, or hurts an animal to scare or control you.",
+      "source": "Ind. Code 34-6-2-34.5",
+      "verified": false
+    },
+    {
+      "id": "stalking",
+      "term": "Stalking",
+      "matches": ["stalking"],
+      "definition": "Harassing someone again and again in a way that would make most people feel scared, threatened, or intimidated, and that does make the victim feel that way. Following, watching, or showing up can count.",
+      "source": "Ind. Code 35-45-10-1",
+      "verified": false
+    },
+    {
+      "id": "harassment",
+      "term": "Harassment",
+      "matches": ["harassment"],
+      "definition": "Repeated contact you did not want that would upset most people and did upset you. Calls, texts, messages, or showing up can count.",
+      "source": "Ind. Code 35-45-10-2; Ind. Code 34-6-2-51.5",
+      "verified": false
+    },
+    {
+      "id": "sex-offense",
+      "term": "Sex offense",
+      "matches": ["sex offense", "sex offenses"],
+      "definition": "A sexual crime, like rape, sexual battery, or child molesting. The person does not need to be charged or convicted for you to ask for an order.",
+      "source": "Ind. Code 35-42-4; Ind. Code 34-26-5-2",
+      "verified": false
+    },
+    {
+      "id": "sex-grooming",
+      "term": "Sex grooming",
+      "matches": ["sex grooming"],
+      "definition": "When an adult contacts a child again and again to gain the child's trust and prepare them for sexual activity.",
+      "source": "PO-0101 question 1",
+      "verified": false
+    }
+  ]
+}
