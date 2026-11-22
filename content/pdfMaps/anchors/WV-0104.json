@@ -158,6 +158,22 @@
    "word": "^NO\\.:$",
    "w": 150,
    "size": 9
+  },
+  {
+   "key": "pageCount.1",
+   "page": 1,
+   "find": "^Page 1 of _",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1
+  },
+  {
+   "key": "pageCount.2",
+   "page": 2,
+   "find": "^Page 2 of _",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1
   }
  ]
 }

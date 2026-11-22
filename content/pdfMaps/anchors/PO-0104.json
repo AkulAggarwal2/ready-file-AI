@@ -572,7 +572,7 @@
    "kind": "after",
    "word": "^DOB:$",
    "wordNth": 0,
-   "w": 110,
+   "w": 95,
    "size": 9
   },
   {
@@ -594,7 +594,7 @@
    "kind": "after",
    "word": "^Race:$",
    "wordNth": 0,
-   "w": 110,
+   "w": 95,
    "size": 9
   },
   {
