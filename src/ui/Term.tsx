@@ -18,8 +18,8 @@ function popoverSupported(): boolean {
 }
 
 interface TermProps {
-  // The term's id in content/glossary.json.
-  id: string;
+  // The term's id in content/glossary.json. A "?" button can explain several.
+  id: string | readonly string[];
   // The words to underline. Leave out for the small "?" button.
   children?: ReactNode;
 }
@@ -35,7 +35,7 @@ interface TermProps {
  * where the words themselves can't be a button.
  */
 export function Term({ id, children }: TermProps) {
-  const entry = glossaryEntry(id);
+  const entries = (typeof id === 'string' ? [id] : id).map(glossaryEntry);
   const tipId = useId();
   const supported = popoverSupported();
   const [open, setOpen] = useState(false);
@@ -128,7 +128,7 @@ export function Term({ id, children }: TermProps) {
         className={icon ? 'term-icon' : 'term'}
         aria-expanded={open}
         aria-describedby={tipId}
-        aria-label={icon ? fill(copy.glossary.iconLabel, { term: entry.term }) : undefined}
+        aria-label={icon ? iconLabel(entries.map((e) => e.term)) : undefined}
         onClick={() => (open && pinned.current ? hide() : show(true))}
         onPointerEnter={(event) => {
           if (event.pointerType === 'mouse') later(() => show(false), SHOW_DELAY);
@@ -154,11 +154,63 @@ export function Term({ id, children }: TermProps) {
             if (event.pointerType === 'mouse') hideUnlessPinned();
           }}
         >
-          <strong className="term-tip-title">{entry.term}</strong> {entry.definition}
+          {entries.map((entry) => (
+            <span key={entry.id} className="term-tip-entry">
+              <strong className="term-tip-title">{entry.term}</strong> {entry.definition}
+            </span>
+          ))}
         </span>,
         document.body,
       )}
     </>
+  );
+}
+
+function iconLabel(terms: string[]): string {
+  const g = copy.glossary;
+  if (terms.length === 1) return fill(g.iconLabel, { term: terms[0] });
+  const quoted = terms.map((t) => `"${t}"`);
+  return fill(g.iconLabelMany, { terms: `${quoted.slice(0, -1).join(', ')} ${g.and} ${quoted[quoted.length - 1]}` });
+}
+
+/**
+ * A "?" button that explains the glossary terms in a label, or nothing if the
+ * label has none. For radio buttons, checkboxes and field labels, whose words
+ * can't be buttons themselves.
+ */
+export function TermHelp({ text }: { text: string }) {
+  const ids = useMemo(
+    () => splitTerms(text).flatMap((part) => (typeof part === 'string' ? [] : [part.id])),
+    [text],
+  );
+  return ids.length > 0 ? <Term id={ids} /> : null;
+}
+
+/**
+ * A radio button or checkbox (a .choice label) with a "?" beside it when its
+ * words include glossary terms. The "?" sits outside the label, so tapping it
+ * doesn't pick the option.
+ */
+export function ChoiceHelp({ text, children }: { text: string; children: ReactNode }) {
+  if (!splitTerms(text).some((part) => typeof part !== 'string')) return <>{children}</>;
+  return (
+    <div className="choice-wrap">
+      {children}
+      <TermHelp text={text} />
+    </div>
+  );
+}
+
+/**
+ * A field's label with a "?" beside it when it names glossary terms.
+ */
+export function LabelHelp({ text, children }: { text: string; children: ReactNode }) {
+  if (!splitTerms(text).some((part) => typeof part !== 'string')) return <>{children}</>;
+  return (
+    <div className="label-help">
+      {children}
+      <TermHelp text={text} />
+    </div>
   );
 }
 

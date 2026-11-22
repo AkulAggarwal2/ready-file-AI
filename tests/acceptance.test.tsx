@@ -19,6 +19,7 @@ import {
   openQuestionText,
   questionToggle,
   questionToggles,
+  named,
   renderApp,
   sentence,
   toQuestions,
@@ -671,7 +672,7 @@ describe('15. Your situation picks the court forms', () => {
     await choose(user, 'Me', 'Ask for a new protection order', 'At or near my home');
     expect(screen.getByRole('heading', { level: 1, name: 'Petition for an order for protection' })).toBeInTheDocument();
     // Plain names first, with the court's title beneath.
-    expect(screen.getByText('The petition')).toBeInTheDocument();
+    expect(screen.getByText(sentence('The petition'))).toBeInTheDocument();
     expect(screen.getByText(courtForm('PO-0100').title)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: stepName('route') })).toHaveAttribute('aria-current', 'step');
     expect(screen.getByRole('button', { name: stepName('start') })).toBeEnabled();
@@ -938,9 +939,9 @@ describe('20. Workplace violence forms', () => {
     const user = renderApp();
     await choose(user, 'An employee of my business or organization', 'Yes', 'Stalked the employee', 'Yes', 'No', 'Ask for a new workplace violence restraining order');
     await user.click(screen.getByRole('button', { name: 'A temporary restraining order' }));
-    expect(screen.queryByRole('group', { name: 'How was the defendant told about this petition?' })).toBeNull();
+    expect(screen.queryByRole('group', { name: named('How was the defendant told about this petition?') })).toBeNull();
     await user.click(screen.getByRole('checkbox', { name: 'Ask for a temporary restraining order now' }));
-    expect(screen.getByRole('group', { name: 'How was the defendant told about this petition?' })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: named('How was the defendant told about this petition?') })).toBeInTheDocument();
   });
 
   it('the employer gets the petition and a separate Confidential Form about the employee', async () => {

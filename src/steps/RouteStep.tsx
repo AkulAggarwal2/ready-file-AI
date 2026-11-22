@@ -4,7 +4,7 @@ import { courtForm } from '../forms';
 import { routeState, routing, type RouteOutcome } from '../forms/routing';
 import { useAppState } from '../state/AppStateProvider';
 import { StepHeading } from '../ui/StepHeading';
-import { Glossed } from '../ui/Term';
+import { ChoiceHelp, Glossed } from '../ui/Term';
 
 /**
  * Asks who the order is for and what she is trying to do, one question at a
@@ -47,29 +47,37 @@ function RouteQuestion({ nodeId }: { nodeId: string }) {
     <form onSubmit={next} autoComplete="off">
       <p className="eyebrow">{fill(c.questionNumber, { n: state.route.length + 1 })}</p>
       <StepHeading>{c.heading}</StepHeading>
-      {state.route.length === 0 && <p>{c.intro}</p>}
+      {state.route.length === 0 && (
+        <p>
+          <Glossed text={c.intro} />
+        </p>
+      )}
 
       <fieldset aria-labelledby={legendId} aria-describedby={node.hint ? `route-${nodeId}-hint` : undefined}>
-        <legend id={legendId}>{node.question}</legend>
+        <legend id={legendId}>
+          <Glossed text={node.question} />
+        </legend>
         {node.hint && (
           <p id={`route-${nodeId}-hint`} className="hint">
             <Glossed text={node.hint} />
           </p>
         )}
         {node.options.map((option) => (
-          <label key={option.id} className="choice">
-            <input
-              type="radio"
-              name={`route-${nodeId}`}
-              value={option.id}
-              checked={picked === option.id}
-              onChange={() => {
-                setPicked(option.id);
-                setShowError(false);
-              }}
-            />
-            {option.label}
-          </label>
+          <ChoiceHelp key={option.id} text={option.label}>
+            <label className="choice">
+              <input
+                type="radio"
+                name={`route-${nodeId}`}
+                value={option.id}
+                checked={picked === option.id}
+                onChange={() => {
+                  setPicked(option.id);
+                  setShowError(false);
+                }}
+              />
+              {option.label}
+            </label>
+          </ChoiceHelp>
         ))}
       </fieldset>
 
@@ -119,7 +127,9 @@ function RouteResult({ outcome }: { outcome: RouteOutcome }) {
             {forms.map((form) => (
               <li key={form.id}>
                 <span className="form-number">{form.number ?? c.coverTag}</span>
-                <span className="form-title">{form.plainTitle}</span>
+                <span className="form-title">
+                  <Glossed text={form.plainTitle} />
+                </span>
                 <span className="form-official">{form.title}</span>
                 <span className="form-meta">{c.filledBy[form.filler]}</span>
               </li>

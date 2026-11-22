@@ -52,13 +52,15 @@ export function StartStep() {
 
       <section className="callout" aria-labelledby="safety-heading">
         <h2 id="safety-heading">{copy.start.safetyHeading}</h2>
-        <p>{fill(copy.start.safetyNote, { minutes: IDLE_TIMEOUT_MS / 60000 })}</p>
+        <p>
+          <Glossed text={fill(copy.start.safetyNote, { minutes: IDLE_TIMEOUT_MS / 60000 })} />
+        </p>
       </section>
 
       <fieldset aria-describedby="grounds-hint">
         <legend>{copy.start.groundsLegend}</legend>
         <p id="grounds-hint" className="hint">
-          {copy.start.groundsHint}
+          <Glossed text={copy.start.groundsHint} />
         </p>
         {groundList.map((ground) => (
           <div key={ground} className="choice-wrap">
@@ -81,7 +83,7 @@ export function StartStep() {
 
       <label htmlFor={RELATIONSHIP_ID}>{copy.start.relationshipLabel}</label>
       <p id="relationship-hint" className="hint">
-        {copy.start.relationshipHint}
+        <Glossed text={copy.start.relationshipHint} />
       </p>
       <select
         id={RELATIONSHIP_ID}

@@ -24,7 +24,9 @@
     "label": "Dark mode"
   },
   "glossary": {
-    "iconLabel": "What does \"{term}\" mean?"
+    "iconLabel": "What does \"{term}\" mean?",
+    "iconLabelMany": "What do {terms} mean?",
+    "and": "and"
   },
   "resources": {
     "show": "Talk to an advocate",

@@ -1039,6 +1039,9 @@ button:disabled {
 }
 
 .choice-wrap > .choice {
+  /* Room for the "?" on both sides, so the words stay centered like the
+     choices around them that have no "?". */
+  padding-left: calc(var(--space-4) + 44px);
   padding-right: calc(var(--space-4) + 2rem + 44px);
 }
 
@@ -1086,6 +1089,34 @@ button:disabled {
 
 .term-tip[hidden] {
   display: none;
+}
+
+.term-tip-entry {
+  display: block;
+}
+
+.term-tip-entry + .term-tip-entry {
+  margin-top: var(--space-3);
+}
+
+/* A field's label with a "?" beside it. The "?" keeps its 44px hit area
+   without making the label's line taller. */
+.label-help {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  column-gap: var(--space-1);
+  margin-top: var(--space-4);
+}
+
+.label-help > label {
+  margin-top: 0;
+}
+
+.label-help > .term-icon {
+  flex: none;
+  margin-block: -10px;
 }
 
 .term-tip-title {

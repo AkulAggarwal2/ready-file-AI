@@ -9,6 +9,14 @@ import { glossary, glossaryEntry, splitTerms } from '../src/glossary';
 import { Glossed, Term } from '../src/ui/Term';
 import { renderApp, toStart } from './helpers';
 
+async function noViolations() {
+  const results = await axe.run(document.body, {
+    runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] },
+    rules: { 'color-contrast': { enabled: false } },
+  });
+  expect(results.violations.map((v) => v.id)).toEqual([]);
+}
+
 const tipOf = (button: HTMLElement) => document.getElementById(button.getAttribute('aria-describedby')!)!;
 const isOpen = (button: HTMLElement) => tipOf(button).hasAttribute('data-popover-open');
 
@@ -132,10 +140,28 @@ describe('Terms in the app', () => {
     // The intro underlines its terms.
     expect(screen.getByRole('button', { name: 'protection order' })).toBeInTheDocument();
 
-    const results = await axe.run(document.body, {
-      runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] },
-      rules: { 'color-contrast': { enabled: false } },
-    });
-    expect(results.violations.map((v) => v.id)).toEqual([]);
+    await noViolations();
+  });
+
+  it('on Your situation, underlines the question and puts a "?" beside options with terms', async () => {
+    const user = renderApp();
+    // Question 1's wording names a protection order.
+    expect(screen.getByRole('button', { name: 'protection order' })).toBeInTheDocument();
+    await user.click(screen.getByRole('radio', { name: 'Me' }));
+    await user.click(screen.getByRole('button', { name: copy.route.continue }));
+
+    // An option with a term gets a "?"; tapping it doesn't pick the option.
+    const radio = screen.getByRole('radio', { name: 'Ask for a new protection order' });
+    const help = screen.getAllByRole('button', { name: fill(copy.glossary.iconLabel, { term: 'Protection order' }) })[0];
+    await user.click(help);
+    expect(isOpen(help)).toBe(true);
+    expect(radio).not.toBeChecked();
+
+    // One "?" explains every term in its option.
+    const both = screen.getAllByRole('button', { name: 'What do "Petition" and "Dismissed" mean?' })[0];
+    expect(tipOf(both)).toHaveTextContent(glossaryEntry('dismissed').definition);
+    expect(tipOf(both)).toHaveTextContent(glossaryEntry('petition').definition);
+
+    await noViolations();
   });
 });

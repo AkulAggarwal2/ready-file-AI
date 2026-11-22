@@ -58,7 +58,9 @@ export function ReviewStep() {
 
       <section className="callout" aria-labelledby="form-heading">
         <h2 id="form-heading">{c.formHeading}</h2>
-        <p>{c.formIntro}</p>
+        <p>
+          <Glossed text={c.formIntro} />
+        </p>
         <ul className="form-checklist">
           {c.formItems.map((item) => (
             <li key={item}>
@@ -68,7 +70,9 @@ export function ReviewStep() {
           {grounds.length === 1 && grounds[0] === 'harassment' && <li><Glossed text={c.formHarassment} /></li>}
           {grounds.includes('sex-offense') && <li><Glossed text={c.formSexOffense} /></li>}
         </ul>
-        <p className="hint">{c.formSource}</p>
+        <p className="hint">
+          <Glossed text={c.formSource} />
+        </p>
         <div className="button-row">
           <button type="button" className="btn btn-primary" onClick={() => dispatch({ type: 'goTo', step: 'forms' })}>
             {c.toForms}
