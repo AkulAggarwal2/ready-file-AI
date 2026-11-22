@@ -322,20 +322,22 @@ single order that is issued everywhere in the U.S. When protected persons travel
 their attorney may advise them to take their order to the county courthouse and register it so 
 that it is entered in both the state and national databases and is enforceable. For this reason, a 
 protected person may come to the court wishing to register the order. 
-When a protected person presents a foreign protection order for registration, use form PO-119 
-and PO-120. Do not require the protected person to file a completely new petition. Form PO-
-119 has two sections: use Section A if the protected person is registering a foreign order for the 
-first time; use Section B if the person is wishing to make a record of the fact that the foreign 
-order has been modified or extended. Form PO-120 is a confidential data entry form for the 
-foreign protection order that contains information for the Indiana POR and for local law 
-enforcement. 
-Once a protected person has filled out both PO-119 and PO-120, take the original copies of 
-both, along with a copy of the foreign protection order, place them in a Confidential Court file, 
-and give the matter a “PO” case number designation. 
-Make sure the protected person has been given a certified copy of PO-119 by the Clerk as soon 
+When a protected person presents a foreign protection order for registration, use form PO-0119 
+(Registration of Foreign Protection Order). Do not require the protected person to file a 
+completely new petition. Form PO-0119 has two sections: use Section A if the protected person 
+is registering a foreign order for the first time; use Section B if the person is wishing to make a 
+record of the fact that the foreign order has been modified or extended. 
+[Editor's note, 2026-11-21: the original guide also names a second, confidential data entry form 
+for foreign orders. That form is no longer on the Indiana court's current protection order forms 
+list (https://www.in.gov/courts/iocs/publications/po-forms/), so its number has been removed 
+here.] 
+Once a protected person has filled out PO-0119, take the original copy, along with a copy of the 
+foreign protection order, place them in a Confidential Court file, and give the matter a “PO” 
+case number designation. 
+Make sure the protected person has been given a certified copy of PO-0119 by the Clerk as soon 
 as possible. The court staff is responsible for registering the foreign protection order within the 
 Indiana POR so that it can be submitted to IDACS and NCIC, the state and national databases. 
 This should be done on the same business day the protected person completes the registration 
-form (PO-119). If the protected person desires, the court should also forward copies of the 
-foreign order, PO-119, and PO-120 to local law enforcement. Do not serve the 
+form (PO-0119). If the protected person desires, the court should also forward copies of the 
+foreign order and PO-0119 to local law enforcement. Do not serve the 
 Respondent/Defendant with any type of notice concerning this registration.
