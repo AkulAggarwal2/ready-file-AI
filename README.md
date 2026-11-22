@@ -45,6 +45,14 @@ See "The incident splitter" below.
    continues into the steps below for now; other outcomes list their forms
    and say ReadyFile does not fill them yet. The questions are in
    `content/routing.json`.
+   After **Review**, the **Court forms** step asks the rest of what the
+   petition (PO-0100), the Confidential Form (PO-0104) and the Notice of
+   Exclusion (PNW-0102) need, and "Make my PDF" prints every answer on the
+   court's official forms, in the browser. Text too long for a blank, and
+   list items past what fits, go on labeled attachments (4a, 8a, 9(a) to
+   9(c)), and question 10 counts the pages. Signature and date lines and
+   anything the clerk fills stay blank. The PDF code and the forms load only
+   when she asks for the PDF, and nothing leaves the device.
 1. **Start:** she checks the grounds that apply (question 1), or none for
    "not sure".
 2. **Incidents:** she adds each incident with a date (a new one opens on the
@@ -75,6 +83,8 @@ them right away. For a production build, run `npm run build` again.
 | [content/rules.json](content/rules.json) | The check questions. Each rule has `id`, `grounds` (from PO-0100 question 1, plus `not-sure`), `condition`, `questionText`, `sourceCitation`, and `verified`. |
 | [content/resources.json](content/resources.json) | The advocate contacts behind "Talk to an advocate". An entry with `verified: false` shows a "Not checked yet" label. |
 | [content/forms.json](content/forms.json) | Every form on the court's protection order forms page: number, official title, dates, Word and PDF links (for citation only), who fills it, and what ReadyFile makes from it. A test keeps it in step with the page's list. |
+| [content/questionnaires/petition-adult.json](content/questionnaires/petition-adult.json) | The Court forms questions for the adult packet, section by section in each form's order (PO-0100, then PO-0104). Field ids match the PDF map keys. `showIf` hides a field until it applies; `$relationship`, `$convicted` and `$grounds` come from earlier steps. Groups say how many fit on the form (`max`) and which attachment takes the rest. |
+| [content/pdfMaps/](content/pdfMaps) | Where each answer prints on the court's PDF. Edit `anchors/<FORM>.json` (a line's text and which blank on it), then run `node scripts/build-pdf-maps.mjs` (needs poppler's `pdftotext`) to regenerate `<FORM>.json`. Never edit the generated files by hand. |
 | [content/routing.json](content/routing.json) | The Your situation questions. Each option goes to another question (`next`) or an outcome; each outcome lists its court forms. A test checks every option leads somewhere and every form exists. |
 | [content/safety-questions.json](content/safety-questions.json) | The optional safety questions (from the Petition Review Flags design). Each has `id`, `question` (what the petitioner sees), `staffLabel` (the chip Desk shows for a "yes"), `sourceCitation`, and `verified`. ReadyFile and Desk both read it. |
 

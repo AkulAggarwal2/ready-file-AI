@@ -706,3 +706,77 @@ describe('15. Your situation picks the court forms', () => {
     expect(screen.queryByText(copy.route.formsHeading)).toBeNull();
   });
 });
+
+// The Court forms step asks the rest of what PO-0100, PO-0104 and PNW-0102
+// need, in each form's order, and builds the PDF on the device.
+describe('16. Court forms', () => {
+  async function toForms(user: User) {
+    await begin(user, 'Stalking');
+    await loadSample(user, 'one');
+    await toQuestions(user);
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+    await user.click(screen.getByRole('button', { name: copy.review.toForms }));
+  }
+
+  it('starts with the case heading of the petition and shows a field only when it applies', async () => {
+    const user = renderApp();
+    await toForms(user);
+    expect(screen.getByRole('heading', { level: 1, name: 'The court and the people in the case' })).toHaveFocus();
+    expect(screen.getByText(/Section 1 of \d+ · Form PO-0100/)).toBeInTheDocument();
+    await user.type(screen.getByRole('textbox', { name: 'County where you are filing' }), 'Allen');
+
+    await user.click(screen.getByRole('button', { name: 'Questions 4 to 6: other cases, the county, and your public address' }));
+    const address = () => screen.queryByRole('textbox', { name: 'Your public mailing address' });
+    expect(address()).toBeInTheDocument();
+    await user.click(screen.getByRole('radio', { name: copy.forms.yes }));
+    expect(address()).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Question 9: orders the judge can make right away' }));
+    expect(screen.queryByRole('textbox', { name: 'Which place?' })).toBeNull();
+    await user.click(screen.getByRole('checkbox', { name: /stay away from my home, school, work/ }));
+    expect(screen.getByRole('textbox', { name: 'Which place?' })).toBeInTheDocument();
+  });
+
+  it('adds and removes items in a list, and says where extra ones go', async () => {
+    const user = renderApp();
+    await toForms(user);
+    await user.click(screen.getByRole('button', { name: 'Questions 4 to 6: other cases, the county, and your public address' }));
+    expect(screen.getByText(/5 fit on the form. Any more go on Attachment 4a/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Add a case' }));
+    await user.type(screen.getByRole('textbox', { name: 'Case name' }), 'Doe v. Doe');
+    expect(screen.getByRole('group', { name: 'Case 1' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Remove Case 1' }));
+    expect(screen.queryByRole('group', { name: 'Case 1' })).toBeNull();
+  });
+
+  it('lists what is still blank, links back to it, and makes the PDF on the device', async () => {
+    const create = vi.fn(() => 'blob:readyfile-test');
+    const revoke = vi.fn();
+    Object.assign(URL, { createObjectURL: create, revokeObjectURL: revoke });
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    const user = renderApp();
+    await toForms(user);
+    await user.click(screen.getByRole('button', { name: copy.forms.downloadHeading }));
+    expect(screen.getByRole('heading', { level: 1, name: copy.forms.downloadHeading })).toBeInTheDocument();
+    for (const number of ['PO-0100', 'PO-0104', 'PNW-0102']) expect(screen.getByText(number)).toBeInTheDocument();
+    const missing = screen.getByRole('region', { name: copy.forms.missingHeading });
+    await user.click(within(missing).getByRole('button', { name: 'County where you are filing' }));
+    expect(screen.getByRole('heading', { level: 1, name: 'The court and the people in the case' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: copy.forms.downloadHeading }));
+    await user.click(screen.getByRole('button', { name: copy.forms.download }));
+    await screen.findByText(copy.forms.made, {}, { timeout: 5000 });
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(click).toHaveBeenCalledTimes(1);
+    click.mockRestore();
+  });
+
+  it('keeps her answers when she moves between steps', async () => {
+    const user = renderApp();
+    await toForms(user);
+    await user.type(screen.getByRole('textbox', { name: "The other person's first name" }), 'Sam');
+    await goToStep(user, 'review');
+    await goToStep(user, 'forms');
+    expect(screen.getByRole('textbox', { name: "The other person's first name" })).toHaveValue('Sam');
+  });
+});

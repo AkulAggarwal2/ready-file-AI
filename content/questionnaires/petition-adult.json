@@ -1,0 +1,1080 @@
+{
+  "_about": "The questions for the adult petition packet (PO-0100, PO-0104, PNW-0102), in each form's order. Field ids match the keys in content/pdfMaps. showIf fields starting with $ come from the earlier steps.",
+  "id": "petition-adult",
+  "sections": [
+    {
+      "id": "caption",
+      "form": "PO-0100",
+      "title": "The court and the people in the case",
+      "intro": "This goes at the top of the petition and the other forms.",
+      "fields": [
+        {
+          "id": "court.county",
+          "type": "text",
+          "label": "County where you are filing",
+          "required": true
+        },
+        {
+          "id": "court.name",
+          "type": "text",
+          "label": "Name of the court",
+          "hint": "Like Superior or Circuit. The clerk's office can tell you. You can leave it blank."
+        },
+        {
+          "id": "petitioner.first",
+          "type": "text",
+          "label": "Your first name",
+          "required": true
+        },
+        {
+          "id": "petitioner.middle",
+          "type": "text",
+          "label": "Your middle name"
+        },
+        {
+          "id": "petitioner.last",
+          "type": "text",
+          "label": "Your last name",
+          "required": true
+        },
+        {
+          "id": "respondent.first",
+          "type": "text",
+          "label": "The other person's first name",
+          "required": true,
+          "hint": "The court needs the person's correct, full name."
+        },
+        {
+          "id": "respondent.middle",
+          "type": "text",
+          "label": "The other person's middle name"
+        },
+        {
+          "id": "respondent.last",
+          "type": "text",
+          "label": "The other person's last name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "q2-3",
+      "form": "PO-0100",
+      "title": "Questions 2 and 3: about the other person",
+      "fields": [
+        {
+          "id": "q2.blood-adoption.detail",
+          "type": "text",
+          "label": "How is the person related to you?",
+          "hint": "Like brother or aunt. The form says \"The Respondent is my ___.\"",
+          "showIf": {
+            "field": "$relationship",
+            "equals": "blood-adoption"
+          }
+        },
+        {
+          "id": "q2.marriage.detail",
+          "type": "text",
+          "label": "How is the person related to you by marriage?",
+          "hint": "Like stepfather or sister-in-law.",
+          "showIf": {
+            "field": "$relationship",
+            "equals": "marriage"
+          }
+        },
+        {
+          "id": "q2.nonFamily",
+          "type": "choice",
+          "label": "Which one best describes what the person did?",
+          "hint": "Question 2 asks this when the person is not a family or household member. Pick only one.",
+          "options": [
+            {
+              "value": "stalking",
+              "label": "Stalked me"
+            },
+            {
+              "value": "sex-offense",
+              "label": "Committed a sex offense against me"
+            },
+            {
+              "value": "harassment",
+              "label": "Harassed me again and again"
+            }
+          ],
+          "showIf": {
+            "field": "$relationship",
+            "equals": "none"
+          }
+        },
+        {
+          "id": "q2.offender.cause",
+          "type": "text",
+          "label": "Case number (cause number) of the conviction",
+          "showIf": {
+            "field": "$convicted",
+            "equals": "yes"
+          }
+        },
+        {
+          "id": "q2.offender.court",
+          "type": "text",
+          "label": "Court that convicted the person",
+          "showIf": {
+            "field": "$convicted",
+            "equals": "yes"
+          }
+        },
+        {
+          "id": "q2.offender.state",
+          "type": "text",
+          "label": "State of that court",
+          "showIf": {
+            "field": "$convicted",
+            "equals": "yes"
+          }
+        },
+        {
+          "id": "q2.offender.date",
+          "type": "date",
+          "label": "Date of conviction",
+          "showIf": {
+            "field": "$convicted",
+            "equals": "yes"
+          }
+        },
+        {
+          "id": "q2.offender.lifetime",
+          "type": "yesno",
+          "label": "Does the person have to register as a sex or violent offender for life?",
+          "hint": "If so, the order can last with no end date (question 9).",
+          "showIf": {
+            "field": "$convicted",
+            "equals": "yes"
+          }
+        },
+        {
+          "id": "q3",
+          "type": "number",
+          "label": "How old is the other person?",
+          "hint": "Your best guess is fine. If the person is under 18, the case may go to juvenile court."
+        }
+      ]
+    },
+    {
+      "id": "q4-6",
+      "form": "PO-0100",
+      "title": "Questions 4 to 6: other cases, the county, and your public address",
+      "fields": [
+        {
+          "id": "q4.cases",
+          "type": "group",
+          "label": "Other court cases",
+          "hint": "List every case that involves you, the other person, or a child you have with them: divorce, protection orders, paternity, guardianship, criminal, juvenile, civil, or military protection orders.",
+          "fields": [
+            {
+              "id": "caseName",
+              "type": "text",
+              "label": "Case name",
+              "hint": "Like Doe v. Doe"
+            },
+            {
+              "id": "caseNumber",
+              "type": "text",
+              "label": "Case number"
+            },
+            {
+              "id": "countyState",
+              "type": "text",
+              "label": "County and state"
+            }
+          ],
+          "max": 5,
+          "overflow": "4a",
+          "itemLabel": "Case {n}",
+          "addLabel": "Add a case"
+        },
+        {
+          "id": "q4.school",
+          "type": "text",
+          "label": "If you and the other person go to the same school, the school and school corporation"
+        },
+        {
+          "id": "q5",
+          "type": "multi",
+          "label": "Why are you filing in this county?",
+          "hint": "Check all that apply. At least one is needed.",
+          "required": true,
+          "options": [
+            {
+              "value": "a",
+              "label": "The other person lives in this county"
+            },
+            {
+              "value": "b",
+              "label": "It happened in this county"
+            },
+            {
+              "value": "c",
+              "label": "I live in this county"
+            }
+          ]
+        },
+        {
+          "id": "q6.attorney",
+          "type": "yesno",
+          "label": "Do you have a lawyer for this case?"
+        },
+        {
+          "id": "q6",
+          "type": "textarea",
+          "label": "Your public mailing address",
+          "hint": "This address is not kept secret, and the other person may see it. Use an address you are comfortable making public. Your home address goes on the Confidential Form instead.",
+          "showIf": {
+            "field": "q6.attorney",
+            "notEquals": "yes"
+          },
+          "required": true,
+          "rows": 2
+        }
+      ]
+    },
+    {
+      "id": "q9a",
+      "form": "PO-0100",
+      "title": "Question 9: orders the judge can make right away",
+      "intro": "The judge can order these without a hearing. If your petition is based on harassment alone, the judge can order them only after a hearing within 30 days.",
+      "fields": [
+        {
+          "id": "q9.protectMe",
+          "type": "checkbox",
+          "label": "Order the person not to commit or threaten violence, stalking, or sex offenses against me"
+        },
+        {
+          "id": "q9.protectFamily",
+          "type": "checkbox",
+          "label": "Order the same for my family or household members"
+        },
+        {
+          "id": "q9.protectFamily.names",
+          "type": "textarea",
+          "label": "Their names",
+          "hint": "List them on the Confidential Form too, under other people to protect.",
+          "showIf": {
+            "field": "q9.protectFamily",
+            "equals": true
+          },
+          "rows": 2
+        },
+        {
+          "id": "q9.tracking",
+          "type": "checkbox",
+          "label": "Order the person not to use a tracking device to find me, my family or household members, or our property"
+        },
+        {
+          "id": "q9.noContact",
+          "type": "checkbox",
+          "label": "Order the person not to harass, bother, call, contact, or communicate with me, directly or through others"
+        },
+        {
+          "id": "q9.stayAway",
+          "type": "checkbox",
+          "label": "Order the person to stay away from my home, school, work, or another place"
+        },
+        {
+          "id": "q9.stayAway.place",
+          "type": "text",
+          "label": "Which place?",
+          "hint": "Like residence, school, or place of employment",
+          "showIf": {
+            "field": "q9.stayAway",
+            "equals": true
+          }
+        },
+        {
+          "id": "q9.stayAway.address",
+          "type": "text",
+          "label": "Its address",
+          "showIf": {
+            "field": "q9.stayAway",
+            "equals": true
+          }
+        },
+        {
+          "id": "q9.indefinite",
+          "type": "checkbox",
+          "label": "Make the order last with no end date, because the person must register for life as a sex or violent offender for an offense against me",
+          "showIf": {
+            "field": "q2.offender.lifetime",
+            "equals": "yes"
+          }
+        },
+        {
+          "id": "q9.familyPlaces",
+          "type": "checkbox",
+          "label": "Order the person to stay away from places my family or household members go often"
+        },
+        {
+          "id": "q9.familyPlaces.places",
+          "type": "textarea",
+          "label": "Which places?",
+          "hint": "Like a home, school, or workplace",
+          "showIf": {
+            "field": "q9.familyPlaces",
+            "equals": true
+          },
+          "rows": 3
+        },
+        {
+          "id": "q9.owners",
+          "type": "textarea",
+          "label": "Everyone who owns or signed the lease for your home",
+          "hint": "The form asks everyone to fill this in.",
+          "required": true,
+          "rows": 2
+        }
+      ]
+    },
+    {
+      "id": "q9b",
+      "form": "PO-0100",
+      "title": "Question 9: orders that need a hearing within 30 days",
+      "intro": "The judge can order these right away, but the court then holds a hearing within 30 days.",
+      "fields": [
+        {
+          "id": "q9.evict",
+          "type": "checkbox",
+          "label": "Order the person to leave my home"
+        },
+        {
+          "id": "q9.evict.address",
+          "type": "text",
+          "label": "Address of the home",
+          "showIf": {
+            "field": "q9.evict",
+            "equals": true
+          }
+        },
+        {
+          "id": "q9.possession",
+          "type": "checkbox",
+          "label": "Give me the use of things the person has"
+        },
+        {
+          "id": "q9.possession.residence",
+          "type": "checkbox",
+          "label": "The home",
+          "showIf": {
+            "field": "q9.possession",
+            "equals": true
+          }
+        },
+        {
+          "id": "q9.possession.residence.address",
+          "type": "text",
+          "label": "Address of the home",
+          "showIf": {
+            "all": [
+              {
+                "field": "q9.possession",
+                "equals": true
+              },
+              {
+                "field": "q9.possession.residence",
+                "equals": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "q9.possession.vehicle",
+          "type": "checkbox",
+          "label": "A car or other vehicle",
+          "showIf": {
+            "field": "q9.possession",
+            "equals": true
+          }
+        },
+        {
+          "id": "q9.possession.vehicle.description",
+          "type": "text",
+          "label": "Describe the vehicle",
+          "hint": "Like year, make, model, and color",
+          "showIf": {
+            "all": [
+              {
+                "field": "q9.possession",
+                "equals": true
+              },
+              {
+                "field": "q9.possession.vehicle",
+                "equals": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "q9.possession.items",
+          "type": "checkbox",
+          "label": "Other things I need",
+          "showIf": {
+            "field": "q9.possession",
+            "equals": true
+          }
+        },
+        {
+          "id": "q9.possession.items.description",
+          "type": "textarea",
+          "label": "Describe them",
+          "showIf": {
+            "all": [
+              {
+                "field": "q9.possession",
+                "equals": true
+              },
+              {
+                "field": "q9.possession.items",
+                "equals": true
+              }
+            ]
+          },
+          "rows": 2
+        },
+        {
+          "id": "q9.animalsProtect",
+          "type": "checkbox",
+          "label": "Order the person not to take, hurt, hide, or get rid of animals"
+        },
+        {
+          "id": "q9.animalsProtect.animals",
+          "type": "group",
+          "label": "The animals",
+          "fields": [
+            {
+              "id": "name",
+              "type": "text",
+              "label": "Name"
+            },
+            {
+              "id": "ageType",
+              "type": "text",
+              "label": "Age and type",
+              "hint": "Like 9 year old dog"
+            },
+            {
+              "id": "sizeBreed",
+              "type": "text",
+              "label": "Size and breed"
+            },
+            {
+              "id": "description",
+              "type": "text",
+              "label": "Color and description"
+            }
+          ],
+          "max": 2,
+          "overflow": "9(a)",
+          "itemLabel": "Animal {n}",
+          "addLabel": "Add an animal",
+          "showIf": {
+            "field": "q9.animalsProtect",
+            "equals": true
+          }
+        },
+        {
+          "id": "q9.animalsKeep",
+          "type": "checkbox",
+          "label": "Give me sole care and custody of animals"
+        },
+        {
+          "id": "q9.animalsKeep.animals",
+          "type": "group",
+          "label": "The animals",
+          "fields": [
+            {
+              "id": "name",
+              "type": "text",
+              "label": "Name"
+            },
+            {
+              "id": "ageType",
+              "type": "text",
+              "label": "Age and type",
+              "hint": "Like 9 year old dog"
+            },
+            {
+              "id": "sizeBreed",
+              "type": "text",
+              "label": "Size and breed"
+            },
+            {
+              "id": "description",
+              "type": "text",
+              "label": "Color and description"
+            }
+          ],
+          "max": 2,
+          "overflow": "9(a)",
+          "itemLabel": "Animal {n}",
+          "addLabel": "Add an animal",
+          "showIf": {
+            "field": "q9.animalsKeep",
+            "equals": true
+          }
+        },
+        {
+          "id": "q9.otherRelief",
+          "type": "checkbox",
+          "label": "Order something else I or my family or household members need to be safe"
+        },
+        {
+          "id": "q9.otherRelief.text",
+          "type": "textarea",
+          "label": "What else?",
+          "showIf": {
+            "field": "q9.otherRelief",
+            "equals": true
+          },
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "id": "q9c",
+      "form": "PO-0100",
+      "title": "Question 9: orders only after a hearing",
+      "intro": "The judge can order these only after the other person is told and a hearing is held within 30 days. Bring papers that show any costs to the hearing.",
+      "fields": [
+        {
+          "id": "q9.parentingTime",
+          "type": "checkbox",
+          "label": "Set parenting time with our children"
+        },
+        {
+          "id": "q9.supervised",
+          "type": "checkbox",
+          "label": "Have someone else supervise parenting time"
+        },
+        {
+          "id": "q9.denyParenting",
+          "type": "checkbox",
+          "label": "Deny the person parenting time"
+        },
+        {
+          "id": "q9.attorneyFees",
+          "type": "checkbox",
+          "label": "Have the person pay my lawyer's fees"
+        },
+        {
+          "id": "q9.rent",
+          "type": "checkbox",
+          "label": "Have the person pay rent for my home"
+        },
+        {
+          "id": "q9.mortgage",
+          "type": "checkbox",
+          "label": "Have the person pay the mortgage for my home"
+        },
+        {
+          "id": "q9.childSupport",
+          "type": "checkbox",
+          "label": "Have the person pay child support"
+        },
+        {
+          "id": "q9.maintenance",
+          "type": "checkbox",
+          "label": "Have the person pay support for me"
+        },
+        {
+          "id": "q9.reimburse",
+          "type": "checkbox",
+          "label": "Have the person pay me back for costs caused by what happened"
+        },
+        {
+          "id": "q9.reimburse.medical.amount",
+          "type": "text",
+          "label": "Medical costs ($)",
+          "showIf": {
+            "field": "q9.reimburse",
+            "equals": true
+          },
+          "inputMode": "decimal"
+        },
+        {
+          "id": "q9.reimburse.counseling.amount",
+          "type": "text",
+          "label": "Counseling ($)",
+          "showIf": {
+            "field": "q9.reimburse",
+            "equals": true
+          },
+          "inputMode": "decimal"
+        },
+        {
+          "id": "q9.reimburse.shelter.amount",
+          "type": "text",
+          "label": "Shelter ($)",
+          "showIf": {
+            "field": "q9.reimburse",
+            "equals": true
+          },
+          "inputMode": "decimal"
+        },
+        {
+          "id": "q9.reimburse.property.amount",
+          "type": "text",
+          "label": "Repairing or replacing damaged property ($)",
+          "showIf": {
+            "field": "q9.reimburse",
+            "equals": true
+          },
+          "inputMode": "decimal"
+        },
+        {
+          "id": "q9.reimburse.other.amount",
+          "type": "text",
+          "label": "Other costs from bringing this case ($)",
+          "showIf": {
+            "field": "q9.reimburse",
+            "equals": true
+          },
+          "inputMode": "decimal"
+        },
+        {
+          "id": "q9.noFirearms",
+          "type": "checkbox",
+          "label": "Order the person not to have or use guns, ammunition, or deadly weapons"
+        },
+        {
+          "id": "q9.surrender",
+          "type": "checkbox",
+          "label": "Order the person to turn over guns, ammunition, or deadly weapons to the police"
+        },
+        {
+          "id": "q9.surrender.items",
+          "type": "group",
+          "label": "The weapons",
+          "hint": "List each one.",
+          "fields": [
+            {
+              "id": "item",
+              "type": "text",
+              "label": "Weapon"
+            }
+          ],
+          "max": 6,
+          "overflow": "9(b)",
+          "itemLabel": "Weapon {n}",
+          "addLabel": "Add a weapon",
+          "showIf": {
+            "field": "q9.surrender",
+            "equals": true
+          }
+        },
+        {
+          "id": "q9.phones",
+          "type": "checkbox",
+          "label": "Have a phone company give me (or a child in my custody) a phone number on the person's account",
+          "hint": "The phone company's usual rules for a new account still apply, and you would pay for it."
+        },
+        {
+          "id": "q9.phones.numbers",
+          "type": "group",
+          "label": "The phone numbers",
+          "fields": [
+            {
+              "id": "numberUser",
+              "type": "text",
+              "label": "Phone number and who uses it"
+            },
+            {
+              "id": "provider",
+              "type": "text",
+              "label": "Phone company"
+            },
+            {
+              "id": "holder",
+              "type": "text",
+              "label": "Who the account is in the name of"
+            }
+          ],
+          "max": 2,
+          "overflow": "9(c)",
+          "itemLabel": "Phone {n}",
+          "addLabel": "Add a phone number",
+          "showIf": {
+            "field": "q9.phones",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "sign",
+      "form": "PO-0100",
+      "title": "Signing the petition",
+      "intro": "You sign the petition under penalty of perjury, by hand, when you file it.",
+      "fields": [
+        {
+          "id": "affirm",
+          "type": "choice",
+          "label": "What you wrote is based on",
+          "required": true,
+          "options": [
+            {
+              "value": "a",
+              "label": "What I know myself"
+            },
+            {
+              "value": "b",
+              "label": "What others told me and I believe is true"
+            }
+          ],
+          "hint": "If it is based only on what others told you, the court needs sworn statements (affidavits) from people who saw or heard it."
+        },
+        {
+          "id": "affidavitPages",
+          "type": "number",
+          "label": "How many pages of sworn statements will you attach?",
+          "showIf": {
+            "field": "affirm",
+            "equals": "b"
+          }
+        }
+      ]
+    },
+    {
+      "id": "restrained",
+      "form": "PO-0104",
+      "title": "Confidential Form: about the other person",
+      "intro": "Police use this to find the person and serve the order. Only the court, the clerk, the prosecutor, and police see it. Fill in what you know.",
+      "fields": [
+        {
+          "id": "restrained.dob",
+          "type": "date",
+          "label": "Date of birth",
+          "hint": "Without a date of birth or Social Security number, the order goes into Indiana's registry but not the national one."
+        },
+        {
+          "id": "restrained.homeAddress",
+          "type": "textarea",
+          "label": "Home address",
+          "rows": 2
+        },
+        {
+          "id": "restrained.postalAddress",
+          "type": "textarea",
+          "label": "Mailing address, if different",
+          "rows": 2
+        },
+        {
+          "id": "restrained.phone.home",
+          "type": "phone",
+          "label": "Home phone"
+        },
+        {
+          "id": "restrained.phone.work",
+          "type": "phone",
+          "label": "Work phone"
+        },
+        {
+          "id": "restrained.phone.cell",
+          "type": "phone",
+          "label": "Cell phone"
+        },
+        {
+          "id": "restrained.email",
+          "type": "text",
+          "label": "Email"
+        },
+        {
+          "id": "restrained.business",
+          "type": "textarea",
+          "label": "Where the person works or can often be found",
+          "rows": 2
+        },
+        {
+          "id": "restrained.sex",
+          "type": "choice",
+          "label": "Sex",
+          "options": [
+            {
+              "value": "male",
+              "label": "Male"
+            },
+            {
+              "value": "female",
+              "label": "Female"
+            }
+          ]
+        },
+        {
+          "id": "restrained.race",
+          "type": "text",
+          "label": "Race"
+        },
+        {
+          "id": "restrained.hair",
+          "type": "text",
+          "label": "Hair color"
+        },
+        {
+          "id": "restrained.eyes",
+          "type": "text",
+          "label": "Eye color"
+        },
+        {
+          "id": "restrained.height",
+          "type": "text",
+          "label": "Height"
+        },
+        {
+          "id": "restrained.weight",
+          "type": "text",
+          "label": "Weight"
+        },
+        {
+          "id": "restrained.scars",
+          "type": "yesno",
+          "label": "Any scars or tattoos?"
+        },
+        {
+          "id": "restrained.scars.description",
+          "type": "textarea",
+          "label": "Where and what they look like",
+          "showIf": {
+            "field": "restrained.scars",
+            "equals": "yes"
+          },
+          "rows": 2
+        },
+        {
+          "id": "restrained.ssn",
+          "type": "text",
+          "label": "Social Security number, if you know it",
+          "private": true
+        },
+        {
+          "id": "household",
+          "type": "group",
+          "label": "People living in your home who are not asking for protection",
+          "fields": [
+            {
+              "id": "name",
+              "type": "text",
+              "label": "Name"
+            },
+            {
+              "id": "age",
+              "type": "number",
+              "label": "Age"
+            },
+            {
+              "id": "sex",
+              "type": "choice",
+              "label": "Sex",
+              "options": [
+                {
+                  "value": "male",
+                  "label": "Male"
+                },
+                {
+                  "value": "female",
+                  "label": "Female"
+                }
+              ]
+            },
+            {
+              "id": "race",
+              "type": "text",
+              "label": "Race"
+            }
+          ],
+          "max": 6,
+          "overflow": "household",
+          "itemLabel": "Person {n}",
+          "addLabel": "Add a person"
+        }
+      ]
+    },
+    {
+      "id": "petitioner",
+      "form": "PO-0104",
+      "title": "Confidential Form: about you",
+      "intro": "This page of the form is confidential under Indiana law (Ind. Code 5-2-9-7). It is printed on green paper.",
+      "fields": [
+        {
+          "id": "petitioner.homeAddress",
+          "type": "textarea",
+          "label": "Your home address",
+          "rows": 2,
+          "required": true
+        },
+        {
+          "id": "petitioner.postalAddress",
+          "type": "textarea",
+          "label": "Mailing address, if different",
+          "rows": 2
+        },
+        {
+          "id": "petitioner.dob",
+          "type": "date",
+          "label": "Your date of birth",
+          "required": true
+        },
+        {
+          "id": "petitioner.ssn",
+          "type": "text",
+          "label": "Your Social Security number (optional)",
+          "private": true
+        },
+        {
+          "id": "petitioner.sex",
+          "type": "choice",
+          "label": "Sex",
+          "options": [
+            {
+              "value": "male",
+              "label": "Male"
+            },
+            {
+              "value": "female",
+              "label": "Female"
+            }
+          ]
+        },
+        {
+          "id": "petitioner.race",
+          "type": "text",
+          "label": "Race"
+        },
+        {
+          "id": "petitioner.phone.home",
+          "type": "phone",
+          "label": "Home phone"
+        },
+        {
+          "id": "petitioner.phone.work",
+          "type": "phone",
+          "label": "Work phone"
+        },
+        {
+          "id": "petitioner.phone.cell",
+          "type": "phone",
+          "label": "Cell phone"
+        },
+        {
+          "id": "petitioner.phone.fax",
+          "type": "phone",
+          "label": "Fax"
+        },
+        {
+          "id": "petitioner.email",
+          "type": "text",
+          "label": "Email"
+        },
+        {
+          "id": "notify",
+          "type": "yesno",
+          "label": "Do you want a message when the order is issued, served, and about to end?"
+        },
+        {
+          "id": "notify.method",
+          "type": "choice",
+          "label": "How?",
+          "options": [
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "text",
+              "label": "Text message"
+            }
+          ],
+          "showIf": {
+            "field": "notify",
+            "equals": "yes"
+          },
+          "hint": "Text messages may cost you standard fees."
+        },
+        {
+          "id": "petitioner.reachWhen",
+          "type": "text",
+          "label": "When can you be reached at these numbers?"
+        },
+        {
+          "id": "petitioner.otherAddress",
+          "type": "text",
+          "label": "Another address to protect, like your work"
+        },
+        {
+          "id": "petitioner.acpAddress",
+          "type": "textarea",
+          "label": "Your address from the Attorney General's Address Confidentiality Program, if you are in it",
+          "rows": 2
+        },
+        {
+          "id": "petitioner.sendTo",
+          "type": "textarea",
+          "label": "Cities or counties where you want a copy of the order sent",
+          "rows": 2
+        }
+      ]
+    },
+    {
+      "id": "protected",
+      "form": "PO-0104",
+      "title": "Confidential Form: other people to protect",
+      "intro": "List family or household members you asked the judge to protect in question 9. Courts can list up to 9 people in one order.",
+      "fields": [
+        {
+          "id": "protected",
+          "type": "group",
+          "label": "Other people to protect",
+          "fields": [
+            {
+              "id": "name",
+              "type": "text",
+              "label": "Name"
+            },
+            {
+              "id": "age",
+              "type": "number",
+              "label": "Age"
+            },
+            {
+              "id": "dob",
+              "type": "date",
+              "label": "Date of birth"
+            },
+            {
+              "id": "sex",
+              "type": "choice",
+              "label": "Sex",
+              "options": [
+                {
+                  "value": "male",
+                  "label": "Male"
+                },
+                {
+                  "value": "female",
+                  "label": "Female"
+                }
+              ]
+            },
+            {
+              "id": "race",
+              "type": "text",
+              "label": "Race"
+            }
+          ],
+          "max": 3,
+          "overflow": "protected",
+          "limit": 9,
+          "itemLabel": "Person {n}",
+          "addLabel": "Add a person"
+        }
+      ]
+    }
+  ]
+}

@@ -62,6 +62,11 @@ export function ReviewStep() {
           {grounds.includes('sex-offense') && <li>{c.formSexOffense}</li>}
         </ul>
         <p className="hint">{c.formSource}</p>
+        <div className="button-row">
+          <button type="button" className="btn btn-primary" onClick={() => dispatch({ type: 'goTo', step: 'forms' })}>
+            {c.toForms}
+          </button>
+        </div>
       </section>
 
       <div className="button-row">

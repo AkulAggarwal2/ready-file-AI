@@ -1,0 +1,973 @@
+{
+ "form": "PO-0104",
+ "revision": "Rev. by Office of Ct. Services. 7/19",
+ "anchors": [
+  {
+   "key": "caption.county",
+   "page": 1,
+   "find": "^COUNTY OF",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.petitioner",
+   "page": 1,
+   "find": "CASE #:",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.respondent",
+   "page": 1,
+   "find": "^_+ DATE:",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "restrained.name",
+   "page": 1,
+   "find": "^Name: Home:",
+   "nth": 0,
+   "kind": "after",
+   "word": "^Name:$",
+   "wordNth": 0,
+   "w": 230,
+   "size": 9
+  },
+  {
+   "key": "restrained.phone.home.area",
+   "page": 1,
+   "find": "^Name: Home:",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1,
+   "size": 9
+  },
+  {
+   "key": "restrained.phone.home.number",
+   "page": 1,
+   "find": "^Name: Home:",
+   "nth": 0,
+   "blank": 1,
+   "size": 9
+  },
+  {
+   "key": "restrained.phone.work.area",
+   "page": 1,
+   "find": "^Work:",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1,
+   "size": 9
+  },
+  {
+   "key": "restrained.phone.work.number",
+   "page": 1,
+   "find": "^Work:",
+   "nth": 0,
+   "blank": 1,
+   "size": 9
+  },
+  {
+   "key": "restrained.phone.cell.area",
+   "page": 1,
+   "find": "Cell:",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1,
+   "size": 9
+  },
+  {
+   "key": "restrained.phone.cell.number",
+   "page": 1,
+   "find": "Cell:",
+   "nth": 0,
+   "blank": 1,
+   "size": 9
+  },
+  {
+   "key": "restrained.email",
+   "page": 1,
+   "find": "^Email:",
+   "nth": 0,
+   "blank": 0,
+   "size": 9
+  },
+  {
+   "key": "restrained.homeAddress",
+   "page": 1,
+   "find": "^Home address: Cell",
+   "nth": 0,
+   "kind": "below",
+   "word": "^Home$",
+   "w": 250,
+   "count": 2,
+   "size": 9
+  },
+  {
+   "key": "restrained.postalAddress",
+   "page": 1,
+   "find": "^Postal address",
+   "nth": 0,
+   "kind": "below",
+   "word": "^Postal$",
+   "w": 250,
+   "count": 2,
+   "size": 9
+  },
+  {
+   "key": "restrained.business",
+   "page": 1,
+   "find": "^found:$",
+   "nth": 0,
+   "kind": "below",
+   "word": "^found:$",
+   "w": 250,
+   "count": 2,
+   "size": 9
+  },
+  {
+   "key": "restrained.sex.male",
+   "page": 1,
+   "find": "^Sex: male female",
+   "nth": 0,
+   "kind": "checkWord",
+   "word": "^male$",
+   "wordNth": 0
+  },
+  {
+   "key": "restrained.sex.female",
+   "page": 1,
+   "find": "^Sex: male female",
+   "nth": 0,
+   "kind": "checkWord",
+   "word": "^female$",
+   "wordNth": 0
+  },
+  {
+   "key": "restrained.dob",
+   "page": 1,
+   "find": "^DOB: Describe",
+   "nth": 0,
+   "kind": "after",
+   "word": "^DOB:$",
+   "wordNth": 0,
+   "w": 220,
+   "size": 9
+  },
+  {
+   "key": "restrained.scars.yes",
+   "page": 1,
+   "find": "^Any scars",
+   "nth": 0,
+   "kind": "checkWord",
+   "word": "^Yes$",
+   "wordNth": 0
+  },
+  {
+   "key": "restrained.scars.no",
+   "page": 1,
+   "find": "^Any scars",
+   "nth": 0,
+   "kind": "checkWord",
+   "word": "^No$",
+   "wordNth": 0
+  },
+  {
+   "key": "restrained.scars.description",
+   "page": 1,
+   "find": "^DOB: Describe",
+   "nth": 0,
+   "kind": "below",
+   "word": "^Describe$",
+   "w": 275,
+   "count": 3,
+   "size": 9,
+   "lineHeight": 11
+  },
+  {
+   "key": "restrained.race",
+   "page": 1,
+   "find": "^Race: Hair color:",
+   "nth": 0,
+   "kind": "below",
+   "word": "^Race:$",
+   "w": 130,
+   "count": 1,
+   "size": 9
+  },
+  {
+   "key": "restrained.hair",
+   "page": 1,
+   "find": "^Race: Hair color:",
+   "nth": 0,
+   "kind": "below",
+   "word": "^Hair$",
+   "w": 115,
+   "count": 1,
+   "size": 9
+  },
+  {
+   "key": "restrained.eyes",
+   "page": 1,
+   "find": "^Race: Hair color:",
+   "nth": 0,
+   "kind": "below",
+   "word": "^Eye$",
+   "w": 115,
+   "count": 1,
+   "size": 9
+  },
+  {
+   "key": "restrained.height",
+   "page": 1,
+   "find": "^Race: Hair color:",
+   "nth": 0,
+   "kind": "below",
+   "word": "^Height:$",
+   "w": 65,
+   "count": 1,
+   "size": 9
+  },
+  {
+   "key": "restrained.weight",
+   "page": 1,
+   "find": "^Race: Hair color:",
+   "nth": 0,
+   "kind": "below",
+   "word": "^Weight:$",
+   "w": 65,
+   "count": 1,
+   "size": 9
+  },
+  {
+   "key": "household.1.name",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 0,
+   "kind": "after",
+   "word": "^Name:$",
+   "wordNth": 0,
+   "w": 170,
+   "size": 9
+  },
+  {
+   "key": "household.1.age",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 0,
+   "kind": "after",
+   "word": "^Age:$",
+   "wordNth": 0,
+   "w": 130,
+   "size": 9
+  },
+  {
+   "key": "household.1.race",
+   "page": 1,
+   "find": "^Race:$",
+   "nth": 0,
+   "kind": "after",
+   "word": "^Race:$",
+   "wordNth": 0,
+   "w": 130,
+   "size": 9
+  },
+  {
+   "key": "household.1.sex.male",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 0,
+   "kind": "checkWord",
+   "word": "^Male$",
+   "wordNth": 0
+  },
+  {
+   "key": "household.1.sex.female",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 0,
+   "kind": "checkWord",
+   "word": "^Female$",
+   "wordNth": 0
+  },
+  {
+   "key": "household.2.name",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 1,
+   "kind": "after",
+   "word": "^Name:$",
+   "wordNth": 0,
+   "w": 170,
+   "size": 9
+  },
+  {
+   "key": "household.2.age",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 1,
+   "kind": "after",
+   "word": "^Age:$",
+   "wordNth": 0,
+   "w": 130,
+   "size": 9
+  },
+  {
+   "key": "household.2.race",
+   "page": 1,
+   "find": "^Race:$",
+   "nth": 1,
+   "kind": "after",
+   "word": "^Race:$",
+   "wordNth": 0,
+   "w": 130,
+   "size": 9
+  },
+  {
+   "key": "household.2.sex.male",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 1,
+   "kind": "checkWord",
+   "word": "^Male$",
+   "wordNth": 0
+  },
+  {
+   "key": "household.2.sex.female",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 1,
+   "kind": "checkWord",
+   "word": "^Female$",
+   "wordNth": 0
+  },
+  {
+   "key": "household.3.name",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 2,
+   "kind": "after",
+   "word": "^Name:$",
+   "wordNth": 0,
+   "w": 170,
+   "size": 9
+  },
+  {
+   "key": "household.3.age",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 2,
+   "kind": "after",
+   "word": "^Age:$",
+   "wordNth": 0,
+   "w": 130,
+   "size": 9
+  },
+  {
+   "key": "household.3.race",
+   "page": 1,
+   "find": "^Race:$",
+   "nth": 2,
+   "kind": "after",
+   "word": "^Race:$",
+   "wordNth": 0,
+   "w": 130,
+   "size": 9
+  },
+  {
+   "key": "household.3.sex.male",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 2,
+   "kind": "checkWord",
+   "word": "^Male$",
+   "wordNth": 0
+  },
+  {
+   "key": "household.3.sex.female",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 2,
+   "kind": "checkWord",
+   "word": "^Female$",
+   "wordNth": 0
+  },
+  {
+   "key": "household.4.name",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 3,
+   "kind": "after",
+   "word": "^Name:$",
+   "wordNth": 0,
+   "w": 170,
+   "size": 9
+  },
+  {
+   "key": "household.4.age",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 3,
+   "kind": "after",
+   "word": "^Age:$",
+   "wordNth": 0,
+   "w": 130,
+   "size": 9
+  },
+  {
+   "key": "household.4.race",
+   "page": 1,
+   "find": "^Race:$",
+   "nth": 3,
+   "kind": "after",
+   "word": "^Race:$",
+   "wordNth": 0,
+   "w": 130,
+   "size": 9
+  },
+  {
+   "key": "household.4.sex.male",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 3,
+   "kind": "checkWord",
+   "word": "^Male$",
+   "wordNth": 0
+  },
+  {
+   "key": "household.4.sex.female",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 3,
+   "kind": "checkWord",
+   "word": "^Female$",
+   "wordNth": 0
+  },
+  {
+   "key": "household.5.name",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 4,
+   "kind": "after",
+   "word": "^Name:$",
+   "wordNth": 0,
+   "w": 170,
+   "size": 9
+  },
+  {
+   "key": "household.5.age",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 4,
+   "kind": "after",
+   "word": "^Age:$",
+   "wordNth": 0,
+   "w": 130,
+   "size": 9
+  },
+  {
+   "key": "household.5.race",
+   "page": 1,
+   "find": "^Race:$",
+   "nth": 4,
+   "kind": "after",
+   "word": "^Race:$",
+   "wordNth": 0,
+   "w": 130,
+   "size": 9
+  },
+  {
+   "key": "household.5.sex.male",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 4,
+   "kind": "checkWord",
+   "word": "^Male$",
+   "wordNth": 0
+  },
+  {
+   "key": "household.5.sex.female",
+   "page": 1,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 4,
+   "kind": "checkWord",
+   "word": "^Female$",
+   "wordNth": 0
+  },
+  {
+   "key": "household.6.name",
+   "page": 1,
+   "find": "^Name: Age:$",
+   "nth": 0,
+   "kind": "after",
+   "word": "^Name:$",
+   "wordNth": 0,
+   "w": 170,
+   "size": 9
+  },
+  {
+   "key": "household.6.age",
+   "page": 1,
+   "find": "^Name: Age:$",
+   "nth": 0,
+   "kind": "after",
+   "word": "^Age:$",
+   "wordNth": 0,
+   "w": 130,
+   "size": 9
+  },
+  {
+   "key": "household.6.race",
+   "page": 1,
+   "find": "^Race:$",
+   "nth": 5,
+   "kind": "after",
+   "word": "^Race:$",
+   "wordNth": 0,
+   "w": 130,
+   "size": 9
+  },
+  {
+   "key": "household.6.sex.male",
+   "page": 1,
+   "find": "^Sex: Male Female$",
+   "nth": 0,
+   "kind": "checkWord",
+   "word": "^Male$",
+   "wordNth": 0
+  },
+  {
+   "key": "household.6.sex.female",
+   "page": 1,
+   "find": "^Sex: Male Female$",
+   "nth": 0,
+   "kind": "checkWord",
+   "word": "^Female$",
+   "wordNth": 0
+  },
+  {
+   "key": "petitioner.homeAddress",
+   "page": 2,
+   "find": "^Home address:$",
+   "nth": 0,
+   "kind": "below",
+   "word": "^Home$",
+   "w": 520,
+   "count": 2,
+   "size": 9
+  },
+  {
+   "key": "petitioner.dob",
+   "page": 2,
+   "find": "^DOB: SSN:",
+   "nth": 0,
+   "kind": "after",
+   "word": "^DOB:$",
+   "wordNth": 0,
+   "w": 110,
+   "size": 9
+  },
+  {
+   "key": "petitioner.ssn",
+   "page": 2,
+   "find": "^DOB: SSN:",
+   "nth": 0,
+   "kind": "below",
+   "word": "^SSN:$",
+   "w": 120,
+   "count": 1,
+   "size": 9
+  },
+  {
+   "key": "petitioner.race",
+   "page": 2,
+   "find": "^Race: Work:",
+   "nth": 0,
+   "kind": "after",
+   "word": "^Race:$",
+   "wordNth": 0,
+   "w": 110,
+   "size": 9
+  },
+  {
+   "key": "petitioner.sex.male",
+   "page": 2,
+   "find": "^Sex: male female",
+   "nth": 0,
+   "kind": "checkWord",
+   "word": "^male$",
+   "wordNth": 0
+  },
+  {
+   "key": "petitioner.sex.female",
+   "page": 2,
+   "find": "^Sex: male female",
+   "nth": 0,
+   "kind": "checkWord",
+   "word": "^female$",
+   "wordNth": 0
+  },
+  {
+   "key": "petitioner.phone.home.area",
+   "page": 2,
+   "find": "^DOB: SSN:",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1,
+   "size": 9
+  },
+  {
+   "key": "petitioner.phone.home.number",
+   "page": 2,
+   "find": "^DOB: SSN:",
+   "nth": 0,
+   "blank": 1,
+   "size": 9
+  },
+  {
+   "key": "petitioner.phone.work.area",
+   "page": 2,
+   "find": "^Race: Work:",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1,
+   "size": 9
+  },
+  {
+   "key": "petitioner.phone.work.number",
+   "page": 2,
+   "find": "^Race: Work:",
+   "nth": 0,
+   "blank": 1,
+   "size": 9
+  },
+  {
+   "key": "petitioner.phone.fax.area",
+   "page": 2,
+   "find": "Fax:",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1,
+   "size": 9
+  },
+  {
+   "key": "petitioner.phone.fax.number",
+   "page": 2,
+   "find": "Fax:",
+   "nth": 0,
+   "blank": 1,
+   "size": 9
+  },
+  {
+   "key": "petitioner.phone.cell.area",
+   "page": 2,
+   "find": "^Cell:",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1,
+   "size": 9
+  },
+  {
+   "key": "petitioner.phone.cell.number",
+   "page": 2,
+   "find": "^Cell:",
+   "nth": 0,
+   "blank": 1,
+   "size": 9
+  },
+  {
+   "key": "petitioner.email",
+   "page": 2,
+   "find": "^Email:",
+   "nth": 0,
+   "blank": 0,
+   "size": 9
+  },
+  {
+   "key": "notify.yes",
+   "page": 2,
+   "find": "^Do you wish to receive",
+   "nth": 0,
+   "kind": "checkWord",
+   "word": "^Yes$",
+   "wordNth": 0
+  },
+  {
+   "key": "notify.no",
+   "page": 2,
+   "find": "^Do you wish to receive",
+   "nth": 0,
+   "kind": "checkWord",
+   "word": "^No$",
+   "wordNth": 0
+  },
+  {
+   "key": "notify.email",
+   "page": 2,
+   "find": "^Method:",
+   "nth": 0,
+   "kind": "checkWord",
+   "word": "^Email$",
+   "wordNth": 0
+  },
+  {
+   "key": "notify.text",
+   "page": 2,
+   "find": "^Method:",
+   "nth": 0,
+   "kind": "checkWord",
+   "word": "^Text$",
+   "wordNth": 0
+  },
+  {
+   "key": "petitioner.postalAddress",
+   "page": 2,
+   "find": "^Postal address",
+   "nth": 0,
+   "kind": "below",
+   "word": "^Postal$",
+   "w": 250,
+   "count": 2,
+   "size": 9
+  },
+  {
+   "key": "petitioner.reachWhen",
+   "page": 2,
+   "find": "^numbers or any alternative",
+   "nth": 0,
+   "kind": "below",
+   "word": "^numbers$",
+   "w": 250,
+   "count": 1,
+   "size": 9
+  },
+  {
+   "key": "petitioner.otherAddress",
+   "page": 2,
+   "find": "^Other protected address",
+   "nth": 0,
+   "kind": "below",
+   "word": "^Other$",
+   "w": 250,
+   "count": 1,
+   "size": 9
+  },
+  {
+   "key": "petitioner.acpAddress",
+   "page": 2,
+   "find": "^Address from confidentiality",
+   "nth": 0,
+   "kind": "below",
+   "word": "^Address$",
+   "w": 250,
+   "count": 2,
+   "size": 9
+  },
+  {
+   "key": "petitioner.sendTo",
+   "page": 2,
+   "find": "^Address from confidentiality",
+   "nth": 0,
+   "kind": "lines",
+   "count": 3,
+   "includeFound": true,
+   "blank": 0,
+   "size": 9
+  },
+  {
+   "key": "protected.1.name",
+   "page": 2,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 0,
+   "kind": "after",
+   "word": "^Name:$",
+   "wordNth": 0,
+   "w": 160,
+   "size": 9
+  },
+  {
+   "key": "protected.1.age",
+   "page": 2,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 0,
+   "kind": "after",
+   "word": "^Age:$",
+   "wordNth": 0,
+   "w": 120,
+   "size": 9
+  },
+  {
+   "key": "protected.1.sex.male",
+   "page": 2,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 0,
+   "kind": "checkWord",
+   "word": "^Male$",
+   "wordNth": 0
+  },
+  {
+   "key": "protected.1.sex.female",
+   "page": 2,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 0,
+   "kind": "checkWord",
+   "word": "^Female$",
+   "wordNth": 0
+  },
+  {
+   "key": "protected.1.dob",
+   "page": 2,
+   "find": "^Date of Birth: Race:",
+   "nth": 0,
+   "kind": "after",
+   "word": "^Birth:$",
+   "wordNth": 0,
+   "w": 100,
+   "size": 9
+  },
+  {
+   "key": "protected.1.race",
+   "page": 2,
+   "find": "^Date of Birth: Race:",
+   "nth": 0,
+   "kind": "after",
+   "word": "^Race:$",
+   "wordNth": 0,
+   "w": 110,
+   "size": 9
+  },
+  {
+   "key": "protected.2.name",
+   "page": 2,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 1,
+   "kind": "after",
+   "word": "^Name:$",
+   "wordNth": 0,
+   "w": 160,
+   "size": 9
+  },
+  {
+   "key": "protected.2.age",
+   "page": 2,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 1,
+   "kind": "after",
+   "word": "^Age:$",
+   "wordNth": 0,
+   "w": 120,
+   "size": 9
+  },
+  {
+   "key": "protected.2.sex.male",
+   "page": 2,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 1,
+   "kind": "checkWord",
+   "word": "^Male$",
+   "wordNth": 0
+  },
+  {
+   "key": "protected.2.sex.female",
+   "page": 2,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 1,
+   "kind": "checkWord",
+   "word": "^Female$",
+   "wordNth": 0
+  },
+  {
+   "key": "protected.2.dob",
+   "page": 2,
+   "find": "^Date of Birth: Race:",
+   "nth": 1,
+   "kind": "after",
+   "word": "^Birth:$",
+   "wordNth": 0,
+   "w": 100,
+   "size": 9
+  },
+  {
+   "key": "protected.2.race",
+   "page": 2,
+   "find": "^Date of Birth: Race:",
+   "nth": 1,
+   "kind": "after",
+   "word": "^Race:$",
+   "wordNth": 0,
+   "w": 110,
+   "size": 9
+  },
+  {
+   "key": "protected.3.name",
+   "page": 2,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 2,
+   "kind": "after",
+   "word": "^Name:$",
+   "wordNth": 0,
+   "w": 160,
+   "size": 9
+  },
+  {
+   "key": "protected.3.age",
+   "page": 2,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 2,
+   "kind": "after",
+   "word": "^Age:$",
+   "wordNth": 0,
+   "w": 120,
+   "size": 9
+  },
+  {
+   "key": "protected.3.sex.male",
+   "page": 2,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 2,
+   "kind": "checkWord",
+   "word": "^Male$",
+   "wordNth": 0
+  },
+  {
+   "key": "protected.3.sex.female",
+   "page": 2,
+   "find": "^Name: Age: Sex: Male Female",
+   "nth": 2,
+   "kind": "checkWord",
+   "word": "^Female$",
+   "wordNth": 0
+  },
+  {
+   "key": "protected.3.dob",
+   "page": 2,
+   "find": "^Date of Birth: Race:",
+   "nth": 2,
+   "kind": "after",
+   "word": "^Birth:$",
+   "wordNth": 0,
+   "w": 100,
+   "size": 9
+  },
+  {
+   "key": "protected.3.race",
+   "page": 2,
+   "find": "^Date of Birth: Race:",
+   "nth": 2,
+   "kind": "after",
+   "word": "^Race:$",
+   "wordNth": 0,
+   "w": 110,
+   "size": 9
+  },
+  {
+   "key": "restrained.ssn",
+   "page": 2,
+   "find": "^SSN: _",
+   "nth": 0,
+   "blank": 0,
+   "size": 9
+  }
+ ]
+}

@@ -1,5 +1,6 @@
 import type { Ground, Relationship, YesNoUnknown } from '../checker';
 import { copy, fill, type SafetyAnswer } from '../content';
+import type { Answer, Answers } from '../forms/questionnaire';
 import type { RouteAnswer } from '../forms/routing';
 import { createIncident, mergeIncidents, type Incident, type IncidentFields } from '../organizer';
 
@@ -9,8 +10,9 @@ import { createIncident, mergeIncidents, type Incident, type IncidentFields } fr
 // The steps, in order. They are also the labels in the step bar at the top.
 // "route" asks who the order is for and what she is trying to do, which picks
 // the court forms (content/routing.json).
-export type Step = 'route' | 'start' | 'incidents' | 'story' | 'questions' | 'review';
-export const STEPS: Step[] = ['route', 'start', 'incidents', 'story', 'questions', 'review'];
+// "forms" asks the rest of what the court forms need and builds the PDF.
+export type Step = 'route' | 'start' | 'incidents' | 'story' | 'questions' | 'review' | 'forms';
+export const STEPS: Step[] = ['route', 'start', 'incidents', 'story', 'questions', 'review', 'forms'];
 
 /**
  * What a delete or merge removed, kept so it can be undone. Only the removed
@@ -33,6 +35,10 @@ export interface AppState {
   step: Step;
   // Her answers on the route step, in order. The last one decides the outcome.
   route: RouteAnswer[];
+  // Her answers on the Court forms step, by field id (content/questionnaires).
+  answers: Answers;
+  // Which section of the Court forms step is open. One past the last is the download page.
+  formSection: number;
   // The grounds she checked (question 1 on the petition). Empty means not sure.
   grounds: Ground[];
   // How she knows the person (question 2 on the petition). Optional.
@@ -73,6 +79,8 @@ export type PersonDetails = Partial<Pick<AppState, 'threat' | 'askedToStop' | 'a
 export const initialState: AppState = {
   step: 'route',
   route: [],
+  answers: {},
+  formSection: 0,
   grounds: [],
   relationship: null,
   story: '',
@@ -96,6 +104,8 @@ export type Action =
   | { type: 'routeBack' }
   | { type: 'routeReset' }
   | { type: 'routeDone' }
+  | { type: 'setAnswer'; id: string; value: Answer }
+  | { type: 'setFormSection'; index: number }
   | { type: 'begin'; grounds: Ground[]; relationship: Relationship | null }
   | { type: 'goTo'; step: Step }
   | { type: 'setStory'; story: string }
@@ -153,6 +163,10 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'routeDone':
       // Only a petition outcome continues; RouteStep checks that.
       return { ...state, step: 'start' };
+    case 'setAnswer':
+      return { ...state, answers: { ...state.answers, [action.id]: action.value } };
+    case 'setFormSection':
+      return { ...state, formSection: action.index };
     case 'begin':
       return {
         ...state,

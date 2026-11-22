@@ -7,6 +7,7 @@ import { TimeoutWarning } from './safety/TimeoutWarning';
 import { useInactivityTimeout } from './safety/useInactivityTimeout';
 import { AppStateProvider, useAppState } from './state/AppStateProvider';
 import { CheckStep } from './steps/CheckStep';
+import { FormsStep } from './steps/FormsStep';
 import { ReviewStep } from './steps/ReviewStep';
 import { RouteStep } from './steps/RouteStep';
 import { StartStep } from './steps/StartStep';
@@ -72,6 +73,7 @@ function Shell() {
         {state.step === 'story' && <StoryStep />}
         {state.step === 'questions' && <CheckStep />}
         {state.step === 'review' && <ReviewStep />}
+        {state.step === 'forms' && <FormsStep />}
       </main>
 
       {warningShowing && <TimeoutWarning secondsLeft={secondsLeft} onStay={stay} />}

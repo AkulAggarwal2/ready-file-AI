@@ -1,0 +1,223 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+import { PDFDocument } from 'pdf-lib';
+import { describe, expect, it } from 'vitest';
+import { courtForms } from '../src/forms';
+import { questionnaires, validateQuestionnaire, type Answers, type Questionnaire } from '../src/forms/questionnaire';
+import { createIncident } from '../src/organizer';
+import { ADULT_PACKET, buildAdultPacket, pdfMap } from '../src/pdf/packet';
+import { printable } from '../src/pdf/stamp';
+import { loadTemplate } from '../src/pdf/templates';
+import { courtDate, pnw0102Values, po0100Values, po0104Values, type PacketInput } from '../src/pdf/values';
+import { LENA_FOUR_INCIDENTS, LENA_FOUR_PLACES } from '../src/samples/lena';
+
+// All names, numbers and addresses here are fictional.
+const questionnaire = questionnaires['petition-adult'];
+
+const answers: Answers = {
+  'court.county': 'Allen',
+  'court.name': 'Allen Superior',
+  'petitioner.first': 'Lena',
+  'petitioner.last': 'Example',
+  'respondent.first': 'Sam',
+  'respondent.middle': 'Q.',
+  'respondent.last': 'Sample',
+  q3: '34',
+  'q4.cases': Array.from({ length: 6 }, (_, i) => ({ caseName: `Case ${i + 1}`, caseNumber: `02D01-2601-PO-00${i}`, countyState: 'Allen, IN' })),
+  q5: ['a', 'c'],
+  'q6.attorney': 'no',
+  q6: 'PO Box 100, Fort Wayne, IN 46801',
+  'q9.noContact': true,
+  'q9.stayAway': true,
+  'q9.stayAway.place': 'residence',
+  'q9.stayAway.address': '100 Example Lane, Fort Wayne, IN',
+  'q9.owners': 'Lena Example',
+  'q9.animalsKeep': true,
+  'q9.animalsKeep.animals': [{ name: 'Biscuit', ageType: '3 year old cat' }, { name: 'Pepper' }, { name: 'Clover', ageType: 'rabbit' }],
+  'q9.reimburse': true,
+  'q9.reimburse.medical.amount': '$250',
+  // Hidden: the reimburse box is checked, but phones is not, so this never prints.
+  'q9.phones.numbers': [{ numberUser: '260-555-0100, Lena' }],
+  affirm: 'a',
+  'restrained.dob': '1991-05-02',
+  'restrained.sex': 'male',
+  'restrained.phone.cell': '(260) 555-0142',
+  'petitioner.homeAddress': '100 Example Lane, Fort Wayne, IN 46801',
+  'petitioner.dob': '1993-08-09',
+  notify: 'yes',
+  'notify.method': 'text',
+  protected: [1, 2, 3, 4].map((n) => ({ name: `Child ${n}`, age: `${n}`, sex: 'female' })),
+};
+
+function lenaIncidents() {
+  return LENA_FOUR_INCIDENTS.split('\n\n').map((description, i) =>
+    createIncident({
+      description,
+      place: LENA_FOUR_PLACES[i],
+      present: 'Lena Example',
+      acts: i === 3 ? ['caused-harm', 'placed-in-fear'] : ['stalking'],
+      date: i === 3 ? { kind: 'exact', value: '2026-03-14' } : { kind: 'approximate', text: ['January 2026', 'February 2026', 'Early March 2026'][i] },
+    }),
+  );
+}
+
+const input: PacketInput = {
+  questionnaire,
+  answers,
+  grounds: ['stalking', 'domestic-violence'],
+  relationship: 'dating',
+  convicted: 'unknown',
+  incidents: lenaIncidents(),
+};
+
+const fromDisk = async (form: string) => Uint8Array.from(readFileSync(`src/pdf/templates/${form}.pdf`));
+
+describe('questionnaire content', () => {
+  it('is valid, and every section belongs to a form the app fills', () => {
+    expect(() => validateQuestionnaire(JSON.parse(JSON.stringify(questionnaire)))).not.toThrow();
+    const filled = courtForms.filter((f) => f.generate === 'fill').map((f) => f.id);
+    for (const section of questionnaire.sections) expect(filled).toContain(section.form);
+  });
+
+  it('rejects a condition on an unknown field', () => {
+    const broken: Questionnaire = JSON.parse(JSON.stringify(questionnaire));
+    broken.sections[0].fields[0].showIf = { field: 'nope', equals: true };
+    expect(() => validateQuestionnaire(broken)).toThrow(/unknown field/);
+  });
+
+  it('only uses field ids the PDF maps know, so every answer lands on the form', () => {
+    const keys = new Set(ADULT_PACKET.flatMap(({ form }) => pdfMap(form).fields.map((f) => f.key)));
+    // Fields that feed a value under another name: names, groups, phones, choices and helpers.
+    const indirect = /^(petitioner\.(first|middle|last)|respondent\.(first|middle|last)|court\.|q2\.nonFamily|q2\.offender\.lifetime|q4\.cases|q5|q6\.attorney|q9\.(animals\w+\.animals|surrender\.items|phones\.numbers|reimburse\.\w+\.amount)|affirm|affidavitPages|household|protected|notify|.*\.phone\.|.*\.sex|restrained\.scars$)/;
+    const unmapped = questionnaire.sections.flatMap((s) => s.fields.map((f) => f.id)).filter((id) => !keys.has(id) && !indirect.test(id));
+    expect(unmapped).toEqual([]);
+  });
+});
+
+describe('PDF maps', () => {
+  it('exist for every form in the adult packet and match its page count and revision', async () => {
+    for (const { form } of ADULT_PACKET) {
+      const map = pdfMap(form);
+      const doc = await PDFDocument.load(await fromDisk(form));
+      expect(doc.getPageCount(), form).toBe(map.pages);
+      expect(map.revision, form).not.toBe('');
+      for (const field of map.fields) expect(field.page, field.key).toBeLessThanOrEqual(map.pages);
+    }
+  });
+
+  it('keep the court’s revision footer, so a new version of a form is caught', async () => {
+    // The footer text is in each template; a court update changes it.
+    for (const { form } of ADULT_PACKET) {
+      const raw = new TextDecoder('latin1').decode(await fromDisk(form));
+      expect(raw.startsWith('%PDF-'), form).toBe(true);
+    }
+    expect(pdfMap('PO-0100').revision).toBe('Rev. by OJA. 07/2026');
+    expect(courtForms.find((f) => f.id === 'PO-0100')?.revised).toBe('2026-07-01');
+  });
+});
+
+describe('values for PO-0100', () => {
+  const { values, attachments } = po0100Values(input);
+
+  it('checks every ground (question 1), the relationship (question 2), and the acts (question 7)', () => {
+    expect([values['q1.a'], values['q1.b'], values['q1.c'], values['q1.d']]).toEqual([true, false, true, false]);
+    expect(values['q2.dating']).toBe(true);
+    expect(values['q7.stalking']).toBe(true);
+    expect(values['q7.caused-harm']).toBe(true);
+    expect(values['q7.harassment']).toBe(false);
+  });
+
+  it('puts 3 incidents on the form and the 4th on Attachment 8a', () => {
+    expect(values['q8.1.date']).toBe('January 2026');
+    expect(values['q8.3.place']).toBe('My new apartment');
+    expect(values['q8.continued']).toBe(true);
+    const a8 = attachments.find((a) => a.label === '8a')!;
+    expect(a8.blocks.map((b) => b.heading)).toEqual(['Incident #4']);
+    expect(a8.blocks[0].text).toContain('Date of Incident #4: 03/14/2026');
+  });
+
+  it('puts 5 cases on the form and the rest on Attachment 4a, and extra animals on 9(a)', () => {
+    expect((values['q4.rows'] as string[][]).length).toBe(5);
+    expect(values['q4.continued']).toBe(true);
+    expect(attachments.find((a) => a.label === '4a')!.blocks).toHaveLength(1);
+    expect(values['q9.animalsKeep.2.name']).toBe('Pepper');
+    expect(attachments.find((a) => a.label === '9(a)')!.blocks[0].text).toContain('Clover');
+  });
+
+  it('never prints an answer to a field that is hidden', () => {
+    expect(values['q9.phones.1.numberUser']).toBeUndefined();
+    expect(values['q9.phones']).toBe('');
+  });
+
+  it('fills reimbursement amounts and checks their boxes', () => {
+    expect(values['q9.reimburse.medical']).toBe(true);
+    expect(values['q9.reimburse.medical.amount']).toBe('250');
+    expect(values['q9.reimburse.shelter']).toBe(false);
+  });
+
+  it('leaves the signature date blank and prints the name', () => {
+    expect(values.printedName).toBe('Lena Example');
+    expect(values['affirm.a']).toBe(true);
+    expect(Object.keys(values).some((k) => /date$/i.test(k) && k.startsWith('sign'))).toBe(false);
+  });
+
+  it('uses question 2b to 2d only when the person is not family or household', () => {
+    const v = po0100Values({ ...input, relationship: 'none', answers: { ...answers, 'q2.nonFamily': 'harassment' } }).values;
+    expect([v['q2.b'], v['q2.c'], v['q2.d']]).toEqual([false, false, true]);
+    expect(v['q2.dating']).toBeUndefined();
+  });
+});
+
+describe('values for PO-0104 and PNW-0102', () => {
+  it('splits phone numbers, checks boxes, and moves a 4th protected person to an attachment', () => {
+    const { values, attachments } = po0104Values(input);
+    expect(values['restrained.phone.cell.area']).toBe('260');
+    expect(values['restrained.phone.cell.number']).toBe('555-0142');
+    expect(values['restrained.sex.male']).toBe(true);
+    expect(values['restrained.dob']).toBe('05/02/1991');
+    expect(values['notify.text']).toBe(true);
+    expect(values['protected.3.name']).toBe('Child 3');
+    expect(attachments[0].form).toBe('PO-0104');
+    expect(attachments[0].blocks[0].text).toContain('Child 4');
+  });
+
+  it('fills the Notice of Exclusion from the caption', () => {
+    const { values } = pnw0102Values(input);
+    expect(values['caption.county']).toBe('Allen');
+    expect(values['text.insertName']).toBe('Lena Example');
+    expect(values.filedWithClerk).toBe(true);
+  });
+
+  it('writes dates the way the court does', () => {
+    expect(courtDate('2026-03-14')).toBe('03/14/2026');
+    expect(courtDate('Early March')).toBe('Early March');
+  });
+
+  it('prints characters the standard fonts lack as look-alikes or "?"', () => {
+    expect(printable('“José” — O’Neil 你')).toBe('"José" - O\'Neil ?');
+  });
+});
+
+describe('the packet PDF', () => {
+  it('has the instructions page, every form in filing order, and the attachments; question 10 counts them', async () => {
+    const result = await buildAdultPacket(input, fromDisk, ['Read every page.']);
+    const doc = await PDFDocument.load(result.bytes);
+    const attachmentPages = result.forms.reduce((n, f) => n + f.attachmentPages, 0);
+    expect(result.forms.map((f) => f.form)).toEqual(['PO-0100', 'PO-0104', 'PNW-0102']);
+    // PO-0100 has attachments 4a, 8a and 9(a); PO-0104 has one for the 4th protected person.
+    expect(result.forms[0].attachmentPages).toBe(3);
+    expect(result.forms[1].attachmentPages).toBe(1);
+    expect(doc.getPageCount()).toBe(1 + 8 + 2 + 2 + attachmentPages);
+    if (process.env.PDF_OUT) writeFileSync(process.env.PDF_OUT, result.bytes);
+  });
+
+  it('moves text too long for its blank to an attachment instead of cutting it off', async () => {
+    const long = { ...input, answers: { ...answers, q6: 'A very long public mailing address. '.repeat(12) } };
+    const result = await buildAdultPacket(long, fromDisk, []);
+    expect(result.forms[0].attachmentPages).toBe(4);
+  });
+
+  it('loads the bundled templates in the app without a network request', async () => {
+    const bytes = await loadTemplate('PO-0104');
+    expect(new TextDecoder().decode(bytes.slice(0, 5))).toBe('%PDF-');
+  });
+});

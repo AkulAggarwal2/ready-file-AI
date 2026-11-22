@@ -10,7 +10,8 @@
       "incidents": "Incidents",
       "story": "Your story",
       "questions": "Questions",
-      "review": "Review"
+      "review": "Review",
+      "forms": "Court forms"
     }
   },
   "quickExit": {
@@ -213,18 +214,17 @@
     "clearQuestion": "Clear everything you typed and start over?",
     "clearYes": "Yes, clear everything",
     "formHeading": "The rest of the court's form",
-    "formIntro": "The form (PO-0100) asks for more than your incidents. Have these ready before you start it.",
+    "formIntro": "The court's forms ask for more than your incidents. On the next step, ReadyFile asks for the rest and prints everything on the official forms:",
     "formItems": [
-      "Question 4: every court case that involves you, this person, or a child you have together. That includes divorce, custody, criminal, and other protection order cases. List the case name, case number, and county.",
-      "Question 5: why you are filing in this county. It can be where the person lives, where it happened, or where you live.",
-      "Question 6: a mailing address you are comfortable making public. Your private address goes on the Confidential Form (PO-0104) instead.",
-      "Question 9: what you want the court to order, like staying away, no contact, giving up guns, or who keeps the home or pets. Some of these need a hearing within 30 days.",
-      "The Confidential Form (PO-0104): the person's full name, date of birth, and current address, if you know them. Police need these to serve and enforce the order.",
-      "Your signature. You sign under penalty of perjury that what you wrote is true."
+      "The petition (PO-0100): the court and the people in the case, other court cases (question 4), why you are filing in this county (question 5), your public mailing address (question 6), and what you are asking the judge to order (question 9).",
+      "The Confidential Form (PO-0104): what you know about the other person, your private contact details, and other people to protect. Police use it to serve and enforce the order.",
+      "The Notice of Exclusion (PNW-0102), which keeps the Confidential Form private. ReadyFile fills it in from your other answers.",
+      "You sign and date the petition by hand. You sign under penalty of perjury that what you wrote is true."
     ],
     "formHarassment": "Because you checked only harassment: if your petition is based on harassment alone, the court must notify the person and hold a hearing before it can order anything.",
-    "formSource": "Based on the Indiana petition (PO-0100) and its instructions (PO-0102).",
-    "formSexOffense": "Because you checked a sex offense: if the person was convicted and must register as a sex or violent offender for life, question 2 asks for the case number, the court and state, and the date of conviction."
+    "formSource": "Based on the Indiana petition (PO-0100), its instructions (PO-0102), the Confidential Form (PO-0104), and the Notice of Exclusion (PNW-0102).",
+    "formSexOffense": "Because you checked a sex offense: if the person was convicted and must register as a sex or violent offender for life, question 2 asks for the case number, the court and state, and the date of conviction.",
+    "toForms": "Fill in the court forms"
   },
   "summary": {
     "title": "Incident summary",
@@ -334,5 +334,47 @@
     },
     "notFilledYet": "ReadyFile does not fill these forms in yet. The court clerk's office has them, and an advocate can help you with them for free.",
     "toPetition": "Continue to your petition"
+  },
+  "forms": {
+    "heading": "Court forms",
+    "intro": "These questions follow the court's forms, section by section. Your answers are printed on the official forms. Only fill in what you know.",
+    "sectionOf": "Section {n} of {total}",
+    "formLabel": "Form {number}",
+    "next": "Next section",
+    "back": "Previous section",
+    "toDownload": "Finish",
+    "required": "Needed for the form",
+    "private": "Only the court, the clerk, the prosecutor, and police see this.",
+    "yes": "Yes",
+    "no": "No",
+    "chooseOne": "Choose one",
+    "remove": "Remove {item}",
+    "fitsOnForm": "{max} fit on the form. Any more go on Attachment {label}, which is added for you.",
+    "limitReached": "The court can list up to {limit} people in one order. More need a second petition.",
+    "sectionsLabel": "Sections",
+    "downloadHeading": "Your forms",
+    "downloadIntro": "ReadyFile prints your answers on the court's official forms and makes one PDF. It is made on this device. Nothing is sent anywhere.",
+    "packetHeading": "In your PDF",
+    "missingHeading": "Still blank",
+    "missingIntro": "These are needed for the forms. You can still make the PDF and fill them in by hand.",
+    "complete": "Everything the forms need is filled in.",
+    "download": "Make my PDF",
+    "making": "Making your PDF...",
+    "made": "Your PDF is ready. Check your downloads.",
+    "failed": "The PDF could not be made. Please try again.",
+    "fileName": "protection-order-forms.pdf",
+    "copies": "{copies} copies",
+    "copy": "1 copy",
+    "afterDownload": "The PDF is not saved in ReadyFile. If someone else uses this device, delete it from your downloads when you are done.",
+    "instructions": [
+      "This PDF has the court's forms with your answers printed on them. Read every page, and fix anything that is wrong by hand or in ReadyFile.",
+      "Sign and date the petition (PO-0100) by hand. You sign it under penalty of perjury. Some courts ask you to sign in front of the clerk, so you can wait until you file.",
+      "Print 4 copies of the petition (PO-0100), 1 copy of the Confidential Form (PO-0104), and 3 copies of the Notice of Exclusion (PNW-0102). Print page 2 of the Confidential Form on green paper if you can (Admin. Rule 9).",
+      "Take everything to the clerk's office in the county where you are filing. There is no fee to file a petition for an order for protection.",
+      "The clerk fills in the case number, the court's room, and the cover sheet. Leave those blank.",
+      "If you based the petition on what others told you, attach sworn statements (affidavits) from the people who saw or heard it.",
+      "This page is not part of your filing. Remove it before you file."
+    ],
+    "sectionsSummary": "All sections"
   }
 }

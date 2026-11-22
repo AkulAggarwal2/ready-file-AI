@@ -1131,7 +1131,10 @@ legend {
 }
 
 .step-list {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  /* Every step on one row, however many there are. */
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   gap: var(--space-1);
 }
 
@@ -1357,4 +1360,48 @@ html:has(.return-bar) {
 
 .form-checklist li + li {
   margin-top: var(--space-2);
+}
+
+/* Court forms step. */
+.section-nav {
+  margin-bottom: var(--space-4);
+}
+
+.section-nav ol {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-4);
+  text-align: left;
+}
+
+.section-nav li {
+  margin-bottom: var(--space-1);
+}
+
+.section-nav .link-button {
+  text-align: left;
+  white-space: normal;
+}
+
+.section-nav .link-button[aria-current='step'] {
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.field {
+  margin-bottom: var(--space-3);
+}
+
+.required-tag {
+  font-weight: 600;
+}
+
+.group-item {
+  border-left: 3px solid var(--border, currentColor);
+  padding-left: var(--space-3);
+  margin: var(--space-3) 0;
+}
+
+.group-item-label {
+  font-weight: 600;
+  margin-bottom: var(--space-1);
 }

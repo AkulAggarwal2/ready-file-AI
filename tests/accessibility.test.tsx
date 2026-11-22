@@ -104,6 +104,26 @@ describe('route screen (Your situation)', () => {
   });
 });
 
+describe('Court forms step', () => {
+  it('has no violations on any section or the download page', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await goToStepByName(user, 'forms');
+    const sections = screen.getAllByRole('button').filter((b) => b.closest('nav[aria-label="' + copy.forms.sectionsLabel + '"]'));
+    for (const section of sections) {
+      await user.click(section);
+      // Open every list and every follow-up field, so they are checked too.
+      for (const box of screen.queryAllByRole('checkbox')) if (!(box as HTMLInputElement).checked) await user.click(box);
+      for (const add of screen.queryAllByRole('button', { name: /^Add / })) await user.click(add);
+      await expectNoViolations();
+    }
+  }, 30_000);
+});
+
+async function goToStepByName(user: ReturnType<typeof renderApp>, step: 'forms') {
+  await user.click(screen.getByRole('button', { name: stepName(step) }));
+}
+
 describe('names and focus', () => {
   it('the step bar buttons have unique names, so "Start" means one button', () => {
     render(<App />);

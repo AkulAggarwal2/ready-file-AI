@@ -1,0 +1,140 @@
+import petitionAdultJson from '../../content/questionnaires/petition-adult.json';
+import { courtForm } from './index';
+
+// The questions for a packet of court forms, in each form's own order
+// (content/questionnaires/*.json). Field ids match the keys in the PDF maps,
+// so an answer lands on the right blank.
+
+export type FieldType = 'text' | 'textarea' | 'date' | 'number' | 'phone' | 'checkbox' | 'yesno' | 'choice' | 'multi' | 'group';
+
+export interface FieldOption {
+  value: string;
+  label: string;
+}
+
+/**
+ * When a field shows. "$relationship", "$convicted" and "$grounds" come from
+ * the earlier steps; anything else is another field's answer.
+ */
+export type Condition =
+  | { field: string; equals?: string | boolean; notEquals?: string | boolean; includes?: string }
+  | { all: Condition[] }
+  | { any: Condition[] };
+
+export interface Field {
+  id: string;
+  type: FieldType;
+  label: string;
+  hint?: string;
+  options?: FieldOption[];
+  required?: boolean;
+  showIf?: Condition;
+  rows?: number;
+  inputMode?: 'decimal' | 'numeric';
+  // Shown with a note that only the court, clerk, prosecutor, and police see it.
+  private?: boolean;
+  // Groups: the fields of one item, how many fit on the form, and the
+  // attachment the rest go on.
+  fields?: Field[];
+  max?: number;
+  overflow?: string;
+  // The most items the court accepts at all (9 protected people per order).
+  limit?: number;
+  itemLabel?: string;
+  addLabel?: string;
+}
+
+export interface Section {
+  id: string;
+  form: string;
+  title: string;
+  intro?: string;
+  fields: Field[];
+}
+
+export interface Questionnaire {
+  id: string;
+  sections: Section[];
+}
+
+// A text answer, a checkbox, the values picked in a "multi" field, or a group's items.
+export type Answer = string | boolean | string[] | Record<string, string>[];
+export type Answers = Record<string, Answer>;
+
+/** What conditions can read from the earlier steps. */
+export interface EarlierAnswers {
+  relationship: string | null;
+  convicted: string;
+  grounds: string[];
+}
+
+const TYPES: FieldType[] = ['text', 'textarea', 'date', 'number', 'phone', 'checkbox', 'yesno', 'choice', 'multi', 'group'];
+
+/** Throws on a field with an unknown type, a choice without options, a duplicate id, or a condition on an unknown field. */
+export function validateQuestionnaire(raw: Questionnaire): Questionnaire {
+  const fail = (message: string) => {
+    throw new Error(`${raw.id}: ${message}`);
+  };
+  const ids = new Set<string>();
+  const conditions: [string, Condition][] = [];
+  for (const section of raw.sections) {
+    courtForm(section.form);
+    for (const field of section.fields) {
+      if (ids.has(field.id)) fail(`field "${field.id}" is used twice.`);
+      ids.add(field.id);
+      if (!TYPES.includes(field.type)) fail(`field "${field.id}" has unknown type "${field.type}".`);
+      if ((field.type === 'choice' || field.type === 'multi') && !field.options?.length) fail(`field "${field.id}" needs options.`);
+      if (field.type === 'group' && (!field.fields?.length || !field.max)) fail(`group "${field.id}" needs fields and max.`);
+      if (field.showIf) conditions.push([field.id, field.showIf]);
+    }
+  }
+  const check = (owner: string, condition: Condition) => {
+    if ('all' in condition) condition.all.forEach((c) => check(owner, c));
+    else if ('any' in condition) condition.any.forEach((c) => check(owner, c));
+    else if (!condition.field.startsWith('$') && !ids.has(condition.field)) {
+      fail(`field "${owner}" depends on unknown field "${condition.field}".`);
+    }
+  };
+  conditions.forEach(([owner, condition]) => check(owner, condition));
+  return raw;
+}
+
+export const questionnaires: Record<string, Questionnaire> = {
+  'petition-adult': validateQuestionnaire(petitionAdultJson as Questionnaire),
+};
+
+function valueOf(field: string, answers: Answers, earlier: EarlierAnswers): Answer | null | undefined {
+  if (field === '$relationship') return earlier.relationship;
+  if (field === '$convicted') return earlier.convicted;
+  if (field === '$grounds') return earlier.grounds;
+  return answers[field];
+}
+
+/** Whether a condition holds. */
+export function holds(condition: Condition | undefined, answers: Answers, earlier: EarlierAnswers): boolean {
+  if (!condition) return true;
+  if ('all' in condition) return condition.all.every((c) => holds(c, answers, earlier));
+  if ('any' in condition) return condition.any.some((c) => holds(c, answers, earlier));
+  const value = valueOf(condition.field, answers, earlier);
+  if (condition.includes !== undefined) return Array.isArray(value) && (value as string[]).includes(condition.includes);
+  if (condition.equals !== undefined) return value === condition.equals;
+  if (condition.notEquals !== undefined) return value !== condition.notEquals;
+  return Boolean(value);
+}
+
+/** Whether a field has an answer. */
+export function isAnswered(value: Answer | undefined): boolean {
+  if (value === undefined || value === false) return false;
+  if (typeof value === 'string') return value.trim() !== '';
+  if (Array.isArray(value)) return value.length > 0;
+  return true;
+}
+
+/** The required fields that show but have no answer, by section. */
+export function missingRequired(questionnaire: Questionnaire, answers: Answers, earlier: EarlierAnswers): { section: Section; field: Field }[] {
+  return questionnaire.sections.flatMap((section) =>
+    section.fields
+      .filter((field) => field.required && holds(field.showIf, answers, earlier) && !isAnswered(answers[field.id]))
+      .map((field) => ({ section, field })),
+  );
+}
