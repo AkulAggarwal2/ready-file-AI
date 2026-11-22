@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { copy, fill } from '../content';
 import { courtForm } from '../forms';
 import {
-  holds,
+  isShown,
   missingRequired,
+  visibleAnswers,
   questionnaires,
   type Answer,
   type EarlierAnswers,
@@ -12,6 +13,7 @@ import {
 } from '../forms/questionnaire';
 import { routeState, routing } from '../forms/routing';
 import { childRole } from '../forms/variant';
+import { printable, unprintable } from '../pdf/printable';
 import { useAppState } from '../state/AppStateProvider';
 import { StepHeading } from '../ui/StepHeading';
 
@@ -93,7 +95,9 @@ function SectionForm({ section, n, total }: { section: Section; n: number; total
   const earlier = useEarlier();
   const c = copy.forms;
   const form = courtForm(section.form);
-  const shown = section.fields.filter((field) => holds(field.showIf, state.answers, earlier));
+  const questionnaire = useQuestionnaire();
+  const visible = visibleAnswers(questionnaire, state.answers, earlier);
+  const shown = section.fields.filter((field) => isShown(field, visible, earlier));
 
   return (
     <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
@@ -122,13 +126,27 @@ function Hint({ field, id }: { field: Field; id: string }) {
   );
 }
 
+/** A warning under a field whose text has letters the court's PDF can't print. */
+function PrintWarning({ id, value, long }: { id: string; value: string; long?: boolean }) {
+  const letters = unprintable(value);
+  if (letters.length === 0) return null;
+  const c = copy.forms;
+  return (
+    <p id={id} className="note print-warning">
+      {fill(long ? c.unprintableLong : c.unprintable, { letters: letters.join(' '), shown: printable(value.trim()) })}
+    </p>
+  );
+}
+
 function FieldInput({ field }: { field: Field }) {
   const { state, dispatch } = useAppState();
   const c = copy.forms;
   const id = domId(field.id);
   const hintId = `${id}-hint`;
-  const describedBy = field.hint || field.private || field.required ? hintId : undefined;
   const value = state.answers[field.id];
+  const warnId = `${id}-print`;
+  const warns = typeof value === 'string' && unprintable(value).length > 0;
+  const describedBy = [field.hint || field.private || field.required ? hintId : '', warns ? warnId : ''].filter(Boolean).join(' ') || undefined;
   const set = (v: Answer) => dispatch({ type: 'setAnswer', id: field.id, value: v });
 
   switch (field.type) {
@@ -201,6 +219,7 @@ function FieldInput({ field }: { field: Field }) {
               onChange={(e) => set(e.target.value)}
             />
           )}
+          {typeof value === 'string' && <PrintWarning id={warnId} value={value} long={field.type === 'textarea'} />}
         </div>
       );
   }
@@ -257,10 +276,11 @@ function GroupInput({ field }: { field: Field }) {
                     type={sub.type === 'date' ? 'date' : 'text'}
                     inputMode={sub.type === 'number' ? 'numeric' : undefined}
                     autoComplete="off"
-                    aria-describedby={sub.hint ? `${subId}-hint` : undefined}
+                    aria-describedby={[sub.hint ? `${subId}-hint` : '', unprintable(v).length ? `${subId}-print` : ''].filter(Boolean).join(' ') || undefined}
                     value={v}
                     onChange={(e) => update(e.target.value)}
                   />
+                  <PrintWarning id={`${subId}-print`} value={v} />
                 </div>
               );
             })}
@@ -304,6 +324,20 @@ function Download() {
   const missing = missingRequired(questionnaire, state.answers, earlier);
   const forms = questionnaire.packet;
   const hasConfidential = forms.some((f) => f.confidential);
+  // Fields whose text has letters the court's PDF can't print, so she can fix them by hand.
+  const visible = visibleAnswers(questionnaire, state.answers, earlier);
+  const toCheck = questionnaire.sections.flatMap((section) =>
+    section.fields.flatMap((field) => {
+      const value = visible[field.id];
+      if (typeof value === 'string') return unprintable(value).length ? [{ section, label: field.label }] : [];
+      if (field.type === 'group' && Array.isArray(value)) {
+        const items = value as Record<string, string>[];
+        return items.some((item) => Object.values(item).some((v) => unprintable(v ?? '').length)) ? [{ section, label: field.label }] : [];
+      }
+      return [];
+    }),
+  );
+  const incidentsToCheck = state.incidents.some((incident) => [incident.description, incident.place, incident.present].some((t) => unprintable(t).length));
 
   // Builds both files at once, so the two always match, then saves the one she asked for.
   async function make(which: 'public' | 'confidential') {
@@ -382,6 +416,21 @@ function Download() {
         </section>
       ) : (
         <p className="note">{c.complete}</p>
+      )}
+
+      {(toCheck.length > 0 || incidentsToCheck) && (
+        <section className="callout" aria-labelledby="print-check-heading">
+          <h2 id="print-check-heading">{c.unprintableHeading}</h2>
+          <p>{c.unprintableIntro}</p>
+          <ul>
+            {toCheck.map(({ section, label }) => (
+              <li key={`${section.id}-${label}`}>
+                {label} <span className="hint">({section.title})</span>
+              </li>
+            ))}
+            {incidentsToCheck && <li>{copy.app.steps.incidents}</li>}
+          </ul>
+        </section>
       )}
 
       <section aria-labelledby="public-heading">

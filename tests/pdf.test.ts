@@ -300,6 +300,8 @@ describe('values for PO-0104 and PNW-0102', () => {
 
   it('prints characters the standard fonts lack as look-alikes or "?"', () => {
     expect(printable('“José” — O’Neil 你')).toBe('"José" - O\'Neil ?');
+    // The closest letter the font has, instead of "?".
+    expect(printable('Nguyễn Łukasz Šimić')).toBe('Nguyên ?ukasz Šimic');
   });
 });
 

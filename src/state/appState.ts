@@ -1,4 +1,4 @@
-import type { Ground, Relationship, YesNoUnknown } from '../checker';
+import { CHILD_RELATIONSHIPS, RELATIONSHIPS, type Ground, type Relationship, type YesNoUnknown } from '../checker';
 import { copy, fill, type SafetyAnswer } from '../content';
 import type { Answer, Answers } from '../forms/questionnaire';
 import { routeState, routing, type RouteAnswer } from '../forms/routing';
@@ -152,12 +152,29 @@ function moveTo(state: AppState, from: number, to: number): AppState {
   };
 }
 
+/**
+ * Once her route reaches a petition, drops grounds and a relationship that
+ * only the other petition has, so nothing from the child's lists reaches an
+ * adult's petition or the other way round, even if she skips Start.
+ */
+function fitToRoute(state: AppState): AppState {
+  const where = routeState(state.route);
+  if (!('outcome' in where)) return state;
+  const outcome = routing.outcomes[where.outcome];
+  if (outcome.flow !== 'petition') return state;
+  const child = outcome.variant === 'child';
+  const grounds = state.grounds.filter((g) => child || g !== 'sex-grooming');
+  const list: readonly string[] = child ? CHILD_RELATIONSHIPS : RELATIONSHIPS;
+  const relationship = state.relationship && list.includes(state.relationship) ? state.relationship : null;
+  return grounds.length === state.grounds.length && relationship === state.relationship ? state : { ...state, grounds, relationship };
+}
+
 export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'routeAnswer':
-      return { ...state, route: [...state.route, action.answer] };
+      return fitToRoute({ ...state, route: [...state.route, action.answer] });
     case 'routeBack':
-      return { ...state, route: state.route.slice(0, -1) };
+      return fitToRoute({ ...state, route: state.route.slice(0, -1) });
     case 'routeReset':
       return { ...state, route: [] };
     case 'routeDone': {

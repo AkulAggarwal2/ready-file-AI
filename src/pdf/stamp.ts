@@ -1,4 +1,5 @@
 import { rgb, StandardFonts, type PDFDocument, type PDFFont, type PDFPage } from 'pdf-lib';
+import { printable } from './printable';
 
 const PAPER = rgb(1, 1, 1);
 
@@ -34,22 +35,7 @@ export const TEXT_SIZE = 10;
 const MIN_SIZE = 7.5;
 const INK = rgb(0, 0, 0.55);
 
-/**
- * The standard PDF fonts only have Windows-1252 characters. Common
- * look-alikes are swapped in; anything else becomes "?", so a name with
- * other characters still prints instead of failing.
- */
-export function printable(text: string): string {
-  return text
-    .normalize('NFC')
-    .replace(/[‘’‚′]/g, "'")
-    .replace(/[“”„″]/g, '"')
-    .replace(/[–—−]/g, '-')
-    .replace(/…/g, '...')
-    .replace(/[   ]/g, ' ')
-    .replace(/\t/g, ' ')
-    .replace(/[^\n\x20-\x7E¡-ÿ]/g, '?');
-}
+export { printable } from './printable';
 
 /**
  * Splits text into lines. Line i is no wider than widths[i] (the last width
@@ -71,7 +57,8 @@ export function wrap(text: string, font: PDFFont, size: number, widths: number |
       if (line) lines.push(line);
       line = word;
       while (font.widthOfTextAtSize(line, size) > widthAt(lines.length)) {
-        let cut = line.length - 1;
+        // At least one character per line, even if it is wider than the line.
+        let cut = Math.max(1, line.length - 1);
         while (cut > 1 && font.widthOfTextAtSize(line.slice(0, cut), size) > widthAt(lines.length)) cut--;
         lines.push(line.slice(0, cut));
         line = line.slice(cut);

@@ -1,5 +1,6 @@
 import { ACTS, CHILD_ACTS, type Act, type Ground, type Relationship } from '../checker';
-import { holds, type Answer, type Answers, type EarlierAnswers, type Field, type Questionnaire } from '../forms/questionnaire';
+import { visibleAnswers, type Answer, type Answers, type EarlierAnswers, type Field, type Questionnaire } from '../forms/questionnaire';
+import { fill } from '../content';
 import type { Incident } from '../organizer';
 import type { StampValues } from './stamp';
 
@@ -52,7 +53,7 @@ function incidentDate(incident: Incident): string {
   return '';
 }
 
-export function fullName(answers: Answers, who: 'petitioner' | 'respondent' | 'child'): string {
+export function fullName(answers: Answers, who: 'petitioner' | 'respondent' | 'child' | 'employee'): string {
   return ['first', 'middle', 'last']
     .map((part) => text(answers[`${who}.${part}`]))
     .filter(Boolean)
@@ -66,24 +67,15 @@ const rows = (value: Answer | undefined): Record<string, string>[] =>
 /** Only the answers to fields that show, so a hidden answer never prints. */
 function shownAnswers(input: PacketInput): Answers {
   const earlier: EarlierAnswers = { relationship: input.relationship, convicted: input.convicted, grounds: input.grounds, childRole: input.childRole };
-  const fields = new Map<string, Field>(input.questionnaire.sections.flatMap((s) => s.fields.map((f) => [f.id, f])));
-  const shown: Answers = {};
-  // A field can depend on another hidden one, so repeat until nothing changes.
-  let changed = true;
-  const current = { ...input.questionnaire.fixed, ...input.answers };
-  while (changed) {
-    changed = false;
-    for (const [id, value] of Object.entries(current)) {
-      const field = fields.get(id);
-      if (field && !holds(field.showIf, current, earlier)) {
-        delete current[id];
-        changed = true;
-      }
-      void value;
-    }
-  }
-  for (const [id, value] of Object.entries(current)) if (fields.has(id) || id in (input.questionnaire.fixed ?? {})) shown[id] = value;
-  return shown;
+  return visibleAnswers(input.questionnaire, input.answers, earlier);
+}
+
+/** The caption line on attachment pages, from the same answers the form prints. */
+export function attachmentCaption(input: PacketInput): string {
+  const a = shownAnswers(input);
+  // On a workplace violence form the employer is the plaintiff.
+  const petitioner = text(a['employer.name']) || petitionerCaption(a) || 'Petitioner';
+  return `${petitioner} v. ${fullName(a, 'respondent') || 'Respondent'}`;
 }
 
 /** A phone number split for the form's "(___) ______" blanks. */
@@ -409,7 +401,9 @@ export function po0101Values(input: PacketInput): FormValues {
   for (const act of CHILD_ACTS) values[`q7.${act}`] = acts.has(act);
 
   values.printedName = fullName(a, 'child');
-  return { ...built, values };
+  // The attachments belong to the child's petition, not the adult one.
+  const attachments = built.attachments.map((attachment) => ({ ...attachment, form: 'PO-0101' }));
+  return { ...built, values, attachments };
 }
 
 // ---------------------------------------------------------------------------
@@ -473,7 +467,7 @@ export function genericValues(form: string, input: PacketInput): FormValues {
             form,
             blocks: items.slice(max).map((item, i) => ({
               heading: `${field.label}: ${fill(field.itemLabel ?? '{n}', { n: max + i + 1 })}`,
-              text: field.fields!.map((sub) => `${sub.label}: ${item[sub.id] ?? ''}`).join('\n'),
+              text: field.fields!.map((sub) => `${sub.label}: ${sub.type === 'date' ? courtDate(item[sub.id] ?? '') : (item[sub.id] ?? '')}`).join('\n'),
             })),
           });
         }
@@ -504,8 +498,6 @@ export function genericValues(form: string, input: PacketInput): FormValues {
   return { values, continuable, attachments };
 }
 
-const fill = (template: string, values: Record<string, string | number>) =>
-  template.replace(/\{(\w+)\}/g, (m, k: string) => (k in values ? String(values[k]) : m));
 
 /** "2026-03-14" as day, month name and the year's last digits, for "the ___ day of ______, 20__". */
 function dateParts(value: string): { day: string; month: string; year: string } {

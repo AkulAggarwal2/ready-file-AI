@@ -19,14 +19,16 @@
    "page": 1,
    "find": "^_+, \\)$",
    "nth": 0,
-   "blank": 0
+   "blank": 0,
+   "w": 225
   },
   {
    "key": "caption.respondent",
    "page": 1,
    "find": "^_+, \\)$",
    "nth": 1,
-   "blank": 0
+   "blank": 0,
+   "w": 225
   },
   {
    "key": "filedWithClerk",

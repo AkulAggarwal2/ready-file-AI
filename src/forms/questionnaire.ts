@@ -153,6 +153,36 @@ export function holds(condition: Condition | undefined, answers: Answers, earlie
   return Boolean(value);
 }
 
+/**
+ * The answers to fields that show, with fixed answers added. A field can
+ * depend on another that is hidden, so this repeats until nothing changes.
+ * The screens, the "still blank" list and the PDF all use it, so a field
+ * that shows is always one whose answer prints.
+ */
+export function visibleAnswers(questionnaire: Questionnaire, answers: Answers, earlier: EarlierAnswers): Answers {
+  const fields = new Map<string, Field>(questionnaire.sections.flatMap((s) => s.fields.map((f) => [f.id, f])));
+  const current: Answers = { ...questionnaire.fixed, ...answers };
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const id of Object.keys(current)) {
+      const field = fields.get(id);
+      if (field && !holds(field.showIf, current, earlier)) {
+        delete current[id];
+        changed = true;
+      }
+    }
+  }
+  const visible: Answers = {};
+  for (const [id, value] of Object.entries(current)) if (fields.has(id) || id in (questionnaire.fixed ?? {})) visible[id] = value;
+  return visible;
+}
+
+/** Whether a field shows, given the answers that are themselves visible. */
+export function isShown(field: Field, visible: Answers, earlier: EarlierAnswers): boolean {
+  return holds(field.showIf, visible, earlier);
+}
+
 /** Whether a field has an answer. */
 export function isAnswered(value: Answer | undefined): boolean {
   if (value === undefined || value === false) return false;
@@ -163,9 +193,10 @@ export function isAnswered(value: Answer | undefined): boolean {
 
 /** The required fields that show but have no answer, by section. */
 export function missingRequired(questionnaire: Questionnaire, answers: Answers, earlier: EarlierAnswers): { section: Section; field: Field }[] {
+  const visible = visibleAnswers(questionnaire, answers, earlier);
   return questionnaire.sections.flatMap((section) =>
     section.fields
-      .filter((field) => field.required && holds(field.showIf, answers, earlier) && !isAnswered(answers[field.id]))
+      .filter((field) => field.required && isShown(field, visible, earlier) && !isAnswered(visible[field.id]))
       .map((field) => ({ section, field })),
   );
 }

@@ -885,3 +885,28 @@ describe('18. Forms for an existing order', () => {
     click.mockRestore();
   }, 20_000);
 });
+
+// The court PDFs' fonts only have Western European letters.
+describe('19. Letters the court forms cannot print', () => {
+  it('warns under the field, says what will print, and lists it on the download page', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await goToStep(user, 'forms');
+    const last = screen.getByRole('textbox', { name: "The other person's last name" });
+    await user.type(last, 'Nguyễn');
+    const warning = screen.getByText(/can't print these letters: ễ/);
+    expect(warning).toHaveTextContent('It will show "Nguyên"');
+    expect(last.getAttribute('aria-describedby')).toContain(warning.id);
+    await user.click(screen.getByRole('button', { name: copy.forms.downloadHeading }));
+    const check = screen.getByRole('region', { name: copy.forms.unprintableHeading });
+    expect(within(check).getByText("The other person's last name")).toBeInTheDocument();
+  });
+
+  it('shows no warning for accents the form can print', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await goToStep(user, 'forms');
+    await user.type(screen.getByRole('textbox', { name: "The other person's last name" }), 'Muñoz-José');
+    expect(screen.queryByText(/can't print these letters/)).toBeNull();
+  });
+});

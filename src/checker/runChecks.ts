@@ -82,13 +82,16 @@ function appliesTo(rule: Rule, grounds: CheckInput['grounds']): boolean {
  *
  * With more than one ground, two rules can ask the same thing (such as
  * "stalking-two-incidents" and "harassment-repeated"). Only the first rule
- * with a given condition asks, once overall or once per incident.
+ * with an identical condition asks, once overall or once per incident; the
+ * same condition with a different setting still asks.
  */
 export function runChecks(input: CheckInput, rules: Rule[]): Finding[] {
   const all = collectFindings(input, rules);
+  const conditions = new Map(rules.map((rule) => [rule.id, JSON.stringify(rule.condition)]));
   const seen = new Set<string>();
   return all.filter((f) => {
-    const asks = `${f.conditionType}:${f.incidentId ?? 'all'}`;
+    // The same condition with the same settings asks the same thing.
+    const asks = `${conditions.get(f.ruleId)}:${f.incidentId ?? 'all'}`;
     if (seen.has(asks)) return false;
     seen.add(asks);
     return true;

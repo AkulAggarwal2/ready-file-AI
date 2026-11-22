@@ -3,9 +3,8 @@ import { courtForm } from '../forms';
 import type { Questionnaire } from '../forms/questionnaire';
 import { fits, printable, stamp, wrap, type PdfMap, type StampValues } from './stamp';
 import {
-  fullName,
+  attachmentCaption,
   genericValues,
-  petitionerCaption,
   pnw0102Values,
   po0100Values,
   po0101Values,
@@ -66,21 +65,28 @@ interface Fonts {
  * Text that doesn't fit its blank is replaced by "See Attachment <label>",
  * and the full text goes on that attachment, so nothing is cut off.
  */
-function moveOverflow(map: PdfMap, built: FormValues, font: PDFFont): { values: StampValues; attachments: Attachment[] } {
+function moveOverflow(map: PdfMap, built: FormValues, font: PDFFont, labels: Map<string, string>): { values: StampValues; attachments: Attachment[] } {
   const values = { ...built.values };
   const attachments = built.attachments.map((a) => ({ ...a, blocks: [...a.blocks] }));
+  // Continued text goes before the attachment's own items, in the form's order.
+  const moved = new Map<Attachment, Attachment['blocks']>();
   for (const field of map.fields) {
     const value = values[field.key];
-    const cont = built.continuable[field.key];
-    if (!cont || typeof value !== 'string' || value === '' || fits(field, value, font)) continue;
-    values[field.key] = `See Attachment ${cont.label}.`;
+    if (typeof value !== 'string' || value === '' || fits(field, value, font)) continue;
+    // A party's name in a caption shrinks to fit rather than saying "see attached".
+    if (field.key.startsWith('caption.')) continue;
+    // Text with no attachment of its own goes on a general one for the form,
+    // so nothing is ever cut off or printed over the form's words.
+    const cont = built.continuable[field.key] ?? { label: `to ${map.form}`, heading: `${labels.get(field.key) ?? field.key} (continued)` };
+    values[field.key] = field.kind === 'text' && field.w < 120 ? '(see attached)' : `See Attachment ${cont.label}.`;
     let attachment = attachments.find((a) => a.label === cont.label && a.form === map.form);
     if (!attachment) {
       attachment = { label: cont.label, form: map.form, blocks: [] };
       attachments.push(attachment);
     }
-    attachment.blocks.unshift({ heading: cont.heading, text: value });
+    moved.set(attachment, [...(moved.get(attachment) ?? []), { heading: cont.heading, text: value }]);
   }
+  for (const [attachment, blocks] of moved) attachment.blocks.unshift(...blocks);
   return { values, attachments };
 }
 
@@ -197,7 +203,8 @@ export async function buildPacket(input: PacketInput, load: TemplateLoader, text
   drawInstructions(pub.doc, pub.fonts, instructions.title, instructions.lines);
   drawInstructions(conf.doc, conf.fonts, text.confidentialTitle, text.confidentialInstructions);
 
-  const captionLine = `${captionName(input)} v. ${fullName(input.answers, 'respondent') || 'Respondent'}`;
+  const captionLine = attachmentCaption(input);
+  const labels = new Map(input.questionnaire.sections.flatMap((section) => section.fields.map((field) => [field.id, field.label] as [string, string])));
   const affidavitPages = Number(input.answers.affidavitPages) || 0;
   const forms: PacketResult['forms'] = [];
 
@@ -207,7 +214,7 @@ export async function buildPacket(input: PacketInput, load: TemplateLoader, text
     const map = pdfMap(form);
     const template = await PDFDocument.load(await load(form));
     const font = await template.embedFont(StandardFonts.Helvetica);
-    const { values, attachments } = moveOverflow(map, build(input), font);
+    const { values, attachments } = moveOverflow(map, build(input), font, labels);
 
     // Lay out the attachments first, in a scratch file, to count their pages
     // for question 10 (pages attached).
@@ -226,9 +233,4 @@ export async function buildPacket(input: PacketInput, load: TemplateLoader, text
   const hasConfidential = packet.some((p) => p.confidential);
   if (hasConfidential) markConfidential(conf.doc, conf.fonts, text.confidentialBanner);
   return { public: await pub.doc.save(), confidential: hasConfidential ? await conf.doc.save() : null, forms };
-}
-
-/** The petitioner as the caption names them: the adult, or the child by their next friend. */
-function captionName(input: PacketInput): string {
-  return petitionerCaption(input.answers) || 'Petitioner';
 }
