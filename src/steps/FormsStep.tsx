@@ -10,19 +10,21 @@ import {
   type Field,
   type Section,
 } from '../forms/questionnaire';
-import { PACKET_FORMS } from '../forms/packets';
+import { routeState, routing } from '../forms/routing';
 import { childRole } from '../forms/variant';
-import { useVariant } from '../state/useVariant';
 import { useAppState } from '../state/AppStateProvider';
 import { StepHeading } from '../ui/StepHeading';
 
 const domId = (id: string) => `f-${id.replace(/[^\w-]/g, '-')}`;
 
 /**
- * The questionnaire for the petition her situation leads to: her own, or a child's.
+ * The questionnaire her situation leads to (routing.json names it).
  */
 function useQuestionnaire() {
-  return questionnaires[useVariant() === 'child' ? 'petition-child' : 'petition-adult'];
+  const { state } = useAppState();
+  const where = routeState(state.route);
+  const id = 'outcome' in where ? routing.outcomes[where.outcome].questionnaire : undefined;
+  return questionnaires[id ?? 'petition-adult'];
 }
 
 /**
@@ -296,12 +298,12 @@ function Download() {
   const { state, dispatch } = useAppState();
   const earlier = useEarlier();
   const questionnaire = useQuestionnaire();
-  const variant = useVariant();
   const c = copy.forms;
   const [status, setStatus] = useState('');
   const [busy, setBusy] = useState(false);
   const missing = missingRequired(questionnaire, state.answers, earlier);
-  const forms = PACKET_FORMS[variant];
+  const forms = questionnaire.packet;
+  const hasConfidential = forms.some((f) => f.confidential);
 
   // Builds both files at once, so the two always match, then saves the one she asked for.
   async function make(which: 'public' | 'confidential') {
@@ -311,7 +313,6 @@ function Download() {
       // The PDF code is large, so it loads only when she asks for a PDF.
       const [{ buildPacket }, { loadTemplate }] = await Promise.all([import('../pdf/packet'), import('../pdf/templates')]);
       const result = await buildPacket(
-        variant,
         {
           questionnaire,
           answers: state.answers,
@@ -323,14 +324,13 @@ function Download() {
         },
         loadTemplate,
         {
-          publicTitle: c.publicTitle,
-          publicInstructions: c.publicInstructions,
           confidentialTitle: c.confidentialTitle,
           confidentialInstructions: c.confidentialInstructions,
           confidentialBanner: c.confidentialBanner,
         },
       );
-      saveFile(result[which], which === 'public' ? c.publicFileName : c.confidentialFileName);
+      const bytes = which === 'public' ? result.public : result.confidential;
+      if (bytes) saveFile(bytes, which === 'public' ? c.publicFileName : c.confidentialFileName);
       setStatus(which === 'public' ? c.madePublic : c.madeConfidential);
     } catch {
       setStatus(c.failed);
@@ -385,16 +385,17 @@ function Download() {
       )}
 
       <section aria-labelledby="public-heading">
-        <h2 id="public-heading">{c.publicHeading}</h2>
-        <p>{c.publicIntro}</p>
+        <h2 id="public-heading">{hasConfidential ? c.publicHeading : c.formsOnlyHeading}</h2>
+        {hasConfidential && <p>{c.publicIntro}</p>}
         {list(false)}
         <div className="button-row">
           <button type="button" className="btn btn-primary" onClick={() => make('public')} disabled={busy}>
-            {c.downloadPublic}
+            {hasConfidential ? c.downloadPublic : c.downloadForms}
           </button>
         </div>
       </section>
 
+      {hasConfidential && (
       <section className="callout" aria-labelledby="confidential-heading">
         <h2 id="confidential-heading">{c.confidentialHeading}</h2>
         <p>{c.confidentialIntro}</p>
@@ -405,6 +406,7 @@ function Download() {
           </button>
         </div>
       </section>
+      )}
 
       <p role="status" className="status">
         {status}

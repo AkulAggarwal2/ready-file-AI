@@ -1,7 +1,7 @@
 import type { Ground, Relationship, YesNoUnknown } from '../checker';
 import { copy, fill, type SafetyAnswer } from '../content';
 import type { Answer, Answers } from '../forms/questionnaire';
-import type { RouteAnswer } from '../forms/routing';
+import { routeState, routing, type RouteAnswer } from '../forms/routing';
 import { createIncident, mergeIncidents, type Incident, type IncidentFields } from '../organizer';
 
 // All state lives in memory only (section 8). Nothing here is ever written to
@@ -160,9 +160,13 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, route: state.route.slice(0, -1) };
     case 'routeReset':
       return { ...state, route: [] };
-    case 'routeDone':
-      // Only a petition outcome continues; RouteStep checks that.
-      return { ...state, step: 'start' };
+    case 'routeDone': {
+      // A petition goes on to Start; a form in an existing case goes straight
+      // to the Court forms step. RouteStep offers this only for those two.
+      const where = routeState(state.route);
+      const flow = 'outcome' in where ? routing.outcomes[where.outcome].flow : null;
+      return { ...state, step: flow === 'form' ? 'forms' : 'start', formSection: 0 };
+    }
     case 'setAnswer':
       return { ...state, answers: { ...state.answers, [action.id]: action.value } };
     case 'setFormSection':

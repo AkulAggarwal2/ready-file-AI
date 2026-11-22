@@ -76,6 +76,20 @@ function findLine(page, find, nth, where) {
 
 const round = (n) => Math.round(n * 10) / 10;
 
+/** The x range of the first match of re in a line's text (words joined by single spaces). */
+function spanOf(line, re, where) {
+  const m = re.exec(line.text);
+  if (!m) throw new Error(`${where}: line "${line.text}" has no match for ${re}`);
+  const xAt = [];
+  line.words.forEach((word, i) => {
+    const perChar = (word.x1 - word.x0) / word.text.length;
+    for (let c = 0; c < word.text.length; c++) xAt.push(word.x0 + c * perChar);
+    if (i < line.words.length - 1) xAt.push(word.x1);
+  });
+  xAt.push(line.words[line.words.length - 1].x1);
+  return { x0: xAt[m.index], x1: xAt[m.index + m[0].length] };
+}
+
 /** A box on a blank, in PDF points from the bottom left; y is the text baseline. */
 function box(page, line, blank, padLeft = 2) {
   return {
@@ -150,6 +164,16 @@ function resolve(form, pages, anchor) {
       w: round(last.x1 - first.x0),
       h: round(line.y1 - line.y0),
     };
+  }
+
+  if (kind === 'strike') {
+    // A line through words that do not apply, for forms that say "strike
+    // through the language that does not apply" (PO-0107). The words are
+    // found by a regular expression on the line's text, so a phrase can
+    // start or end inside a word like "Protection/an".
+    const { x0, x1 } = spanOf(line, new RegExp(anchor.match), where);
+    const mid = page.height - line.y1 + (line.y1 - line.y0) * 0.5;
+    return { key: anchor.key, page: anchor.page, kind: 'strike', x: round(x0), y: round(mid), w: round(x1 - x0) };
   }
 
   if (kind === 'mark') {

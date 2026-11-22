@@ -1,0 +1,134 @@
+{
+  "_about": "The questions for PO-0108. Field ids match the keys in content/pdfMaps.",
+  "id": "end-order",
+  "filer": "petitioner",
+  "packet": [
+    {
+      "form": "PO-0108",
+      "copies": 3
+    }
+  ],
+  "instructions": {
+    "title": "End your order: before you file (do not file this page)",
+    "lines": [
+      "This file has the Petitioner's Verified Request for Dismissal (PO-0108) with your answers printed on it.",
+      "If you are worried about your safety, an advocate can talk with you about it before you file. Their help is free.",
+      "Sign and date it by hand. You sign under penalty of perjury.",
+      "Print 3 copies, unless the clerk tells you otherwise: one for the court, one for the other person, and one for you.",
+      "File it with the clerk of the court that has your case.",
+      "This page is not part of your filing. Remove it before you file."
+    ]
+  },
+  "sections": [
+    {
+      "id": "caption",
+      "form": "PO-0108",
+      "title": "The case",
+      "intro": "This goes at the top of the form. Copy it from your order.",
+      "fields": [
+        {
+          "id": "court.county",
+          "type": "text",
+          "label": "County of the court",
+          "required": true
+        },
+        {
+          "id": "court.name",
+          "type": "text",
+          "label": "Name of the court",
+          "hint": "As it appears on your order, like Allen Superior."
+        },
+        {
+          "id": "court.division",
+          "type": "text",
+          "label": "Division",
+          "hint": "If your order shows one."
+        },
+        {
+          "id": "court.room",
+          "type": "text",
+          "label": "Room",
+          "hint": "If your order shows one."
+        },
+        {
+          "id": "case.number",
+          "type": "text",
+          "label": "Case number",
+          "hint": "It is on your order or other court papers.",
+          "required": true
+        },
+        {
+          "id": "petitioner.first",
+          "type": "text",
+          "label": "Your first name",
+          "required": true,
+          "hint": "As written on the order."
+        },
+        {
+          "id": "petitioner.middle",
+          "type": "text",
+          "label": "Your middle name"
+        },
+        {
+          "id": "petitioner.last",
+          "type": "text",
+          "label": "Your last name",
+          "required": true
+        },
+        {
+          "id": "respondent.first",
+          "type": "text",
+          "label": "The other person's first name",
+          "required": true
+        },
+        {
+          "id": "respondent.middle",
+          "type": "text",
+          "label": "The other person's middle name"
+        },
+        {
+          "id": "respondent.last",
+          "type": "text",
+          "label": "The other person's last name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "dismiss",
+      "form": "PO-0108",
+      "title": "End your order",
+      "fields": [
+        {
+          "id": "petition.date",
+          "type": "date",
+          "label": "Date you filed the petition",
+          "required": true
+        },
+        {
+          "id": "terminate.orderDate",
+          "type": "date",
+          "label": "Date the court issued the order you want to end",
+          "required": true
+        },
+        {
+          "id": "petitioner.address",
+          "type": "textarea",
+          "label": "Your address",
+          "required": true,
+          "rows": 2,
+          "hint": "This form is not confidential, and the other person may see it. Use an address you are comfortable sharing."
+        },
+        {
+          "id": "respondent.address",
+          "type": "textarea",
+          "label": "The other person's address",
+          "rows": 2
+        }
+      ]
+    }
+  ],
+  "fixed": {
+    "dismiss": "terminate"
+  }
+}

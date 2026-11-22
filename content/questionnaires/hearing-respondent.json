@@ -1,0 +1,135 @@
+{
+  "_about": "The questions for PO-0107. Field ids match the keys in content/pdfMaps.",
+  "id": "hearing-respondent",
+  "filer": "respondent",
+  "packet": [
+    {
+      "form": "PO-0107",
+      "copies": 3
+    }
+  ],
+  "instructions": {
+    "title": "Your request for a hearing: before you file (do not file this page)",
+    "lines": [
+      "This file has the Verified Request for a Hearing (PO-0107) with your answers printed on it. ReadyFile struck through the words that do not apply, as the form asks.",
+      "Sign and date it by hand. You sign under penalty of perjury.",
+      "Print 3 copies, unless the clerk tells you otherwise: one for the court, one for the other person, and one for you.",
+      "File it with the clerk of the court that issued the order. There is no fee.",
+      "This page is not part of your filing. Remove it before you file."
+    ]
+  },
+  "sections": [
+    {
+      "id": "caption",
+      "form": "PO-0107",
+      "title": "The case",
+      "intro": "This goes at the top of the form. Copy it from your order.",
+      "fields": [
+        {
+          "id": "court.county",
+          "type": "text",
+          "label": "County of the court",
+          "required": true
+        },
+        {
+          "id": "court.name",
+          "type": "text",
+          "label": "Name of the court",
+          "hint": "As it appears on your order, like Allen Superior."
+        },
+        {
+          "id": "court.division",
+          "type": "text",
+          "label": "Division",
+          "hint": "If your order shows one."
+        },
+        {
+          "id": "court.room",
+          "type": "text",
+          "label": "Room",
+          "hint": "If your order shows one."
+        },
+        {
+          "id": "case.number",
+          "type": "text",
+          "label": "Case number",
+          "hint": "It is on your order or other court papers.",
+          "required": true
+        },
+        {
+          "id": "petitioner.first",
+          "type": "text",
+          "label": "The petitioner's first name",
+          "required": true,
+          "hint": "The person who asked for the order, as written on it."
+        },
+        {
+          "id": "petitioner.middle",
+          "type": "text",
+          "label": "The petitioner's middle name"
+        },
+        {
+          "id": "petitioner.last",
+          "type": "text",
+          "label": "The petitioner's last name",
+          "required": true
+        },
+        {
+          "id": "respondent.first",
+          "type": "text",
+          "label": "Your first name",
+          "required": true
+        },
+        {
+          "id": "respondent.middle",
+          "type": "text",
+          "label": "Your middle name"
+        },
+        {
+          "id": "respondent.last",
+          "type": "text",
+          "label": "Your last name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "hearing",
+      "form": "PO-0107",
+      "title": "Your request",
+      "fields": [
+        {
+          "id": "order.date",
+          "type": "date",
+          "label": "Date the court issued the order",
+          "required": true
+        },
+        {
+          "id": "order.type",
+          "type": "choice",
+          "label": "What did the court issue?",
+          "required": true,
+          "hint": "It is in the title of the order.",
+          "options": [
+            {
+              "value": "exParte",
+              "label": "An Ex Parte Order for Protection (issued without a hearing)"
+            },
+            {
+              "value": "modification",
+              "label": "An Ex Parte Modification of an Order for Protection (a change, without a hearing)"
+            }
+          ]
+        },
+        {
+          "id": "contact",
+          "type": "textarea",
+          "label": "Address and daytime phone number for the court and the other side to reach you",
+          "required": true,
+          "rows": 2,
+          "hint": "The other side will see this. Use an address you are comfortable sharing."
+        }
+      ]
+    }
+  ]
+}

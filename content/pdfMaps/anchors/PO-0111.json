@@ -1,0 +1,68 @@
+{
+ "form": "PO-0111",
+ "revision": "TCM-PO-0111 Approved by State Court Administration 07/02",
+ "anchors": [
+  {
+   "key": "caption.court",
+   "page": 1,
+   "find": "^STATE OF INDIANA",
+   "blank": 0
+  },
+  {
+   "key": "caption.division",
+   "page": 1,
+   "find": "DIVISION, ROOM",
+   "blank": 0
+  },
+  {
+   "key": "caption.room",
+   "page": 1,
+   "find": "DIVISION, ROOM",
+   "blank": 1,
+   "padLeft": 1
+  },
+  {
+   "key": "caption.county",
+   "page": 1,
+   "find": "^COUNTY OF",
+   "blank": 0
+  },
+  {
+   "key": "caption.caseNumber",
+   "page": 1,
+   "find": "^CASE NO",
+   "blank": 0
+  },
+  {
+   "key": "caption.petitioner",
+   "page": 1,
+   "find": "^_+, \\)$",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.respondent",
+   "page": 1,
+   "find": "^_+, \\)$",
+   "nth": 1,
+   "blank": 0
+  },
+  {
+   "key": "reason",
+   "page": 1,
+   "find": "was dismissed is because",
+   "nth": 0,
+   "kind": "lines",
+   "count": 5,
+   "includeFound": true,
+   "blank": 0
+  },
+  {
+   "key": "printedName",
+   "page": 1,
+   "find": "^\\(Printed\\)",
+   "nth": 0,
+   "blank": 0
+  }
+ ]
+}

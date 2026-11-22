@@ -1,0 +1,159 @@
+{
+  "_about": "The questions for PO-0119. Field ids match the keys in content/pdfMaps.",
+  "id": "foreign-update",
+  "filer": "petitioner",
+  "packet": [
+    {
+      "form": "PO-0119",
+      "copies": 2
+    }
+  ],
+  "instructions": {
+    "title": "Updating your registered order: before you file (do not file this page)",
+    "lines": [
+      "This file has Section B of the Registration of Foreign Protection Order (PO-0119) with your answers printed on it.",
+      "Bring a certified copy of the new or changed order. If your address or other details changed, the clerk has a new Confidential Data Entry Form for you to fill in.",
+      "Sign and date it by hand. You sign under penalty of perjury.",
+      "Print 2 copies, unless the clerk tells you otherwise.",
+      "This page is not part of your filing. Remove it before you file."
+    ]
+  },
+  "sections": [
+    {
+      "id": "caption",
+      "form": "PO-0119",
+      "title": "The case",
+      "intro": "This goes at the top of the form. Copy it from your order.",
+      "fields": [
+        {
+          "id": "court.county",
+          "type": "text",
+          "label": "County of the court",
+          "required": true
+        },
+        {
+          "id": "court.name",
+          "type": "text",
+          "label": "Name of the court",
+          "hint": "As it appears on your order, like Allen Superior."
+        },
+        {
+          "id": "court.division",
+          "type": "text",
+          "label": "Division",
+          "hint": "If your order shows one."
+        },
+        {
+          "id": "court.room",
+          "type": "text",
+          "label": "Room",
+          "hint": "If your order shows one."
+        },
+        {
+          "id": "case.number",
+          "type": "text",
+          "label": "Case number",
+          "hint": "It is on your order or other court papers."
+        },
+        {
+          "id": "petitioner.first",
+          "type": "text",
+          "label": "Your first name",
+          "required": true,
+          "hint": "As written on the order."
+        },
+        {
+          "id": "petitioner.middle",
+          "type": "text",
+          "label": "Your middle name"
+        },
+        {
+          "id": "petitioner.last",
+          "type": "text",
+          "label": "Your last name",
+          "required": true
+        },
+        {
+          "id": "respondent.first",
+          "type": "text",
+          "label": "The other person's first name",
+          "required": true
+        },
+        {
+          "id": "respondent.middle",
+          "type": "text",
+          "label": "The other person's middle name"
+        },
+        {
+          "id": "respondent.last",
+          "type": "text",
+          "label": "The other person's last name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "change",
+      "form": "PO-0119",
+      "title": "What happened to the order",
+      "intro": "Fill in only what applies.",
+      "fields": [
+        {
+          "id": "b.expired",
+          "type": "date",
+          "label": "Date the order expired"
+        },
+        {
+          "id": "b.vacated",
+          "type": "date",
+          "label": "Date the order was vacated or dismissed"
+        },
+        {
+          "id": "b.modified",
+          "type": "date",
+          "label": "Date the order was changed"
+        },
+        {
+          "id": "b.modifiedHow",
+          "type": "textarea",
+          "label": "How was it changed?",
+          "rows": 3,
+          "showIf": {
+            "field": "b.modified"
+          }
+        },
+        {
+          "id": "b.extended",
+          "type": "date",
+          "label": "Date the extended order ends"
+        },
+        {
+          "id": "b.notice",
+          "type": "yesno",
+          "label": "If it was changed or extended, was the other person told?"
+        },
+        {
+          "id": "b.certified",
+          "type": "yesno",
+          "label": "Is your copy of the order certified?",
+          "required": true
+        },
+        {
+          "id": "b.initials7",
+          "type": "text",
+          "label": "Your initials: you will tell the clerk if the order is extended, changed, or ended again",
+          "required": true
+        },
+        {
+          "id": "b.initials8",
+          "type": "text",
+          "label": "Your initials: if the order or your address changes, you will fill in a new confidential form",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "fixed": {
+    "section": "b"
+  }
+}

@@ -21,10 +21,12 @@ export interface RouteNode {
   options: RouteOption[];
 }
 
-// "petition" continues into ReadyFile's petition steps. "forms" lists the
-// forms that fit. "info" explains the situation; any forms it lists are ones
-// the court fills, shown so she knows what the papers are.
-export type OutcomeFlow = 'petition' | 'forms' | 'info';
+// "petition" continues into ReadyFile's petition steps (incidents and so
+// on) and then the Court forms step. "form" goes straight to the Court forms
+// step, for a form in a case that already exists. "forms" lists forms
+// ReadyFile does not fill yet. "info" explains the situation; any forms it
+// lists are ones the court fills, shown so she knows what the papers are.
+export type OutcomeFlow = 'petition' | 'form' | 'forms' | 'info';
 
 export interface RouteOutcome {
   flow: OutcomeFlow;
@@ -33,6 +35,8 @@ export interface RouteOutcome {
   summary: string;
   // Court form ids, in filing order.
   packet: string[];
+  // For "petition" and "form": the questionnaire in content/questionnaires.
+  questionnaire?: string;
 }
 
 export interface Routing {
@@ -73,6 +77,7 @@ export function validateRouting(raw: Routing): Routing {
       }
     }
     if (outcome.flow === 'petition' && !outcome.variant) fail(`petition outcome "${id}" needs a variant.`);
+    if ((outcome.flow === 'petition' || outcome.flow === 'form') && !outcome.questionnaire) fail(`outcome "${id}" needs a questionnaire.`);
   }
 
   // Every question and outcome can be reached from the start, and no path loops.

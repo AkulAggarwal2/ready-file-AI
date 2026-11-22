@@ -124,9 +124,9 @@ function RouteResult({ outcome }: { outcome: RouteOutcome }) {
         <button type="button" className="btn" onClick={() => dispatch({ type: 'routeBack' })}>
           {c.back}
         </button>
-        {outcome.flow === 'petition' ? (
+        {outcome.flow === 'petition' || outcome.flow === 'form' ? (
           <button type="button" className="btn btn-primary" onClick={() => dispatch({ type: 'routeDone' })}>
-            {c.toPetition}
+            {outcome.flow === 'petition' ? c.toPetition : c.toForm}
           </button>
         ) : (
           <StartOver />

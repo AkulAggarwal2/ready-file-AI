@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import routingJson from '../content/routing.json';
+import { questionnaires } from '../src/forms/questionnaire';
 import { routeState, routing, validateRouting, type RouteAnswer, type Routing } from '../src/forms/routing';
 
 const raw = routingJson as Routing;
@@ -58,6 +59,15 @@ describe('routing.json', () => {
     [['respondent', 'wv'], ['WV-0104', 'WV-0105']],
   ])('%j leads to %j', (path, packet) => {
     expect(packetFor(...path)).toEqual(packet);
+  });
+
+  it('every petition or form outcome names a questionnaire whose packet matches the outcome', () => {
+    for (const [id, outcome] of Object.entries(routing.outcomes)) {
+      if (outcome.flow !== 'petition' && outcome.flow !== 'form') continue;
+      const q = questionnaires[outcome.questionnaire!];
+      expect(q, id).toBeDefined();
+      expect(q.packet.map((p) => p.form).sort(), id).toEqual(outcome.packet.filter((f) => f !== 'COVER').sort());
+    }
   });
 
   it('the adult and child petitions continue into the petition steps', () => {

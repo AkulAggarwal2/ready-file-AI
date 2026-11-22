@@ -837,3 +837,51 @@ describe('17. Petition for a child', () => {
     expect(screen.queryByRole('textbox', { name: 'How do you represent the child?' })).toBeNull();
   });
 });
+
+// Forms in a case that already exists go straight to the Court forms step.
+describe('18. Forms for an existing order', () => {
+  async function choose(user: User, ...options: string[]) {
+    for (const option of options) {
+      await user.click(screen.getByRole('radio', { name: option }));
+      await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    }
+  }
+
+  it('extending an order skips the incident steps and shows only two steps', async () => {
+    const user = renderApp();
+    await choose(user, 'Me', 'I already have a protection order', 'An Indiana court', 'Make the order last longer');
+    await user.click(screen.getByRole('button', { name: copy.route.toForm }));
+    expect(screen.getByRole('heading', { level: 1, name: 'The case' })).toHaveFocus();
+    expect(screen.getByText(/Form PO-0116/)).toBeInTheDocument();
+    const steps = within(screen.getByRole('navigation', { name: copy.app.stepsLabel })).getAllByRole('button');
+    expect(steps.map((b) => b.textContent)).toEqual([copy.app.steps.route, copy.app.steps.forms]);
+    expect(screen.getByRole('textbox', { name: 'Case number' })).toBeInTheDocument();
+  });
+
+  it('shows "How did the person break the order?" only when it was broken', async () => {
+    const user = renderApp();
+    await choose(user, 'Me', 'I already have a protection order', 'An Indiana court', 'Make the order last longer');
+    await user.click(screen.getByRole('button', { name: copy.route.toForm }));
+    await user.click(screen.getByRole('button', { name: 'Why the order is still needed' }));
+    expect(screen.queryByRole('textbox', { name: 'How did the person break the order?' })).toBeNull();
+    await user.click(screen.getByRole('checkbox', { name: 'The other person broke the order' }));
+    expect(screen.getByRole('textbox', { name: 'How did the person break the order?' })).toBeInTheDocument();
+  });
+
+  it('a respondent asking for a hearing is asked for their own name, and gets one PDF', async () => {
+    const create = vi.fn(() => 'blob:readyfile-test');
+    Object.assign(URL, { createObjectURL: create, revokeObjectURL: vi.fn() });
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    const user = renderApp();
+    await choose(user, 'Someone asked the court for an order against me', 'An order for protection issued without a hearing (ex parte), or a change to one');
+    await user.click(screen.getByRole('button', { name: copy.route.toForm }));
+    expect(screen.getByRole('textbox', { name: 'Your first name' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: "The petitioner's first name" })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: copy.forms.downloadHeading }));
+    expect(screen.queryByRole('region', { name: copy.forms.confidentialHeading })).toBeNull();
+    await user.click(screen.getByRole('button', { name: copy.forms.downloadForms }));
+    await screen.findByText(copy.forms.madePublic, {}, { timeout: 10_000 });
+    expect(create).toHaveBeenCalledTimes(1);
+    click.mockRestore();
+  }, 20_000);
+});

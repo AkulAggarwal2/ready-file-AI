@@ -70,10 +70,8 @@ const input: PacketInput = {
   incidents: lenaIncidents(),
 };
 
-const ADULT_PACKET = packetFor('adult');
+const ADULT_PACKET = packetFor(questionnaires['petition-adult']);
 const TEXT: PacketText = {
-  publicTitle: 'Petition',
-  publicInstructions: ['Read every page.'],
   confidentialTitle: 'CONFIDENTIAL',
   confidentialInstructions: ['Give only to the clerk.'],
   confidentialBanner: 'CONFIDENTIAL - DO NOT SERVE',
@@ -125,7 +123,7 @@ describe('questionnaire content', () => {
 
   it.each(['adult', 'child'] as const)('%s: only uses field ids the PDF maps know, so every answer lands on the form', (variant) => {
     const questionnaire = questionnaires[`petition-${variant}`];
-    const keys = new Set(packetFor(variant).flatMap(({ form }) => pdfMap(form).fields.map((f) => f.key)));
+    const keys = new Set(packetFor(questionnaire).flatMap(({ form }) => pdfMap(form).fields.map((f) => f.key)));
     // Fields that feed a value under another name: names, groups, phones, choices and helpers.
     const indirect = /^(child\.(first|middle|last)|petitioner\.(first|middle|last)|respondent\.(first|middle|last)|court\.|q2\.nonFamily|q2\.offender\.lifetime|q4\.cases|q5|q6\.attorney|q9\.(animals\w+\.animals|surrender\.items|phones\.numbers|reimburse\.\w+\.amount)|affirm|affidavitPages|household|protected|notify|.*\.phone\.|.*\.sex|restrained\.scars$)/;
     const unmapped = questionnaire.sections.flatMap((s) => s.fields.map((f) => f.id)).filter((id) => !keys.has(id) && !indirect.test(id));
@@ -135,7 +133,7 @@ describe('questionnaire content', () => {
 
 describe('PDF maps', () => {
   it('exist for every form in both packets and match its page count', async () => {
-    for (const { form } of [...ADULT_PACKET, ...packetFor('child')]) {
+    for (const { form } of [...ADULT_PACKET, ...packetFor(questionnaires['petition-child'])]) {
       const map = pdfMap(form);
       const doc = await PDFDocument.load(await fromDisk(form));
       expect(doc.getPageCount(), form).toBe(map.pages);
@@ -261,7 +259,7 @@ describe('values for PO-0101 (filed on behalf of a child)', () => {
   });
 
   it('builds the child packet: PO-0101 and PNW-0102 public, PO-0104 separate', async () => {
-    const result = await buildPacket('child', childInput, fromDisk, TEXT);
+    const result = await buildPacket(childInput, fromDisk, TEXT);
     expect(result.forms.map((f) => [f.form, f.confidential])).toEqual([
       ['PO-0101', false],
       ['PNW-0102', false],
@@ -305,9 +303,9 @@ describe('values for PO-0104 and PNW-0102', () => {
 
 describe('the packet PDFs', () => {
   it('puts the public forms in one file and the Confidential Form alone in another', async () => {
-    const result = await buildPacket('adult', input, fromDisk, TEXT);
+    const result = await buildPacket(input, fromDisk, TEXT);
     const pub = await PDFDocument.load(result.public);
-    const conf = await PDFDocument.load(result.confidential);
+    const conf = await PDFDocument.load(result.confidential!);
     expect(result.forms.map((f) => [f.form, f.confidential])).toEqual([
       ['PO-0100', false],
       ['PNW-0102', false],
@@ -323,23 +321,23 @@ describe('the packet PDFs', () => {
     expect(conf.getTitle()).toBe('CONFIDENTIAL');
     if (process.env.PDF_OUT) {
       writeFileSync(`${process.env.PDF_OUT}-public.pdf`, result.public);
-      writeFileSync(`${process.env.PDF_OUT}-confidential.pdf`, result.confidential);
+      writeFileSync(`${process.env.PDF_OUT}-confidential.pdf`, result.confidential!);
     }
   });
 
   it('never puts confidential details in the public file', async () => {
     const secret = { ...input, answers: { ...answers, 'petitioner.homeAddress': '777 Hidden Way', 'restrained.ssn': '000-12-3456' } };
-    const result = await buildPacket('adult', secret, fromDisk, TEXT);
+    const result = await buildPacket(secret, fromDisk, TEXT);
     const pub = pageText(result.public);
     for (const value of ['777 Hidden Way', '000-12-3456']) expect(pub.includes(hex(value))).toBe(false);
-    expect(pageText(result.confidential).includes(hex('777 Hidden Way'))).toBe(true);
+    expect(pageText(result.confidential!).includes(hex('777 Hidden Way'))).toBe(true);
     // The petitioner's name is public, so the check itself can find text.
     expect(pub.includes(hex('Lena Example'))).toBe(true);
   });
 
   it('moves text too long for its blank to an attachment instead of cutting it off', async () => {
     const long = { ...input, answers: { ...answers, q6: 'A very long public mailing address. '.repeat(12) } };
-    const result = await buildPacket('adult', long, fromDisk, TEXT);
+    const result = await buildPacket(long, fromDisk, TEXT);
     expect(result.forms[0].attachmentPages).toBe(4);
   });
 

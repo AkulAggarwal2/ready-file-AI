@@ -334,7 +334,8 @@
       "reference": "Instructions"
     },
     "notFilledYet": "ReadyFile does not fill these forms in yet. The court clerk's office has them, and an advocate can help you with them for free.",
-    "toPetition": "Continue to your petition"
+    "toPetition": "Continue to your petition",
+    "toForm": "Continue to the form"
   },
   "forms": {
     "heading": "Court forms",
@@ -354,7 +355,7 @@
     "limitReached": "The court can list up to {limit} people in one order. More need a second petition.",
     "sectionsLabel": "Sections",
     "downloadHeading": "Your forms",
-    "downloadIntro": "ReadyFile prints your answers on the court's official forms. The PDFs are made on this device. Nothing is sent anywhere. There are two files, because the Confidential Form must never be printed with the petition.",
+    "downloadIntro": "ReadyFile prints your answers on the court's official forms. The PDF is made on this device. Nothing is sent anywhere. A Confidential Form, when there is one, is a separate file, because it must never be printed with the public forms.",
     "missingHeading": "Still blank",
     "missingIntro": "These are needed for the forms. You can still make the PDF and fill them in by hand.",
     "complete": "Everything the forms need is filled in.",
@@ -374,17 +375,6 @@
     "downloadConfidential": "Make the Confidential Form PDF",
     "confidentialFileName": "confidential-form-PO-0104.pdf",
     "madeConfidential": "The Confidential Form PDF is ready. Check your downloads.",
-    "publicTitle": "Your petition: before you file (do not file this page)",
-    "publicInstructions": [
-      "This file has the petition and the Notice of Exclusion, with your answers printed on them. The Confidential Form is in a separate file. Do not print it with this one.",
-      "Read every page, and fix anything that is wrong by hand or in ReadyFile.",
-      "Sign and date the petition by hand. You sign it under penalty of perjury. Some courts ask you to sign in front of the clerk, so you can wait until you file.",
-      "Print 4 copies of the petition and 3 copies of the Notice of Exclusion (PNW-0102). One copy of the petition is given to the other person.",
-      "Take everything to the clerk's office in the county where you are filing. There is no fee to file a petition for an order for protection.",
-      "The clerk fills in the case number, the court's room, and the cover sheet. Leave those blank.",
-      "If you based the petition on what others told you, attach sworn statements (affidavits) from the people who saw or heard it.",
-      "This page is not part of your filing. Remove it before you file."
-    ],
     "confidentialTitle": "CONFIDENTIAL: Confidential Form (PO-0104). Do not serve on the Respondent.",
     "confidentialInstructions": [
       "This file has the Confidential Form with your private details. It is confidential under Indiana law (Ind. Code 5-2-9-7). Only the court, the clerk, the prosecutor, and police see it.",
@@ -393,7 +383,9 @@
       "The red line at the top and bottom of each page is from ReadyFile. It is there so this page is never mixed with the petition by mistake.",
       "This page is not part of your filing. Remove it before you file."
     ],
-    "confidentialBanner": "CONFIDENTIAL (Ind. Code 5-2-9-7) - GIVE ONLY TO THE CLERK - DO NOT SERVE ON THE RESPONDENT"
+    "confidentialBanner": "CONFIDENTIAL (Ind. Code 5-2-9-7) - GIVE ONLY TO THE CLERK - DO NOT SERVE ON THE RESPONDENT",
+    "formsOnlyHeading": "Your form",
+    "downloadForms": "Make the PDF"
   },
   "child": {
     "_about": "Wording for the petition filed on behalf of a child (PO-0101). Each key replaces the same key above when the petition is for a child.",

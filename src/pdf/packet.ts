@@ -1,9 +1,19 @@
 import { PDFDocument, rgb, StandardFonts, type PDFFont, type PDFPage } from 'pdf-lib';
 import { courtForm } from '../forms';
-import type { Variant } from '../content';
-import { PACKET_FORMS } from '../forms/packets';
+import type { Questionnaire } from '../forms/questionnaire';
 import { fits, printable, stamp, wrap, type PdfMap, type StampValues } from './stamp';
-import { fullName, petitionerCaption, pnw0102Values, po0100Values, po0101Values, po0104Values, type Attachment, type FormValues, type PacketInput } from './values';
+import {
+  fullName,
+  genericValues,
+  petitionerCaption,
+  pnw0102Values,
+  po0100Values,
+  po0101Values,
+  po0104Values,
+  po0107Values,
+  po0116Values,
+  po0119Values,
+  po0128Values, type Attachment, type FormValues, type PacketInput } from './values';
 
 // Builds the filled court forms entirely in the browser; nothing is sent
 // anywhere. Public forms and confidential forms are separate PDFs, so the
@@ -22,16 +32,24 @@ export function pdfMap(form: string): PdfMap {
 /** Reads a court form's PDF. The app bundles them; tests read them from disk. */
 export type TemplateLoader = (form: string) => Promise<Uint8Array>;
 
+// Forms with their own builder; any other form is filled by genericValues.
 const BUILDERS: Record<string, (input: PacketInput) => FormValues> = {
   'PO-0100': po0100Values,
   'PO-0101': po0101Values,
   'PO-0104': po0104Values,
   'PNW-0102': pnw0102Values,
+  'PO-0107': po0107Values,
+  'PO-0116': po0116Values,
+  'PO-0119': po0119Values,
+  'PO-0128': po0128Values,
 };
 
-/** A packet's forms, in filing order, with what fills each one. */
-export function packetFor(variant: Variant) {
-  return PACKET_FORMS[variant].map((entry) => ({ ...entry, build: BUILDERS[entry.form] }));
+/** A questionnaire's forms, in filing order, with what fills each one. */
+export function packetFor(questionnaire: Questionnaire) {
+  return questionnaire.packet.map((entry) => ({
+    ...entry,
+    build: BUILDERS[entry.form] ?? ((input: PacketInput) => genericValues(entry.form, input)),
+  }));
 }
 
 const PAGE: [number, number] = [612, 792];
@@ -146,8 +164,6 @@ function markConfidential(doc: PDFDocument, fonts: Fonts, banner: string) {
 }
 
 export interface PacketText {
-  publicTitle: string;
-  publicInstructions: string[];
   confidentialTitle: string;
   confidentialInstructions: string[];
   confidentialBanner: string;
@@ -156,8 +172,8 @@ export interface PacketText {
 export interface PacketResult {
   // The petition and the other public forms.
   public: Uint8Array;
-  // The Confidential Form, on its own.
-  confidential: Uint8Array;
+  // The Confidential Form, on its own, when the packet has one.
+  confidential: Uint8Array | null;
   // The court forms, and how many pages each one's attachments took.
   forms: { form: string; confidential: boolean; attachmentPages: number }[];
 }
@@ -174,17 +190,19 @@ async function newFile(title: string): Promise<{ doc: PDFDocument; fonts: Fonts 
  * Fills a petition packet. Signature and date lines, and anything the clerk
  * or court fills in, are left blank.
  */
-export async function buildPacket(variant: Variant, input: PacketInput, load: TemplateLoader, text: PacketText): Promise<PacketResult> {
-  const pub = await newFile(text.publicTitle);
+export async function buildPacket(input: PacketInput, load: TemplateLoader, text: PacketText): Promise<PacketResult> {
+  const { instructions } = input.questionnaire;
+  const pub = await newFile(instructions.title);
   const conf = await newFile(text.confidentialTitle);
-  drawInstructions(pub.doc, pub.fonts, text.publicTitle, text.publicInstructions);
+  drawInstructions(pub.doc, pub.fonts, instructions.title, instructions.lines);
   drawInstructions(conf.doc, conf.fonts, text.confidentialTitle, text.confidentialInstructions);
 
   const captionLine = `${captionName(input)} v. ${fullName(input.answers, 'respondent') || 'Respondent'}`;
   const affidavitPages = Number(input.answers.affidavitPages) || 0;
   const forms: PacketResult['forms'] = [];
 
-  for (const { form, build, confidential = false } of packetFor(variant)) {
+  const packet = packetFor(input.questionnaire);
+  for (const { form, build, confidential = false } of packet) {
     const { doc: out, fonts } = confidential ? conf : pub;
     const map = pdfMap(form);
     const template = await PDFDocument.load(await load(form));
@@ -205,8 +223,9 @@ export async function buildPacket(variant: Variant, input: PacketInput, load: Te
     forms.push({ form, confidential, attachmentPages });
   }
 
-  markConfidential(conf.doc, conf.fonts, text.confidentialBanner);
-  return { public: await pub.doc.save(), confidential: await conf.doc.save(), forms };
+  const hasConfidential = packet.some((p) => p.confidential);
+  if (hasConfidential) markConfidential(conf.doc, conf.fonts, text.confidentialBanner);
+  return { public: await pub.doc.save(), confidential: hasConfidential ? await conf.doc.save() : null, forms };
 }
 
 /** The petitioner as the caption names them: the adult, or the child by their next friend. */

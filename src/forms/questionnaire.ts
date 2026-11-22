@@ -1,5 +1,3 @@
-import petitionAdultJson from '../../content/questionnaires/petition-adult.json';
-import petitionChildJson from '../../content/questionnaires/petition-child.json';
 import { courtForm } from './index';
 
 // The questions for a packet of court forms, in each form's own order
@@ -35,8 +33,12 @@ export interface Field {
   // Shown with a note that only the court, clerk, prosecutor, and police see it.
   private?: boolean;
   // Groups: the fields of one item, how many fit on the form, and the
-  // attachment the rest go on.
+  // attachment the rest go on. "mapAs" names the map keys' prefix when it
+  // differs from the field id; "join" prints the items one per line on a
+  // single multi-line blank.
   fields?: Field[];
+  mapAs?: string;
+  join?: boolean;
   max?: number;
   overflow?: string;
   // The most items the court accepts at all (9 protected people per order).
@@ -53,8 +55,27 @@ export interface Section {
   fields: Field[];
 }
 
+/** A form in a packet, how many copies to bring, and whether it is confidential. */
+export interface PacketForm {
+  form: string;
+  copies: number;
+  // Confidential forms go in their own PDF. A petition is public and one
+  // copy is served on the other person, so a confidential page must never
+  // be printed with it.
+  confidential?: boolean;
+}
+
 export interface Questionnaire {
   id: string;
+  // Who signs: the petitioner (the protected person, or a child's next
+  // friend) or the respondent.
+  filer: 'petitioner' | 'respondent';
+  // The forms the answers fill, in filing order.
+  packet: PacketForm[];
+  // The first page of the public PDF: how to use it. It is not filed.
+  instructions: { title: string; lines: string[] };
+  // Answers the route already decides, like which PO-0108 box to check.
+  fixed?: Answers;
   sections: Section[];
 }
 
@@ -80,6 +101,9 @@ export function validateQuestionnaire(raw: Questionnaire): Questionnaire {
   };
   const ids = new Set<string>();
   const conditions: [string, Condition][] = [];
+  if (!raw.packet?.length) fail('needs a packet of forms.');
+  raw.packet.forEach((p) => courtForm(p.form));
+  if (!raw.instructions?.lines?.length) fail('needs instructions.');
   for (const section of raw.sections) {
     courtForm(section.form);
     for (const field of section.fields) {
@@ -102,10 +126,12 @@ export function validateQuestionnaire(raw: Questionnaire): Questionnaire {
   return raw;
 }
 
-export const questionnaires: Record<string, Questionnaire> = {
-  'petition-adult': validateQuestionnaire(petitionAdultJson as Questionnaire),
-  'petition-child': validateQuestionnaire(petitionChildJson as Questionnaire),
-};
+const files = import.meta.glob<Questionnaire>('../../content/questionnaires/*.json', { eager: true, import: 'default' });
+
+/** Every questionnaire in content/questionnaires, by id. */
+export const questionnaires: Record<string, Questionnaire> = Object.fromEntries(
+  Object.values(files).map((raw) => [raw.id, validateQuestionnaire(raw)]),
+);
 
 function valueOf(field: string, answers: Answers, earlier: EarlierAnswers): Answer | null | undefined {
   if (field === '$relationship') return earlier.relationship;

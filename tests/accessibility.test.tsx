@@ -145,6 +145,40 @@ describe('petition for a child', () => {
   }, 30_000);
 });
 
+describe('forms for an existing order', () => {
+  it.each([
+    ['Change what the order says'],
+    ['Tell the court the other person broke the order'],
+  ])('has no violations on every section of "%s"', async (action) => {
+    const user = renderApp();
+    for (const option of ['Me', 'I already have a protection order', 'An Indiana court', action]) {
+      await user.click(screen.getByRole('radio', { name: option }));
+      await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    }
+    await user.click(screen.getByRole('button', { name: copy.route.toForm }));
+    const sections = screen.getAllByRole('button').filter((b) => b.closest('nav[aria-label="' + copy.forms.sectionsLabel + '"]'));
+    for (const section of sections) {
+      await user.click(section);
+      for (const box of screen.queryAllByRole('checkbox')) if (!(box as HTMLInputElement).checked) await user.click(box);
+      await expectNoViolations();
+    }
+  }, 30_000);
+
+  it('has no violations on the foreign order registration', async () => {
+    const user = renderApp();
+    for (const option of ['Me', 'I already have a protection order', 'Another state, a tribe, or another country', 'Register the order in Indiana for the first time']) {
+      await user.click(screen.getByRole('radio', { name: option }));
+      await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    }
+    await user.click(screen.getByRole('button', { name: copy.route.toForm }));
+    const sections = screen.getAllByRole('button').filter((b) => b.closest('nav[aria-label="' + copy.forms.sectionsLabel + '"]'));
+    for (const section of sections) {
+      await user.click(section);
+      await expectNoViolations();
+    }
+  }, 30_000);
+});
+
 describe('names and focus', () => {
   it('the step bar buttons have unique names, so "Start" means one button', () => {
     render(<App />);

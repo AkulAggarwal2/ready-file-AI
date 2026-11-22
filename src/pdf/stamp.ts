@@ -15,6 +15,7 @@ export type MapField =
   | ({ key: string; page: number; kind: 'text'; size?: number } & MapBox)
   | { key: string; page: number; kind: 'check'; x: number; y: number }
   | { key: string; page: number; kind: 'replace'; x: number; y: number; w: number; h: number }
+  | { key: string; page: number; kind: 'strike'; x: number; y: number; w: number }
   | { key: string; page: number; kind: 'lines'; lines: MapBox[]; size?: number; columns?: number[] };
 
 export interface PdfMap {
@@ -117,6 +118,12 @@ export async function stamp(doc: PDFDocument, map: PdfMap, values: StampValues, 
 
     if (field.kind === 'check') {
       if (value === true) page.drawText('X', { x: field.x, y: field.y, size: 11, font: bold, color: INK });
+      continue;
+    }
+
+    if (field.kind === 'strike') {
+      // Strikes through wording that does not apply, as the form asks.
+      if (value === true) page.drawLine({ start: { x: field.x, y: field.y }, end: { x: field.x + field.w, y: field.y }, thickness: 1.2, color: INK });
       continue;
     }
 

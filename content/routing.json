@@ -353,7 +353,8 @@
         "PO-0104",
         "PNW-0102",
         "COVER"
-      ]
+      ],
+      "questionnaire": "petition-adult"
     },
     "child-new": {
       "flow": "petition",
@@ -365,23 +366,26 @@
         "PO-0104",
         "PNW-0102",
         "COVER"
-      ]
+      ],
+      "questionnaire": "petition-child"
     },
     "reinstate": {
-      "flow": "forms",
+      "flow": "form",
       "title": "Ask to reinstate a dismissed petition",
       "summary": "This form is for a petition the court dismissed when it was not your fault, like missing a hearing for a good reason. If you dismissed it yourself, you can file a new petition instead.",
       "packet": [
         "PO-0111"
-      ]
+      ],
+      "questionnaire": "reinstate"
     },
     "withdraw": {
-      "flow": "forms",
+      "flow": "form",
       "title": "Withdraw a petition",
       "summary": "The same form also ends an order that was already issued. The form asks for both your address and the other person's address, and it is not confidential.",
       "packet": [
         "PO-0108"
-      ]
+      ],
+      "questionnaire": "withdraw"
     },
     "no-contact": {
       "flow": "info",
@@ -390,61 +394,68 @@
       "packet": []
     },
     "petitioner-hearing": {
-      "flow": "forms",
+      "flow": "form",
       "title": "Ask for a hearing",
       "summary": "Either side can ask for a hearing after an order is issued without one. The address on this form is shared with the other person.",
       "packet": [
         "PO-0107"
-      ]
+      ],
+      "questionnaire": "hearing-petitioner"
     },
     "modify": {
-      "flow": "forms",
+      "flow": "form",
       "title": "Change an order for protection",
       "summary": "The court needs a big change in your situation since the order was issued.",
       "packet": [
         "PO-0115"
-      ]
+      ],
+      "questionnaire": "modify"
     },
     "extend": {
-      "flow": "forms",
+      "flow": "form",
       "title": "Extend an order for protection",
       "summary": "File this before the order ends. The form asks for the other person's current address so they can be served.",
       "packet": [
         "PO-0116"
-      ]
+      ],
+      "questionnaire": "extend"
     },
     "end": {
-      "flow": "forms",
+      "flow": "form",
       "title": "End an order for protection",
       "summary": "The form asks for both your address and the other person's address, and it is not confidential.",
       "packet": [
         "PO-0108"
-      ]
+      ],
+      "questionnaire": "end-order"
     },
     "contempt": {
-      "flow": "forms",
+      "flow": "form",
       "title": "Tell the court the order was broken",
       "summary": "The petition for contempt is filed with the Order to Appear. The court finishes the Order to Appear. If you did not see or hear what happened yourself, the court needs a sworn statement from someone who did.",
       "packet": [
         "PO-0126",
         "PO-0128"
-      ]
+      ],
+      "questionnaire": "contempt"
     },
     "foreign-register": {
-      "flow": "forms",
+      "flow": "form",
       "title": "Register an order from outside Indiana",
       "summary": "Use Section A of the form. Bring a certified copy of the order. The court also needs a confidential data form for foreign orders, which the clerk has. The other person is not told about the registration.",
       "packet": [
         "PO-0119"
-      ]
+      ],
+      "questionnaire": "foreign-register"
     },
     "foreign-update": {
-      "flow": "forms",
+      "flow": "form",
       "title": "Update a registered order from outside Indiana",
       "summary": "Use Section B of the form. Bring a certified copy of the new order.",
       "packet": [
         "PO-0119"
-      ]
+      ],
+      "questionnaire": "foreign-update"
     },
     "wv-not-employer": {
       "flow": "info",
@@ -483,12 +494,13 @@
       ]
     },
     "respondent-hearing": {
-      "flow": "forms",
+      "flow": "form",
       "title": "Ask for a hearing",
       "summary": "You can ask for a hearing at any time after you are served, and it is free. The address on this form is shared with the other person.",
       "packet": [
         "PO-0107"
-      ]
+      ],
+      "questionnaire": "hearing-respondent"
     },
     "wv-response": {
       "flow": "forms",

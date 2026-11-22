@@ -70,7 +70,7 @@ function shownAnswers(input: PacketInput): Answers {
   const shown: Answers = {};
   // A field can depend on another hidden one, so repeat until nothing changes.
   let changed = true;
-  const current = { ...input.answers };
+  const current = { ...input.questionnaire.fixed, ...input.answers };
   while (changed) {
     changed = false;
     for (const [id, value] of Object.entries(current)) {
@@ -82,7 +82,7 @@ function shownAnswers(input: PacketInput): Answers {
       void value;
     }
   }
-  for (const [id, value] of Object.entries(current)) if (fields.has(id)) shown[id] = value;
+  for (const [id, value] of Object.entries(current)) if (fields.has(id) || id in (input.questionnaire.fixed ?? {})) shown[id] = value;
   return shown;
 }
 
@@ -410,4 +410,152 @@ export function po0101Values(input: PacketInput): FormValues {
 
   values.printedName = fullName(a, 'child');
   return { ...built, values };
+}
+
+// ---------------------------------------------------------------------------
+// Forms filed in a case that already exists (PO-0107 to PO-0128). Their
+// questionnaires use the map keys as field ids, so one builder fills them all;
+// a few need a small adjustment after it.
+
+const fieldIndex = (q: Questionnaire) => new Map<string, Field>(q.sections.flatMap((s) => s.fields.map((f) => [f.id, f])));
+
+/** The case heading, for a case that already has a number. */
+function existingCaption(a: Answers): StampValues {
+  return {
+    ...caption(a),
+    'caption.division': text(a['court.division']),
+    'caption.room': text(a['court.room']),
+    'caption.caseNumber': text(a['case.number']),
+  };
+}
+
+/** Values copied straight from the answers, by field id, for any form. */
+export function genericValues(form: string, input: PacketInput): FormValues {
+  const a = shownAnswers(input);
+  const fields = fieldIndex(input.questionnaire);
+  const values: StampValues = { ...existingCaption(a) };
+  const attachments: Attachment[] = [];
+
+  for (const [id, value] of Object.entries(a)) {
+    // A fixed answer has no field; it fills the map key "<id>.<value>".
+    const field = fields.get(id) ?? (typeof value === 'string' ? ({ id, type: 'choice', label: id } as Field) : undefined);
+    if (!field) continue;
+    switch (field.type) {
+      case 'checkbox':
+        values[id] = value === true;
+        break;
+      case 'date':
+        values[id] = courtDate(text(value));
+        break;
+      case 'yesno':
+      case 'choice':
+        values[id] = text(value);
+        values[`${id}.${text(value)}`] = true;
+        break;
+      case 'multi':
+        for (const picked of Array.isArray(value) ? (value as string[]) : []) values[`${id}.${picked}`] = true;
+        break;
+      case 'group': {
+        const items = rows(value).filter((r) => Object.values(r).some((v) => v?.trim()));
+        const max = field.max ?? items.length;
+        const line = (item: Record<string, string>) =>
+          field.fields!.map((sub) => (sub.type === 'date' ? courtDate(item[sub.id] ?? '') : (item[sub.id] ?? '').trim())).filter(Boolean).join(', ');
+        if (field.join) {
+          values[field.mapAs ?? id] = items.slice(0, max).map(line).join('\n');
+        } else {
+          items.slice(0, max).forEach((item, i) => {
+            for (const sub of field.fields!) values[`${field.mapAs ?? id}.${i + 1}.${sub.id}`] = sub.type === 'date' ? courtDate(item[sub.id] ?? '') : (item[sub.id] ?? '');
+          });
+        }
+        if (items.length > max) {
+          attachments.push({
+            label: field.overflow ?? field.label,
+            form,
+            blocks: items.slice(max).map((item, i) => ({
+              heading: `${field.label}: ${fill(field.itemLabel ?? '{n}', { n: max + i + 1 })}`,
+              text: field.fields!.map((sub) => `${sub.label}: ${item[sub.id] ?? ''}`).join('\n'),
+            })),
+          });
+        }
+        break;
+      }
+      default:
+        values[id] = text(value);
+    }
+  }
+
+  // An amount typed for an expense also checks that expense's box.
+  for (const [id, value] of Object.entries(values)) {
+    const m = /^(.*)\.amount$/.exec(id);
+    if (m && typeof value === 'string') {
+      values[m[1]] = Boolean(value);
+      values[id] = value.replace(/^\$\s*/, '');
+    }
+  }
+
+  const signer = input.questionnaire.filer === 'respondent' ? 'respondent' : 'petitioner';
+  values.printedName = fullName(a, signer);
+
+  // Long free text goes on an attachment rather than being cut off.
+  const continuable: FormValues['continuable'] = {};
+  for (const [id, field] of fields) {
+    if (field.type === 'textarea') continuable[id] = { label: `to ${form}`, heading: `${field.label} (continued)` };
+  }
+  return { values, continuable, attachments };
+}
+
+const fill = (template: string, values: Record<string, string | number>) =>
+  template.replace(/\{(\w+)\}/g, (m, k: string) => (k in values ? String(values[k]) : m));
+
+/** "2026-03-14" as day, month name and the year's last digits, for "the ___ day of ______, 20__". */
+function dateParts(value: string): { day: string; month: string; year: string } {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  if (!m) return { day: '', month: value.trim(), year: '' };
+  const month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][Number(m[2]) - 1];
+  return { day: String(Number(m[3])), month, year: m[1].slice(2) };
+}
+
+/** PO-0107: strike through the order type and the filer that do not apply. */
+export function po0107Values(input: PacketInput): FormValues {
+  const built = genericValues('PO-0107', input);
+  const v = built.values;
+  const type = v['order.type'];
+  v['strike.exParte'] = type === 'modification';
+  v['strike.modification.1'] = type === 'exParte';
+  v['strike.modification.2'] = type === 'exParte';
+  const respondentFiles = input.questionnaire.filer === 'respondent';
+  v['strike.petitioner'] = respondentFiles;
+  v['strike.title.petitioner'] = respondentFiles;
+  v['strike.respondent'] = !respondentFiles;
+  v['strike.title.respondent'] = !respondentFiles;
+  return built;
+}
+
+/** PO-0116: dates written as "the ___ day of ______, 20__". */
+export function po0116Values(input: PacketInput): FormValues {
+  const built = genericValues('PO-0116', input);
+  const a = shownAnswers(input);
+  for (const [field, prefix] of [['issued', 'issued'], ['violated.date', 'violated']] as const) {
+    const { day, month, year } = dateParts(text(a[field]));
+    Object.assign(built.values, { [`${prefix}.day`]: day, [`${prefix}.month`]: month, [`${prefix}.year`]: year });
+  }
+  return built;
+}
+
+/** PO-0119: only the section that applies is filled; its Yes/No answers check their blanks. */
+export function po0119Values(input: PacketInput): FormValues {
+  const built = genericValues('PO-0119', input);
+  const name = fullName(shownAnswers(input), 'petitioner');
+  const section = built.values.section;
+  if (section === 'a') built.values['a.name'] = name;
+  if (section === 'b') built.values['b.name'] = name;
+  // A new registration gets its case number from the clerk.
+  built.values['caption.caseNumber'] = section === 'b' ? built.values['caption.caseNumber'] : '';
+  return built;
+}
+
+/** PO-0128 is the court's order; only its heading and the respondent's address are filled. */
+export function po0128Values(input: PacketInput): FormValues {
+  const a = shownAnswers(input);
+  return { values: { ...existingCaption(a), 'respondent.address': text(a['respondent.address']) }, continuable: {}, attachments: [] };
 }

@@ -1,6 +1,35 @@
 {
   "_about": "The questions for the adult petition packet (PO-0100, PO-0104, PNW-0102), in each form's order. Field ids match the keys in content/pdfMaps. showIf fields starting with $ come from the earlier steps.",
   "id": "petition-adult",
+  "filer": "petitioner",
+  "packet": [
+    {
+      "form": "PO-0100",
+      "copies": 4
+    },
+    {
+      "form": "PNW-0102",
+      "copies": 3
+    },
+    {
+      "form": "PO-0104",
+      "copies": 1,
+      "confidential": true
+    }
+  ],
+  "instructions": {
+    "title": "Your petition: before you file (do not file this page)",
+    "lines": [
+      "This file has the petition and the Notice of Exclusion, with your answers printed on them. The Confidential Form is in a separate file. Do not print it with this one.",
+      "Read every page, and fix anything that is wrong by hand or in ReadyFile.",
+      "Sign and date the petition by hand. You sign it under penalty of perjury. Some courts ask you to sign in front of the clerk, so you can wait until you file.",
+      "Print 4 copies of the petition and 3 copies of the Notice of Exclusion (PNW-0102). One copy of the petition is given to the other person.",
+      "Take everything to the clerk's office in the county where you are filing. There is no fee to file a petition for an order for protection.",
+      "The clerk fills in the case number, the court's room, and the cover sheet. Leave those blank.",
+      "If you based the petition on what others told you, attach sworn statements (affidavits) from the people who saw or heard it.",
+      "This page is not part of your filing. Remove it before you file."
+    ]
+  },
   "sections": [
     {
       "id": "caption",
