@@ -8,6 +8,7 @@ import { copy, fill } from '../src/content';
 import { leaveSite } from '../src/safety/leaveSite';
 import { LENA_ONE_INCIDENT } from '../src/samples/lena';
 import { initialState, reducer } from '../src/state/appState';
+import { courtForm } from '../src/forms';
 import {
   STALKING_QUESTION,
   addIncident,
@@ -662,16 +663,25 @@ describe('15. Your situation picks the court forms', () => {
     }
   }
 
-  it('keeps the petition steps closed until a petition is picked', async () => {
+  it('shows no step bar while she answers, then the petition steps once a petition is picked', async () => {
     const user = renderApp();
-    expect(screen.getByRole('button', { name: stepName('start') })).toBeDisabled();
-    expect(screen.getByRole('button', { name: stepName('route') })).toHaveAttribute('aria-current', 'step');
+    expect(screen.queryByRole('navigation', { name: copy.app.stepsLabel })).toBeNull();
+    expect(screen.getByText(fill(copy.route.questionNumber, { n: 1 }))).toBeInTheDocument();
     await choose(user, 'Me', 'Ask for a new protection order', 'At or near my home');
     expect(screen.getByRole('heading', { level: 1, name: 'Petition for an order for protection' })).toBeInTheDocument();
-    for (const number of ['PO-0100', 'PO-0104', 'PNW-0102']) expect(screen.getByText(number)).toBeInTheDocument();
+    // Plain names first, with the court's title beneath.
+    expect(screen.getByText('The petition')).toBeInTheDocument();
+    expect(screen.getByText(courtForm('PO-0100').title)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: stepName('route') })).toHaveAttribute('aria-current', 'step');
     expect(screen.getByRole('button', { name: stepName('start') })).toBeEnabled();
     await user.click(screen.getByRole('button', { name: copy.route.toPetition }));
     expect(screen.getByRole('heading', { level: 1, name: copy.start.heading })).toBeInTheDocument();
+  });
+
+  it('shows no step bar on an outcome that only explains', async () => {
+    const user = renderApp();
+    await choose(user, 'Me', 'I want a no contact order in a criminal case');
+    expect(screen.queryByRole('navigation', { name: copy.app.stepsLabel })).toBeNull();
   });
 
   it('tells someone harassed at work that only an employer files the workplace forms', async () => {

@@ -39,7 +39,10 @@ See "The incident splitter" below.
 
 ## The steps
 
-0. **Your situation:** one question at a time, it asks who the order is for
+The screens are centered, except the form screens (Your situation, Court forms, and the download page), which use a centered column with left-aligned labels and boxes, so long forms are easier to scan.
+
+0. **Your situation:** one question at a time ("Question 2" above each, and
+   no step bar until her answers lead somewhere), it asks who the order is for
    (her, a child, an employee, or she is the respondent) and what she is
    trying to do, and lists the court forms that fit. Only the adult petition
    continues into the steps below for now; other outcomes list their forms
@@ -89,7 +92,7 @@ them right away. For a production build, run `npm run build` again.
 | [content/copy.json](content/copy.json) | All on-screen text, plus the quick exit address (`quickExit.url`). `{name}` marks a value the app fills in, such as `{n}` for an incident number. |
 | [content/rules.json](content/rules.json) | The check questions. Each rule has `id`, `grounds` (from PO-0100 question 1, plus `not-sure`), `condition`, `questionText`, `sourceCitation`, and `verified`. |
 | [content/resources.json](content/resources.json) | The advocate contacts behind "Talk to an advocate". An entry with `verified: false` shows a "Not checked yet" label. |
-| [content/forms.json](content/forms.json) | Every form on the court's protection order forms page: number, official title, dates, Word and PDF links (for citation only), who fills it, and what ReadyFile makes from it. A test keeps it in step with the page's list. |
+| [content/forms.json](content/forms.json) | Every form on the court's protection order forms page: number, official title, a plain name for the screens (`plainTitle`), dates, Word and PDF links (for citation only), who fills it, and what ReadyFile makes from it. A test keeps it in step with the page's list. |
 | Court form updates | `tests/court-page.test.ts` keeps `content/forms.json` matching a saved copy of the court's page (`tests/fixtures/po-forms-page.html`). `npm run check:court-forms` compares the live page and the court's current PDFs with the app's copies; `.github/workflows/court-forms.yml` runs it every Monday and fails when the court changes a form. To update: save the new PDF in `src/pdf/templates/`, update `content/forms.json` and the page snapshot, check the form's anchors, rebuild the maps, and look at a filled sample. GitHub runs scheduled jobs only from the default branch, and turns them off after 60 days without commits on a public repository; after merging, check the Actions tab, and run it there with "Run workflow" if it was turned off. |
 | [content/questionnaires/petition-adult.json](content/questionnaires/petition-adult.json) | The Court forms questions for the adult packet, section by section in each form's order (PO-0100, then PO-0104). Field ids match the PDF map keys. `showIf` hides a field until it applies; `$relationship`, `$convicted` and `$grounds` come from earlier steps. Groups say how many fit on the form (`max`) and which attachment takes the rest. |
 | [content/questionnaires/petition-child.json](content/questionnaires/petition-child.json) | The same for a petition filed on behalf of a child (PO-0101): the child's name, the filer as next friend, the child form's question 1, 2, 5 and 9 lines, and a Confidential Form page about the child. |

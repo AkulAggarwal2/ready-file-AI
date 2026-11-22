@@ -15,9 +15,10 @@ describe('court form catalog (content/forms.json)', () => {
     expect(courtForms.map((form) => form.id)).toEqual(OFFICIAL_IDS);
   });
 
-  it('gives every form a title, a PDF, and dates in YYYY-MM-DD', () => {
+  it('gives every form a title, a plain name, a PDF, and dates in YYYY-MM-DD', () => {
     for (const form of courtForms) {
       expect(form.title, form.id).not.toBe('');
+      expect(form.plainTitle, form.id).not.toBe('');
       expect(form.pdfUrl, form.id).toMatch(/^https:\/\/www\.in\.gov\/dA\/\w+\/center-bb-po-form-[\w-]+\.pdf\?language_id=1$/);
       expect(form.created, form.id).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       if (form.revised) expect(form.revised, form.id).toMatch(/^\d{4}-\d{2}-\d{2}$/);

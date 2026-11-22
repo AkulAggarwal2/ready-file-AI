@@ -28,7 +28,10 @@ export interface CourtForm {
   // The court's form number. The cover sheet has none.
   number: string | null;
   section: FormSection;
+  // The court's title, exactly as on its page.
   title: string;
+  // What ReadyFile calls it on screen, in plain words.
+  plainTitle: string;
   // YYYY-MM-DD, as the page lists them. A form never revised has null.
   created: string;
   revised: string | null;

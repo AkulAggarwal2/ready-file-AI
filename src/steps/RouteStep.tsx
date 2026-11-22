@@ -13,10 +13,14 @@ export function RouteStep() {
   const { state } = useAppState();
   const where = routeState(state.route);
   // Keyed by question, so each new question starts unpicked and its heading takes focus.
-  return 'node' in where ? (
-    <RouteQuestion key={`${state.route.length}-${where.node}`} nodeId={where.node} />
-  ) : (
-    <RouteResult key={where.outcome} outcome={routing.outcomes[where.outcome]} />
+  return (
+    <div className="form-screen">
+      {'node' in where ? (
+        <RouteQuestion key={`${state.route.length}-${where.node}`} nodeId={where.node} />
+      ) : (
+        <RouteResult key={where.outcome} outcome={routing.outcomes[where.outcome]} />
+      )}
+    </div>
   );
 }
 
@@ -110,7 +114,8 @@ function RouteResult({ outcome }: { outcome: RouteOutcome }) {
             {forms.map((form) => (
               <li key={form.id}>
                 <span className="form-number">{form.number ?? c.coverTag}</span>
-                <span className="form-title">{form.title}</span>
+                <span className="form-title">{form.plainTitle}</span>
+                <span className="form-official">{form.title}</span>
                 <span className="form-meta">{c.filledBy[form.filler]}</span>
               </li>
             ))}

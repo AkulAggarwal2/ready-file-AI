@@ -4,16 +4,18 @@ import { STEPS, type Step } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
 
 /**
- * The steps, shown at the top of every screen. Each one is a button, so she
- * can go back and forth between them in any order. Her answers stay. The
- * petition steps open once her situation leads to a petition. A form in a
- * case that already exists has only two steps: her situation and the form.
+ * The steps, shown at the top of every screen once her situation leads
+ * somewhere. Each one is a button, so she can go back and forth between them
+ * in any order. Her answers stay. A petition has every step; a form in a case
+ * that already exists has two: her situation and the form. While she is still
+ * answering the situation questions, there is no step bar, since what comes
+ * next depends on her answers ("Question n" shows where she is).
  */
 export function StepIndicator({ current }: { current: Step }) {
   const { state, dispatch } = useAppState();
   const flow = currentOutcome(state.route)?.flow ?? null;
+  if (flow !== 'petition' && flow !== 'form') return null;
   const steps: Step[] = flow === 'form' ? ['route', 'forms'] : STEPS;
-  const open = (step: Step) => step === 'route' || flow === 'petition' || flow === 'form';
   const currentIndex = steps.indexOf(current);
 
   return (
@@ -28,7 +30,6 @@ export function StepIndicator({ current }: { current: Step }) {
               aria-current={index === currentIndex ? 'step' : undefined}
               // Screen readers hear "Step 1: Start", so this button is not confused with the Start button below.
               aria-label={`${fill(copy.app.stepNumber, { n: index + 1 })} ${copy.app.steps[step]}`}
-              disabled={!open(step)}
               onClick={() => dispatch({ type: 'goTo', step })}
             >
               {copy.app.steps[step]}

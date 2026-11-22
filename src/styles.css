@@ -1407,9 +1407,10 @@ h1,
 /* Short fields that belong together share a row on wider screens. */
 .field-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
   gap: 0 var(--space-3);
-  align-items: end;
+  /* Labels line up across the row; a hint under one box doesn't move the others. */
+  align-items: start;
 }
 
 .field-row > .field {
@@ -1425,7 +1426,8 @@ h1,
   color: var(--muted);
   font-size: var(--text-sm);
   font-weight: 600;
-  vertical-align: middle;
+  line-height: 1.5;
+  vertical-align: baseline;
 }
 
 /* One item in a list, like a court case or an animal. */
@@ -1469,7 +1471,7 @@ h1,
 }
 
 .form-number {
-  grid-row: span 2;
+  grid-row: span 3;
   align-self: start;
   min-width: 5.75rem;
   text-align: center;
@@ -1483,6 +1485,13 @@ h1,
 
 .form-title {
   font-weight: 600;
+}
+
+.form-official {
+  grid-column: 2;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-style: italic;
 }
 
 .form-meta {
@@ -1570,4 +1579,48 @@ h1,
   .step-list.many + .step-now {
     display: block;
   }
+}
+
+/* ---- Form screens: left-aligned --------------------------------------
+   The rest of the app is centered (see "Fluid and centered" above). Long
+   forms are easier to scan with labels, hints and boxes on one left edge,
+   so the route questions, the Court forms step and the download page use a
+   centered column with left-aligned content. */
+.form-screen {
+  max-width: 40rem;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.form-screen p,
+.form-screen .hint,
+.form-screen h1,
+.form-screen h2,
+.form-screen legend {
+  margin-left: 0;
+  margin-right: 0;
+  text-align: left;
+  text-wrap: pretty;
+}
+
+.form-screen .choice,
+.form-screen .button-row,
+.form-screen .disclosure summary {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.form-screen .name-row-heading,
+.form-screen label {
+  text-align: left;
+}
+
+.form-screen .forms-section,
+.form-screen .form-list,
+.form-screen .disclosure.missing {
+  max-width: none;
+}
+
+.form-screen .callout {
+  text-align: left;
 }

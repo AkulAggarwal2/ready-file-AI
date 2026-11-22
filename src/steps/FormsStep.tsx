@@ -40,7 +40,7 @@ export function FormsStep() {
   const go = (i: number) => dispatch({ type: 'setFormSection', index: i });
 
   return (
-    <div>
+    <div className="form-screen">
       <nav aria-label={c.sectionsLabel}>
         <details className="disclosure section-nav">
           <summary>{c.sectionsSummary}</summary>
@@ -457,7 +457,8 @@ function Download() {
           return (
             <li key={form}>
               <span className="form-number">{f.number}</span>
-              <span className="form-title">{f.title}</span>
+              <span className="form-title">{f.plainTitle}</span>
+              <span className="form-official">{f.title}</span>
               <span className="form-meta">{copies === 1 ? c.copy : fill(c.copies, { copies })}</span>
             </li>
           );
