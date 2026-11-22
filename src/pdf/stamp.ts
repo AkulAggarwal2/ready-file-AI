@@ -13,7 +13,8 @@ export interface MapBox {
 }
 
 export type MapField =
-  | ({ key: string; page: number; kind: 'text'; size?: number } & MapBox)
+  // "trimCourt": the form prints COURT right after the blank (set by the map builder).
+  | ({ key: string; page: number; kind: 'text'; size?: number; trimCourt?: boolean } & MapBox)
   | { key: string; page: number; kind: 'check'; x: number; y: number }
   | { key: string; page: number; kind: 'replace'; x: number; y: number; w: number; h: number }
   | { key: string; page: number; kind: 'strike'; x: number; y: number; w: number }
@@ -71,9 +72,23 @@ export function wrap(text: string, font: PDFFont, size: number, widths: number |
   return lines;
 }
 
+/**
+ * A court's name without its own trailing "Court", for a blank the form
+ * follows with the word COURT, so "Allen Superior Court" doesn't print as
+ * "Allen Superior Court COURT".
+ */
+export function withoutCourt(name: string): string {
+  return name.trim().replace(/\s+court$/i, '');
+}
+
+/** The text a field prints for a value. */
+export function fieldText(field: MapField, value: string): string {
+  return field.kind === 'text' && field.trimCourt ? withoutCourt(value) : value;
+}
+
 /** Whether text fits in a field without being cut off. */
 export function fits(field: MapField, text: string, font: PDFFont): boolean {
-  if (field.kind === 'text') return font.widthOfTextAtSize(printable(text), MIN_SIZE) <= field.w;
+  if (field.kind === 'text') return font.widthOfTextAtSize(printable(fieldText(field, text)), MIN_SIZE) <= field.w;
   if (field.kind === 'lines') return wrap(text, font, field.size ?? TEXT_SIZE, widthsOf(field.lines)).length <= field.lines.length;
   return true;
 }
@@ -131,7 +146,7 @@ export async function stamp(doc: PDFDocument, map: PdfMap, values: StampValues, 
     if (field.kind === 'text') {
       const text = String(value);
       if (!fits(field, text, font)) overflow.push(field.key);
-      drawFitted(page, font, text, field, field.size, field.key.startsWith('caption.') ? CAPTION_MIN_SIZE : MIN_SIZE);
+      drawFitted(page, font, fieldText(field, text), field, field.size, field.key.startsWith('caption.') ? CAPTION_MIN_SIZE : MIN_SIZE);
       continue;
     }
 

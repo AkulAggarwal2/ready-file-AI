@@ -10,7 +10,8 @@
       "kind": "text",
       "x": 405,
       "y": 708.4,
-      "w": 64
+      "w": 64,
+      "trimCourt": true
     },
     {
       "key": "caption.county",
@@ -74,7 +75,7 @@
       "kind": "text",
       "x": 74,
       "y": 422,
-      "w": 147.4
+      "w": 148
     },
     {
       "key": "violation",

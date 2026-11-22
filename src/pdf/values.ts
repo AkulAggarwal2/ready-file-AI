@@ -2,7 +2,7 @@ import { ACTS, CHILD_ACTS, type Act, type Ground, type Relationship } from '../c
 import { visibleAnswers, type Answer, type Answers, type EarlierAnswers, type Field, type Questionnaire } from '../forms/questionnaire';
 import { fill } from '../content';
 import type { Incident } from '../organizer';
-import { hasKey } from './maps';
+import { hasKey, pdfMap } from './maps';
 import type { StampValues } from './stamp';
 
 // Turns her answers, and what she entered on the earlier steps, into the
@@ -473,6 +473,7 @@ export function genericValues(form: string, input: PacketInput): FormValues {
   const skip = confidentialOnly(input.questionnaire, form);
   const values: StampValues = { ...existingCaption(a) };
   const attachments: Attachment[] = [];
+  const continuable: FormValues['continuable'] = {};
 
   for (const [id, value] of Object.entries(a)) {
     if (skip.has(id)) continue;
@@ -520,16 +521,36 @@ export function genericValues(form: string, input: PacketInput): FormValues {
             }
           });
         }
+        // Which list an item belongs to, on the attachment: PO-0115 has two
+        // lists of animals, so "The animals" alone can't say which.
+        const listName = field.overflowHeading ?? field.label;
+        const label = continued?.label ?? field.overflow ?? field.label;
+        if (!field.table && !field.join) {
+          // A long answer in one item's blank continues on the list's attachment.
+          items.slice(0, max).forEach((_, i) => {
+            for (const sub of field.fields!) {
+              continuable[`${prefix}.${i + 1}.${sub.id}`] = { label, heading: `${listName}: ${fill(field.itemLabel ?? '{n}', { n: i + 1 })}, ${sub.label} (continued)`, box: continued?.box };
+            }
+          });
+        }
         if (items.length > max) {
           if (continued) values[continued.box] = true;
-          attachments.push({
-            label: continued?.label ?? field.overflow ?? field.label,
-            form,
-            blocks: items.slice(max).map((item, i) => ({
-              heading: `${field.label}: ${fill(field.itemLabel ?? '{n}', { n: max + i + 1 })}`,
+          // A form with no "Continued on Attachment" box of its own for the list
+          // (like PO-0119's children) gets a note by the list instead.
+          else if (pdfMap(form).fields.some((f) => f.key === `${prefix}.continued` && f.kind === 'text')) values[`${prefix}.continued`] = `(more listed on Attachment ${label})`;
+          // Lists that share an attachment (like both animal lists on PO-0115's
+          // "attached document") go on one attachment, not one each.
+          let attachment = attachments.find((a) => a.label === label && a.form === form);
+          if (!attachment) {
+            attachment = { label, form, blocks: [] };
+            attachments.push(attachment);
+          }
+          attachment.blocks.push(
+            ...items.slice(max).map((item, i) => ({
+              heading: `${listName}: ${fill(field.itemLabel ?? '{n}', { n: max + i + 1 })}`,
               text: field.fields!.map((sub) => `${sub.label}: ${sub.type === 'date' ? courtDate(item[sub.id] ?? '') : (item[sub.id] ?? '')}`).join('\n'),
             })),
-          });
+          );
         }
         break;
       }
@@ -553,7 +574,6 @@ export function genericValues(form: string, input: PacketInput): FormValues {
   values.printedName = text(a['signer.name']) || fullName(a, signer);
 
   // Long free text goes on an attachment rather than being cut off.
-  const continuable: FormValues['continuable'] = {};
   for (const [id, field] of fields) {
     if (field.type !== 'textarea' || skip.has(id)) continue;
     const own = CONTINUED[form]?.[id];
@@ -648,6 +668,11 @@ export function wvValues(form: string, input: PacketInput): FormValues {
   const household = (Array.isArray(a.protectedHousehold) ? (a.protectedHousehold as Record<string, string>[]) : []).map((r) => (r.name ?? '').trim()).filter(Boolean);
   v.household = household.length > 0;
   if (household.length > 0) v['stayAway.others.names'] = [text(a['employee.name']), ...household].filter(Boolean).join(', ');
+  // The defendant's own Response: the "party without attorney" block asks
+  // for a name as well as an address.
+  if (form === 'WV-0104' && input.questionnaire.filer === 'respondent') {
+    v['filer.contact'] = [defendant, text(a['filer.contact'])].filter(Boolean).join('\n');
+  }
   // No filing fee for a petition about violence or threats (WV-0101 paragraph 18).
   if (form === 'WV-0101') v.fee = true;
   return built;

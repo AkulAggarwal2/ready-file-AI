@@ -17,6 +17,7 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { StandardFontEmbedder, StandardFonts } from 'pdf-lib';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 const TEMPLATES = join(ROOT, 'src/pdf/templates');
@@ -54,15 +55,48 @@ function readPages(form) {
   return pages;
 }
 
-/** Runs of 3 or more underscores in a line, with their x range (split by character within a word). */
+// pdftotext gives a box per word, not per character. A blank that shares a
+// word with letters (like "ROOM___)" or "OF________") is found inside the word
+// by each character's share of its width. The forms are set mostly in Times
+// New Roman, so Times widths are used: capitals are much wider than
+// underscores, and an even split would put the blank over the "M" of "ROOM".
+const TIMES = StandardFontEmbedder.for(StandardFonts.TimesRoman);
+function charWidth(c) {
+  try {
+    return TIMES.widthOfTextAtSize(c, 1000) || 500;
+  } catch {
+    return 500;
+  }
+}
+
+/** The x of each character's left edge in a word, and the word's right edge last. */
+function charEdges(word) {
+  const widths = word.text.split('').map(charWidth);
+  const total = widths.reduce((a, b) => a + b, 0) || 1;
+  const edges = [word.x0];
+  let sum = 0;
+  for (const w of widths) {
+    sum += w;
+    edges.push(word.x0 + ((word.x1 - word.x0) * sum) / total);
+  }
+  return edges;
+}
+
+/**
+ * Runs of 3 or more underscores in a line, with their x range, the bottom of
+ * their own word (a bigger label on the same line, like "Home address:" on
+ * PO-0104, would put the baseline too low), and the text that follows them.
+ */
 function blanksIn(line) {
   const blanks = [];
-  for (const word of line.words) {
-    const perChar = (word.x1 - word.x0) / word.text.length;
+  line.words.forEach((word, i) => {
+    const edges = charEdges(word);
     for (const m of word.text.matchAll(/_{3,}/g)) {
-      blanks.push({ x0: word.x0 + m.index * perChar, x1: word.x0 + (m.index + m[0].length) * perChar });
+      const end = m.index + m[0].length;
+      const after = [word.text.slice(end), ...line.words.slice(i + 1).map((w) => w.text)].join(' ').trim();
+      blanks.push({ x0: edges[m.index], x1: edges[end], y1: word.y1, after });
     }
-  }
+  });
   return blanks;
 }
 
@@ -82,8 +116,7 @@ function spanOf(line, re, where) {
   if (!m) throw new Error(`${where}: line "${line.text}" has no match for ${re}`);
   const xAt = [];
   line.words.forEach((word, i) => {
-    const perChar = (word.x1 - word.x0) / word.text.length;
-    for (let c = 0; c < word.text.length; c++) xAt.push(word.x0 + c * perChar);
+    xAt.push(...charEdges(word).slice(0, -1));
     if (i < line.words.length - 1) xAt.push(word.x1);
   });
   xAt.push(line.words[line.words.length - 1].x1);
@@ -94,7 +127,7 @@ function spanOf(line, re, where) {
 function box(page, line, blank, padLeft = 2) {
   return {
     x: round(blank.x0 + padLeft),
-    y: round(page.height - line.y1 + 2),
+    y: round(page.height - (blank.y1 ?? line.y1) + 2),
     w: round(blank.x1 - blank.x0 - padLeft),
   };
 }
@@ -198,7 +231,11 @@ function resolve(form, pages, anchor) {
   // "w" widens a blank into free space after it, like a caption line that
   // has room up to the bracket column.
   const fitted = box(page, line, blank, anchor.padLeft);
-  return { key: anchor.key, page: anchor.page, kind, ...fitted, w: anchor.w ?? fitted.w, size: anchor.size };
+  // A court's name on a blank the form follows with "COURT" (or "Court of
+  // that State") is printed without its own trailing "Court".
+  // ("COURT___" counts: the underscores are the next blank.)
+  const trimCourt = /^court(?![a-z])/i.test(blank.after) || undefined;
+  return { key: anchor.key, page: anchor.page, kind, ...fitted, w: anchor.w ?? fitted.w, size: anchor.size, trimCourt };
 }
 
 function build(form) {

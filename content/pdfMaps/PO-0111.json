@@ -10,15 +10,16 @@
       "kind": "text",
       "x": 338,
       "y": 708.4,
-      "w": 102.1
+      "w": 94,
+      "trimCourt": true
     },
     {
       "key": "caption.division",
       "page": 1,
       "kind": "text",
-      "x": 301.5,
+      "x": 299.7,
       "y": 694.6,
-      "w": 74.1
+      "w": 76
     },
     {
       "key": "caption.room",
@@ -26,7 +27,7 @@
       "kind": "text",
       "x": 478,
       "y": 694.6,
-      "w": 21.4
+      "w": 23
     },
     {
       "key": "caption.county",
@@ -40,9 +41,9 @@
       "key": "caption.caseNumber",
       "page": 1,
       "kind": "text",
-      "x": 348,
+      "x": 350.1,
       "y": 667,
-      "w": 150.1
+      "w": 148
     },
     {
       "key": "caption.petitioner",
@@ -50,7 +51,7 @@
       "kind": "text",
       "x": 92,
       "y": 625.6,
-      "w": 133.2
+      "w": 136
     },
     {
       "key": "caption.respondent",
@@ -58,7 +59,7 @@
       "kind": "text",
       "x": 92,
       "y": 584.2,
-      "w": 133.2
+      "w": 136
     },
     {
       "key": "reason",
@@ -88,7 +89,7 @@
         {
           "x": 107,
           "y": 294.4,
-          "w": 373
+          "w": 376
         }
       ]
     },

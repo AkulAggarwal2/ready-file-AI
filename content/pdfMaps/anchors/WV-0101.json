@@ -22,7 +22,7 @@
    "find": "DIVISION, ROOM",
    "nth": 0,
    "blank": 1,
-   "padLeft": 1
+   "padLeft": 3
   },
   {
    "key": "caption.county",

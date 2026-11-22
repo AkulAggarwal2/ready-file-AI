@@ -10,15 +10,16 @@
       "kind": "text",
       "x": 115.9,
       "y": 647.5,
-      "w": 76
+      "w": 76,
+      "trimCourt": true
     },
     {
       "key": "caption.county",
       "page": 1,
       "kind": "text",
-      "x": 309.3,
+      "x": 311.9,
       "y": 647.5,
-      "w": 48.7
+      "w": 46
     },
     {
       "key": "caption.petitioner",

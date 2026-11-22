@@ -10,23 +10,24 @@
       "kind": "text",
       "x": 350,
       "y": 708.4,
-      "w": 113.4
+      "w": 106,
+      "trimCourt": true
     },
     {
       "key": "caption.division",
       "page": 1,
       "kind": "text",
-      "x": 314,
+      "x": 312,
       "y": 694.6,
-      "w": 88.2
+      "w": 88
     },
     {
       "key": "caption.room",
       "page": 1,
       "kind": "text",
-      "x": 489.3,
+      "x": 498.3,
       "y": 694.6,
-      "w": 20.7
+      "w": 15
     },
     {
       "key": "caption.county",
@@ -34,15 +35,15 @@
       "kind": "text",
       "x": 163.4,
       "y": 680.8,
-      "w": 68.2
+      "w": 70
     },
     {
       "key": "caption.caseNumber",
       "page": 1,
       "kind": "text",
-      "x": 360,
+      "x": 362.1,
       "y": 653.2,
-      "w": 156.1
+      "w": 154
     },
     {
       "key": "caption.plaintiff",
@@ -74,7 +75,7 @@
       "kind": "text",
       "x": 414.8,
       "y": 460,
-      "w": 91.2
+      "w": 94
     },
     {
       "key": "received.order",
@@ -82,7 +83,7 @@
       "kind": "text",
       "x": 436.9,
       "y": 432.4,
-      "w": 79.2
+      "w": 82
     },
     {
       "key": "agree.agree",
@@ -217,6 +218,16 @@
         {
           "x": 90,
           "y": 396.8,
+          "w": 440
+        },
+        {
+          "x": 90,
+          "y": 384.8,
+          "w": 440
+        },
+        {
+          "x": 90,
+          "y": 372.8,
           "w": 440
         }
       ],

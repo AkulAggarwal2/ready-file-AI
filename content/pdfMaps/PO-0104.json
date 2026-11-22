@@ -49,9 +49,9 @@
       "key": "restrained.phone.home.area",
       "page": 1,
       "kind": "text",
-      "x": 344.6,
+      "x": 343.4,
       "y": 555,
-      "w": 26.7,
+      "w": 29.2,
       "size": 9
     },
     {
@@ -67,9 +67,9 @@
       "key": "restrained.phone.work.area",
       "page": 1,
       "kind": "text",
-      "x": 344.6,
+      "x": 343.3,
       "y": 540.4,
-      "w": 26.7,
+      "w": 29.2,
       "size": 9
     },
     {
@@ -85,9 +85,9 @@
       "key": "restrained.phone.cell.area",
       "page": 1,
       "kind": "text",
-      "x": 344.6,
-      "y": 523.5,
-      "w": 26.7,
+      "x": 343.3,
+      "y": 525.7,
+      "w": 29.2,
       "size": 9
     },
     {
@@ -95,7 +95,7 @@
       "page": 1,
       "kind": "text",
       "x": 380,
-      "y": 523.5,
+      "y": 525.7,
       "w": 98.7,
       "size": 9
     },
@@ -600,9 +600,9 @@
       "key": "petitioner.phone.home.area",
       "page": 2,
       "kind": "text",
-      "x": 344.6,
+      "x": 343.4,
       "y": 657.3,
-      "w": 26.7,
+      "w": 29.2,
       "size": 9
     },
     {
@@ -618,9 +618,9 @@
       "key": "petitioner.phone.work.area",
       "page": 2,
       "kind": "text",
-      "x": 344.6,
+      "x": 343.3,
       "y": 642.6,
-      "w": 26.7,
+      "w": 29.2,
       "size": 9
     },
     {
@@ -636,9 +636,9 @@
       "key": "petitioner.phone.fax.area",
       "page": 2,
       "kind": "text",
-      "x": 344.6,
+      "x": 343.3,
       "y": 628,
-      "w": 26.7,
+      "w": 29.2,
       "size": 9
     },
     {
@@ -654,9 +654,9 @@
       "key": "petitioner.phone.cell.area",
       "page": 2,
       "kind": "text",
-      "x": 344.6,
+      "x": 343.3,
       "y": 613.3,
-      "w": 26.7,
+      "w": 29.2,
       "size": 9
     },
     {
@@ -774,7 +774,7 @@
       "lines": [
         {
           "x": 309.4,
-          "y": 424.2,
+          "y": 425.7,
           "w": 255
         },
         {

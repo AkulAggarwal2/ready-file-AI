@@ -44,6 +44,9 @@ export interface Field {
   table?: boolean;
   max?: number;
   overflow?: string;
+  // The list's name on the attachment, when "label" alone doesn't say which
+  // list it is (PO-0115 has two lists headed "The animals").
+  overflowHeading?: string;
   // The most items the court accepts at all (9 protected people per order).
   limit?: number;
   itemLabel?: string;

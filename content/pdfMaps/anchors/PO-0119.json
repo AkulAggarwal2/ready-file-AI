@@ -253,6 +253,16 @@
    "count": 3
   },
   {
+   "key": "a.children.continued",
+   "page": 2,
+   "find": "^child:$",
+   "nth": 0,
+   "kind": "after",
+   "word": "^child:$",
+   "dx": 8,
+   "w": 300
+  },
+  {
    "key": "a.noContactChildren.yes",
    "page": 2,
    "find": "with the named child",

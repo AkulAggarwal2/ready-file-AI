@@ -369,6 +369,7 @@
           ],
           "max": 2,
           "overflow": "to PO-0115",
+          "overflowHeading": "Animals the Respondent must not take, harm, or dispose of",
           "itemLabel": "Animal {n}",
           "addLabel": "Add an animal",
           "showIf": {
@@ -411,6 +412,7 @@
           ],
           "max": 2,
           "overflow": "to PO-0115",
+          "overflowHeading": "Animals in my care and custody",
           "itemLabel": "Animal {n}",
           "addLabel": "Add an animal",
           "showIf": {

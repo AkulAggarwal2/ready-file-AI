@@ -10,15 +10,16 @@
       "kind": "text",
       "x": 338,
       "y": 707.1,
-      "w": 102.1
+      "w": 93.9,
+      "trimCourt": true
     },
     {
       "key": "caption.division",
       "page": 1,
       "kind": "text",
-      "x": 301.6,
+      "x": 299.7,
       "y": 693.3,
-      "w": 74.2
+      "w": 76
     },
     {
       "key": "caption.room",
@@ -26,7 +27,7 @@
       "kind": "text",
       "x": 478,
       "y": 693.3,
-      "w": 21.4
+      "w": 23
     },
     {
       "key": "caption.county",
@@ -40,9 +41,9 @@
       "key": "caption.caseNumber",
       "page": 1,
       "kind": "text",
-      "x": 347.9,
+      "x": 350,
       "y": 665.7,
-      "w": 150.1
+      "w": 148
     },
     {
       "key": "caption.petitioner",
@@ -50,7 +51,7 @@
       "kind": "text",
       "x": 92,
       "y": 624.3,
-      "w": 133.1
+      "w": 136
     },
     {
       "key": "caption.respondent",
@@ -58,7 +59,7 @@
       "kind": "text",
       "x": 92,
       "y": 582.9,
-      "w": 133.1
+      "w": 136
     },
     {
       "key": "order.date",
@@ -66,7 +67,7 @@
       "kind": "text",
       "x": 109.6,
       "y": 458.7,
-      "w": 139.1
+      "w": 142
     },
     {
       "key": "strike.exParte",
@@ -74,15 +75,15 @@
       "kind": "strike",
       "x": 167,
       "y": 451,
-      "w": 155.5
+      "w": 155.6
     },
     {
       "key": "strike.modification.1",
       "page": 1,
       "kind": "strike",
-      "x": 327.4,
+      "x": 325.9,
       "y": 451,
-      "w": 177.8
+      "w": 179.2
     },
     {
       "key": "strike.modification.2",
@@ -90,7 +91,7 @@
       "kind": "strike",
       "x": 90,
       "y": 437.2,
-      "w": 64.5
+      "w": 66.3
     },
     {
       "key": "strike.petitioner",
@@ -98,15 +99,15 @@
       "kind": "strike",
       "x": 240,
       "y": 437.2,
-      "w": 50.8
+      "w": 46.7
     },
     {
       "key": "strike.respondent",
       "page": 1,
       "kind": "strike",
-      "x": 295.9,
+      "x": 290,
       "y": 437.2,
-      "w": 50.8
+      "w": 56.7
     },
     {
       "key": "strike.title.petitioner",
@@ -114,15 +115,15 @@
       "kind": "strike",
       "x": 109.1,
       "y": 519.9,
-      "w": 74.5
+      "w": 73.6
     },
     {
       "key": "strike.title.respondent",
       "page": 1,
       "kind": "strike",
-      "x": 191,
+      "x": 186.2,
       "y": 519.9,
-      "w": 89.4
+      "w": 94.2
     },
     {
       "key": "contact",
@@ -137,7 +138,7 @@
         {
           "x": 92,
           "y": 362.2,
-          "w": 415
+          "w": 418
         }
       ]
     },
