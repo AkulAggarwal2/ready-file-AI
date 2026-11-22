@@ -2,6 +2,7 @@ import { ACTS, CHILD_ACTS, type Act, type Ground, type Relationship } from '../c
 import { visibleAnswers, type Answer, type Answers, type EarlierAnswers, type Field, type Questionnaire } from '../forms/questionnaire';
 import { fill } from '../content';
 import type { Incident } from '../organizer';
+import { hasKey } from './maps';
 import type { StampValues } from './stamp';
 
 // Turns her answers, and what she entered on the earlier steps, into the
@@ -37,7 +38,8 @@ export interface FormValues {
   values: StampValues;
   // Text that may not fit on the form: if it doesn't, the form says "See
   // Attachment <label>" and the full text goes on that attachment.
-  continuable: Record<string, { label: string; heading: string }>;
+  // "box" is the form's own "Continued on Attachment ..." checkbox, if any.
+  continuable: Record<string, { label: string; heading: string; box?: string }>;
   attachments: Attachment[];
 }
 
@@ -431,14 +433,49 @@ function existingCaption(a: Answers): StampValues {
   };
 }
 
+// The forms' own "Continued on Attachment ..." boxes: the answer (or group)
+// that continues, the attachment the form names, and the box to check.
+const CONTINUED: Record<string, Record<string, { label: string; box: string }>> = {
+  'WV-0101': {
+    'conduct.description': { label: '5b', box: 'conduct.continued' },
+    'harm.text': { label: '6', box: 'harm.continued' },
+    household: { label: '8a', box: 'household.continued' },
+  },
+  'WV-0102': { household: { label: '5c', box: 'household.continued' } },
+  'WV-0104': { 'statement.text': { label: '5b', box: 'statement.continued' } },
+  'WV-0107': {
+    change: { label: '3a', box: 'change.continued' },
+    household: { label: '8a', box: 'household.continued' },
+  },
+};
+
+/**
+ * Answers that belong only on a confidential form in the packet (like the
+ * Confidential Form's household list). They never go on a public form, even
+ * when a public form has a blank with the same name.
+ */
+function confidentialOnly(q: Questionnaire, form: string): Set<string> {
+  const confidential = new Set(q.packet.filter((p) => p.confidential && p.form !== form).map((p) => p.form));
+  return new Set(q.sections.filter((s) => confidential.has(s.form)).flatMap((s) => s.fields.map((f) => f.id)));
+}
+
+/** Only the case heading, for a form someone else completes. */
+export function captionValues(form: string, input: PacketInput): FormValues {
+  const a = shownAnswers(input);
+  const values: StampValues = form.startsWith('WV-') ? { ...existingCaption(a), ...wvCaption(a) } : existingCaption(a);
+  return { values, continuable: {}, attachments: [] };
+}
+
 /** Values copied straight from the answers, by field id, for any form. */
 export function genericValues(form: string, input: PacketInput): FormValues {
   const a = shownAnswers(input);
   const fields = fieldIndex(input.questionnaire);
+  const skip = confidentialOnly(input.questionnaire, form);
   const values: StampValues = { ...existingCaption(a) };
   const attachments: Attachment[] = [];
 
   for (const [id, value] of Object.entries(a)) {
+    if (skip.has(id)) continue;
     // A fixed answer has no field; text fills the map key "<id>.<value>",
     // and true checks the box "<id>".
     const field =
@@ -461,6 +498,10 @@ export function genericValues(form: string, input: PacketInput): FormValues {
         for (const picked of Array.isArray(value) ? (value as string[]) : []) values[`${field.mapAs ?? id}.${picked}`] = true;
         break;
       case 'group': {
+        const prefix = field.mapAs ?? id;
+        // A list this form has no lines for doesn't go on it, or on an attachment to it.
+        if (!hasKey(form, prefix)) break;
+        const continued = CONTINUED[form]?.[prefix];
         const items = rows(value).filter((r) => Object.values(r).some((v) => v?.trim()));
         const max = field.max ?? items.length;
         const line = (item: Record<string, string>) =>
@@ -480,8 +521,9 @@ export function genericValues(form: string, input: PacketInput): FormValues {
           });
         }
         if (items.length > max) {
+          if (continued) values[continued.box] = true;
           attachments.push({
-            label: field.overflow ?? field.label,
+            label: continued?.label ?? field.overflow ?? field.label,
             form,
             blocks: items.slice(max).map((item, i) => ({
               heading: `${field.label}: ${fill(field.itemLabel ?? '{n}', { n: max + i + 1 })}`,
@@ -513,7 +555,9 @@ export function genericValues(form: string, input: PacketInput): FormValues {
   // Long free text goes on an attachment rather than being cut off.
   const continuable: FormValues['continuable'] = {};
   for (const [id, field] of fields) {
-    if (field.type === 'textarea') continuable[id] = { label: `to ${form}`, heading: `${field.label} (continued)` };
+    if (field.type !== 'textarea' || skip.has(id)) continue;
+    const own = CONTINUED[form]?.[id];
+    continuable[id] = { label: own?.label ?? `to ${form}`, heading: `${field.label} (continued)`, box: own?.box };
   }
   return { values, continuable, attachments };
 }

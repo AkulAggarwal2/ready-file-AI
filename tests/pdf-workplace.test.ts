@@ -115,6 +115,54 @@ describe('workplace violence values', () => {
   });
 });
 
+describe('workplace violence: answers stay on their own forms', () => {
+  // People the Confidential Form lists (household, protected) who are not on the petition.
+  const confidentialPeople: Answers = {
+    household: [{ name: 'Roommate Person', age: '30', sex: 'male', race: 'White' }],
+    protected: Array.from({ length: 5 }, (_, i) => ({ name: `Hidden Person ${i + 1}`, age: '9', sex: 'female', dob: '2017-01-01', race: 'Black' })),
+  };
+  const many = (n: number) => Array.from({ length: n }, (_, i) => ({ name: `Kid Example ${i + 1}`, sex: 'female', dob: '2019-04-05' }));
+
+  it('never prints a Confidential Form list on a public form, even one with a blank of the same name', () => {
+    for (const form of ['WV-0101', 'WV-0102', 'WV-0103']) {
+      const built = wvValues(form, input('wv-new', confidentialPeople));
+      expect(JSON.stringify(built.values), form).not.toContain('Roommate Person');
+      expect(JSON.stringify(built.attachments), form).not.toContain('Hidden Person');
+    }
+    expect(wvValues('WV-0101', input('wv-new', confidentialPeople)).values['household.1.name']).toBe('Mia Example');
+  });
+
+  it('keeps the Confidential Form lists in the confidential PDF only', async () => {
+    const result = await buildPacket(input('wv-new', confidentialPeople), fromDisk, TEXT);
+    for (const f of result.forms) if (!f.confidential) expect(f.attachmentPages, f.form).toBe(0);
+  });
+
+  it('puts a list on an attachment only to the forms that have lines for it, named as each form names it', () => {
+    const extra = { protectedHousehold: many(4), agencies: Array.from({ length: 5 }, (_, i) => ({ agency: `Agency ${i + 1}`, address: 'x' })) };
+    const label = (form: string) => wvValues(form, input('wv-new', extra)).attachments.map((a) => a.label);
+    expect(label('WV-0101')).toContain('8a');
+    expect(label('WV-0102')).toContain('5c');
+    expect(label('WV-0103')).toEqual([]);
+    expect(wvValues('WV-0101', input('wv-new', extra)).values['household.continued']).toBe(true);
+    expect(wvValues('WV-0102', input('wv-new', extra)).values['household.continued']).toBe(true);
+  });
+
+  it('checks "Continued on Attachment 5b" when the conduct narrative runs long', async () => {
+    const long = 'He waited by the back door and shouted threats at her. '.repeat(60);
+    const built = wvValues('WV-0101', input('wv-new', { 'conduct.description': long }));
+    expect(built.continuable['conduct.description']).toEqual(expect.objectContaining({ label: '5b', box: 'conduct.continued' }));
+  });
+
+  it('leaves the Response and its Proof of Service blank in the employer packet, except the case heading', () => {
+    const entry = packetFor(questionnaires['wv-new']).find((p) => p.form === 'WV-0104')!;
+    const v = entry.build(input('wv-new')).values;
+    expect(v['caption.plaintiff']).toBe('Example Bakery LLC');
+    expect(v.printedName).toBeUndefined();
+    expect(v['filer.contact']).toBeUndefined();
+    expect(Object.values(v).filter((x) => x === true)).toEqual([]);
+  });
+});
+
 describe('workplace violence packets', () => {
   it('the employer packet: public forms in filing order, the Confidential Form separate', async () => {
     const result = await buildPacket(input('wv-new'), fromDisk, TEXT);

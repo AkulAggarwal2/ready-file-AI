@@ -1,9 +1,11 @@
 import { PDFDocument, rgb, StandardFonts, type PDFFont, type PDFPage } from 'pdf-lib';
 import { courtForm } from '../forms';
 import type { Questionnaire } from '../forms/questionnaire';
+import { pdfMap } from './maps';
 import { fits, printable, stamp, wrap, type PdfMap, type StampValues } from './stamp';
 import {
   attachmentCaption,
+  captionValues,
   genericValues,
   pnw0102Values,
   po0100Values,
@@ -20,14 +22,7 @@ import {
 // Confidential Form can never be printed into the copy served on the other
 // person.
 
-const maps = import.meta.glob<PdfMap>('../../content/pdfMaps/*.json', { eager: true, import: 'default' });
-
-/** The map for a form, from content/pdfMaps. */
-export function pdfMap(form: string): PdfMap {
-  const map = maps[`../../content/pdfMaps/${form}.json`];
-  if (!map) throw new Error(`No PDF map for ${form}`);
-  return map;
-}
+export { pdfMap } from './maps';
 
 /** Reads a court form's PDF. The app bundles them; tests read them from disk. */
 export type TemplateLoader = (form: string) => Promise<Uint8Array>;
@@ -49,7 +44,11 @@ const BUILDERS: Record<string, (input: PacketInput) => FormValues> = {
 export function packetFor(questionnaire: Questionnaire) {
   return questionnaire.packet.map((entry) => ({
     ...entry,
-    build: BUILDERS[entry.form] ?? ((input: PacketInput) => genericValues(entry.form, input)),
+    // A form left for someone else to fill (like the blank Response the
+    // employer serves on the defendant) gets only the case heading.
+    build: entry.captionOnly
+      ? (input: PacketInput) => captionValues(entry.form, input)
+      : (BUILDERS[entry.form] ?? ((input: PacketInput) => genericValues(entry.form, input))),
   }));
 }
 
@@ -93,6 +92,8 @@ function moveOverflow(map: PdfMap, built: FormValues, font: PDFFont, labels: Map
     // so nothing is ever cut off or printed over the form's words.
     const cont = built.continuable[field.key] ?? { label: `to ${map.form}`, heading: `${labels.get(field.key) ?? field.key} (continued)` };
     values[field.key] = field.kind === 'text' && field.w < 120 ? '(see attached)' : `See Attachment ${cont.label}.`;
+    // The form's own "Continued on Attachment ..." box, when it has one.
+    if (cont.box) values[cont.box] = true;
     let attachment = attachments.find((a) => a.label === cont.label && a.form === map.form);
     if (!attachment) {
       attachment = { label: cont.label, form: map.form, blocks: [] };

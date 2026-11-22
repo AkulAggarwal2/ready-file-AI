@@ -68,6 +68,8 @@ export interface PacketForm {
   // copy is served on the other person, so a confidential page must never
   // be printed with it.
   confidential?: boolean;
+  // Only the case heading is filled; someone else completes the form.
+  captionOnly?: boolean;
 }
 
 export interface Questionnaire {

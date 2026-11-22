@@ -13,11 +13,13 @@
     },
     {
       "form": "WV-0104",
-      "copies": 1
+      "copies": 1,
+      "captionOnly": true
     },
     {
       "form": "WV-0105",
-      "copies": 1
+      "copies": 1,
+      "captionOnly": true
     },
     {
       "form": "WV-0103",
