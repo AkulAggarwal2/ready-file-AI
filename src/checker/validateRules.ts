@@ -1,8 +1,8 @@
 import {
-  CASE_TYPES,
+  RULE_GROUNDS,
   CONTACT_KINDS,
   SIMPLE_CONDITIONS,
-  type CaseType,
+  type RuleGround,
   type Condition,
   type ContactKind,
   type PluralText,
@@ -80,10 +80,10 @@ export function validateRules(raw: unknown): Rule[] {
     seen.add(id);
 
     if (
-      !Array.isArray(item.caseTypes) ||
-      !item.caseTypes.every((t): t is CaseType => (CASE_TYPES as readonly string[]).includes(t as string))
+      !Array.isArray(item.grounds) ||
+      !item.grounds.every((t): t is RuleGround => (RULE_GROUNDS as readonly string[]).includes(t as string))
     ) {
-      fail(index, id, `caseTypes must be a list using only: ${CASE_TYPES.join(', ')}.`);
+      fail(index, id, `grounds must be a list using only: ${RULE_GROUNDS.join(', ')}.`);
     }
     if (typeof item.questionText !== 'string') fail(index, id, 'questionText must be text.');
     if (typeof item.sourceCitation !== 'string') fail(index, id, 'sourceCitation must be text.');
@@ -91,7 +91,7 @@ export function validateRules(raw: unknown): Rule[] {
 
     return {
       id,
-      caseTypes: item.caseTypes,
+      grounds: item.grounds,
       condition: validateCondition(item.condition, index, id),
       questionText: item.questionText,
       sourceCitation: item.sourceCitation,

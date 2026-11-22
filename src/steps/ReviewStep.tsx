@@ -3,6 +3,7 @@ import { copy } from '../content';
 import { summarySections, summaryText, type SummarySection } from '../review/summary';
 import { ORGANIZE_HEADING_ID } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
+import { useVariant } from '../state/useVariant';
 import { ConfirmButton } from '../ui/ConfirmButton';
 import { StepHeading } from '../ui/StepHeading';
 import { Timeline } from '../ui/Timeline';
@@ -11,8 +12,9 @@ export function ReviewStep() {
   const { state, dispatch } = useAppState();
   const [copyStatus, setCopyStatus] = useState('');
   const c = copy.review;
-  const caseType = state.caseType ?? 'not-sure';
-  const sections = summarySections(caseType, state.incidents, state.story, state.relationship, state, state.safetyAnswers);
+  const { grounds } = state;
+  const variant = useVariant();
+  const sections = summarySections(grounds, state.incidents, state.story, state.relationship, state, state.safetyAnswers, variant);
   const summary = summaryText(sections);
 
   async function copySummary() {
@@ -58,10 +60,15 @@ export function ReviewStep() {
           {c.formItems.map((item) => (
             <li key={item}>{item}</li>
           ))}
-          {caseType === 'harassment' && <li>{c.formHarassment}</li>}
-          {caseType === 'sexual-assault' && <li>{c.formSexOffense}</li>}
+          {grounds.length === 1 && grounds[0] === 'harassment' && <li>{c.formHarassment}</li>}
+          {grounds.includes('sex-offense') && <li>{c.formSexOffense}</li>}
         </ul>
         <p className="hint">{c.formSource}</p>
+        <div className="button-row">
+          <button type="button" className="btn btn-primary" onClick={() => dispatch({ type: 'goTo', step: 'forms' })}>
+            {c.toForms}
+          </button>
+        </div>
       </section>
 
       <div className="button-row">

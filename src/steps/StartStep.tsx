@@ -1,17 +1,31 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { CASE_TYPES, RELATIONSHIPS, type CaseType, type Relationship } from '../checker';
+import { CHILD_RELATIONSHIPS, RELATIONSHIPS, type Ground, type Relationship } from '../checker';
 import { IDLE_TIMEOUT_MS } from '../config';
-import { copy, fill } from '../content';
+import { copyFor, fill } from '../content';
 import { useAppState } from '../state/AppStateProvider';
+import { useVariant } from '../state/useVariant';
 import { StepHeading } from '../ui/StepHeading';
 
 export const RELATIONSHIP_ID = 'relationship';
 
+// The grounds on the adult petition (PO-0100 question 1), in its order. Sex
+// grooming is only on the petition filed for a child (PO-0101).
+const ADULT_GROUNDS: Ground[] = ['domestic-violence', 'sex-offense', 'stalking', 'harassment'];
+// The grounds PO-0101 question 1 names, in its order.
+const CHILD_GROUNDS: Ground[] = ['domestic-violence', 'sex-offense', 'stalking', 'sex-grooming', 'harassment'];
+
 export function StartStep() {
   const { state, dispatch } = useAppState();
-  const [caseType, setCaseType] = useState<CaseType | null>(state.caseType);
-  const [relationship, setRelationship] = useState<Relationship | null>(state.relationship);
-  const r = copy.start.relationships;
+  const variant = useVariant();
+  const copy = copyFor(variant);
+  const groundList = variant === 'child' ? CHILD_GROUNDS : ADULT_GROUNDS;
+  const relationshipList: readonly Relationship[] = variant === 'child' ? CHILD_RELATIONSHIPS : RELATIONSHIPS;
+  const [grounds, setGrounds] = useState<Ground[]>(state.grounds.filter((g) => groundList.includes(g)));
+  // An answer from the other petition's list (if she changed her situation) doesn't carry over.
+  const [relationship, setRelationship] = useState<Relationship | null>(
+    state.relationship && relationshipList.includes(state.relationship) ? state.relationship : null,
+  );
+  const r = copy.start.relationships as Record<string, string>;
 
   // After "Add more" on the relationship question, focus the question.
   useEffect(() => {
@@ -22,8 +36,9 @@ export function StartStep() {
 
   function begin(event: FormEvent) {
     event.preventDefault();
-    // Never blocks: with no choice made, she continues as "Not sure".
-    dispatch({ type: 'begin', caseType: caseType ?? 'not-sure', relationship });
+    // Never blocks: with nothing checked, she continues as not sure.
+    // Kept in the form's order, whatever order she checked them in.
+    dispatch({ type: 'begin', grounds: groundList.filter((g) => grounds.includes(g)), relationship });
   }
 
   return (
@@ -37,21 +52,23 @@ export function StartStep() {
         <p>{fill(copy.start.safetyNote, { minutes: IDLE_TIMEOUT_MS / 60000 })}</p>
       </section>
 
-      <fieldset aria-describedby="case-type-hint">
-        <legend>{copy.start.caseTypeLegend}</legend>
-        <p id="case-type-hint" className="hint">
-          {copy.start.caseTypeHint}
+      <fieldset aria-describedby="grounds-hint">
+        <legend>{copy.start.groundsLegend}</legend>
+        <p id="grounds-hint" className="hint">
+          {copy.start.groundsHint}
         </p>
-        {CASE_TYPES.map((type) => (
-          <label key={type} className="choice">
+        {groundList.map((ground) => (
+          <label key={ground} className="choice">
             <input
-              type="radio"
-              name="case-type"
-              value={type}
-              checked={caseType === type}
-              onChange={() => setCaseType(type)}
+              type="checkbox"
+              name="grounds"
+              value={ground}
+              checked={grounds.includes(ground)}
+              onChange={(e) =>
+                setGrounds(e.target.checked ? [...grounds, ground] : grounds.filter((g) => g !== ground))
+              }
             />
-            {copy.start.caseTypes[type]}
+            {copy.start.grounds[ground]}
           </label>
         ))}
       </fieldset>
@@ -67,7 +84,7 @@ export function StartStep() {
         onChange={(e) => setRelationship((e.target.value || null) as Relationship | null)}
       >
         <option value="">{r['']}</option>
-        {RELATIONSHIPS.map((value) => (
+        {relationshipList.map((value) => (
           <option key={value} value={value}>
             {r[value]}
           </option>

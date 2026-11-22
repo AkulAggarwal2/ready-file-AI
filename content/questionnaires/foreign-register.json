@@ -1,0 +1,349 @@
+{
+  "_about": "The questions for PO-0119. Field ids match the keys in content/pdfMaps.",
+  "id": "foreign-register",
+  "filer": "petitioner",
+  "packet": [
+    {
+      "form": "PO-0119",
+      "copies": 2
+    }
+  ],
+  "instructions": {
+    "title": "Registering your order: before you file (do not file this page)",
+    "lines": [
+      "This file has Section A of the Registration of Foreign Protection Order (PO-0119) with your answers printed on it.",
+      "Bring a certified copy of your order. You also need a Confidential Data Entry Form for Foreign Protection Orders. It is not on the court's website, so ask the clerk for it. Fill it in before you sign this form: item 17 says you have completed it.",
+      "The other person is not told about the registration.",
+      "Sign and date it by hand. You sign under penalty of perjury.",
+      "Print 2 copies, unless the clerk tells you otherwise. The clerk gives you a certified copy.",
+      "This page is not part of your filing. Remove it before you file."
+    ]
+  },
+  "sections": [
+    {
+      "id": "caption",
+      "form": "PO-0119",
+      "title": "The case",
+      "intro": "This goes at the top of the form. Copy it from your order.",
+      "fields": [
+        {
+          "id": "court.county",
+          "type": "text",
+          "label": "County of the court",
+          "required": true
+        },
+        {
+          "id": "court.name",
+          "type": "text",
+          "label": "Name of the court",
+          "hint": "As it appears on your order, like Allen Superior."
+        },
+        {
+          "id": "court.division",
+          "type": "text",
+          "label": "Division",
+          "hint": "If your order shows one."
+        },
+        {
+          "id": "court.room",
+          "type": "text",
+          "label": "Room",
+          "hint": "If your order shows one."
+        },
+        {
+          "id": "petitioner.first",
+          "type": "text",
+          "label": "Your first name",
+          "required": true,
+          "hint": "As written on the order."
+        },
+        {
+          "id": "petitioner.middle",
+          "type": "text",
+          "label": "Your middle name"
+        },
+        {
+          "id": "petitioner.last",
+          "type": "text",
+          "label": "Your last name",
+          "required": true
+        },
+        {
+          "id": "respondent.first",
+          "type": "text",
+          "label": "The other person's first name",
+          "required": true
+        },
+        {
+          "id": "respondent.middle",
+          "type": "text",
+          "label": "The other person's middle name"
+        },
+        {
+          "id": "respondent.last",
+          "type": "text",
+          "label": "The other person's last name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "order",
+      "form": "PO-0119",
+      "title": "Your order",
+      "fields": [
+        {
+          "id": "a.issuer",
+          "type": "text",
+          "label": "State, tribe, or country that issued the order",
+          "required": true
+        },
+        {
+          "id": "a.court",
+          "type": "text",
+          "label": "Court that issued it",
+          "required": true
+        },
+        {
+          "id": "a.issued",
+          "type": "date",
+          "label": "Date it was issued",
+          "required": true
+        },
+        {
+          "id": "a.expires",
+          "type": "date",
+          "label": "Date it ends"
+        },
+        {
+          "id": "a.courtContact",
+          "type": "textarea",
+          "label": "Address and phone number of that court",
+          "rows": 2
+        },
+        {
+          "id": "a.exParte",
+          "type": "yesno",
+          "label": "Was it issued without a hearing (ex parte)?",
+          "required": true
+        },
+        {
+          "id": "a.certified",
+          "type": "yesno",
+          "label": "Is your copy certified?",
+          "required": true,
+          "hint": "A certified copy has the court's stamp or seal."
+        },
+        {
+          "id": "a.firearms",
+          "type": "yesno",
+          "label": "Does it forbid the person from having guns, ammunition, or deadly weapons?",
+          "required": true
+        },
+        {
+          "id": "a.type",
+          "type": "choice",
+          "label": "What kind of case was it issued in?",
+          "required": true,
+          "options": [
+            {
+              "value": "criminal",
+              "label": "Criminal"
+            },
+            {
+              "value": "juvenile",
+              "label": "Juvenile"
+            },
+            {
+              "value": "paternity",
+              "label": "Paternity or child support"
+            },
+            {
+              "value": "custody",
+              "label": "Custody or parenting time"
+            },
+            {
+              "value": "divorce",
+              "label": "Divorce, legal separation, or dissolution"
+            },
+            {
+              "value": "civil",
+              "label": "Civil protective order"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
+          ]
+        },
+        {
+          "id": "a.type.criminal.detail",
+          "type": "text",
+          "label": "What charges?",
+          "showIf": {
+            "field": "a.type",
+            "equals": "criminal"
+          }
+        },
+        {
+          "id": "a.type.juvenile.detail",
+          "type": "text",
+          "label": "What kind of juvenile case?",
+          "hint": "Like delinquency or child abuse or neglect",
+          "showIf": {
+            "field": "a.type",
+            "equals": "juvenile"
+          }
+        },
+        {
+          "id": "a.type.other.detail",
+          "type": "text",
+          "label": "What kind of case?",
+          "showIf": {
+            "field": "a.type",
+            "equals": "other"
+          }
+        }
+      ]
+    },
+    {
+      "id": "children",
+      "form": "PO-0119",
+      "title": "Children",
+      "fields": [
+        {
+          "id": "a.custody",
+          "type": "yesno",
+          "label": "Does the order give custody of your children to one of you?"
+        },
+        {
+          "id": "a.custodyTo",
+          "type": "choice",
+          "label": "To whom?",
+          "options": [
+            {
+              "value": "petitioner",
+              "label": "To me"
+            },
+            {
+              "value": "respondent",
+              "label": "To the other person"
+            }
+          ],
+          "showIf": {
+            "field": "a.custody",
+            "equals": "yes"
+          }
+        },
+        {
+          "id": "a.children",
+          "type": "group",
+          "label": "The children",
+          "fields": [
+            {
+              "id": "name",
+              "type": "text",
+              "label": "Name"
+            },
+            {
+              "id": "age",
+              "type": "number",
+              "label": "Age"
+            },
+            {
+              "id": "dob",
+              "type": "date",
+              "label": "Date of birth"
+            }
+          ],
+          "max": 3,
+          "join": true,
+          "overflow": "to PO-0119",
+          "itemLabel": "Child {n}",
+          "addLabel": "Add a child",
+          "showIf": {
+            "field": "a.custody",
+            "equals": "yes"
+          }
+        },
+        {
+          "id": "a.noContactChildren",
+          "type": "yesno",
+          "label": "Does the order forbid the other person from contacting the children?"
+        },
+        {
+          "id": "a.custodyTerms",
+          "type": "textarea",
+          "label": "What does the order say about custody?",
+          "rows": 3
+        },
+        {
+          "id": "a.parenting",
+          "type": "choice",
+          "label": "Does the order allow parenting time or visits?",
+          "options": [
+            {
+              "value": "grants",
+              "label": "Yes"
+            },
+            {
+              "value": "denies",
+              "label": "No"
+            }
+          ]
+        },
+        {
+          "id": "a.parentingTo",
+          "type": "choice",
+          "label": "For whom?",
+          "options": [
+            {
+              "value": "petitioner",
+              "label": "For me"
+            },
+            {
+              "value": "respondent",
+              "label": "For the other person"
+            }
+          ],
+          "showIf": {
+            "field": "a.parenting",
+            "equals": "grants"
+          }
+        },
+        {
+          "id": "a.parentingTerms",
+          "type": "textarea",
+          "label": "What are the terms?",
+          "rows": 3,
+          "showIf": {
+            "field": "a.parenting",
+            "equals": "grants"
+          }
+        }
+      ]
+    },
+    {
+      "id": "initials",
+      "form": "PO-0119",
+      "title": "What you agree to",
+      "fields": [
+        {
+          "id": "a.initials15",
+          "type": "text",
+          "label": "Your initials: you will tell the clerk if the order is extended, changed, or ended",
+          "required": true
+        },
+        {
+          "id": "a.initials16",
+          "type": "text",
+          "label": "Your initials: if the order or your address changes, you will fill in a new confidential form and bring the new order",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "fixed": {
+    "section": "a"
+  }
+}

@@ -21,6 +21,10 @@ npm test           # runs all tests once
 npm run build      # type-checks and builds to dist/
 ```
 
+Continuous integration: every pull request to `main`, and every push to
+`main`, runs `npm test` and `npm run build` on GitHub Actions
+([.github/workflows/ci.yml](.github/workflows/ci.yml)). Nothing is deployed.
+
 In development mode (`npm run dev`):
 
 - The story screen shows two buttons that fill in the fictional "Lena"
@@ -33,10 +37,33 @@ Neither appears in a production build.
 To try the AI splitter stub, start the app with `VITE_ENABLE_LLM=true npm run dev`.
 See "The incident splitter" below.
 
-## The five steps
+## The steps
 
-1. **Start:** she picks the kind of order, or "Not sure". If she picks
-   nothing, she continues as "Not sure".
+
+0. **Your situation:** one question at a time ("Question 2" above each, and
+   no step bar until her answers lead somewhere), it asks who the order is for
+   (her, a child, an employee, or she is the respondent) and what she is
+   trying to do, and lists the court forms that fit. Only the adult petition
+   continues into the steps below for now; other outcomes list their forms
+   and say ReadyFile does not fill them yet. The questions are in
+   `content/routing.json`.
+   After **Review**, the **Court forms** step asks the rest of what the
+   petition (PO-0100), the Confidential Form (PO-0104) and the Notice of
+   Exclusion (PNW-0102) need, and "Make my PDF" prints every answer on the
+   court's official forms, in the browser. Text too long for a blank, and
+   list items past what fits, go on labeled attachments (4a, 8a, 9(a) to
+   9(c)), and question 10 counts the pages. Signature and date lines and
+   anything the clerk fills stay blank. The PDF code and the forms load only
+   when she asks for the PDF, and nothing leaves the device. There are two
+   PDFs: the petition with the Notice of Exclusion, and the Confidential Form
+   on its own, marked on every page, so it is never printed into the copy of
+   the petition that is served on the other person.
+   For a child, the same steps use the child's petition (PO-0101): the
+   child's wording (`copy.child` in copy.json replaces matching keys), the
+   child form's relationship lines and acts (including sex grooming), and the
+   child named "by next friend" on every caption.
+1. **Start:** she checks the grounds that apply (question 1), or none for
+   "not sure".
 2. **Incidents:** she adds each incident with a date (a new one opens on the
    date picker), a place ("Where did it happen?"), how it happened, and what
    happened. One incident is open at a time, and Done closes it. Merge and
@@ -62,8 +89,16 @@ them right away. For a production build, run `npm run build` again.
 | File | What it controls |
 | --- | --- |
 | [content/copy.json](content/copy.json) | All on-screen text, plus the quick exit address (`quickExit.url`). `{name}` marks a value the app fills in, such as `{n}` for an incident number. |
-| [content/rules.json](content/rules.json) | The check questions. Each rule has `id`, `caseTypes`, `condition`, `questionText`, `sourceCitation`, and `verified`. |
+| [content/rules.json](content/rules.json) | The check questions. Each rule has `id`, `grounds` (from PO-0100 question 1, plus `not-sure`), `condition`, `questionText`, `sourceCitation`, and `verified`. |
 | [content/resources.json](content/resources.json) | The advocate contacts behind "Talk to an advocate". An entry with `verified: false` shows a "Not checked yet" label. |
+| [content/forms.json](content/forms.json) | Every form on the court's protection order forms page: number, official title, a plain name for the screens (`plainTitle`), dates, Word and PDF links (for citation only), who fills it, and what ReadyFile makes from it. A test keeps it in step with the page's list. |
+| Court form updates | `tests/court-page.test.ts` keeps `content/forms.json` matching a saved copy of the court's page (`tests/fixtures/po-forms-page.html`). `npm run check:court-forms` compares the live page and the court's current PDFs with the app's copies; `.github/workflows/court-forms.yml` runs it every Monday and fails when the court changes a form. To update: save the new PDF in `src/pdf/templates/`, update `content/forms.json` and the page snapshot, check the form's anchors, rebuild the maps, and look at a filled sample. GitHub runs scheduled jobs only from the default branch, and turns them off after 60 days without commits on a public repository; after merging, check the Actions tab, and run it there with "Run workflow" if it was turned off. |
+| [content/questionnaires/petition-adult.json](content/questionnaires/petition-adult.json) | The Court forms questions for the adult packet, section by section in each form's order (PO-0100, then PO-0104). Field ids match the PDF map keys. `showIf` hides a field until it applies; `$relationship`, `$convicted` and `$grounds` come from earlier steps. Groups say how many fit on the form (`max`) and which attachment takes the rest. |
+| [content/questionnaires/petition-child.json](content/questionnaires/petition-child.json) | The same for a petition filed on behalf of a child (PO-0101): the child's name, the filer as next friend, the child form's question 1, 2, 5 and 9 lines, and a Confidential Form page about the child. |
+| content/questionnaires/*.json (other files) | One per form in a case that already exists: requesting a hearing (as petitioner or respondent), withdrawing, ending, reinstating, modifying, extending, contempt, and registering or updating an out-of-state order. Each lists its `packet` (forms, copies, `confidential`), its `instructions` page, who signs (`filer`), and any `fixed` answers the route decides. Field ids are the map keys, so most need no code. |
+| content/questionnaires/wv-*.json | Workplace violence: the employer's petition packet (WV-0101, the pre-filled Order to Show Cause WV-0102, blank WV-0104 and WV-0105 to serve, WV-0103 for the server, PNW-0102, and a separate PO-0104 about the employee), the employer's request to modify (WV-0107), and the defendant's response (WV-0104, WV-0105). The employer is the Plaintiff; a person signs for it and gives their title. |
+| [content/pdfMaps/](content/pdfMaps) | Where each answer prints on the court's PDF. Edit `anchors/<FORM>.json` (a line's text and which blank on it), then run `node scripts/build-pdf-maps.mjs` (needs poppler's `pdftotext`) to regenerate `<FORM>.json`. Never edit the generated files by hand. The builder places a blank that shares a word with letters (like `ROOM___)`) by each letter's width, and marks a blank the form follows with the word COURT as `trimCourt`, so a court name typed as "Allen Superior Court" prints without its own "Court". `tests/pdf-maps.test.ts` fails if a field falls off its page or two fields print on the same spot; after any map change, also print a filled sample and compare it line by line with the blank form. The court's blank PDFs are in `src/pdf/templates/`. After adding one, delete `node_modules/.vitest-cache`: Vitest caches the template list and does not see new files. |
+| [content/routing.json](content/routing.json) | The Your situation questions. Each option goes to another question (`next`) or an outcome; each outcome lists its court forms. A test checks every option leads somewhere and every form exists. |
 | [content/safety-questions.json](content/safety-questions.json) | The optional safety questions (from the Petition Review Flags design). Each has `id`, `question` (what the petitioner sees), `staffLabel` (the chip Desk shows for a "yes"), `sourceCitation`, and `verified`. ReadyFile and Desk both read it. |
 
 ### Rule conditions
@@ -85,7 +120,7 @@ one rule. Rules cannot contain code.
 | `relationshipNotHousehold` | she said the person is not a family or household member (PO-0100 question 2; asked once) |
 | `incidentsOutOfOrder` | two incidents with full dates are out of date order in her list (asked once) |
 | `presentThreatMissing` | she has incidents, but has not said why the person could hurt her now (asked once) |
-| `convictionMissing` | she has incidents, but has not said whether the person was convicted (asked once; used for sexual assault) |
+| `convictionMissing` | she has incidents, but has not said whether the person was convicted (asked once; used when a sex offense is checked) |
 | `askedToStopMissing` | she has incidents, but has not said whether she told the person to stop (asked once) |
 | `incidentContactInfo` | an incident's description, place, or evidence may include contact details. `kinds` lists which: `phone`, `ssn`, `address`. The patterns are in [src/checker/detectors.ts](src/checker/detectors.ts). They are simple, so they can miss some formats or mark text that isn't one. |
 | `respondentDobBlank` | the respondent's date of birth is blank (asked once). |
@@ -112,14 +147,14 @@ finding's `values` (`n` incident count, `i` incident number, `words`).
 
 Every ReadyFile rule is `verified: true`, backed by the court's forms
 (PO-0100, PO-0102) or the team's checked Westlaw research. A test fails if a
-rule is added without a source or without being verified. Only the two rules
-under "Still unverified" are exempt, by name, and another test keeps that list
-to those two. The 15-word limit in
+rule is added without a source or without being verified. Only the one rule
+under "Still unverified" is exempt, by name, and another test keeps that list
+to that one. The 15-word limit in
 `incident-too-short` is a tool setting, not a legal rule.
 
 | Rule | Asks for | Source |
 | --- | --- | --- |
-| `stalking-two-incidents` | Stalking with fewer than 2 incidents | PO-0102 (team source K2) |
+| `stalking-two-incidents` | Stalking with fewer than 2 incidents | PO-0102 definition of stalking (two or more incidents) |
 | `harassment-repeated` | Harassment with fewer than 2 incidents | PO-0102, Ind. Code § 34-6-2-51.5 |
 | `dv-relationship` | Domestic violence when the person is not family or household | PO-0102; PO-0100 question 2 |
 | `present-threat` | Whether the person could hurt her now | IC 34-26-5-9(f); *S.H. v. D.W.* (Ind. 2020); *S.D. v. G.D.* (Ind. 2023) |
@@ -134,14 +169,14 @@ to those two. The 15-word limit in
 | `dv-acts` | Domestic violence incident with no act checked | PO-0100 question 7 |
 | `incident-too-short` | A description under 15 words | PO-0102; *Maurer v. Cobb-Maurer* |
 | `sexual-assault-conviction` | Whether the person was convicted (an order can last with no end date) | PO-0100 questions 2 and 9; PO-0102 |
-| `sexual-assault-acts` | Sexual assault incident with no act checked | PO-0100 question 7; IC 35-42-4; IC 34-26-5-2(a)(2) |
+| `sexual-assault-acts` | Sex offense incident with no act checked | PO-0100 question 7; IC 35-42-4; IC 34-26-5-2(a)(2) |
+| `respondent-dob-missing` | The respondent's date of birth is blank (Desk only) | PO-0102: without a date of birth or Social Security number, the order can't go into the national registry |
 
 ### Still unverified
 
 | Rule | Status |
 | --- | --- |
 | `incident-contact-info` | Draft wording, source TODO. It names the court form's confidential section; the team must confirm that section and its name. |
-| `respondent-dob-missing` | From PO-0102 petition booklet (team source K2), not yet confirmed. Only Desk asks it. |
 | Safety questions | Wording from the Petition Review Flags design. Source TODO. |
 
 The Petition Review Flags design suggests new wording for
@@ -150,6 +185,13 @@ for the team to decide.
 
 ## Following the petition (PO-0100)
 
+- **Grounds:** the Start screen asks question 1 the way the form does: check
+  every ground that applies (domestic or family violence, a sex offense,
+  stalking, repeated harassment). None checked means not sure. A rule applies
+  if it lists any checked ground; when two rules ask the same thing, it is
+  asked once.
+- **Lists match the form:** the relationships follow question 2's lines and
+  the acts follow question 7's nine boxes, in the form's order.
 - **Start:** "How do you know this person?" matches question 2. It is optional.
 - **Each incident** asks for what question 8 asks: date, place, a description,
   and everyone who was present. It also asks which acts from question 7

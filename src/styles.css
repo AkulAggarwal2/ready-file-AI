@@ -370,8 +370,22 @@ p:focus:not(:focus-visible) {
   font-weight: 700;
 }
 
+/* Petition steps stay closed until her situation leads to a petition. */
+.step-button:disabled {
+  cursor: default;
+  opacity: 0.55;
+  text-decoration: none;
+}
+
+.step-button:disabled:hover {
+  color: var(--muted);
+}
+
+
+
 .hint {
-  margin: var(--space-1) 0 var(--space-2);
+  /* Auto side margins keep a hint centered like the rest of the text. */
+  margin: var(--space-1) auto var(--space-2);
 }
 
 .note {
@@ -1114,7 +1128,10 @@ legend {
 }
 
 .step-list {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  /* Every step on one row, however many there are. */
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   gap: var(--space-1);
 }
 
@@ -1372,4 +1389,225 @@ html:has(.return-bar) {
 
 .form-checklist li + li {
   margin-top: var(--space-2);
+}
+
+/* ---- Court forms, route outcome, and download -------------------------- */
+
+/* Long headings and long choices wrap instead of being cut off. Section
+   titles and relief options are sentences, not short labels. */
+h1,
+.choice {
+  white-space: normal;
+  text-wrap: balance;
+}
+
+/* A small line above a heading: where you are. */
+.eyebrow {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-1);
+}
+
+/* Forms read best in a narrower column than the rest of the app. */
+.forms-section {
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.field {
+  margin-bottom: var(--space-4);
+}
+
+/* A question in a fieldset reads at the same size as a field's label. */
+.field > legend {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* A person's name: one heading, then First, Middle, Last on one row. */
+.name-row {
+  margin: var(--space-4) 0 var(--space-2);
+}
+
+.name-row-heading {
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+.name-row label {
+  margin-top: var(--space-2);
+  font-weight: 500;
+}
+
+/* Short fields that belong together share a row on wider screens. */
+.field-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 0 var(--space-3);
+  /* Labels line up across the row; a hint under one box doesn't move the others. */
+  align-items: start;
+}
+
+.field-row > .field {
+  margin-bottom: var(--space-2);
+}
+
+.required-tag {
+  display: inline-block;
+  margin-left: var(--space-2);
+  padding: 0 var(--space-2);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1.5;
+  vertical-align: baseline;
+}
+
+/* One item in a list, like a court case or an animal. */
+.group-item {
+  background: var(--surface-soft);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-4) var(--space-3);
+  margin: var(--space-3) 0;
+}
+
+.group-item-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.group-item-label {
+  font-weight: 700;
+  margin: 0;
+}
+
+/* The court forms on a route outcome or the download page. */
+.form-list {
+  list-style: none;
+  max-width: 40rem;
+  margin: 0 auto var(--space-4);
+  padding: 0;
+}
+
+/* Each form, centered: its number, plain name, the court's title, then copies or who fills it. */
+.form-list li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.form-list li:last-child {
+  border-bottom: none;
+}
+
+.form-number {
+  min-width: 5.75rem;
+  text-align: center;
+  padding: 0.15rem var(--space-2);
+  border-radius: var(--radius);
+  background: var(--surface-soft);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+.form-title {
+  font-weight: 600;
+}
+
+.form-official {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-style: italic;
+}
+
+.form-meta {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+/* The Confidential Form stands apart from the public forms. */
+.callout.confidential {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+}
+
+.callout.confidential h2 {
+  color: inherit;
+}
+
+/* What is still blank, by section. */
+.disclosure.missing {
+  max-width: 40rem;
+  margin: var(--space-4) auto;
+}
+
+.disclosure.missing h3 {
+  font-size: var(--text-sm);
+  margin: var(--space-3) 0 var(--space-1);
+  color: var(--muted);
+}
+
+.plain-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.plain-list .link-button {
+  white-space: normal;
+}
+
+.section-nav {
+  max-width: 40rem;
+  margin: 0 auto var(--space-4);
+}
+
+.section-nav ol {
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+}
+
+.section-nav li {
+  margin-bottom: var(--space-1);
+}
+
+.section-nav .link-button {
+  white-space: normal;
+}
+
+.section-nav .link-button[aria-current='step'] {
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* The current step's name, shown on a phone when the step names don't fit. */
+.step-now {
+  display: none;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  margin: 0 auto var(--space-3);
+}
+
+@media (max-width: 40rem) {
+  .step-list.many {
+    margin-bottom: var(--space-1);
+  }
+
+  .step-list.many .step-button {
+    font-size: 0;
+    min-height: 24px;
+  }
+
+  .step-list.many + .step-now {
+    display: block;
+  }
 }

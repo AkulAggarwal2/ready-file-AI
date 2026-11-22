@@ -6,6 +6,7 @@ import rulesJson from '../content/rules.json';
 import resourcesJson from '../content/resources.json';
 import safetyJson from '../content/safety-questions.json';
 import deskCopyJson from '../content/desk-copy.json';
+import routingJson from '../content/routing.json';
 import { validateRules } from '../src/checker';
 
 // Section 10. Matched case-insensitively, with curly apostrophes treated as straight ones.
@@ -41,6 +42,7 @@ describe('banned phrases (acceptance test 7)', () => {
     'rules.json': rulesJson,
     'resources.json': resourcesJson,
     'safety-questions.json': safetyJson,
+    'routing.json': routingJson,
   };
 
   for (const [file, json] of Object.entries(files)) {

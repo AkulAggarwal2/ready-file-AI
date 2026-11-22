@@ -2,47 +2,101 @@
 // of its own. Other tools (such as a court e-filing site or an advocate tool)
 // can import it and pass in their own rules and incidents.
 
-// To add a type of protection order: add it here, add its label under
-// start.caseTypes in copy.json, and list it in the caseTypes of any rule that
-// applies. The order here is the order on the Start screen.
-export const CASE_TYPES = ['stalking', 'harassment', 'domestic-violence', 'sexual-assault', 'not-sure'] as const;
+// The grounds a petition can be based on: question 1 on the adult petition
+// (PO-0100), where the petitioner checks every one that applies. Sex grooming
+// is only a ground on the petition filed on behalf of a child (PO-0101).
+// To add a ground: add it here, add its label under start.grounds in
+// copy.json, and list it in the grounds of any rule that applies.
+export const GROUNDS = ['domestic-violence', 'sex-offense', 'stalking', 'harassment', 'sex-grooming'] as const;
 
-export type CaseType = (typeof CASE_TYPES)[number];
+export type Ground = (typeof GROUNDS)[number];
+
+// What rules list in "grounds". "not-sure" means the rule also applies when
+// no ground is chosen.
+export const RULE_GROUNDS = [...GROUNDS, 'not-sure'] as const;
+
+export type RuleGround = (typeof RULE_GROUNDS)[number];
 
 export type CheckDate =
   | { kind: 'exact'; value: string }
   | { kind: 'approximate'; text: string }
   | { kind: 'unknown' };
 
-// How she knows the person, in the words of question 2 on the petition
-// (PO-0100). Domestic or family violence orders need one of these, except
-// "none". "not-sure" means she did not say.
+// How she knows the person: the lines of question 2 on the adult petition
+// (PO-0100), in that order. 2a lists family or household members, which
+// domestic or family violence orders need; "none" stands for 2b to 2d (no
+// family or household relationship). "not-sure" means she did not say. The
+// lifetime sex or violent offender line is asked separately (convicted).
 export const RELATIONSHIPS = [
   'spouse',
+  'former-spouse',
+  'lived-together',
+  'child-in-common',
   'dating',
   'sexual',
-  'child-in-common',
-  'family',
+  'blood-adoption',
   'marriage',
   'guardian',
+  'ward',
+  'custodian',
+  'foster-parent',
+  'minor-child-of',
+  'adopted-their-child',
   'none',
   'not-sure',
 ] as const;
 
-export type Relationship = (typeof RELATIONSHIPS)[number];
+// How the person knows the child: the lines of question 2 on the petition
+// filed for a child (PO-0101), in that order.
+export const CHILD_RELATIONSHIPS = [
+  'spouse-lived',
+  'lived-together',
+  'parent',
+  'dating',
+  'sexual',
+  'child-in-common',
+  'blood-adoption',
+  'marriage',
+  'guardian',
+  'custodian',
+  'foster-parent',
+  'minor-child-of',
+  'none',
+  'not-sure',
+] as const;
 
-// The acts listed in question 7 on the petition (PO-0100), in that order.
+export type Relationship = (typeof RELATIONSHIPS)[number] | (typeof CHILD_RELATIONSHIPS)[number];
+
+// The acts listed in question 7 on the adult petition (PO-0100), in that
+// order. The petition filed for a child (PO-0101) also lists sex grooming,
+// between animal cruelty and harassment.
 export const ACTS = [
   'attempted-harm',
   'threatened-harm',
   'caused-harm',
   'placed-in-fear',
   'forced-sexual',
+  'stalking',
+  'sex-offense',
   'animal-cruelty',
-  'unwanted-contact',
+  'harassment',
 ] as const;
 
-export type Act = (typeof ACTS)[number];
+// The acts in question 7 of the petition filed for a child (PO-0101).
+export const CHILD_ACTS = [
+  'attempted-harm',
+  'threatened-harm',
+  'caused-harm',
+  'placed-in-fear',
+  'forced-sexual',
+  'stalking',
+  'sex-offense',
+  'animal-cruelty',
+  'sex-grooming',
+  'harassment',
+] as const;
+
+export type Act = (typeof CHILD_ACTS)[number];
 
 // In the order the answer lists show them: no answer yet first.
 export const YES_NO_UNKNOWN = ['unknown', 'yes', 'no'] as const;
@@ -70,7 +124,8 @@ export interface CheckIncident {
 }
 
 export interface CheckInput {
-  caseType: CaseType;
+  // The grounds she chose (question 1). Empty means she is not sure.
+  grounds: Ground[];
   incidents: CheckIncident[];
   // The fields below are left out by tools that don't ask for them, so the
   // rules about them never ask. Desk leaves out all but respondent.
@@ -146,7 +201,7 @@ export interface PluralText {
 
 export interface Rule {
   id: string;
-  caseTypes: CaseType[];
+  grounds: RuleGround[];
   // null means the rule is a placeholder and never asks anything.
   condition: Condition | null;
   questionText: string;

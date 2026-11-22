@@ -56,7 +56,7 @@ export function findingsFor(sample: SamplePetition, v: PetitionVersion): Finding
   const findings = deskConfig.checkedCaseTypes.includes(sample.caseType)
     ? runChecks(
         {
-          caseType: sample.caseType,
+          grounds: [sample.caseType],
           incidents: v.incidents.map((incident, i) => ({ id: `${sample.id}-${i + 1}`, ...incident })),
           respondent: { dateOfBirth: sample.respondent.dateOfBirth },
         },
@@ -84,7 +84,7 @@ const DESK_CONDITIONS: ReadonlySet<ConditionType> = new Set<ConditionType>([
 export function deskRules(sample: SamplePetition): Rule[] {
   if (!deskConfig.checkedCaseTypes.includes(sample.caseType)) return [];
   return rules.filter(
-    (rule) => rule.condition && DESK_CONDITIONS.has(rule.condition.type) && rule.caseTypes.includes(sample.caseType),
+    (rule) => rule.condition && DESK_CONDITIONS.has(rule.condition.type) && rule.grounds.includes(sample.caseType),
   );
 }
 

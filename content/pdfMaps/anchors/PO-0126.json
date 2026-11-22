@@ -1,0 +1,80 @@
+{
+ "form": "PO-0126",
+ "revision": "PO-0126 Approved 07-01-09",
+ "anchors": [
+  {
+   "key": "caption.court",
+   "page": 1,
+   "find": "^STATE OF INDIANA",
+   "blank": 0
+  },
+  {
+   "key": "caption.county",
+   "page": 1,
+   "find": "^COUNTY OF",
+   "blank": 0
+  },
+  {
+   "key": "caption.division",
+   "page": 1,
+   "find": "^COUNTY OF",
+   "blank": 1
+  },
+  {
+   "key": "caption.room",
+   "page": 1,
+   "find": "^COUNTY OF",
+   "blank": 2,
+   "padLeft": 1
+  },
+  {
+   "key": "caption.petitioner",
+   "page": 1,
+   "find": "^_+ \\)$",
+   "blank": 0
+  },
+  {
+   "key": "caption.respondent",
+   "page": 1,
+   "find": "Case No\\.",
+   "blank": 0
+  },
+  {
+   "key": "caption.caseNumber",
+   "page": 1,
+   "find": "Case No\\.",
+   "blank": 1
+  },
+  {
+   "key": "respondent.address",
+   "page": 1,
+   "find": "^Address:$",
+   "kind": "after",
+   "word": "^Address:$",
+   "w": 230
+  },
+  {
+   "key": "order.date",
+   "page": 1,
+   "find": "^_+and that Respondent has violated",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "violation",
+   "page": 1,
+   "find": "time, attach additional pages if needed",
+   "nth": 0,
+   "kind": "lines",
+   "count": 11
+  },
+  {
+   "key": "printedName",
+   "page": 1,
+   "find": "^Printed:$",
+   "kind": "after",
+   "word": "^Printed:$",
+   "w": 220
+  }
+ ]
+}

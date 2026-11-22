@@ -38,7 +38,7 @@ describe('plural forms', () => {
 
 describe('checker values and staff text', () => {
   const input = {
-    caseType: 'stalking' as const,
+    grounds: ['stalking' as const],
     incidents: [{ id: 'a', date: { kind: 'unknown' as const }, description: 'He was waiting outside my work again last night.' }],
   };
 

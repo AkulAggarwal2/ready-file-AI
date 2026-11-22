@@ -8,6 +8,7 @@ import { copy, fill } from '../src/content';
 import { leaveSite } from '../src/safety/leaveSite';
 import { LENA_ONE_INCIDENT } from '../src/samples/lena';
 import { initialState, reducer } from '../src/state/appState';
+import { courtForm } from '../src/forms';
 import {
   STALKING_QUESTION,
   addIncident,
@@ -20,6 +21,8 @@ import {
   questionToggles,
   renderApp,
   toQuestions,
+  toStart,
+  toStartSync,
   type User,
 } from './helpers';
 
@@ -60,7 +63,7 @@ describe('1. Lena, one incident', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: copy.review.heading })).toBeInTheDocument();
     expect(screen.getByText(copy.review.notFiling)).toBeInTheDocument();
-    expect(summaryText()).toContain('Type of protection order: Stalking');
+    expect(summaryText()).toContain(fill(copy.summary.grounds, { grounds: copy.start.grounds.stalking }));
     expect(summaryText()).toContain(fill(copy.summary.when, { when: 'March 14' }));
     expect(summaryText()).toContain(LENA_ONE_INCIDENT);
 
@@ -96,6 +99,26 @@ describe('2. Lena, four incidents', () => {
   });
 });
 
+describe('2b. More than one ground (PO-0100 question 1: "check those which apply")', () => {
+  it('lists every ground she checked, in the form\'s order, and asks a shared question once', async () => {
+    const user = renderApp();
+    await toStart(user);
+    await user.click(screen.getByRole('checkbox', { name: copy.start.grounds.harassment }));
+    await user.click(screen.getByRole('checkbox', { name: copy.start.grounds.stalking }));
+    await user.click(screen.getByRole('button', { name: copy.start.begin }));
+    await loadSample(user, 'one');
+    await toQuestions(user);
+    // stalking-two-incidents and harassment-repeated ask the same thing; only one is listed.
+    expect(questionToggles().filter((t) => t.textContent?.includes(copy.badges.incidentCountBelow))).toHaveLength(1);
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+    expect(summaryText()).toContain(
+      fill(copy.summary.grounds, { grounds: `${copy.start.grounds.stalking}; ${copy.start.grounds.harassment}` }),
+    );
+    // Not harassment alone, so the harassment-only note is not shown.
+    expect(screen.queryByText(copy.review.formHarassment)).toBeNull();
+  });
+});
+
 describe('3. Not sure', () => {
   it('she can pick "Not sure" and finish', async () => {
     const user = renderApp();
@@ -103,7 +126,7 @@ describe('3. Not sure', () => {
     await loadSample(user, 'one');
     await toQuestions(user);
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
-    expect(summaryText()).toContain('Type of protection order: Not sure');
+    expect(summaryText()).toContain(copy.summary.groundsNotSure);
   });
 
   it('she is not forced to choose: Start with nothing picked continues as "Not sure"', async () => {
@@ -113,7 +136,7 @@ describe('3. Not sure', () => {
     await loadSample(user, 'one');
     await toQuestions(user);
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
-    expect(summaryText()).toContain('Type of protection order: Not sure');
+    expect(summaryText()).toContain(copy.summary.groundsNotSure);
   });
 });
 
@@ -136,9 +159,12 @@ describe('4. Quick exit', () => {
     await user.click(quickExit());
     expect(leaveSite).toHaveBeenCalledWith(copy.quickExit.url);
 
-    // State is cleared: back on Start with nothing chosen, no incidents, and an empty story.
-    expect(screen.getByRole('heading', { level: 1, name: copy.start.heading })).toBeInTheDocument();
-    expect(screen.getByRole('radio', { name: 'Stalking' })).not.toBeChecked();
+    // State is cleared: back at the first question with nothing chosen, no
+    // incidents, and an empty story.
+    expect(screen.getByRole('heading', { level: 1, name: copy.route.heading })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: 'Me' })).not.toBeChecked();
+    await toStart(user);
+    expect(screen.getByRole('checkbox', { name: copy.start.grounds.stalking })).not.toBeChecked();
     await begin(user);
     expect(screen.getByText(copy.organize.empty)).toBeInTheDocument();
     await goToStep(user, 'story');
@@ -159,7 +185,7 @@ describe('4. Quick exit', () => {
     expect(leaveSite).not.toHaveBeenCalled();
     await user.keyboard('{Escape}');
     expect(leaveSite).toHaveBeenCalledWith(copy.quickExit.url);
-    expect(screen.getByRole('heading', { level: 1, name: copy.start.heading })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: copy.route.heading })).toBeInTheDocument();
   });
 });
 
@@ -173,6 +199,7 @@ describe('5. Timeout', () => {
   /** Start, then open Your story with the step bar and type into it. */
   function startStory() {
     render(<App />);
+    toStartSync();
     fireEvent.click(screen.getByRole('button', { name: copy.start.begin }));
     fireEvent.click(screen.getByRole('button', { name: stepName('story') }));
     fireEvent.change(screen.getByRole('textbox', { name: copy.story.label }), {
@@ -197,7 +224,8 @@ describe('5. Timeout', () => {
     advance(1000);
 
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 1, name: copy.start.heading })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: copy.route.heading })).toBeInTheDocument();
+    toStartSync();
     fireEvent.click(screen.getByRole('button', { name: stepName('story') }));
     expect(screen.getByRole('textbox', { name: copy.story.label })).toHaveValue('');
   });
@@ -388,7 +416,8 @@ describe('10. Follows the petition (PO-0100)', () => {
 
   it('for domestic violence, "none of these" asks about the relationship and goes back to it', async () => {
     const user = renderApp();
-    await user.click(screen.getByRole('radio', { name: copy.start.caseTypes['domestic-violence'] }));
+    await toStart(user);
+    await user.click(screen.getByRole('checkbox', { name: copy.start.grounds['domestic-violence'] }));
     await user.selectOptions(screen.getByRole('combobox', { name: copy.start.relationshipLabel }), 'none');
     await user.click(screen.getByRole('button', { name: copy.start.begin }));
     await toQuestions(user);
@@ -488,10 +517,11 @@ describe('12. Numbers and pages match the form', () => {
   });
 });
 
-describe('13. Sexual assault', () => {
+describe('13. Sex offense', () => {
   it('asks about a conviction on Your story, and the Review checklist explains question 2', async () => {
     const user = renderApp();
-    await user.click(screen.getByRole('radio', { name: copy.start.caseTypes['sexual-assault'] }));
+    await toStart(user);
+    await user.click(screen.getByRole('checkbox', { name: copy.start.grounds['sex-offense'] }));
     await user.click(screen.getByRole('button', { name: copy.start.begin }));
     await addIncident(user, 'He came to my apartment after a party and forced me into sexual activity.');
     await toQuestions(user);
@@ -620,5 +650,312 @@ describe('getting back to a question, and one incident at a time', () => {
     await user.click(done[done.length - 1]);
     expect(screen.queryAllByRole('textbox', { name: copy.incident.descriptionLabel })).toHaveLength(0);
     expect(screen.getByRole('heading', { level: 2, name: 'Incident 2' })).toHaveFocus();
+  });
+});
+
+// The route step picks the court forms (content/routing.json), from the
+// IOJA forms page and the PO-0102, PO-0103 and WV-0100 instructions.
+describe('15. Your situation picks the court forms', () => {
+  async function choose(user: User, ...options: string[]) {
+    for (const option of options) {
+      await user.click(screen.getByRole('radio', { name: option }));
+      await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    }
+  }
+
+  it('shows no step bar while she answers, then the petition steps once a petition is picked', async () => {
+    const user = renderApp();
+    expect(screen.queryByRole('navigation', { name: copy.app.stepsLabel })).toBeNull();
+    expect(screen.getByText(fill(copy.route.questionNumber, { n: 1 }))).toBeInTheDocument();
+    await choose(user, 'Me', 'Ask for a new protection order', 'At or near my home');
+    expect(screen.getByRole('heading', { level: 1, name: 'Petition for an order for protection' })).toBeInTheDocument();
+    // Plain names first, with the court's title beneath.
+    expect(screen.getByText('The petition')).toBeInTheDocument();
+    expect(screen.getByText(courtForm('PO-0100').title)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: stepName('route') })).toHaveAttribute('aria-current', 'step');
+    expect(screen.getByRole('button', { name: stepName('start') })).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: copy.route.toPetition }));
+    expect(screen.getByRole('heading', { level: 1, name: copy.start.heading })).toBeInTheDocument();
+  });
+
+  it('shows no step bar on an outcome that only explains', async () => {
+    const user = renderApp();
+    await choose(user, 'Me', 'I want a no contact order in a criminal case');
+    expect(screen.queryByRole('navigation', { name: copy.app.stepsLabel })).toBeNull();
+  });
+
+  it('tells someone harassed at work that only an employer files the workplace forms', async () => {
+    const user = renderApp();
+    await choose(user, 'Me', 'Ask for a new protection order');
+    await user.click(screen.getByRole('radio', { name: 'At or near my work' }));
+    expect(screen.getByRole('status', { name: '' })).toHaveTextContent(/Only an employer can file the workplace violence forms/);
+  });
+
+  it('gives an employer the workplace violence packet and goes on to fill it', async () => {
+    const user = renderApp();
+    await choose(user, 'An employee of my business or organization', 'Yes', 'Made a believable threat of violence', 'Yes', 'No', 'Ask for a new workplace violence restraining order');
+    for (const number of ['WV-0101', 'WV-0102', 'WV-0104', 'WV-0105', 'WV-0103']) expect(screen.getByText(number)).toBeInTheDocument();
+    expect(screen.queryByText(copy.route.notFilledYet)).toBeNull();
+    expect(screen.queryByRole('button', { name: copy.route.toPetition })).toBeNull();
+    await user.click(screen.getByRole('button', { name: copy.route.toForm }));
+    expect(screen.getByRole('textbox', { name: "The employer's full legal name" })).toBeInTheDocument();
+    expect(screen.getByText(/· WV-0101/)).toBeInTheDocument();
+  });
+
+  it('sends an employer without 2 employees to an explanation, and Start over goes back to the first question', async () => {
+    const user = renderApp();
+    await choose(user, 'An employee of my business or organization', 'No');
+    expect(screen.getByRole('heading', { level: 1, name: 'Workplace violence orders are for employers' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: copy.route.startOver }));
+    expect(screen.getByRole('radio', { name: 'Me' })).not.toBeChecked();
+    expect(screen.queryByRole('button', { name: copy.route.back })).toBeNull();
+  });
+
+  it('explains that a no contact order comes from a criminal case', async () => {
+    const user = renderApp();
+    await choose(user, 'Me', 'I want a no contact order in a criminal case');
+    expect(screen.getByRole('heading', { level: 1, name: 'No contact orders' })).toBeInTheDocument();
+    expect(screen.queryByText(copy.route.formsHeading)).toBeNull();
+  });
+});
+
+// The Court forms step asks the rest of what PO-0100, PO-0104 and PNW-0102
+// need, in each form's order, and builds the PDF on the device.
+describe('16. Court forms', () => {
+  async function toForms(user: User) {
+    await begin(user, 'Stalking');
+    await loadSample(user, 'one');
+    await toQuestions(user);
+    await user.click(screen.getByRole('button', { name: copy.check.toReview }));
+    await user.click(screen.getByRole('button', { name: copy.review.toForms }));
+  }
+
+  it('starts with the case heading of the petition and shows a field only when it applies', async () => {
+    const user = renderApp();
+    await toForms(user);
+    expect(screen.getByRole('heading', { level: 1, name: 'The court and the people in the case' })).toHaveFocus();
+    expect(screen.getByText(/Section 1 of \d+ · PO-0100/)).toBeInTheDocument();
+    await user.type(screen.getByRole('textbox', { name: 'County where you are filing' }), 'Allen');
+
+    await user.click(screen.getByRole('button', { name: 'Other cases, the county, and your public address' }));
+    const address = () => screen.queryByRole('textbox', { name: 'Your public mailing address' });
+    expect(address()).toBeInTheDocument();
+    await user.click(screen.getByRole('radio', { name: copy.forms.yes }));
+    expect(address()).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Orders the judge can make right away' }));
+    expect(screen.queryByRole('textbox', { name: 'Which place?' })).toBeNull();
+    await user.click(screen.getByRole('checkbox', { name: /stay away from my home, school, work/ }));
+    expect(screen.getByRole('textbox', { name: 'Which place?' })).toBeInTheDocument();
+  });
+
+  it('adds and removes items in a list, and says where extra ones go', async () => {
+    const user = renderApp();
+    await toForms(user);
+    await user.click(screen.getByRole('button', { name: 'Other cases, the county, and your public address' }));
+    expect(screen.getByText(/5 fit on the form. Any more go on Attachment 4a/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Add a case' }));
+    await user.type(screen.getByRole('textbox', { name: 'Case name' }), 'Doe v. Doe');
+    expect(screen.getByRole('group', { name: 'Case 1' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Remove Case 1' }));
+    expect(screen.queryByRole('group', { name: 'Case 1' })).toBeNull();
+  });
+
+  it('lists what is still blank, links back to it, and makes the PDF on the device', async () => {
+    const create = vi.fn(() => 'blob:readyfile-test');
+    const revoke = vi.fn();
+    Object.assign(URL, { createObjectURL: create, revokeObjectURL: revoke });
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    const user = renderApp();
+    await toForms(user);
+    await user.click(screen.getByRole('button', { name: copy.forms.downloadHeading }));
+    expect(screen.getByRole('heading', { level: 1, name: copy.forms.downloadHeading })).toBeInTheDocument();
+    for (const number of ['PO-0100', 'PO-0104', 'PNW-0102']) expect(screen.getByText(number)).toBeInTheDocument();
+    const missing = screen.getByRole('region', { name: copy.forms.missingHeading });
+    await user.click(within(missing).getByRole('button', { name: 'County where you are filing' }));
+    expect(screen.getByRole('heading', { level: 1, name: 'The court and the people in the case' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: copy.forms.downloadHeading }));
+    await user.click(screen.getByRole('button', { name: copy.forms.downloadPublic }));
+    await screen.findByText(copy.forms.madePublic, {}, { timeout: 5000 });
+    // The Confidential Form is a separate file, so it is never printed with the petition.
+    const confidential = screen.getByRole('region', { name: copy.forms.confidentialHeading });
+    expect(within(confidential).getByText('PO-0104')).toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: copy.forms.publicHeading })).queryByText('PO-0104')).toBeNull();
+    await user.click(within(confidential).getByRole('button', { name: copy.forms.downloadConfidential }));
+    await screen.findByText(copy.forms.madeConfidential, {}, { timeout: 5000 });
+    expect(create).toHaveBeenCalledTimes(2);
+    expect(click).toHaveBeenCalledTimes(2);
+    click.mockRestore();
+  });
+
+  it('keeps her answers when she moves between steps', async () => {
+    const user = renderApp();
+    await toForms(user);
+    await user.type(screen.getByRole('textbox', { name: "The other person's first name" }), 'Sam');
+    await goToStep(user, 'review');
+    await goToStep(user, 'forms');
+    expect(screen.getByRole('textbox', { name: "The other person's first name" })).toHaveValue('Sam');
+  });
+});
+
+// A parent, guardian, or other adult filing for a child (PO-0101, PO-0103).
+describe('17. Petition for a child', () => {
+  async function toChildStart(user: User, role = 'I am the child\'s parent') {
+    for (const option of ['My child, or a child I am the guardian of', 'Ask for a new protection order', role, 'At or near the child\'s home']) {
+      await user.click(screen.getByRole('radio', { name: option }));
+      await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    }
+    for (const number of ['PO-0101', 'PO-0104', 'PNW-0102']) expect(screen.getByText(number)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: copy.route.toPetition }));
+  }
+
+  it('asks about the child, with sex grooming and the child form\'s relationship lines', async () => {
+    const user = renderApp();
+    await toChildStart(user);
+    const child = copy.child.start;
+    expect(screen.getByRole('heading', { level: 1, name: child.heading })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: copy.start.grounds['sex-grooming'] })).toBeInTheDocument();
+    const select = screen.getByRole('combobox', { name: child.relationshipLabel });
+    expect(within(select).getByRole('option', { name: child.relationships.parent })).toBeInTheDocument();
+    expect(within(select).queryByRole('option', { name: copy.start.relationships.ward })).toBeNull();
+  });
+
+  it('lists the child form\'s acts, including sex grooming, in the child\'s words', async () => {
+    const user = renderApp();
+    await toChildStart(user);
+    await user.click(screen.getByRole('button', { name: copy.start.begin }));
+    await addIncident(user, 'He sent her messages every night asking her to keep secrets from her parents.');
+    expect(screen.getByRole('checkbox', { name: copy.child.incident.acts['sex-grooming'] })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: copy.child.incident.acts['caused-harm'] })).toBeInTheDocument();
+    expect(screen.queryByRole('checkbox', { name: copy.incident.acts['caused-harm'] })).toBeNull();
+  });
+
+  it('asks for the child\'s name and, for "another adult", how they represent the child', async () => {
+    const user = renderApp();
+    await toChildStart(user, 'I am another adult acting for the child');
+    await user.click(screen.getByRole('button', { name: copy.start.begin }));
+    await goToStep(user, 'forms');
+    expect(screen.getByRole('textbox', { name: "The child's first name" })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'How do you represent the child?' })).toBeInTheDocument();
+    expect(screen.getByText(/· PO-0101/)).toBeInTheDocument();
+  });
+
+  it('does not ask a parent how they represent the child', async () => {
+    const user = renderApp();
+    await toChildStart(user);
+    await user.click(screen.getByRole('button', { name: copy.start.begin }));
+    await goToStep(user, 'forms');
+    expect(screen.queryByRole('textbox', { name: 'How do you represent the child?' })).toBeNull();
+  });
+});
+
+// Forms in a case that already exists go straight to the Court forms step.
+describe('18. Forms for an existing order', () => {
+  async function choose(user: User, ...options: string[]) {
+    for (const option of options) {
+      await user.click(screen.getByRole('radio', { name: option }));
+      await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    }
+  }
+
+  it('extending an order skips the incident steps and shows only two steps', async () => {
+    const user = renderApp();
+    await choose(user, 'Me', 'I already have a protection order', 'An Indiana court', 'Make the order last longer');
+    await user.click(screen.getByRole('button', { name: copy.route.toForm }));
+    expect(screen.getByRole('heading', { level: 1, name: 'The case' })).toHaveFocus();
+    expect(screen.getByText(/· PO-0116/)).toBeInTheDocument();
+    const steps = within(screen.getByRole('navigation', { name: copy.app.stepsLabel })).getAllByRole('button');
+    expect(steps.map((b) => b.textContent)).toEqual([copy.app.steps.route, copy.app.steps.forms]);
+    expect(screen.getByRole('textbox', { name: 'Case number' })).toBeInTheDocument();
+  });
+
+  it('shows "How did the person break the order?" only when it was broken', async () => {
+    const user = renderApp();
+    await choose(user, 'Me', 'I already have a protection order', 'An Indiana court', 'Make the order last longer');
+    await user.click(screen.getByRole('button', { name: copy.route.toForm }));
+    await user.click(screen.getByRole('button', { name: 'Why the order is still needed' }));
+    expect(screen.queryByRole('textbox', { name: 'How did the person break the order?' })).toBeNull();
+    await user.click(screen.getByRole('checkbox', { name: 'The other person broke the order' }));
+    expect(screen.getByRole('textbox', { name: 'How did the person break the order?' })).toBeInTheDocument();
+  });
+
+  it('a respondent asking for a hearing is asked for their own name, and gets one PDF', async () => {
+    const create = vi.fn(() => 'blob:readyfile-test');
+    Object.assign(URL, { createObjectURL: create, revokeObjectURL: vi.fn() });
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    const user = renderApp();
+    await choose(user, 'Someone asked the court for an order against me', 'An order for protection issued without a hearing (ex parte), or a change to one');
+    await user.click(screen.getByRole('button', { name: copy.route.toForm }));
+    expect(screen.getByRole('textbox', { name: 'Your first name' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: "The petitioner's first name" })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: copy.forms.downloadHeading }));
+    expect(screen.queryByRole('region', { name: copy.forms.confidentialHeading })).toBeNull();
+    await user.click(screen.getByRole('button', { name: copy.forms.downloadForms }));
+    await screen.findByText(copy.forms.madePublic, {}, { timeout: 10_000 });
+    expect(create).toHaveBeenCalledTimes(1);
+    click.mockRestore();
+  }, 20_000);
+});
+
+// The court PDFs' fonts only have Western European letters.
+describe('19. Letters the court forms cannot print', () => {
+  it('warns under the field, says what will print, and lists it on the download page', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await goToStep(user, 'forms');
+    const last = screen.getByRole('textbox', { name: "The other person's last name" });
+    await user.type(last, 'Nguyễn');
+    const warning = screen.getByText(/can't print these letters: ễ/);
+    expect(warning).toHaveTextContent('It will show "Nguyên"');
+    expect(last.getAttribute('aria-describedby')).toContain(warning.id);
+    await user.click(screen.getByRole('button', { name: copy.forms.downloadHeading }));
+    const check = screen.getByRole('region', { name: copy.forms.unprintableHeading });
+    expect(within(check).getByText("The other person's last name")).toBeInTheDocument();
+  });
+
+  it('shows no warning for accents the form can print', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await goToStep(user, 'forms');
+    await user.type(screen.getByRole('textbox', { name: "The other person's last name" }), 'Muñoz-José');
+    expect(screen.queryByText(/can't print these letters/)).toBeNull();
+  });
+});
+
+// Workplace violence: the employer files for an employee (WV-0100); the defendant responds.
+describe('20. Workplace violence forms', () => {
+  async function choose(user: User, ...options: string[]) {
+    for (const option of options) {
+      await user.click(screen.getByRole('radio', { name: option }));
+      await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    }
+    await user.click(screen.getByRole('button', { name: copy.route.toForm }));
+  }
+
+  it('asks about the temporary restraining order notice only when one is requested', async () => {
+    const user = renderApp();
+    await choose(user, 'An employee of my business or organization', 'Yes', 'Stalked the employee', 'Yes', 'No', 'Ask for a new workplace violence restraining order');
+    await user.click(screen.getByRole('button', { name: 'A temporary restraining order' }));
+    expect(screen.queryByRole('group', { name: 'How was the defendant told about this petition?' })).toBeNull();
+    await user.click(screen.getByRole('checkbox', { name: 'Ask for a temporary restraining order now' }));
+    expect(screen.getByRole('group', { name: 'How was the defendant told about this petition?' })).toBeInTheDocument();
+  });
+
+  it('the employer gets the petition and a separate Confidential Form about the employee', async () => {
+    const user = renderApp();
+    await choose(user, 'An employee of my business or organization', 'Yes', 'Stalked the employee', 'Yes', 'No', 'Ask for a new workplace violence restraining order');
+    await user.click(screen.getByRole('button', { name: 'Confidential Form: about the employee' }));
+    expect(screen.getByRole('textbox', { name: "The employee's home address" })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: copy.forms.downloadHeading }));
+    expect(within(screen.getByRole('region', { name: copy.forms.confidentialHeading })).getByText('PO-0104')).toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: copy.forms.publicHeading })).getByText('WV-0101')).toBeInTheDocument();
+  });
+
+  it('a defendant served with an Order to Show Cause gets the Response, signed in their own name', async () => {
+    const user = renderApp();
+    await choose(user, 'Someone asked the court for an order against me', 'An Order to Show Cause about workplace violence');
+    expect(screen.getByRole('textbox', { name: 'Your first name' })).toBeInTheDocument();
+    expect(screen.getByText(/· WV-0104/)).toBeInTheDocument();
   });
 });

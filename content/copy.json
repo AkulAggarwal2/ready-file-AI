@@ -5,12 +5,15 @@
     "stepsLabel": "Go to a step",
     "stepNumber": "Step {n}:",
     "steps": {
+      "route": "Your situation",
       "start": "Start",
       "incidents": "Incidents",
       "story": "Your story",
       "questions": "Questions",
-      "review": "Review"
-    }
+      "review": "Review",
+      "forms": "Court forms"
+    },
+    "stepNow": "Step {current} of {total}: {step}"
   },
   "quickExit": {
     "label": "Quick exit",
@@ -44,27 +47,34 @@
     "notFiling": "This tool does not file anything for you. It does not give legal advice.",
     "safetyHeading": "Before you start",
     "safetyNote": "If someone else uses this device, they may see what you type. Nothing is saved. To leave fast, use Quick exit at the top of the screen. Everything is cleared after {minutes} minutes with no activity.",
-    "caseTypeLegend": "What kind of protection order are you asking for?",
-    "caseTypeHint": "If you are not sure, pick \"Not sure.\" You can still finish.",
-    "caseTypes": {
-      "stalking": "Stalking",
-      "harassment": "Harassment",
+    "groundsLegend": "What happened? Check every one that applies.",
+    "groundsHint": "This is question 1 on the court's form. If you are not sure, leave them all unchecked. You can still finish.",
+    "grounds": {
       "domestic-violence": "Domestic or family violence",
-      "sexual-assault": "Sexual assault",
-      "not-sure": "Not sure"
+      "sex-offense": "A sex offense, like sexual assault",
+      "stalking": "Stalking",
+      "harassment": "Repeated harassment",
+      "sex-grooming": "Sex grooming of a child"
     },
     "begin": "Start",
     "relationshipLabel": "How do you know this person?",
     "relationshipHint": "The court's form asks this (question 2). It helps show which kind of order fits. You can skip it.",
     "relationships": {
       "": "Choose one (optional)",
-      "spouse": "We are or were married",
+      "spouse": "We are married",
+      "former-spouse": "We used to be married",
+      "lived-together": "We lived together in an intimate relationship",
+      "child-in-common": "We have a child together",
       "dating": "We are dating or used to date",
       "sexual": "We have or had a sexual relationship",
-      "child-in-common": "We have a child together",
-      "family": "We are related by blood or adoption",
+      "blood-adoption": "We are related by blood or adoption",
       "marriage": "We are or were related by marriage, like a stepparent or in-law",
-      "guardian": "One of us is or was the other's guardian, custodian, or foster parent",
+      "guardian": "The person is or was my guardian",
+      "ward": "The person is or was my ward (I was their guardian)",
+      "custodian": "The person is or was my custodian",
+      "foster-parent": "The person is or was my foster parent",
+      "minor-child-of": "I am the minor child of someone with one of these relationships to the person",
+      "adopted-their-child": "I adopted the person's child",
       "none": "None of these, like a neighbor, coworker, or stranger",
       "not-sure": "Not sure, or I'd rather not say"
     }
@@ -151,9 +161,12 @@
       "threatened-harm": "Threatened to hurt me",
       "caused-harm": "Hurt me",
       "placed-in-fear": "Made me afraid I would be hurt",
-      "forced-sexual": "Forced me into sexual activity",
+      "forced-sexual": "Forced me into sexual activity by force, threats, or pressure",
+      "stalking": "Stalked me",
+      "sex-offense": "Committed a sex offense against me",
       "animal-cruelty": "Hurt or killed an animal to scare or control me",
-      "unwanted-contact": "Kept contacting or following me when I didn't want it"
+      "harassment": "Harassed me again and again",
+      "sex-grooming": "Contacted a child again and again to prepare them for sexual activity (sex grooming)"
     },
     "presentLabel": "Who was there?",
     "presentHint": "List everyone who was there. The court's form asks you to include your own name if you were there.",
@@ -203,22 +216,22 @@
     "clearQuestion": "Clear everything you typed and start over?",
     "clearYes": "Yes, clear everything",
     "formHeading": "The rest of the court's form",
-    "formIntro": "The form (PO-0100) asks for more than your incidents. Have these ready before you start it.",
+    "formIntro": "The court's forms ask for more than your incidents. On the next step, ReadyFile asks for the rest and prints everything on the official forms:",
     "formItems": [
-      "Question 4: every court case that involves you, this person, or a child you have together. That includes divorce, custody, criminal, and other protection order cases. List the case name, case number, and county.",
-      "Question 5: why you are filing in this county. It can be where the person lives, where it happened, or where you live.",
-      "Question 6: a mailing address you are comfortable making public. Your private address goes on the Confidential Form (PO-0104) instead.",
-      "Question 9: what you want the court to order, like staying away, no contact, giving up guns, or who keeps the home or pets. Some of these need a hearing within 30 days.",
-      "The Confidential Form (PO-0104): the person's full name, date of birth, and current address, if you know them. Police need these to serve and enforce the order.",
-      "Your signature. You sign under penalty of perjury that what you wrote is true."
+      "The petition (PO-0100): the court and the people in the case, other court cases (question 4), why you are filing in this county (question 5), your public mailing address (question 6), and what you are asking the judge to order (question 9).",
+      "The Confidential Form (PO-0104): what you know about the other person, your private contact details, and other people to protect. Police use it to serve and enforce the order.",
+      "The Notice of Exclusion (PNW-0102), which keeps the Confidential Form private. ReadyFile fills it in from your other answers.",
+      "You sign and date the petition by hand. You sign under penalty of perjury that what you wrote is true."
     ],
-    "formHarassment": "Because you chose harassment: if your petition is based on harassment alone, the court must notify the person and hold a hearing before it can order anything.",
-    "formSource": "Based on the Indiana petition (PO-0100) and its instructions (PO-0102).",
-    "formSexOffense": "Because you chose sexual assault: if the person was convicted and must register as a sex or violent offender for life, question 2 asks for the case number, the court and state, and the date of conviction."
+    "formHarassment": "Because you checked only harassment: if your petition is based on harassment alone, the court must notify the person and hold a hearing before it can order anything.",
+    "formSource": "Based on the Indiana petition (PO-0100), its instructions (PO-0102), the Confidential Form (PO-0104), and the Notice of Exclusion (PNW-0102).",
+    "formSexOffense": "Because you checked a sex offense: if the person was convicted and must register as a sex or violent offender for life, question 2 asks for the case number, the court and state, and the date of conviction.",
+    "toForms": "Fill in the court forms"
   },
   "summary": {
     "title": "Incident summary",
-    "caseType": "Type of protection order: {caseType}",
+    "grounds": "Grounds for the order (question 1): {grounds}",
+    "groundsNotSure": "Grounds for the order (question 1): not sure yet",
     "incident": "Incident #{n}",
     "when": "Date of incident: {when}",
     "dateUnknown": "Date not known",
@@ -300,5 +313,148 @@
     },
     "clear": "Clear answer",
     "unverified": "Unverified question: {id}"
+  },
+  "route": {
+    "heading": "Your situation",
+    "intro": "A few questions pick the court forms that fit. Nothing is saved, and you can go back at any time.",
+    "continue": "Continue",
+    "back": "Back",
+    "startOver": "Start over",
+    "chooseOne": "Pick one to continue.",
+    "formsHeading": "The forms for this",
+    "formsHeadingInfo": "Papers you may see",
+    "filledBy": {
+      "petitioner": "You fill this in",
+      "next-friend": "You fill this in for the child",
+      "employer": "The employer fills this in",
+      "respondent": "You fill this in",
+      "defendant": "You fill this in",
+      "server": "The person who serves the papers fills this in",
+      "court": "The court fills this in",
+      "clerk": "The clerk fills this in",
+      "reference": "Instructions"
+    },
+    "notFilledYet": "ReadyFile does not fill these forms in yet. The court clerk's office has them, and an advocate can help you with them for free.",
+    "toPetition": "Continue to your petition",
+    "toForm": "Continue to the form",
+    "questionNumber": "Question {n}",
+    "coverTag": "Cover"
+  },
+  "forms": {
+    "heading": "Court forms",
+    "intro": "These questions follow the court's forms, section by section. Your answers are printed on the official forms. Only fill in what you know.",
+    "sectionOf": "Section {n} of {total}",
+    "formLabel": "{number}",
+    "next": "Next section",
+    "back": "Previous section",
+    "toDownload": "Finish",
+    "required": "Needed",
+    "private": "Only the court, the clerk, the prosecutor, and police see this.",
+    "yes": "Yes",
+    "no": "No",
+    "chooseOne": "Choose one",
+    "remove": "Remove",
+    "fitsOnForm": "{max} fit on the form. Any more go on Attachment {label}, which is added for you.",
+    "limitReached": "The court can list up to {limit} people in one order. More need a second petition.",
+    "sectionsLabel": "Sections",
+    "downloadHeading": "Your forms",
+    "downloadIntro": "ReadyFile prints your answers on the court's official forms. The PDFs are made on this device, and nothing is sent anywhere.",
+    "missingHeading": "Still blank",
+    "missingIntro": "These are needed for the forms. You can still make the PDF and fill them in by hand.",
+    "complete": "Everything the forms need is filled in.",
+    "making": "Making your PDF...",
+    "failed": "The PDF could not be made. Please try again.",
+    "copies": "{copies} copies",
+    "copy": "1 copy",
+    "afterDownload": "The PDFs are not saved in ReadyFile. If someone else uses this device, delete them from your downloads when you are done, especially the Confidential Form.",
+    "sectionsSummary": "All sections",
+    "publicHeading": "1. The public forms",
+    "publicIntro": "The petition is a public court record, and one copy is given to the other person.",
+    "downloadPublic": "Make the petition PDF",
+    "publicFileName": "protection-order-petition.pdf",
+    "madePublic": "The petition PDF is ready. Check your downloads.",
+    "confidentialHeading": "2. The Confidential Form (separate file)",
+    "confidentialIntro": "This has your home address and other private details. Only the court, the clerk, the prosecutor, and police see it. Print one copy, give it only to the clerk, and never put it with the copies of the petition.",
+    "downloadConfidential": "Make the Confidential Form PDF",
+    "confidentialFileName": "confidential-form-PO-0104.pdf",
+    "madeConfidential": "The Confidential Form PDF is ready. Check your downloads.",
+    "confidentialTitle": "CONFIDENTIAL: Confidential Form (PO-0104). Do not serve on the Respondent.",
+    "confidentialInstructions": [
+      "This file has the Confidential Form with your private details. It is confidential under Indiana law (Ind. Code 5-2-9-7). Only the court, the clerk, the prosecutor, and police see it.",
+      "Print 1 copy. Print page 2 on green paper if you can (Admin. Rule 9).",
+      "Give it only to the clerk, with your petition. Never staple it to a copy of the petition, and never give it to the other person.",
+      "The red line at the top and bottom of each page is from ReadyFile. It is there so this page is never mixed with the petition by mistake.",
+      "This page is not part of your filing. Remove it before you file."
+    ],
+    "confidentialBanner": "CONFIDENTIAL (Ind. Code 5-2-9-7) - GIVE ONLY TO THE CLERK - DO NOT SERVE ON THE RESPONDENT",
+    "formsOnlyHeading": "Your form",
+    "downloadForms": "Make the PDF",
+    "unprintable": "The court's form can't print these letters: {letters}. It will show \"{shown}\". After you print, cross it out and write it correctly by hand.",
+    "unprintableLong": "The court's form can't print these letters: {letters}. They will show as close letters or \"?\". After you print, correct them by hand.",
+    "unprintableHeading": "Check these by hand",
+    "unprintableIntro": "Some letters you typed can't be printed on the court's forms. After you print, write these correctly by hand. The court needs names spelled exactly.",
+    "formRef": "{number}, {ref}",
+    "requiredSr": "Needed for the form.",
+    "missingSummary": "{count} answers the forms need are still blank",
+    "missingSummaryOne": "1 answer the forms need is still blank",
+    "removeLabel": "Remove {item}",
+    "nameParts": {
+      "first": "First",
+      "middle": "Middle",
+      "last": "Last"
+    }
+  },
+  "child": {
+    "_about": "Wording for the petition filed on behalf of a child (PO-0101). Each key replaces the same key above when the petition is for a child.",
+    "start": {
+      "heading": "Get the child's story ready to file",
+      "intro": "ReadyFile gets the incidents part of a protection order petition for a child ready (question 8 on the court's form, PO-0101). You file it as the child's \"next friend.\" It asks the kind of questions court staff ask in person.",
+      "groundsLegend": "What happened to the child? Check every one that applies.",
+      "groundsHint": "If you are not sure, leave them all unchecked. You can still finish.",
+      "relationshipLabel": "How does this person know the child?",
+      "relationshipHint": "The court's form asks this (question 2). It helps show which kind of order fits. You can skip it.",
+      "relationships": {
+        "": "Choose one (optional)",
+        "spouse-lived": "The person is or was my spouse, and the child lived with us",
+        "lived-together": "The person and I lived together in an intimate relationship, and the child lived with us",
+        "parent": "The person is the child's parent",
+        "dating": "The person is dating or used to date the child",
+        "sexual": "The person has or had a sexual relationship with the child",
+        "child-in-common": "The person and the child have a child together",
+        "blood-adoption": "The person is related to the child by blood or adoption",
+        "marriage": "The person is or was related to the child by marriage, like a stepparent",
+        "guardian": "The person is or was the child's guardian",
+        "custodian": "The person is or was the child's custodian",
+        "foster-parent": "The person is or was the child's foster parent",
+        "minor-child-of": "The child is the minor child of someone with one of these relationships to the person",
+        "none": "None of these, like a neighbor, coach, or stranger",
+        "not-sure": "Not sure, or I'd rather not say"
+      }
+    },
+    "incident": {
+      "acts": {
+        "attempted-harm": "Tried to hurt the child",
+        "threatened-harm": "Threatened to hurt the child",
+        "caused-harm": "Hurt the child",
+        "placed-in-fear": "Made the child afraid of being hurt",
+        "forced-sexual": "Forced the child into sexual activity by force, threats, or pressure",
+        "stalking": "Stalked the child",
+        "sex-offense": "Committed a sex offense against the child",
+        "animal-cruelty": "Hurt or killed an animal to scare or control a family or household member",
+        "sex-grooming": "Contacted the child again and again to prepare them for sexual activity (sex grooming)",
+        "harassment": "Harassed the child again and again"
+      },
+      "firsthandLabel": "Did you see or hear this yourself?",
+      "feelingLabel": "How did it make the child feel? (optional)",
+      "feelingHint": "For example: scared, or afraid to go to school."
+    },
+    "story": {
+      "threatLabel": "Do you think this person could hurt the child now? (optional)",
+      "askedToStopLabel": "Did you or the child ever tell this person to stop contacting the child?",
+      "convictedLabel": "Was this person convicted of a sex crime against the child? (optional)"
+    },
+    "summary": {
+      "relationship": "How the person knows the child (question 2): {relationship}"
+    }
   }
 }

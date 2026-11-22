@@ -1,0 +1,540 @@
+{
+  "_about": "The questions for WV-0107, WV-0103. Field ids match the keys in content/pdfMaps.",
+  "id": "wv-modify",
+  "filer": "petitioner",
+  "packet": [
+    {
+      "form": "WV-0107",
+      "copies": 5
+    },
+    {
+      "form": "WV-0103",
+      "copies": 1
+    }
+  ],
+  "instructions": {
+    "title": "Your petition to modify: before you file (do not file this page)",
+    "lines": [
+      "This file has the Petition of Employer for Modification of an Injunction (WV-0107) and a Proof of Personal Service (WV-0103) for the person who serves it.",
+      "The court needs a big change in the circumstances since the injunction was issued.",
+      "A person signs for the employer by hand, under penalty of perjury, and gives their title.",
+      "Print 5 copies, unless the clerk tells you otherwise. Someone other than the employer serves the defendant and fills in the Proof of Personal Service.",
+      "This page is not part of your filing. Remove it before you file."
+    ]
+  },
+  "sections": [
+    {
+      "id": "caption",
+      "form": "WV-0107",
+      "title": "The case",
+      "intro": "This goes at the top of every form.",
+      "fields": [
+        {
+          "id": "court.county",
+          "type": "text",
+          "label": "County of the court",
+          "required": true
+        },
+        {
+          "id": "court.name",
+          "type": "text",
+          "label": "Name of the court",
+          "hint": "Like Allen Superior. The clerk's office can tell you."
+        },
+        {
+          "id": "court.division",
+          "type": "text",
+          "label": "Division"
+        },
+        {
+          "id": "court.room",
+          "type": "text",
+          "label": "Room"
+        },
+        {
+          "id": "case.number",
+          "type": "text",
+          "label": "Case number",
+          "required": true
+        },
+        {
+          "id": "plaintiff.name",
+          "type": "text",
+          "label": "The employer's full legal name",
+          "required": true
+        },
+        {
+          "id": "employee.name",
+          "type": "text",
+          "label": "The employee's full name",
+          "required": true
+        },
+        {
+          "id": "respondent.first",
+          "type": "text",
+          "label": "The other person's first name",
+          "required": true,
+          "hint": "The person the order would restrain (the defendant)."
+        },
+        {
+          "id": "respondent.middle",
+          "type": "text",
+          "label": "The other person's middle name"
+        },
+        {
+          "id": "respondent.last",
+          "type": "text",
+          "label": "The other person's last name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "injunction",
+      "form": "WV-0107",
+      "ref": "paragraphs 1 to 3",
+      "title": "The injunction and what changed",
+      "fields": [
+        {
+          "id": "injunction.date",
+          "type": "date",
+          "label": "Date the injunction was issued",
+          "required": true
+        },
+        {
+          "id": "expires",
+          "type": "date",
+          "label": "Date it ends",
+          "required": true
+        },
+        {
+          "id": "change",
+          "type": "textarea",
+          "label": "What has changed?",
+          "required": true,
+          "rows": 4
+        }
+      ]
+    },
+    {
+      "id": "orders",
+      "form": "WV-0107",
+      "ref": "paragraph 4",
+      "title": "The changes you are asking for",
+      "fields": [
+        {
+          "id": "protectedHousehold",
+          "type": "group",
+          "label": "Family or household members who live with the employee and need protection",
+          "fields": [
+            {
+              "id": "name",
+              "type": "text",
+              "label": "Name"
+            },
+            {
+              "id": "sex",
+              "type": "choice",
+              "label": "Sex",
+              "options": [
+                {
+                  "value": "male",
+                  "label": "Male"
+                },
+                {
+                  "value": "female",
+                  "label": "Female"
+                }
+              ]
+            },
+            {
+              "id": "dob",
+              "type": "date",
+              "label": "Date of birth"
+            }
+          ],
+          "max": 3,
+          "overflow": "8a",
+          "itemLabel": "Person {n}",
+          "addLabel": "Add a person",
+          "mapAs": "household"
+        },
+        {
+          "id": "prohibit",
+          "type": "multi",
+          "label": "Order the defendant to:",
+          "options": [
+            {
+              "value": "1",
+              "label": "Not hit, hurt, or stalk the employee or the people listed"
+            },
+            {
+              "value": "2",
+              "label": "Not follow or stalk them to or from work"
+            },
+            {
+              "value": "3",
+              "label": "Not follow them during work hours"
+            },
+            {
+              "value": "4",
+              "label": "Not contact them in any way, directly or through others (in person, by phone, mail, email, text, or fax)"
+            },
+            {
+              "value": "5",
+              "label": "Not enter their workplace"
+            },
+            {
+              "value": "6",
+              "label": "Something else"
+            }
+          ]
+        },
+        {
+          "id": "prohibit.6.detail",
+          "type": "textarea",
+          "label": "What else?",
+          "rows": 2,
+          "showIf": {
+            "field": "prohibit",
+            "includes": "6"
+          }
+        },
+        {
+          "id": "stayAway",
+          "type": "checkbox",
+          "label": "Ask for a stay-away order"
+        },
+        {
+          "id": "stayAway.yards",
+          "type": "number",
+          "label": "How many yards away?",
+          "showIf": {
+            "field": "stayAway",
+            "equals": true
+          }
+        },
+        {
+          "id": "stayAway.places",
+          "type": "multi",
+          "label": "From which people and places?",
+          "hint": "Addresses are optional and can be kept confidential.",
+          "showIf": {
+            "field": "stayAway",
+            "equals": true
+          },
+          "options": [
+            {
+              "value": "others",
+              "label": "The employee and the people listed above"
+            },
+            {
+              "value": "residence",
+              "label": "The employee's home"
+            },
+            {
+              "value": "work",
+              "label": "The employee's workplace"
+            },
+            {
+              "value": "school",
+              "label": "The school or child care of the employee's children"
+            },
+            {
+              "value": "vehicle",
+              "label": "The employee's vehicle"
+            },
+            {
+              "value": "other",
+              "label": "Somewhere else"
+            }
+          ],
+          "mapAs": "stayAway"
+        },
+        {
+          "id": "stayAway.residence.address",
+          "type": "text",
+          "label": "Home address (optional)",
+          "showIf": {
+            "field": "stayAway.places",
+            "includes": "residence"
+          }
+        },
+        {
+          "id": "stayAway.work.address",
+          "type": "text",
+          "label": "Workplace address (optional)",
+          "showIf": {
+            "field": "stayAway.places",
+            "includes": "work"
+          }
+        },
+        {
+          "id": "stayAway.school.address",
+          "type": "text",
+          "label": "School or child care address (optional)",
+          "showIf": {
+            "field": "stayAway.places",
+            "includes": "school"
+          }
+        },
+        {
+          "id": "stayAway.vehicle.detail",
+          "type": "text",
+          "label": "Describe the vehicle",
+          "showIf": {
+            "field": "stayAway.places",
+            "includes": "vehicle"
+          }
+        },
+        {
+          "id": "stayAway.other.detail",
+          "type": "text",
+          "label": "Where?",
+          "showIf": {
+            "field": "stayAway.places",
+            "includes": "other"
+          }
+        },
+        {
+          "id": "deprive",
+          "type": "yesno",
+          "label": "Would any of these keep the defendant from their own home or job?",
+          "showIf": {
+            "field": "stayAway",
+            "equals": true
+          }
+        },
+        {
+          "id": "deprive.explain",
+          "type": "textarea",
+          "label": "Explain",
+          "rows": 2,
+          "showIf": {
+            "field": "deprive",
+            "equals": "yes"
+          }
+        }
+      ]
+    },
+    {
+      "id": "more",
+      "form": "WV-0107",
+      "ref": "paragraphs 5 to 10",
+      "title": "Costs, other orders, and other cases",
+      "fields": [
+        {
+          "id": "costs",
+          "type": "checkbox",
+          "label": "Ask the court to have the defendant pay costs"
+        },
+        {
+          "id": "costs.detail",
+          "type": "textarea",
+          "label": "Which costs?",
+          "rows": 2,
+          "showIf": {
+            "field": "costs",
+            "equals": true
+          }
+        },
+        {
+          "id": "otherOrders",
+          "type": "checkbox",
+          "label": "Ask for other orders that help carry these out"
+        },
+        {
+          "id": "otherOrders.detail",
+          "type": "textarea",
+          "label": "Which orders?",
+          "rows": 3,
+          "showIf": {
+            "field": "otherOrders",
+            "equals": true
+          }
+        },
+        {
+          "id": "agencies",
+          "type": "group",
+          "label": "Police or sheriff's offices that should get copies of the orders",
+          "fields": [
+            {
+              "id": "agency",
+              "type": "text",
+              "label": "Agency"
+            },
+            {
+              "id": "address",
+              "type": "text",
+              "label": "Address"
+            }
+          ],
+          "max": 4,
+          "table": true,
+          "itemLabel": "Agency {n}",
+          "addLabel": "Add an agency"
+        },
+        {
+          "id": "shorten",
+          "type": "checkbox",
+          "label": "Ask to shorten the time to serve the papers, because of what the petition says"
+        },
+        {
+          "id": "shorten.days",
+          "type": "number",
+          "label": "Serve them at least how many days before the hearing?",
+          "showIf": {
+            "field": "shorten",
+            "equals": true
+          }
+        },
+        {
+          "id": "otherCase",
+          "type": "checkbox",
+          "label": "The employer has asked for restraining orders against the defendant in another case"
+        },
+        {
+          "id": "otherCase.county",
+          "type": "text",
+          "label": "County",
+          "showIf": {
+            "field": "otherCase",
+            "equals": true
+          }
+        },
+        {
+          "id": "otherCase.number",
+          "type": "text",
+          "label": "Case number",
+          "showIf": {
+            "field": "otherCase",
+            "equals": true
+          }
+        },
+        {
+          "id": "employeePO",
+          "type": "checkbox",
+          "label": "The employee has asked for their own protection order against the defendant"
+        },
+        {
+          "id": "employeePO.county",
+          "type": "text",
+          "label": "County",
+          "showIf": {
+            "field": "employeePO",
+            "equals": true
+          }
+        },
+        {
+          "id": "employeePO.number",
+          "type": "text",
+          "label": "Case number",
+          "showIf": {
+            "field": "employeePO",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "defendant",
+      "form": "WV-0107",
+      "title": "Description of the defendant",
+      "intro": "Police use this to find and serve the defendant. Fill in what you know.",
+      "fields": [
+        {
+          "id": "def.sex",
+          "type": "choice",
+          "label": "Sex",
+          "options": [
+            {
+              "value": "male",
+              "label": "Male"
+            },
+            {
+              "value": "female",
+              "label": "Female"
+            }
+          ]
+        },
+        {
+          "id": "def.height",
+          "type": "text",
+          "label": "Height"
+        },
+        {
+          "id": "def.weight",
+          "type": "text",
+          "label": "Weight"
+        },
+        {
+          "id": "def.eyes",
+          "type": "text",
+          "label": "Eye color"
+        },
+        {
+          "id": "def.hair",
+          "type": "text",
+          "label": "Hair color"
+        },
+        {
+          "id": "def.race",
+          "type": "text",
+          "label": "Race"
+        },
+        {
+          "id": "def.age",
+          "type": "number",
+          "label": "Age"
+        },
+        {
+          "id": "def.dob",
+          "type": "date",
+          "label": "Date of birth"
+        }
+      ]
+    },
+    {
+      "id": "sign",
+      "form": "WV-0107",
+      "title": "Signing",
+      "intro": "Sign by hand under penalty of perjury.",
+      "fields": [
+        {
+          "id": "affirm",
+          "type": "choice",
+          "label": "What the form says is based on",
+          "required": true,
+          "options": [
+            {
+              "value": "a",
+              "label": "What I know myself"
+            },
+            {
+              "value": "b",
+              "label": "What others told me and I believe is true"
+            }
+          ],
+          "hint": "If it is based only on what others told you, attach sworn statements (affidavits) from people who saw or heard it."
+        },
+        {
+          "id": "signer.name",
+          "type": "text",
+          "label": "Name of the person signing for the employer",
+          "required": true
+        },
+        {
+          "id": "signer.title",
+          "type": "text",
+          "label": "Their job title",
+          "required": true
+        },
+        {
+          "id": "filer.phone",
+          "type": "phone",
+          "label": "Phone"
+        }
+      ]
+    }
+  ]
+}

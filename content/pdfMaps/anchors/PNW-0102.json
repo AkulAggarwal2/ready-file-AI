@@ -1,0 +1,78 @@
+{
+ "form": "PNW-0102",
+ "revision": "Revised July 2020",
+ "anchors": [
+  {
+   "key": "caption.court",
+   "page": 1,
+   "find": "^IN THE _",
+   "blank": 0
+  },
+  {
+   "key": "caption.county",
+   "page": 1,
+   "find": "^IN THE _",
+   "blank": 1
+  },
+  {
+   "key": "caption.petitioner",
+   "page": 1,
+   "find": "^_+, \\)$",
+   "nth": 0,
+   "blank": 0,
+   "w": 225
+  },
+  {
+   "key": "caption.respondent",
+   "page": 1,
+   "find": "^_+, \\)$",
+   "nth": 1,
+   "blank": 0,
+   "w": 225
+  },
+  {
+   "key": "filedWithClerk",
+   "page": 1,
+   "find": "^\\(FILED WITH TRIAL COURT CLERK",
+   "kind": "mark"
+  },
+  {
+   "key": "text.filingOrTender",
+   "page": 1,
+   "find": "^Contemporaneous with",
+   "kind": "replace",
+   "word": "^\\[filing/tender\\]$"
+  },
+  {
+   "key": "text.partyName1",
+   "page": 1,
+   "find": "^Contemporaneous with",
+   "kind": "replace",
+   "word": "^\\[party$",
+   "toWord": "^name\\]$"
+  },
+  {
+   "key": "text.filedOrTendered",
+   "page": 1,
+   "find": "^Contemporaneous with",
+   "kind": "replace",
+   "word": "^\\[filed/tendered\\]$"
+  },
+  {
+   "key": "text.partyName2",
+   "page": 1,
+   "find": "^confidential information under",
+   "kind": "replace",
+   "word": "^\\[party$",
+   "toWord": "^name\\],$"
+  },
+  {
+   "key": "text.insertName",
+   "page": 1,
+   "find": "^\\[Insert Name\\]$",
+   "kind": "replace",
+   "word": "^\\[Insert$",
+   "toWord": "^Name\\]$"
+  }
+ ]
+}

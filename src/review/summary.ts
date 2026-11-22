@@ -1,5 +1,5 @@
-import { ACTS, type Act, type CaseType, type Relationship, type YesNoUnknown } from '../checker';
-import { copy, fill, safetyQuestions, type SafetyAnswer } from '../content';
+import { CHILD_ACTS, type Act, type Ground, type Relationship, type YesNoUnknown } from '../checker';
+import { copy as adultCopy, copyFor, fill, safetyQuestions, type SafetyAnswer, type Variant } from '../content';
 import type { Incident } from '../organizer';
 
 const exactDate = (incident: Incident) =>
@@ -31,14 +31,14 @@ export function describeDate(incident: Incident): string {
   const { date } = incident;
   if (date.kind === 'exact' && date.value) return formatExactDate(date.value);
   if (date.kind === 'approximate' && date.text.trim()) return date.text.trim();
-  return copy.summary.dateUnknown;
+  return adultCopy.summary.dateUnknown;
 }
 
 /** The safety questions she answered, in question order, as "question answer" lines. */
 export function safetyLines(answers: Record<string, SafetyAnswer>): string[] {
   return safetyQuestions
     .filter((q) => answers[q.id])
-    .map((q) => fill(copy.summary.safetyAnswer, { question: q.question, answer: copy.safety.answers[answers[q.id]] }));
+    .map((q) => fill(adultCopy.summary.safetyAnswer, { question: q.question, answer: adultCopy.safety.answers[answers[q.id]] }));
 }
 
 /** How many incidents fit in question 8 of the petition (PO-0100). */
@@ -46,7 +46,7 @@ export const FORM_INCIDENT_SLOTS = 3;
 
 /** Every act she checked, across all incidents, in the order of question 7. */
 export function allActs(incidents: Incident[]): Act[] {
-  return ACTS.filter((act) => incidents.some((incident) => incident.acts.includes(act)));
+  return CHILD_ACTS.filter((act) => incidents.some((incident) => incident.acts.includes(act)));
 }
 
 /** What she said about the person as a whole, on the Your story step. */
@@ -68,26 +68,32 @@ export interface SummarySection {
 
 /**
  * The summary in the order of the court's petition (PO-0100): how she knows
- * the person (question 2), what the person did (question 7), then each
+ * the person (question 2) after the grounds she checked (question 1), what the person did (question 7), then each
  * incident with the details question 8 asks for, in the order of her list.
  * Empty details are left out. Her safety answers come last.
  */
 export function summarySections(
-  caseType: CaseType,
+  grounds: Ground[],
   incidents: Incident[],
   story = '',
   relationship: Relationship | null = null,
   person: PersonAnswers = NO_ANSWERS,
   safetyAnswers: Record<string, SafetyAnswer> = {},
+  variant: Variant = 'adult',
 ): SummarySection[] {
+  const copy = copyFor(variant);
   const s = copy.summary;
-  const header: string[] = [fill(s.caseType, { caseType: copy.start.caseTypes[caseType] })];
+  const header: string[] = [
+    grounds.length === 0
+      ? s.groundsNotSure
+      : fill(s.grounds, { grounds: grounds.map((g) => copy.start.grounds[g]).join('; ') }),
+  ];
   if (relationship && relationship !== 'not-sure') {
-    header.push(fill(s.relationship, { relationship: copy.start.relationships[relationship] }));
+    header.push(fill(s.relationship, { relationship: (copy.start.relationships as Record<string, string>)[relationship] }));
   }
   const acts = allActs(incidents);
   if (acts.length > 0) {
-    header.push(fill(s.acts, { acts: acts.map((act) => copy.incident.acts[act]).join('; ') }));
+    header.push(fill(s.acts, { acts: acts.map((act) => (copy.incident.acts as Record<string, string>)[act]).join('; ') }));
   }
 
   const sections: SummarySection[] = [{ heading: s.title, lines: header }];
@@ -124,7 +130,7 @@ export function summarySections(
     sections.push({ lines: [fill(s.askedToStop, { answer: detail ? `${answer}. ${detail}` : answer })] });
   }
 
-  if (caseType === 'sexual-assault' && person.convicted === 'yes') sections.push({ lines: [s.convicted] });
+  if (grounds.includes('sex-offense') && person.convicted === 'yes') sections.push({ lines: [s.convicted] });
 
   // Her own words come after the dated incidents.
   if (story.trim()) sections.push({ heading: s.story, lines: [], text: story.trim() });
@@ -137,14 +143,14 @@ export function summarySections(
 
 /** Plain-text summary she can paste into the court's e-filing form or print. */
 export function buildSummary(
-  caseType: CaseType,
+  grounds: Ground[],
   incidents: Incident[],
   story = '',
   relationship: Relationship | null = null,
   person: PersonAnswers = NO_ANSWERS,
   safetyAnswers: Record<string, SafetyAnswer> = {},
 ): string {
-  return summaryText(summarySections(caseType, incidents, story, relationship, person, safetyAnswers));
+  return summaryText(summarySections(grounds, incidents, story, relationship, person, safetyAnswers));
 }
 
 /** The sections as plain text, one line each, with a blank line before each heading. */

@@ -71,16 +71,39 @@ function finding(
   };
 }
 
+/** Whether a rule applies to the grounds she chose. No grounds means "not sure". */
+function appliesTo(rule: Rule, grounds: CheckInput['grounds']): boolean {
+  return grounds.length === 0 ? rule.grounds.includes('not-sure') : grounds.some((g) => rule.grounds.includes(g));
+}
+
 /**
- * Runs every rule that applies to the case type and returns the questions to
- * ask, in rule order. The result depends only on the input and the rules.
+ * Runs every rule that applies to the chosen grounds and returns the questions
+ * to ask, in rule order. The result depends only on the input and the rules.
+ *
+ * With more than one ground, two rules can ask the same thing (such as
+ * "stalking-two-incidents" and "harassment-repeated"). Only the first rule
+ * with an identical condition asks, once overall or once per incident; the
+ * same condition with a different setting still asks.
  */
 export function runChecks(input: CheckInput, rules: Rule[]): Finding[] {
+  const all = collectFindings(input, rules);
+  const conditions = new Map(rules.map((rule) => [rule.id, JSON.stringify(rule.condition)]));
+  const seen = new Set<string>();
+  return all.filter((f) => {
+    // The same condition with the same settings asks the same thing.
+    const asks = `${conditions.get(f.ruleId)}:${f.incidentId ?? 'all'}`;
+    if (seen.has(asks)) return false;
+    seen.add(asks);
+    return true;
+  });
+}
+
+function collectFindings(input: CheckInput, rules: Rule[]): Finding[] {
   const findings: Finding[] = [];
 
   for (const rule of rules) {
     const { condition } = rule;
-    if (!condition || !rule.caseTypes.includes(input.caseType)) continue;
+    if (!condition || !appliesTo(rule, input.grounds)) continue;
 
     const perIncident = PER_INCIDENT[condition.type];
     if (perIncident) {

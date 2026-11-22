@@ -1,0 +1,179 @@
+{
+ "form": "WV-0104",
+ "revision": "TCM-WV-0104 Approved 07/02",
+ "anchors": [
+  {
+   "key": "caption.court",
+   "page": 1,
+   "find": "^STATE OF INDIANA",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.division",
+   "page": 1,
+   "find": "DIVISION, ROOM",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.room",
+   "page": 1,
+   "find": "DIVISION, ROOM",
+   "nth": 0,
+   "blank": 1,
+   "padLeft": 3
+  },
+  {
+   "key": "caption.county",
+   "page": 1,
+   "find": "^COUNTY OF",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.caseNumber",
+   "page": 1,
+   "find": "^CASE NO",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.plaintiff",
+   "page": 1,
+   "find": "^PLAINTIFF: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.defendant",
+   "page": 1,
+   "find": "^DEFENDANT: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.employee",
+   "page": 1,
+   "find": "^EMPLOYEE: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "received.petition",
+   "page": 1,
+   "find": "Against Employee on \\(specify date\\)",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "received.order",
+   "page": 1,
+   "find": "Order to Show Cause on \\(specify date\\)",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "agree.agree",
+   "page": 1,
+   "find": "^a\\. __ agree that",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "agree.disagree",
+   "page": 1,
+   "find": "^b\\. __ do not agree",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "statement",
+   "page": 1,
+   "find": "^5\\. __ I wish to make",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "statement.text",
+   "page": 1,
+   "find": "for Injunction Prohibiting Violence or Threats of Violence Against Employee:$",
+   "nth": 0,
+   "kind": "lines",
+   "count": 11
+  },
+  {
+   "key": "statement.continued",
+   "page": 1,
+   "find": "Continued on Attachment 5b",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "pagesAttached",
+   "page": 2,
+   "find": "Number of pages attached",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1
+  },
+  {
+   "key": "affirm.a",
+   "page": 2,
+   "find": "^a\\. on the basis of my own",
+   "kind": "mark"
+  },
+  {
+   "key": "affirm.b",
+   "page": 2,
+   "find": "^b\\. on the basis that I have",
+   "kind": "mark"
+  },
+  {
+   "key": "printedName",
+   "page": 2,
+   "find": "^_+ _+$",
+   "nth": 1,
+   "blank": 0
+  },
+  {
+   "key": "filer.contact",
+   "page": 2,
+   "find": "^ATTORNEY OR PARTY WITHOUT ATTORNEY",
+   "kind": "below",
+   "word": "^ATTORNEY$",
+   "w": 440,
+   "count": 4,
+   "size": 9
+  },
+  {
+   "key": "filer.phone",
+   "page": 2,
+   "find": "^TELEPHONE NO\\.:",
+   "kind": "after",
+   "word": "^NO\\.:$",
+   "w": 150,
+   "size": 9
+  },
+  {
+   "key": "pageCount.1",
+   "page": 1,
+   "find": "^Page 1 of _",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1
+  },
+  {
+   "key": "pageCount.2",
+   "page": 2,
+   "find": "^Page 2 of _",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1
+  }
+ ]
+}

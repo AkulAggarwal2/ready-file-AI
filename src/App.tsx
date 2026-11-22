@@ -7,7 +7,9 @@ import { TimeoutWarning } from './safety/TimeoutWarning';
 import { useInactivityTimeout } from './safety/useInactivityTimeout';
 import { AppStateProvider, useAppState } from './state/AppStateProvider';
 import { CheckStep } from './steps/CheckStep';
+import { FormsStep } from './steps/FormsStep';
 import { ReviewStep } from './steps/ReviewStep';
+import { RouteStep } from './steps/RouteStep';
 import { StartStep } from './steps/StartStep';
 import { IncidentsStep } from './steps/IncidentsStep';
 import { StoryStep } from './steps/StoryStep';
@@ -65,11 +67,13 @@ function Shell() {
           The header stays usable, so Quick exit always works. */}
       <main className="content" inert={warningShowing}>
         <StepIndicator current={state.step} />
+        {state.step === 'route' && <RouteStep />}
         {state.step === 'start' && <StartStep />}
         {state.step === 'incidents' && <IncidentsStep />}
         {state.step === 'story' && <StoryStep />}
         {state.step === 'questions' && <CheckStep />}
         {state.step === 'review' && <ReviewStep />}
+        {state.step === 'forms' && <FormsStep />}
       </main>
 
       {warningShowing && <TimeoutWarning secondsLeft={secondsLeft} onStay={stay} />}

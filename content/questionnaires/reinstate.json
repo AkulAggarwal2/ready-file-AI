@@ -1,0 +1,113 @@
+{
+  "_about": "The questions for PO-0111. Field ids match the keys in content/pdfMaps.",
+  "id": "reinstate",
+  "filer": "petitioner",
+  "packet": [
+    {
+      "form": "PO-0111",
+      "copies": 3
+    }
+  ],
+  "instructions": {
+    "title": "Your motion to reinstate: before you file (do not file this page)",
+    "lines": [
+      "This file has the Verified Motion to Reinstate Petition for an Order for Protection (PO-0111) with your answers printed on it.",
+      "This motion is for a petition the court dismissed when it was not your fault (Trial Rule 41(F)). If you dismissed it yourself, you can file a new petition instead.",
+      "Sign and date it by hand. You sign under penalty of perjury.",
+      "Print 3 copies, unless the clerk tells you otherwise: one for the court, one for the other person, and one for you.",
+      "File it with the clerk of the court that dismissed your petition.",
+      "This page is not part of your filing. Remove it before you file."
+    ]
+  },
+  "sections": [
+    {
+      "id": "caption",
+      "form": "PO-0111",
+      "title": "The case",
+      "intro": "This goes at the top of the form. Copy it from your order.",
+      "fields": [
+        {
+          "id": "court.county",
+          "type": "text",
+          "label": "County of the court",
+          "required": true
+        },
+        {
+          "id": "court.name",
+          "type": "text",
+          "label": "Name of the court",
+          "hint": "As it appears on your order, like Allen Superior."
+        },
+        {
+          "id": "court.division",
+          "type": "text",
+          "label": "Division",
+          "hint": "If your order shows one."
+        },
+        {
+          "id": "court.room",
+          "type": "text",
+          "label": "Room",
+          "hint": "If your order shows one."
+        },
+        {
+          "id": "case.number",
+          "type": "text",
+          "label": "Case number",
+          "hint": "It is on your order or other court papers.",
+          "required": true
+        },
+        {
+          "id": "petitioner.first",
+          "type": "text",
+          "label": "Your first name",
+          "required": true,
+          "hint": "As written on the order."
+        },
+        {
+          "id": "petitioner.middle",
+          "type": "text",
+          "label": "Your middle name"
+        },
+        {
+          "id": "petitioner.last",
+          "type": "text",
+          "label": "Your last name",
+          "required": true
+        },
+        {
+          "id": "respondent.first",
+          "type": "text",
+          "label": "The other person's first name",
+          "required": true
+        },
+        {
+          "id": "respondent.middle",
+          "type": "text",
+          "label": "The other person's middle name"
+        },
+        {
+          "id": "respondent.last",
+          "type": "text",
+          "label": "The other person's last name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "reason",
+      "form": "PO-0111",
+      "title": "Why the petition was dismissed",
+      "fields": [
+        {
+          "id": "reason",
+          "type": "textarea",
+          "label": "Why was your petition dismissed?",
+          "required": true,
+          "rows": 5,
+          "hint": "Explain why it was not your fault, like a medical emergency or not getting notice of the hearing."
+        }
+      ]
+    }
+  ]
+}

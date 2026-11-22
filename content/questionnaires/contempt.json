@@ -1,0 +1,131 @@
+{
+  "_about": "The questions for PO-0126, PO-0128. Field ids match the keys in content/pdfMaps.",
+  "id": "contempt",
+  "filer": "petitioner",
+  "packet": [
+    {
+      "form": "PO-0126",
+      "copies": 3
+    },
+    {
+      "form": "PO-0128",
+      "copies": 3
+    }
+  ],
+  "instructions": {
+    "title": "Your petition for contempt: before you file (do not file this page)",
+    "lines": [
+      "This file has the Petition for Contempt (PO-0126) and the Order to Appear (PO-0128). ReadyFile filled in the heading of the Order to Appear. The court fills in the rest.",
+      "The petition must be based on what you saw or heard yourself. If someone else saw or heard it, attach a statement they signed under oath.",
+      "If you are in danger now, call 911. Breaking a protection order can also be reported to the police.",
+      "Sign and date the petition by hand. You sign under penalty of perjury.",
+      "Print 3 copies, unless the clerk tells you otherwise: one for the court, one for the other person, and one for you.",
+      "File both with the clerk of the court that issued the order.",
+      "This page is not part of your filing. Remove it before you file."
+    ]
+  },
+  "sections": [
+    {
+      "id": "caption",
+      "form": "PO-0126",
+      "title": "The case",
+      "intro": "This goes at the top of the form. Copy it from your order.",
+      "fields": [
+        {
+          "id": "court.county",
+          "type": "text",
+          "label": "County of the court",
+          "required": true
+        },
+        {
+          "id": "court.name",
+          "type": "text",
+          "label": "Name of the court",
+          "hint": "As it appears on your order, like Allen Superior."
+        },
+        {
+          "id": "court.division",
+          "type": "text",
+          "label": "Division",
+          "hint": "If your order shows one."
+        },
+        {
+          "id": "court.room",
+          "type": "text",
+          "label": "Room",
+          "hint": "If your order shows one."
+        },
+        {
+          "id": "case.number",
+          "type": "text",
+          "label": "Case number",
+          "hint": "It is on your order or other court papers.",
+          "required": true
+        },
+        {
+          "id": "petitioner.first",
+          "type": "text",
+          "label": "Your first name",
+          "required": true,
+          "hint": "As written on the order."
+        },
+        {
+          "id": "petitioner.middle",
+          "type": "text",
+          "label": "Your middle name"
+        },
+        {
+          "id": "petitioner.last",
+          "type": "text",
+          "label": "Your last name",
+          "required": true
+        },
+        {
+          "id": "respondent.first",
+          "type": "text",
+          "label": "The other person's first name",
+          "required": true
+        },
+        {
+          "id": "respondent.middle",
+          "type": "text",
+          "label": "The other person's middle name"
+        },
+        {
+          "id": "respondent.last",
+          "type": "text",
+          "label": "The other person's last name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "violation",
+      "form": "PO-0126",
+      "title": "How the order was broken",
+      "fields": [
+        {
+          "id": "respondent.address",
+          "type": "text",
+          "label": "The other person's address",
+          "required": true,
+          "hint": "The sheriff serves the Order to Appear here."
+        },
+        {
+          "id": "order.date",
+          "type": "date",
+          "label": "Date the court issued the order",
+          "required": true
+        },
+        {
+          "id": "violation",
+          "type": "textarea",
+          "label": "What did the person do?",
+          "required": true,
+          "rows": 8,
+          "hint": "Say exactly what happened and where, with the date and time. Use only what you saw or heard yourself."
+        }
+      ]
+    }
+  ]
+}

@@ -1,13 +1,18 @@
-import type { CaseType, Relationship, YesNoUnknown } from '../checker';
+import { CHILD_RELATIONSHIPS, RELATIONSHIPS, type Ground, type Relationship, type YesNoUnknown } from '../checker';
 import { copy, fill, type SafetyAnswer } from '../content';
+import type { Answer, Answers } from '../forms/questionnaire';
+import { currentOutcome, type RouteAnswer } from '../forms/routing';
 import { createIncident, mergeIncidents, type Incident, type IncidentFields } from '../organizer';
 
 // All state lives in memory only (section 8). Nothing here is ever written to
 // browser storage, cookies, or a server.
 
-// The five steps, in order. They are also the labels in the step bar at the top.
-export type Step = 'start' | 'incidents' | 'story' | 'questions' | 'review';
-export const STEPS: Step[] = ['start', 'incidents', 'story', 'questions', 'review'];
+// The steps, in order. They are also the labels in the step bar at the top.
+// "route" asks who the order is for and what she is trying to do, which picks
+// the court forms (content/routing.json).
+// "forms" asks the rest of what the court forms need and builds the PDF.
+export type Step = 'route' | 'start' | 'incidents' | 'story' | 'questions' | 'review' | 'forms';
+export const STEPS: Step[] = ['route', 'start', 'incidents', 'story', 'questions', 'review', 'forms'];
 
 /**
  * What a delete or merge removed, kept so it can be undone. Only the removed
@@ -28,7 +33,14 @@ export interface UndoEntry {
 
 export interface AppState {
   step: Step;
-  caseType: CaseType | null;
+  // Her answers on the route step, in order. The last one decides the outcome.
+  route: RouteAnswer[];
+  // Her answers on the Court forms step, by field id (content/questionnaires).
+  answers: Answers;
+  // Which section of the Court forms step is open. One past the last is the download page.
+  formSection: number;
+  // The grounds she checked (question 1 on the petition). Empty means not sure.
+  grounds: Ground[];
   // How she knows the person (question 2 on the petition). Optional.
   relationship: Relationship | null;
   // Her account in her own words, written after the incidents.
@@ -65,8 +77,11 @@ export interface AppState {
 export type PersonDetails = Partial<Pick<AppState, 'threat' | 'askedToStop' | 'askedToStopDetail' | 'convicted'>>;
 
 export const initialState: AppState = {
-  step: 'start',
-  caseType: null,
+  step: 'route',
+  route: [],
+  answers: {},
+  formSection: 0,
+  grounds: [],
   relationship: null,
   story: '',
   threat: '',
@@ -85,7 +100,13 @@ export const initialState: AppState = {
 };
 
 export type Action =
-  | { type: 'begin'; caseType: CaseType; relationship: Relationship | null }
+  | { type: 'routeAnswer'; answer: RouteAnswer }
+  | { type: 'routeBack' }
+  | { type: 'routeReset' }
+  | { type: 'routeDone' }
+  | { type: 'setAnswer'; id: string; value: Answer }
+  | { type: 'setFormSection'; index: number }
+  | { type: 'begin'; grounds: Ground[]; relationship: Relationship | null }
   | { type: 'goTo'; step: Step }
   | { type: 'setStory'; story: string }
   | { type: 'setPersonDetails'; changes: PersonDetails }
@@ -131,12 +152,49 @@ function moveTo(state: AppState, from: number, to: number): AppState {
   };
 }
 
+/**
+ * Once her route reaches a petition, drops grounds and a relationship that
+ * only the other petition has, so nothing from the child's lists reaches an
+ * adult's petition or the other way round, even if she skips Start.
+ */
+function fitToRoute(state: AppState): AppState {
+  const outcome = currentOutcome(state.route);
+  if (outcome?.flow !== 'petition') return state;
+  const child = outcome.variant === 'child';
+  const grounds = state.grounds.filter((g) => child || g !== 'sex-grooming');
+  const list: readonly string[] = child ? CHILD_RELATIONSHIPS : RELATIONSHIPS;
+  const relationship = state.relationship && list.includes(state.relationship) ? state.relationship : null;
+  // Sex grooming is an act only on the child's petition (PO-0101 question 7).
+  const hasChildActs = !child && state.incidents.some((incident) => incident.acts.includes('sex-grooming'));
+  const incidents = hasChildActs
+    ? state.incidents.map((incident) => ({ ...incident, acts: incident.acts.filter((act) => act !== 'sex-grooming') }))
+    : state.incidents;
+  if (grounds.length === state.grounds.length && relationship === state.relationship && !hasChildActs) return state;
+  return { ...state, grounds, relationship, incidents };
+}
+
 export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
+    case 'routeAnswer':
+      return fitToRoute({ ...state, route: [...state.route, action.answer] });
+    case 'routeBack':
+      return fitToRoute({ ...state, route: state.route.slice(0, -1) });
+    case 'routeReset':
+      return { ...state, route: [] };
+    case 'routeDone': {
+      // A petition goes on to Start; a form in an existing case goes straight
+      // to the Court forms step. RouteStep offers this only for those two.
+      const flow = currentOutcome(state.route)?.flow;
+      return { ...state, step: flow === 'form' ? 'forms' : 'start', formSection: 0 };
+    }
+    case 'setAnswer':
+      return { ...state, answers: { ...state.answers, [action.id]: action.value } };
+    case 'setFormSection':
+      return { ...state, formSection: action.index };
     case 'begin':
       return {
         ...state,
-        caseType: action.caseType,
+        grounds: action.grounds,
         relationship: action.relationship,
         step: state.returnTo ?? 'incidents',
         returnTo: null,

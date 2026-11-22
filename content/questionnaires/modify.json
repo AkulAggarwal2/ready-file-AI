@@ -1,0 +1,614 @@
+{
+  "_about": "The questions for PO-0115. Field ids match the keys in content/pdfMaps.",
+  "id": "modify",
+  "filer": "petitioner",
+  "packet": [
+    {
+      "form": "PO-0115",
+      "copies": 4
+    }
+  ],
+  "instructions": {
+    "title": "Your petition to modify: before you file (do not file this page)",
+    "lines": [
+      "This file has the Petition to Modify an Order for Protection (PO-0115) with your answers printed on it.",
+      "The court needs a big change in your situation since the order was issued.",
+      "If you asked for anything that needs a hearing, ask the clerk to set a hearing within 30 days. If you do not go to the hearing, the court may dismiss the petition.",
+      "Sign and date it by hand. You sign under penalty of perjury.",
+      "Print 4 copies, unless the clerk tells you otherwise: one for the court, one for the other person, and one for you, plus one to keep.",
+      "File it with the clerk of the court that issued the order.",
+      "This page is not part of your filing. Remove it before you file."
+    ]
+  },
+  "sections": [
+    {
+      "id": "caption",
+      "form": "PO-0115",
+      "title": "The case",
+      "intro": "This goes at the top of the form. Copy it from your order.",
+      "fields": [
+        {
+          "id": "court.county",
+          "type": "text",
+          "label": "County of the court",
+          "required": true
+        },
+        {
+          "id": "court.name",
+          "type": "text",
+          "label": "Name of the court",
+          "hint": "As it appears on your order, like Allen Superior."
+        },
+        {
+          "id": "court.division",
+          "type": "text",
+          "label": "Division",
+          "hint": "If your order shows one."
+        },
+        {
+          "id": "court.room",
+          "type": "text",
+          "label": "Room",
+          "hint": "If your order shows one."
+        },
+        {
+          "id": "case.number",
+          "type": "text",
+          "label": "Case number",
+          "hint": "It is on your order or other court papers.",
+          "required": true
+        },
+        {
+          "id": "petitioner.first",
+          "type": "text",
+          "label": "Your first name",
+          "required": true,
+          "hint": "As written on the order."
+        },
+        {
+          "id": "petitioner.middle",
+          "type": "text",
+          "label": "Your middle name"
+        },
+        {
+          "id": "petitioner.last",
+          "type": "text",
+          "label": "Your last name",
+          "required": true
+        },
+        {
+          "id": "respondent.first",
+          "type": "text",
+          "label": "The other person's first name",
+          "required": true
+        },
+        {
+          "id": "respondent.middle",
+          "type": "text",
+          "label": "The other person's middle name"
+        },
+        {
+          "id": "respondent.last",
+          "type": "text",
+          "label": "The other person's last name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "existing",
+      "form": "PO-0115",
+      "title": "Your order and what changed",
+      "fields": [
+        {
+          "id": "existing",
+          "type": "choice",
+          "label": "What order do you have now?",
+          "required": true,
+          "options": [
+            {
+              "value": "exParte",
+              "label": "An Ex Parte Order for Protection (issued without a hearing)"
+            },
+            {
+              "value": "afterHearing",
+              "label": "An Order for Protection issued after a hearing"
+            }
+          ]
+        },
+        {
+          "id": "existing.exParte.date",
+          "type": "date",
+          "label": "Date it was issued",
+          "showIf": {
+            "field": "existing",
+            "equals": "exParte"
+          },
+          "required": true
+        },
+        {
+          "id": "existing.afterHearing.date",
+          "type": "date",
+          "label": "Date it was issued",
+          "showIf": {
+            "field": "existing",
+            "equals": "afterHearing"
+          },
+          "required": true
+        },
+        {
+          "id": "expires",
+          "type": "date",
+          "label": "Date the order ends",
+          "required": true
+        },
+        {
+          "id": "change",
+          "type": "textarea",
+          "label": "What has changed in your situation?",
+          "required": true,
+          "rows": 5,
+          "hint": "The court can change an order only after a big change in your situation."
+        }
+      ]
+    },
+    {
+      "id": "q9a",
+      "form": "PO-0115",
+      "title": "Changes the judge can make right away",
+      "intro": "The judge can order these without a hearing. If the change is based on harassment alone, the judge can order them only after a hearing within 30 days.",
+      "fields": [
+        {
+          "id": "q9.protectMe",
+          "type": "checkbox",
+          "label": "Order the person not to commit or threaten violence, stalking, or sex offenses against me"
+        },
+        {
+          "id": "q9.protectFamily",
+          "type": "checkbox",
+          "label": "Order the same for my family or household members"
+        },
+        {
+          "id": "q9.protectFamily.names",
+          "type": "textarea",
+          "label": "Their names",
+          "hint": "List them on the Confidential Form too, under other people to protect.",
+          "showIf": {
+            "field": "q9.protectFamily",
+            "equals": true
+          },
+          "rows": 2
+        },
+        {
+          "id": "q9.grooming",
+          "type": "checkbox",
+          "label": "Order the person not to contact the child again and again to prepare them for sexual activity (sex grooming)"
+        },
+        {
+          "id": "q9.noContact",
+          "type": "checkbox",
+          "label": "Order the person not to harass, bother, call, contact, or communicate with me, directly or through others"
+        },
+        {
+          "id": "q9.stayAway",
+          "type": "checkbox",
+          "label": "Order the person to stay away from my home, school, work, or another place"
+        },
+        {
+          "id": "q9.stayAway.place",
+          "type": "text",
+          "label": "Which place?",
+          "hint": "Like residence, school, or place of employment",
+          "showIf": {
+            "field": "q9.stayAway",
+            "equals": true
+          }
+        },
+        {
+          "id": "q9.stayAway.address",
+          "type": "text",
+          "label": "Its address",
+          "showIf": {
+            "field": "q9.stayAway",
+            "equals": true
+          }
+        },
+        {
+          "id": "q9.familyPlaces",
+          "type": "checkbox",
+          "label": "Order the person to stay away from places my family or household members go often"
+        },
+        {
+          "id": "q9.familyPlaces.places",
+          "type": "textarea",
+          "label": "Which places?",
+          "hint": "Like a home, school, or workplace",
+          "showIf": {
+            "field": "q9.familyPlaces",
+            "equals": true
+          },
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "id": "q9b",
+      "form": "PO-0115",
+      "title": "Changes that need a hearing within 30 days",
+      "fields": [
+        {
+          "id": "q9.evict",
+          "type": "checkbox",
+          "label": "Order the person to leave my home"
+        },
+        {
+          "id": "q9.evict.address",
+          "type": "text",
+          "label": "Address of the home",
+          "showIf": {
+            "field": "q9.evict",
+            "equals": true
+          }
+        },
+        {
+          "id": "q9.possession",
+          "type": "checkbox",
+          "label": "Give me the use of things the person has"
+        },
+        {
+          "id": "q9.possession.residence",
+          "type": "checkbox",
+          "label": "The home",
+          "showIf": {
+            "field": "q9.possession",
+            "equals": true
+          }
+        },
+        {
+          "id": "q9.possession.residence.address",
+          "type": "text",
+          "label": "Address of the home",
+          "showIf": {
+            "all": [
+              {
+                "field": "q9.possession",
+                "equals": true
+              },
+              {
+                "field": "q9.possession.residence",
+                "equals": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "q9.possession.vehicle",
+          "type": "checkbox",
+          "label": "A car or other vehicle",
+          "showIf": {
+            "field": "q9.possession",
+            "equals": true
+          }
+        },
+        {
+          "id": "q9.possession.vehicle.description",
+          "type": "text",
+          "label": "Describe the vehicle",
+          "hint": "Like year, make, model, and color",
+          "showIf": {
+            "all": [
+              {
+                "field": "q9.possession",
+                "equals": true
+              },
+              {
+                "field": "q9.possession.vehicle",
+                "equals": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "q9.possession.items",
+          "type": "checkbox",
+          "label": "Other things I need",
+          "showIf": {
+            "field": "q9.possession",
+            "equals": true
+          }
+        },
+        {
+          "id": "q9.possession.items.description",
+          "type": "textarea",
+          "label": "Describe them",
+          "showIf": {
+            "all": [
+              {
+                "field": "q9.possession",
+                "equals": true
+              },
+              {
+                "field": "q9.possession.items",
+                "equals": true
+              }
+            ]
+          },
+          "rows": 2
+        },
+        {
+          "id": "q9.animalsProtect",
+          "type": "checkbox",
+          "label": "Order the person not to take, hurt, hide, or get rid of animals"
+        },
+        {
+          "id": "q9.animalsProtect.animals",
+          "type": "group",
+          "label": "The animals",
+          "fields": [
+            {
+              "id": "name",
+              "type": "text",
+              "label": "Name"
+            },
+            {
+              "id": "ageType",
+              "type": "text",
+              "label": "Age and type",
+              "hint": "Like 9 year old dog"
+            },
+            {
+              "id": "sizeBreed",
+              "type": "text",
+              "label": "Size and breed"
+            },
+            {
+              "id": "description",
+              "type": "text",
+              "label": "Color and description"
+            }
+          ],
+          "max": 2,
+          "overflow": "to PO-0115",
+          "overflowHeading": "Animals the Respondent must not take, harm, or dispose of",
+          "itemLabel": "Animal {n}",
+          "addLabel": "Add an animal",
+          "showIf": {
+            "field": "q9.animalsProtect",
+            "equals": true
+          },
+          "mapAs": "q9.animalsProtect"
+        },
+        {
+          "id": "q9.animalsKeep",
+          "type": "checkbox",
+          "label": "Give me sole care and custody of animals"
+        },
+        {
+          "id": "q9.animalsKeep.animals",
+          "type": "group",
+          "label": "The animals",
+          "fields": [
+            {
+              "id": "name",
+              "type": "text",
+              "label": "Name"
+            },
+            {
+              "id": "ageType",
+              "type": "text",
+              "label": "Age and type",
+              "hint": "Like 9 year old dog"
+            },
+            {
+              "id": "sizeBreed",
+              "type": "text",
+              "label": "Size and breed"
+            },
+            {
+              "id": "description",
+              "type": "text",
+              "label": "Color and description"
+            }
+          ],
+          "max": 2,
+          "overflow": "to PO-0115",
+          "overflowHeading": "Animals in my care and custody",
+          "itemLabel": "Animal {n}",
+          "addLabel": "Add an animal",
+          "showIf": {
+            "field": "q9.animalsKeep",
+            "equals": true
+          },
+          "mapAs": "q9.animalsKeep"
+        },
+        {
+          "id": "q9.otherRelief",
+          "type": "checkbox",
+          "label": "Order something else I or my family or household members need to be safe"
+        },
+        {
+          "id": "q9.otherRelief.text",
+          "type": "textarea",
+          "label": "What else?",
+          "showIf": {
+            "field": "q9.otherRelief",
+            "equals": true
+          },
+          "rows": 3
+        }
+      ]
+    },
+    {
+      "id": "q9c",
+      "form": "PO-0115",
+      "title": "Changes only after a hearing",
+      "intro": "The judge can order these only after the other person is told and a hearing is held within 30 days. Bring papers that show any costs to the hearing.",
+      "fields": [
+        {
+          "id": "q9.parentingTime",
+          "type": "checkbox",
+          "label": "Set parenting time with our children"
+        },
+        {
+          "id": "q9.supervised",
+          "type": "checkbox",
+          "label": "Have someone else supervise parenting time"
+        },
+        {
+          "id": "q9.denyParenting",
+          "type": "checkbox",
+          "label": "Deny the person parenting time"
+        },
+        {
+          "id": "q9.attorneyFees",
+          "type": "checkbox",
+          "label": "Have the person pay my lawyer's fees"
+        },
+        {
+          "id": "q9.rent",
+          "type": "checkbox",
+          "label": "Have the person pay rent for my home"
+        },
+        {
+          "id": "q9.mortgage",
+          "type": "checkbox",
+          "label": "Have the person pay the mortgage for my home"
+        },
+        {
+          "id": "q9.childSupport",
+          "type": "checkbox",
+          "label": "Have the person pay child support"
+        },
+        {
+          "id": "q9.maintenance",
+          "type": "checkbox",
+          "label": "Have the person pay support for me"
+        },
+        {
+          "id": "q9.reimburse",
+          "type": "checkbox",
+          "label": "Have the person pay me back for costs caused by what happened"
+        },
+        {
+          "id": "q9.reimburse.medical.amount",
+          "type": "text",
+          "label": "Medical costs ($)",
+          "showIf": {
+            "field": "q9.reimburse",
+            "equals": true
+          },
+          "inputMode": "decimal"
+        },
+        {
+          "id": "q9.reimburse.counseling.amount",
+          "type": "text",
+          "label": "Counseling ($)",
+          "showIf": {
+            "field": "q9.reimburse",
+            "equals": true
+          },
+          "inputMode": "decimal"
+        },
+        {
+          "id": "q9.reimburse.shelter.amount",
+          "type": "text",
+          "label": "Shelter ($)",
+          "showIf": {
+            "field": "q9.reimburse",
+            "equals": true
+          },
+          "inputMode": "decimal"
+        },
+        {
+          "id": "q9.reimburse.property.amount",
+          "type": "text",
+          "label": "Repairing or replacing damaged property ($)",
+          "showIf": {
+            "field": "q9.reimburse",
+            "equals": true
+          },
+          "inputMode": "decimal"
+        },
+        {
+          "id": "q9.reimburse.other.amount",
+          "type": "text",
+          "label": "Other costs from bringing this case ($)",
+          "showIf": {
+            "field": "q9.reimburse",
+            "equals": true
+          },
+          "inputMode": "decimal"
+        },
+        {
+          "id": "q9.noFirearms",
+          "type": "checkbox",
+          "label": "Order the person not to have or use guns, ammunition, or deadly weapons"
+        },
+        {
+          "id": "q9.surrender",
+          "type": "checkbox",
+          "label": "Order the person to turn over guns, ammunition, or deadly weapons to the police"
+        },
+        {
+          "id": "q9.surrender.items",
+          "type": "group",
+          "label": "The weapons",
+          "hint": "List each one.",
+          "fields": [
+            {
+              "id": "item",
+              "type": "text",
+              "label": "Weapon"
+            }
+          ],
+          "max": 6,
+          "overflow": "to PO-0115",
+          "itemLabel": "Weapon {n}",
+          "addLabel": "Add a weapon",
+          "showIf": {
+            "field": "q9.surrender",
+            "equals": true
+          },
+          "join": true
+        },
+        {
+          "id": "q9.phones",
+          "type": "checkbox",
+          "label": "Have a phone company give me (or a child in my custody) a phone number on the person's account",
+          "hint": "The phone company's usual rules for a new account still apply, and you would pay for it."
+        },
+        {
+          "id": "q9.phones.numbers",
+          "type": "group",
+          "label": "The phone numbers",
+          "fields": [
+            {
+              "id": "numberUser",
+              "type": "text",
+              "label": "Phone number and who uses it"
+            },
+            {
+              "id": "provider",
+              "type": "text",
+              "label": "Phone company"
+            },
+            {
+              "id": "holder",
+              "type": "text",
+              "label": "Who the account is in the name of"
+            }
+          ],
+          "max": 2,
+          "overflow": "9(c)",
+          "itemLabel": "Phone {n}",
+          "addLabel": "Add a phone number",
+          "showIf": {
+            "field": "q9.phones",
+            "equals": true
+          },
+          "mapAs": "q9.phones"
+        }
+      ]
+    }
+  ]
+}

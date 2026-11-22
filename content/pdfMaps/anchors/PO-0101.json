@@ -1,0 +1,1071 @@
+{
+ "form": "PO-0101",
+ "revision": "Rev. by OJA 07/2026",
+ "anchors": [
+  {
+   "key": "caption.court",
+   "page": 1,
+   "find": "^STATE OF INDIANA",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.county",
+   "page": 1,
+   "find": "^COUNTY OF",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.child",
+   "page": 1,
+   "find": "^_+ \\)$",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.nextFriend",
+   "page": 1,
+   "find": "^_+, \\)$",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.respondent",
+   "page": 1,
+   "find": "^_+, \\)$",
+   "nth": 1,
+   "blank": 0
+  },
+  {
+   "key": "q1.parent",
+   "page": 1,
+   "find": "^___ parent$",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q1.guardian",
+   "page": 1,
+   "find": "^___ guardian$",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q1.other",
+   "page": 1,
+   "find": "^___ other representative",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q1.other.detail",
+   "page": 1,
+   "find": "^___ other representative",
+   "nth": 0,
+   "kind": "lines",
+   "count": 2,
+   "includeFound": true,
+   "blank": 1
+  },
+  {
+   "key": "q2.spouse-lived",
+   "page": 1,
+   "find": "my spouse and the child lived",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q2.lived-together",
+   "page": 1,
+   "find": "resided together in an intimate",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q2.parent",
+   "page": 1,
+   "find": "is a parent of the child",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q2.dating",
+   "page": 1,
+   "find": "used to, date the child",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q2.sexual",
+   "page": 1,
+   "find": "engaged in a sexual",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q2.child-in-common",
+   "page": 1,
+   "find": "have a child in",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q2.blood-adoption",
+   "page": 1,
+   "find": "related by blood or adoption",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q2.marriage",
+   "page": 1,
+   "find": "related by marriage",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q2.guardian",
+   "page": 2,
+   "find": "the child\u2019s guardian",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q2.custodian",
+   "page": 2,
+   "find": "the child\u2019s custodian",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q2.foster-parent",
+   "page": 2,
+   "find": "the child\u2019s foster parent",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q2.minor-child-of",
+   "page": 2,
+   "find": "is a minor child of someone",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q2.blood-adoption.detail",
+   "page": 1,
+   "find": "^Respondent is the child\u2019s _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q2.marriage.detail",
+   "page": 1,
+   "find": "^The Respondent is the child\u2019s _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q2.offender",
+   "page": 2,
+   "find": "child is a victim of a sex or violent",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q2.offender.cause",
+   "page": 2,
+   "find": "cause number",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q2.offender.court",
+   "page": 2,
+   "find": "Court in the state of",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q2.offender.state",
+   "page": 2,
+   "find": "Court in the state of",
+   "nth": 0,
+   "blank": 1
+  },
+  {
+   "key": "q2.offender.date",
+   "page": 2,
+   "find": "date of conviction",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q2.nf.stalking",
+   "page": 2,
+   "find": "^a\\. ___the Respondent has committed stalking",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q2.nf.sex-offense",
+   "page": 2,
+   "find": "^b\\. ___the Respondent has committed a sex",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q2.nf.sex-grooming",
+   "page": 2,
+   "find": "^c\\. ___the Respondent engaged in a course",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q2.nf.harassment",
+   "page": 2,
+   "find": "^d\\. ___the Respondent committed repeated",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q3",
+   "page": 2,
+   "find": "How old is the Respondent",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q4.rows",
+   "page": 2,
+   "find": "^Case Name Case Number",
+   "nth": 0,
+   "kind": "lines",
+   "count": 5,
+   "columns": [
+    90,
+    234,
+    414
+   ]
+  },
+  {
+   "key": "q4.continued",
+   "page": 2,
+   "find": "Continued on Attachment 4a",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q4.school",
+   "page": 2,
+   "find": "school corporation\\.$",
+   "nth": 0,
+   "kind": "lines",
+   "count": 1
+  },
+  {
+   "key": "q5.a",
+   "page": 3,
+   "find": "a\\. the Respondent lives",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q5.b",
+   "page": 3,
+   "find": "b\\. the incident\\(s\\)",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q5.c",
+   "page": 3,
+   "find": "c\\. the child who needs protection lives",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q5.d",
+   "page": 3,
+   "find": "d\\. the Petitioner lives",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q6",
+   "page": 3,
+   "find": "fill in your public mailing address",
+   "nth": 0,
+   "kind": "lines",
+   "count": 2
+  },
+  {
+   "key": "q7.attempted-harm",
+   "page": 3,
+   "find": "^___the Respondent .*attempted to cause physical",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q7.threatened-harm",
+   "page": 3,
+   "find": "^___the Respondent .*threatened to cause physical",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q7.caused-harm",
+   "page": 3,
+   "find": "^___the Respondent .*did cause physical harm",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q7.placed-in-fear",
+   "page": 3,
+   "find": "^___the Respondent .*placed the child who needs protection in fear",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q7.forced-sexual",
+   "page": 3,
+   "find": "^___the Respondent .*to involuntarily",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q7.stalking",
+   "page": 3,
+   "find": "^___the Respondent .*committed stalking against",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q7.sex-offense",
+   "page": 3,
+   "find": "^___the Respondent .*committed a sex offense against",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q7.animal-cruelty",
+   "page": 3,
+   "find": "^___the Respondent .*animal cruelty",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q7.sex-grooming",
+   "page": 3,
+   "find": "^___the Respondent .*has engaged in a course of conduct",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q7.harassment",
+   "page": 3,
+   "find": "^___the Respondent .*repeated acts of harassment against the child",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q8.1.date",
+   "page": 4,
+   "find": "Date of Incident #1",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q8.1.place",
+   "page": 4,
+   "find": "Place of Incident",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q8.1.description",
+   "page": 4,
+   "find": "Description of Incident",
+   "nth": 0,
+   "kind": "lines",
+   "count": 3
+  },
+  {
+   "key": "q8.1.present",
+   "page": 4,
+   "find": "must include your own name",
+   "nth": 0,
+   "kind": "lines",
+   "count": 2
+  },
+  {
+   "key": "q8.2.date",
+   "page": 4,
+   "find": "Date of Incident #2",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q8.2.place",
+   "page": 4,
+   "find": "Place of Incident",
+   "nth": 1,
+   "blank": 0
+  },
+  {
+   "key": "q8.2.description",
+   "page": 4,
+   "find": "Description of Incident",
+   "nth": 1,
+   "kind": "lines",
+   "count": 3
+  },
+  {
+   "key": "q8.2.present",
+   "page": 4,
+   "find": "must include your own name",
+   "nth": 1,
+   "kind": "lines",
+   "count": 2
+  },
+  {
+   "key": "q8.3.date",
+   "page": 4,
+   "find": "Date of Incident #3",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q8.3.place",
+   "page": 4,
+   "find": "Place of Incident",
+   "nth": 2,
+   "blank": 0
+  },
+  {
+   "key": "q8.3.description",
+   "page": 4,
+   "find": "Description of Incident",
+   "nth": 2,
+   "kind": "lines",
+   "count": 3
+  },
+  {
+   "key": "q8.3.present",
+   "page": 4,
+   "find": "must include your own name",
+   "nth": 2,
+   "kind": "lines",
+   "count": 2
+  },
+  {
+   "key": "q8.continued",
+   "page": 4,
+   "find": "Continued on Attachment 8a",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.protectMe",
+   "page": 4,
+   "find": "^___Prohibit the Respondent from committing",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.protectFamily",
+   "page": 4,
+   "find": "^___Prohibit the Respondent from committing",
+   "nth": 1,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.protectFamily.names",
+   "page": 5,
+   "find": "Their names are",
+   "nth": 0,
+   "kind": "lines",
+   "count": 2
+  },
+  {
+   "key": "q9.tracking",
+   "page": 5,
+   "find": "tracking device",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.noContact",
+   "page": 5,
+   "find": "from harassing, annoying",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.stayAway",
+   "page": 5,
+   "find": "stay away from the child\u2019s residence",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.stayAway.place",
+   "page": 5,
+   "find": "which is the _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q9.stayAway.address",
+   "page": 5,
+   "find": "^located at: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q9.familyPlaces",
+   "page": 5,
+   "find": "stay away from the following location",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.familyPlaces.places",
+   "page": 5,
+   "find": "residence, school, or place of employment:$",
+   "nth": 0,
+   "kind": "lines",
+   "count": 3
+  },
+  {
+   "key": "q9.indefinite",
+   "page": 5,
+   "find": "effective indefinitely",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.owners",
+   "page": 5,
+   "find": "owners or lease signers at the Child",
+   "nth": 0,
+   "kind": "lines",
+   "count": 3
+  },
+  {
+   "key": "q9.evict",
+   "page": 5,
+   "find": "Evict the Respondent",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.evict.address",
+   "page": 5,
+   "find": "^which is located at:",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q9.possession",
+   "page": 5,
+   "find": "give the child the possession",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.possession.residence",
+   "page": 5,
+   "find": "The residence located at",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.possession.residence.address",
+   "page": 5,
+   "find": "The residence located at",
+   "nth": 0,
+   "blank": 1
+  },
+  {
+   "key": "q9.possession.vehicle",
+   "page": 5,
+   "find": "motor vehicle described as",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.possession.vehicle.description",
+   "page": 5,
+   "find": "motor vehicle described as",
+   "nth": 0,
+   "kind": "lines",
+   "count": 2,
+   "includeFound": true,
+   "blank": 1
+  },
+  {
+   "key": "q9.possession.items",
+   "page": 5,
+   "find": "Other necessary personal items",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.possession.items.description",
+   "page": 5,
+   "find": "Other necessary personal items",
+   "nth": 0,
+   "kind": "lines",
+   "count": 3,
+   "includeFound": true,
+   "blank": 1
+  },
+  {
+   "key": "q9.animalsProtect",
+   "page": 6,
+   "find": "Prohibit Respondent from removing",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.animalsProtect.1.name",
+   "page": 6,
+   "find": "Name: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q9.animalsProtect.1.ageType",
+   "page": 6,
+   "find": "^Age/Type: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q9.animalsProtect.1.sizeBreed",
+   "page": 6,
+   "find": "^Size/Breed: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q9.animalsProtect.1.description",
+   "page": 6,
+   "find": "^Description: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q9.animalsProtect.2.name",
+   "page": 6,
+   "find": "Name: _",
+   "nth": 1,
+   "blank": 0
+  },
+  {
+   "key": "q9.animalsProtect.2.ageType",
+   "page": 6,
+   "find": "^Age/Type: _",
+   "nth": 1,
+   "blank": 0
+  },
+  {
+   "key": "q9.animalsProtect.2.sizeBreed",
+   "page": 6,
+   "find": "^Size/Breed: _",
+   "nth": 1,
+   "blank": 0
+  },
+  {
+   "key": "q9.animalsProtect.2.description",
+   "page": 6,
+   "find": "^Description: _",
+   "nth": 1,
+   "blank": 0
+  },
+  {
+   "key": "q9.animalsKeep.1.name",
+   "page": 6,
+   "find": "Name: _",
+   "nth": 2,
+   "blank": 0
+  },
+  {
+   "key": "q9.animalsKeep.1.ageType",
+   "page": 6,
+   "find": "^Age/Type: _",
+   "nth": 2,
+   "blank": 0
+  },
+  {
+   "key": "q9.animalsKeep.1.sizeBreed",
+   "page": 6,
+   "find": "^Size/Breed: _",
+   "nth": 2,
+   "blank": 0
+  },
+  {
+   "key": "q9.animalsKeep.1.description",
+   "page": 6,
+   "find": "^Description: _",
+   "nth": 2,
+   "blank": 0
+  },
+  {
+   "key": "q9.animalsKeep.2.name",
+   "page": 6,
+   "find": "Name: _",
+   "nth": 3,
+   "blank": 0
+  },
+  {
+   "key": "q9.animalsKeep.2.ageType",
+   "page": 6,
+   "find": "^Age/Type: _",
+   "nth": 3,
+   "blank": 0
+  },
+  {
+   "key": "q9.animalsKeep.2.sizeBreed",
+   "page": 6,
+   "find": "^Size/Breed: _",
+   "nth": 3,
+   "blank": 0
+  },
+  {
+   "key": "q9.animalsKeep.2.description",
+   "page": 6,
+   "find": "^Description: _",
+   "nth": 3,
+   "blank": 0
+  },
+  {
+   "key": "q9.animalsKeep",
+   "page": 6,
+   "find": "exclusive possession, care",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.otherRelief",
+   "page": 6,
+   "find": "additional relief necessary",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.otherRelief.text",
+   "page": 6,
+   "find": "^household members:$",
+   "nth": 0,
+   "kind": "lines",
+   "count": 4
+  },
+  {
+   "key": "q9.parentingTime",
+   "page": 7,
+   "find": "arrangements for parenting time",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.supervised",
+   "page": 7,
+   "find": "supervised by a third party",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.denyParenting",
+   "page": 7,
+   "find": "Deny the Respondent parenting",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.attorneyFees",
+   "page": 7,
+   "find": "attorney fees",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.rent",
+   "page": 7,
+   "find": "pay rent for the child",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.mortgage",
+   "page": 7,
+   "find": "payment on a mortgage",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.childSupport",
+   "page": 7,
+   "find": "pay support for the child",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.reimburse",
+   "page": 7,
+   "find": "reimburse the Petitioner",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.reimburse.medical",
+   "page": 7,
+   "find": "Medical expenses",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.reimburse.medical.amount",
+   "page": 7,
+   "find": "Medical expenses",
+   "nth": 0,
+   "blank": 1,
+   "padLeft": 6
+  },
+  {
+   "key": "q9.reimburse.counseling",
+   "page": 7,
+   "find": "Counseling:",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.reimburse.counseling.amount",
+   "page": 7,
+   "find": "Counseling:",
+   "nth": 0,
+   "blank": 1,
+   "padLeft": 6
+  },
+  {
+   "key": "q9.reimburse.shelter",
+   "page": 7,
+   "find": "Shelter:",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.reimburse.shelter.amount",
+   "page": 7,
+   "find": "Shelter:",
+   "nth": 0,
+   "blank": 1,
+   "padLeft": 6
+  },
+  {
+   "key": "q9.reimburse.property",
+   "page": 7,
+   "find": "Repair or replacement of",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.reimburse.property.amount",
+   "page": 7,
+   "find": "damaged property:",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 6
+  },
+  {
+   "key": "q9.reimburse.other",
+   "page": 7,
+   "find": "Other costs or fees the Petitioner",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.reimburse.other.amount",
+   "page": 7,
+   "find": "bringing this case:",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 6
+  },
+  {
+   "key": "q9.noFirearms",
+   "page": 7,
+   "find": "using or possessing a firearm",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.surrender",
+   "page": 7,
+   "find": "surrender the following firearm",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.surrender.items",
+   "page": 7,
+   "find": "below and attach an additional sheet",
+   "nth": 0,
+   "kind": "lines",
+   "count": 6
+  },
+  {
+   "key": "q9.surrender.continued",
+   "page": 7,
+   "find": "Continued on Attachment 9b",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.phones",
+   "page": 7,
+   "find": "wireless service provider to transfer",
+   "nth": 0,
+   "blank": 0,
+   "kind": "check"
+  },
+  {
+   "key": "q9.phones.1.numberUser",
+   "page": 7,
+   "find": "Telephone Number and User",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q9.phones.1.provider",
+   "page": 7,
+   "find": "Wireless Service Provider",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q9.phones.1.holder",
+   "page": 7,
+   "find": "Current Account Holder",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "q9.phones.2.numberUser",
+   "page": 7,
+   "find": "Telephone Number and User",
+   "nth": 1,
+   "blank": 0
+  },
+  {
+   "key": "q9.phones.2.provider",
+   "page": 7,
+   "find": "Wireless Service Provider",
+   "nth": 1,
+   "blank": 0
+  },
+  {
+   "key": "q9.phones.2.holder",
+   "page": 7,
+   "find": "Current Account Holder",
+   "nth": 1,
+   "blank": 0
+  },
+  {
+   "key": "q10",
+   "page": 8,
+   "find": "Number of pages attached",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "affirm.a",
+   "page": 8,
+   "find": "^a\\. on the basis of my own",
+   "kind": "mark"
+  },
+  {
+   "key": "affirm.b",
+   "page": 8,
+   "find": "^b\\. on the basis that I have",
+   "kind": "mark"
+  },
+  {
+   "key": "printedName",
+   "page": 8,
+   "find": "^DATE: _",
+   "nth": 0,
+   "blank": 1
+  }
+ ]
+}

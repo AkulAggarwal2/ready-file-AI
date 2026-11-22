@@ -1,0 +1,191 @@
+{
+  "_about": "The questions for PO-0116. Field ids match the keys in content/pdfMaps.",
+  "id": "extend",
+  "filer": "petitioner",
+  "packet": [
+    {
+      "form": "PO-0116",
+      "copies": 3
+    }
+  ],
+  "instructions": {
+    "title": "Your petition to extend: before you file (do not file this page)",
+    "lines": [
+      "This file has the Verified Petition to Extend Order for Protection (PO-0116) with your answers printed on it.",
+      "File it before your order ends. The court will set a hearing.",
+      "Sign and date it by hand. You sign under penalty of perjury.",
+      "Print 3 copies, unless the clerk tells you otherwise: one for the court, one for the other person, and one for you.",
+      "File it with the clerk of the court that issued the order.",
+      "This page is not part of your filing. Remove it before you file."
+    ]
+  },
+  "sections": [
+    {
+      "id": "caption",
+      "form": "PO-0116",
+      "title": "The case",
+      "intro": "This goes at the top of the form. Copy it from your order.",
+      "fields": [
+        {
+          "id": "court.county",
+          "type": "text",
+          "label": "County of the court",
+          "required": true
+        },
+        {
+          "id": "court.name",
+          "type": "text",
+          "label": "Name of the court",
+          "hint": "As it appears on your order, like Allen Superior."
+        },
+        {
+          "id": "court.division",
+          "type": "text",
+          "label": "Division",
+          "hint": "If your order shows one."
+        },
+        {
+          "id": "court.room",
+          "type": "text",
+          "label": "Room",
+          "hint": "If your order shows one."
+        },
+        {
+          "id": "case.number",
+          "type": "text",
+          "label": "Case number",
+          "hint": "It is on your order or other court papers.",
+          "required": true
+        },
+        {
+          "id": "petitioner.first",
+          "type": "text",
+          "label": "Your first name",
+          "required": true,
+          "hint": "As written on the order."
+        },
+        {
+          "id": "petitioner.middle",
+          "type": "text",
+          "label": "Your middle name"
+        },
+        {
+          "id": "petitioner.last",
+          "type": "text",
+          "label": "Your last name",
+          "required": true
+        },
+        {
+          "id": "respondent.first",
+          "type": "text",
+          "label": "The other person's first name",
+          "required": true
+        },
+        {
+          "id": "respondent.middle",
+          "type": "text",
+          "label": "The other person's middle name"
+        },
+        {
+          "id": "respondent.last",
+          "type": "text",
+          "label": "The other person's last name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "extend",
+      "form": "PO-0116",
+      "title": "Your order",
+      "fields": [
+        {
+          "id": "issued",
+          "type": "date",
+          "label": "Date the court issued the order",
+          "required": true
+        },
+        {
+          "id": "expires",
+          "type": "date",
+          "label": "Date the order ends",
+          "required": true
+        },
+        {
+          "id": "respondent.street",
+          "type": "text",
+          "label": "The other person's current street address",
+          "required": true,
+          "hint": "The order can't be enforced unless the person is served. The court needs a current address."
+        },
+        {
+          "id": "respondent.city",
+          "type": "text",
+          "label": "City",
+          "required": true
+        },
+        {
+          "id": "respondent.state",
+          "type": "text",
+          "label": "State",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "why",
+      "form": "PO-0116",
+      "title": "Why the order is still needed",
+      "fields": [
+        {
+          "id": "threat.stillAffected",
+          "type": "checkbox",
+          "label": "I am still affected by what made me ask for the order"
+        },
+        {
+          "id": "threat.newActions",
+          "type": "checkbox",
+          "label": "New things have happened since the order was issued"
+        },
+        {
+          "id": "threat.violated",
+          "type": "checkbox",
+          "label": "The other person broke the order"
+        },
+        {
+          "id": "violated.date",
+          "type": "date",
+          "label": "When did the person break the order?",
+          "showIf": {
+            "field": "threat.violated",
+            "equals": true
+          }
+        },
+        {
+          "id": "violated.how",
+          "type": "textarea",
+          "label": "How did the person break the order?",
+          "showIf": {
+            "field": "threat.violated",
+            "equals": true
+          },
+          "rows": 2
+        },
+        {
+          "id": "why",
+          "type": "textarea",
+          "label": "Why do you, your household, or your property still need protection?",
+          "required": true,
+          "rows": 3,
+          "hint": "Include any new things that have happened."
+        },
+        {
+          "id": "newRelief",
+          "type": "textarea",
+          "label": "Anything new you want the order to include",
+          "rows": 2
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,528 @@
+{
+ "form": "WV-0102",
+ "revision": "WV-0102",
+ "anchors": [
+  {
+   "key": "caption.court",
+   "page": 2,
+   "find": "^STATE OF INDIANA",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.division",
+   "page": 2,
+   "find": "DIVISION, ROOM",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.room",
+   "page": 2,
+   "find": "DIVISION, ROOM",
+   "nth": 0,
+   "blank": 1,
+   "padLeft": 3
+  },
+  {
+   "key": "caption.county",
+   "page": 2,
+   "find": "^COUNTY OF",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.caseNumber",
+   "page": 2,
+   "find": "^CASE NO",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.plaintiff",
+   "page": 2,
+   "find": "^PLAINTIFF: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.defendant",
+   "page": 2,
+   "find": "^DEFENDANT: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.employee",
+   "page": 2,
+   "find": "^EMPLOYEE: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "pageCount.2",
+   "page": 2,
+   "find": "^Page 2 of _",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1
+  },
+  {
+   "key": "pageCount.3",
+   "page": 3,
+   "find": "^Page 3 of _",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1
+  },
+  {
+   "key": "pageCount.4",
+   "page": 4,
+   "find": "^Page 4 of _",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1
+  },
+  {
+   "key": "pageCount.5",
+   "page": 5,
+   "find": "^Page 5 of _",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1
+  },
+  {
+   "key": "pageCount.6",
+   "page": 6,
+   "find": "^Page 6 of _",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1
+  },
+  {
+   "key": "def.name.order",
+   "page": 2,
+   "find": "^1\\. To Defendant \\(name\\)",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "def.name",
+   "page": 4,
+   "find": "The defendant is \\(name\\)",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "def.sex.male",
+   "page": 4,
+   "find": "^Sex: __ Male __ Female Ht",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__(?= Male)"
+  },
+  {
+   "key": "def.sex.female",
+   "page": 4,
+   "find": "^Sex: __ Male __ Female Ht",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__(?= Female)"
+  },
+  {
+   "key": "def.height",
+   "page": 4,
+   "find": "Ht\\.?: _",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1
+  },
+  {
+   "key": "def.weight",
+   "page": 4,
+   "find": "Ht\\.?: _",
+   "nth": 0,
+   "blank": 1,
+   "padLeft": 1
+  },
+  {
+   "key": "def.hair",
+   "page": 4,
+   "find": "^Hair color: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "def.eyes",
+   "page": 4,
+   "find": "^Hair color: _",
+   "nth": 0,
+   "blank": 1
+  },
+  {
+   "key": "def.age",
+   "page": 4,
+   "find": "^Hair color: _",
+   "nth": 0,
+   "blank": 2
+  },
+  {
+   "key": "def.race",
+   "page": 4,
+   "find": "^Race: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "def.dob",
+   "page": 4,
+   "find": "^Race: _",
+   "nth": 0,
+   "blank": 1
+  },
+  {
+   "key": "employee.name",
+   "page": 4,
+   "find": "protected employee is \\(name\\)",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "household.1.name",
+   "page": 4,
+   "find": "^\\(1\\) \\(Name\\): _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "household.1.sex.male",
+   "page": 4,
+   "find": "^Sex: __ Male __ Female",
+   "nth": 1,
+   "kind": "checkAt",
+   "match": "__(?= Male)"
+  },
+  {
+   "key": "household.1.sex.female",
+   "page": 4,
+   "find": "^Sex: __ Male __ Female",
+   "nth": 1,
+   "kind": "checkAt",
+   "match": "__(?= Female)"
+  },
+  {
+   "key": "household.1.dob",
+   "page": 4,
+   "find": "^Date of birth: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "household.2.name",
+   "page": 4,
+   "find": "^\\(2\\) \\(Name\\): _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "household.2.sex.male",
+   "page": 4,
+   "find": "^Sex: __ Male __ Female",
+   "nth": 2,
+   "kind": "checkAt",
+   "match": "__(?= Male)"
+  },
+  {
+   "key": "household.2.sex.female",
+   "page": 4,
+   "find": "^Sex: __ Male __ Female",
+   "nth": 2,
+   "kind": "checkAt",
+   "match": "__(?= Female)"
+  },
+  {
+   "key": "household.2.dob",
+   "page": 4,
+   "find": "^Date of birth: _",
+   "nth": 1,
+   "blank": 0
+  },
+  {
+   "key": "household.3.name",
+   "page": 4,
+   "find": "^\\(3\\) \\(Name\\): _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "household.3.sex.male",
+   "page": 4,
+   "find": "^Sex: __ Male __ Female",
+   "nth": 3,
+   "kind": "checkAt",
+   "match": "__(?= Male)"
+  },
+  {
+   "key": "household.3.sex.female",
+   "page": 4,
+   "find": "^Sex: __ Male __ Female",
+   "nth": 3,
+   "kind": "checkAt",
+   "match": "__(?= Female)"
+  },
+  {
+   "key": "household.3.dob",
+   "page": 4,
+   "find": "^Date of birth: _",
+   "nth": 2,
+   "blank": 0
+  },
+  {
+   "key": "household.continued",
+   "page": 4,
+   "find": "Continued on Attachment 5c",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "\u25a1"
+  },
+  {
+   "key": "prohibit.1",
+   "page": 4,
+   "find": "^a\\. __ ",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "prohibit.2",
+   "page": 4,
+   "find": "^b\\. __ ",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "prohibit.3",
+   "page": 4,
+   "find": "^c\\. __ ",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "prohibit.4",
+   "page": 4,
+   "find": "^d\\. __ ",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "prohibit.5",
+   "page": 4,
+   "find": "^e\\. __ ",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "prohibit.6",
+   "page": 4,
+   "find": "^f\\. __ ",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "prohibit.6.detail",
+   "page": 4,
+   "find": "^f\\. __ other",
+   "nth": 0,
+   "kind": "lines",
+   "count": 5,
+   "includeFound": true,
+   "blank": 0
+  },
+  {
+   "key": "stayAway.yards",
+   "page": 5,
+   "find": "stay at least \\(specify\\)",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1
+  },
+  {
+   "key": "stayAway.others",
+   "page": 5,
+   "find": "^a\\. __ Employee and other",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "stayAway.others.names",
+   "page": 5,
+   "find": "^a\\. __ Employee and other",
+   "nth": 0,
+   "kind": "lines",
+   "count": 2,
+   "includeFound": true,
+   "blank": 0
+  },
+  {
+   "key": "stayAway.residence",
+   "page": 5,
+   "find": "^b\\. __ Residence",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "stayAway.residence.address",
+   "page": 5,
+   "find": "^b\\. __ Residence",
+   "nth": 0,
+   "kind": "lines",
+   "count": 1
+  },
+  {
+   "key": "stayAway.work",
+   "page": 5,
+   "find": "^c\\. __ Place of work",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "stayAway.work.address",
+   "page": 5,
+   "find": "^optional\\): _",
+   "nth": 0,
+   "kind": "lines",
+   "count": 2,
+   "includeFound": true,
+   "blank": 0
+  },
+  {
+   "key": "stayAway.school",
+   "page": 5,
+   "find": "^d\\. __ School",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "stayAway.school.address",
+   "page": 5,
+   "find": "protected persons \\(address optional\\): _",
+   "nth": 0,
+   "kind": "lines",
+   "count": 2,
+   "includeFound": true,
+   "blank": 0
+  },
+  {
+   "key": "stayAway.other",
+   "page": 5,
+   "find": "^e\\. __ Other",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "stayAway.other.detail",
+   "page": 5,
+   "find": "^e\\. __ Other",
+   "nth": 0,
+   "kind": "lines",
+   "count": 2,
+   "includeFound": true,
+   "blank": 0
+  },
+  {
+   "key": "childContacts",
+   "page": 5,
+   "find": "^8\\. __ Contacts",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "otherOrders",
+   "page": 5,
+   "find": "^9\\. __ OTHER ORDERS",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "otherOrders.detail",
+   "page": 5,
+   "find": "^9\\. __ OTHER ORDERS",
+   "nth": 0,
+   "kind": "lines",
+   "count": 5,
+   "includeFound": true,
+   "blank": 0
+  },
+  {
+   "key": "shorten",
+   "page": 5,
+   "find": "^10\\. __ Application",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "shorten.days",
+   "page": 5,
+   "find": "^number\\): _",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1
+  },
+  {
+   "key": "deliver.plaintiff",
+   "page": 6,
+   "find": "^a\\. __ Plaintiff shall",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "deliver.attorney",
+   "page": 6,
+   "find": "^b\\. __ Plaintiff\u2019s attorney",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "deliver.other",
+   "page": 6,
+   "find": "^c\\. __ Other",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "deliver.other.detail",
+   "page": 6,
+   "find": "^c\\. __ Other",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "agencies",
+   "page": 6,
+   "find": "^Law enforcement agency Address",
+   "nth": 0,
+   "kind": "lines",
+   "count": 3,
+   "columns": [
+    90,
+    306
+   ]
+  }
+ ]
+}

@@ -7,7 +7,7 @@ import { App } from '../src/App';
 import { IDLE_TIMEOUT_MS, TIMEOUT_WARNING_SECONDS } from '../src/config';
 import { copy } from '../src/content';
 import { LENA_ONE_INCIDENT } from '../src/samples/lena';
-import { begin, loadSample, questionToggles, renderApp, stepName } from './helpers';
+import { begin, loadSample, questionToggles, renderApp, stepName, toStartSync } from './helpers';
 
 vi.mock('../src/safety/leaveSite', () => ({ leaveSite: vi.fn() }));
 
@@ -78,9 +78,126 @@ describe('axe finds no violations', () => {
   });
 });
 
+describe('route screen (Your situation)', () => {
+  it('has no violations on a question with a note, the error, and a forms result', async () => {
+    const user = renderApp();
+    await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    expect(screen.getByRole('alert')).toHaveTextContent(copy.route.chooseOne);
+    await expectNoViolations();
+
+    await user.click(screen.getByRole('radio', { name: 'Me' }));
+    await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    await user.click(screen.getByRole('radio', { name: 'Ask for a new protection order' }));
+    await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    await user.click(screen.getByRole('radio', { name: 'At or near my work' }));
+    await expectNoViolations();
+
+    await user.click(screen.getByRole('button', { name: copy.route.back }));
+    await user.click(screen.getByRole('radio', { name: 'I already have a protection order' }));
+    await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    await user.click(screen.getByRole('radio', { name: 'An Indiana court' }));
+    await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    await user.click(screen.getByRole('radio', { name: 'Make the order last longer' }));
+    await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveFocus();
+    await expectNoViolations();
+  });
+});
+
+describe('Court forms step', () => {
+  it('has no violations on any section or the download page', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await goToStepByName(user, 'forms');
+    const sections = screen.getAllByRole('button').filter((b) => b.closest('nav[aria-label="' + copy.forms.sectionsLabel + '"]'));
+    for (const section of sections) {
+      await user.click(section);
+      // Open every list and every follow-up field, so they are checked too.
+      for (const box of screen.queryAllByRole('checkbox')) if (!(box as HTMLInputElement).checked) await user.click(box);
+      for (const add of screen.queryAllByRole('button', { name: /^Add / })) await user.click(add);
+      await expectNoViolations();
+    }
+  }, 30_000);
+});
+
+async function goToStepByName(user: ReturnType<typeof renderApp>, step: 'forms') {
+  await user.click(screen.getByRole('button', { name: stepName(step) }));
+}
+
+describe('petition for a child', () => {
+  it('has no violations on the child Start screen, an incident, and the child forms sections', async () => {
+    const user = renderApp();
+    for (const option of ['My child, or a child I am the guardian of', 'Ask for a new protection order', 'I am another adult acting for the child', "At or near the child's home"]) {
+      await user.click(screen.getByRole('radio', { name: option }));
+      await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    }
+    await user.click(screen.getByRole('button', { name: copy.route.toPetition }));
+    await expectNoViolations();
+    await user.click(screen.getByRole('button', { name: copy.start.begin }));
+    await user.click(screen.getByRole('button', { name: copy.organize.add }));
+    await expectNoViolations();
+    await goToStepByName(user, 'forms');
+    const sections = screen.getAllByRole('button').filter((b) => b.closest('nav[aria-label="' + copy.forms.sectionsLabel + '"]'));
+    for (const section of sections) {
+      await user.click(section);
+      await expectNoViolations();
+    }
+  }, 30_000);
+});
+
+describe('forms for an existing order', () => {
+  it.each([
+    ['Change what the order says'],
+    ['Tell the court the other person broke the order'],
+  ])('has no violations on every section of "%s"', async (action) => {
+    const user = renderApp();
+    for (const option of ['Me', 'I already have a protection order', 'An Indiana court', action]) {
+      await user.click(screen.getByRole('radio', { name: option }));
+      await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    }
+    await user.click(screen.getByRole('button', { name: copy.route.toForm }));
+    const sections = screen.getAllByRole('button').filter((b) => b.closest('nav[aria-label="' + copy.forms.sectionsLabel + '"]'));
+    for (const section of sections) {
+      await user.click(section);
+      for (const box of screen.queryAllByRole('checkbox')) if (!(box as HTMLInputElement).checked) await user.click(box);
+      await expectNoViolations();
+    }
+  }, 30_000);
+
+  it('has no violations on every section of the employer\'s workplace violence petition', async () => {
+    const user = renderApp();
+    for (const option of ['An employee of my business or organization', 'Yes', 'Stalked the employee', 'Yes', 'No', 'Ask for a new workplace violence restraining order']) {
+      await user.click(screen.getByRole('radio', { name: option }));
+      await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    }
+    await user.click(screen.getByRole('button', { name: copy.route.toForm }));
+    const sections = screen.getAllByRole('button').filter((b) => b.closest('nav[aria-label="' + copy.forms.sectionsLabel + '"]'));
+    for (const section of sections) {
+      await user.click(section);
+      for (const box of screen.queryAllByRole('checkbox')) if (!(box as HTMLInputElement).checked) await user.click(box);
+      await expectNoViolations();
+    }
+  }, 60_000);
+
+  it('has no violations on the foreign order registration', async () => {
+    const user = renderApp();
+    for (const option of ['Me', 'I already have a protection order', 'Another state, a tribe, or another country', 'Register the order in Indiana for the first time']) {
+      await user.click(screen.getByRole('radio', { name: option }));
+      await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    }
+    await user.click(screen.getByRole('button', { name: copy.route.toForm }));
+    const sections = screen.getAllByRole('button').filter((b) => b.closest('nav[aria-label="' + copy.forms.sectionsLabel + '"]'));
+    for (const section of sections) {
+      await user.click(section);
+      await expectNoViolations();
+    }
+  }, 30_000);
+});
+
 describe('names and focus', () => {
   it('the step bar buttons have unique names, so "Start" means one button', () => {
     render(<App />);
+    toStartSync();
     expect(screen.getAllByRole('button', { name: copy.start.begin })).toHaveLength(1);
     expect(screen.getByRole('button', { name: stepName('start') })).toHaveAttribute('aria-current', 'step');
   });
@@ -102,6 +219,7 @@ describe('timeout warning', () => {
 
   function showWarning() {
     render(<App />);
+    toStartSync();
     fireEvent.click(screen.getByRole('button', { name: copy.start.begin }));
     fireEvent.click(screen.getByRole('button', { name: stepName('story') }));
     const story = screen.getByRole('textbox', { name: copy.story.label });

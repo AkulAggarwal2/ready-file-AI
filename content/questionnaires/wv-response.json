@@ -1,0 +1,173 @@
+{
+  "_about": "The questions for WV-0104, WV-0105. Field ids match the keys in content/pdfMaps.",
+  "id": "wv-response",
+  "filer": "respondent",
+  "packet": [
+    {
+      "form": "WV-0104",
+      "copies": 3
+    },
+    {
+      "form": "WV-0105",
+      "copies": 1
+    }
+  ],
+  "instructions": {
+    "title": "Your response: before you file (do not file this page)",
+    "lines": [
+      "This file has the Response to Petition of Employer (WV-0104) and the Proof of Service of Completed Response (WV-0105).",
+      "File the Response with the clerk. Then someone else, not you, gives or mails a copy to the employer or its lawyer, and fills in the Proof of Service. Bring it to the hearing or give it to the clerk.",
+      "Go to the hearing, and bring any witnesses. If you do not go, the court may grant the orders without you.",
+      "A lawyer can help. If you do not have one, the lawyer referral service of your local bar association may be able to help.",
+      "Sign and date the Response by hand. You sign under penalty of perjury.",
+      "Print 3 copies, unless the clerk tells you otherwise.",
+      "This page is not part of your filing. Remove it before you file."
+    ]
+  },
+  "sections": [
+    {
+      "id": "caption",
+      "form": "WV-0104",
+      "title": "The case",
+      "intro": "This goes at the top of every form.",
+      "fields": [
+        {
+          "id": "court.county",
+          "type": "text",
+          "label": "County of the court",
+          "required": true
+        },
+        {
+          "id": "court.name",
+          "type": "text",
+          "label": "Name of the court",
+          "hint": "Like Allen Superior. The clerk's office can tell you."
+        },
+        {
+          "id": "court.division",
+          "type": "text",
+          "label": "Division"
+        },
+        {
+          "id": "court.room",
+          "type": "text",
+          "label": "Room"
+        },
+        {
+          "id": "case.number",
+          "type": "text",
+          "label": "Case number",
+          "required": true
+        },
+        {
+          "id": "plaintiff.name",
+          "type": "text",
+          "label": "The employer that filed (the plaintiff)",
+          "required": true
+        },
+        {
+          "id": "employee.name",
+          "type": "text",
+          "label": "The employee named in the case",
+          "required": true
+        },
+        {
+          "id": "respondent.first",
+          "type": "text",
+          "label": "Your first name",
+          "required": true
+        },
+        {
+          "id": "respondent.middle",
+          "type": "text",
+          "label": "Your middle name"
+        },
+        {
+          "id": "respondent.last",
+          "type": "text",
+          "label": "Your last name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "response",
+      "form": "WV-0104",
+      "title": "Your response",
+      "fields": [
+        {
+          "id": "received.petition",
+          "type": "date",
+          "label": "When did you get the petition?",
+          "required": true
+        },
+        {
+          "id": "received.order",
+          "type": "date",
+          "label": "When did you get the Order to Show Cause?",
+          "required": true
+        },
+        {
+          "id": "agree",
+          "type": "choice",
+          "label": "Do you agree that what the petition says is true?",
+          "required": true,
+          "options": [
+            {
+              "value": "agree",
+              "label": "Yes, I agree it is true"
+            },
+            {
+              "value": "disagree",
+              "label": "No, I do not agree"
+            }
+          ]
+        },
+        {
+          "id": "statement.text",
+          "type": "textarea",
+          "label": "What do you want to say in response?",
+          "rows": 8,
+          "hint": "The court reads this before the hearing."
+        }
+      ]
+    },
+    {
+      "id": "sign",
+      "form": "WV-0104",
+      "title": "Signing",
+      "intro": "Sign by hand under penalty of perjury.",
+      "fields": [
+        {
+          "id": "affirm",
+          "type": "choice",
+          "label": "What the form says is based on",
+          "required": true,
+          "options": [
+            {
+              "value": "a",
+              "label": "What I know myself"
+            },
+            {
+              "value": "b",
+              "label": "What others told me and I believe is true"
+            }
+          ],
+          "hint": "If it is based only on what others told you, attach sworn statements (affidavits) from people who saw or heard it."
+        },
+        {
+          "id": "filer.contact",
+          "type": "textarea",
+          "label": "Mailing address",
+          "rows": 2,
+          "hint": "This goes at the bottom of the form, for a party without a lawyer. It is not confidential."
+        },
+        {
+          "id": "filer.phone",
+          "type": "phone",
+          "label": "Phone"
+        }
+      ]
+    }
+  ]
+}

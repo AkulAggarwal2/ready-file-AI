@@ -10,13 +10,13 @@ export function todayIso(now = new Date()): string {
 }
 
 /** Everything in the app state that the follow-up questions depend on. */
-export type FindingsInput = Pick<AppState, 'caseType' | 'relationship' | 'threat' | 'askedToStop' | 'convicted' | 'incidents'>;
+export type FindingsInput = Pick<AppState, 'grounds' | 'relationship' | 'threat' | 'askedToStop' | 'convicted' | 'incidents'>;
 
 /** The follow-up questions for what she has entered so far. */
 function findingsFor(state: FindingsInput): Finding[] {
   return runChecks(
     {
-      caseType: state.caseType ?? 'not-sure',
+      grounds: state.grounds,
       relationship: state.relationship,
       threat: state.threat,
       askedToStop: state.askedToStop,
@@ -30,9 +30,9 @@ function findingsFor(state: FindingsInput): Finding[] {
 
 /** The follow-up questions, worked out again only when one of their inputs changes. */
 export function useFindings(state: FindingsInput): Finding[] {
-  const { caseType, relationship, threat, askedToStop, convicted, incidents } = state;
+  const { grounds, relationship, threat, askedToStop, convicted, incidents } = state;
   return useMemo(
-    () => findingsFor({ caseType, relationship, threat, askedToStop, convicted, incidents }),
-    [caseType, relationship, threat, askedToStop, convicted, incidents],
+    () => findingsFor({ grounds, relationship, threat, askedToStop, convicted, incidents }),
+    [grounds, relationship, threat, askedToStop, convicted, incidents],
   );
 }
