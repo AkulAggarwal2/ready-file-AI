@@ -681,13 +681,15 @@ describe('15. Your situation picks the court forms', () => {
     expect(screen.getByRole('status', { name: '' })).toHaveTextContent(/Only an employer can file the workplace violence forms/);
   });
 
-  it('gives an employer the workplace violence packet, and says ReadyFile does not fill it yet', async () => {
+  it('gives an employer the workplace violence packet and goes on to fill it', async () => {
     const user = renderApp();
     await choose(user, 'An employee of my business or organization', 'Yes', 'Made a believable threat of violence', 'Yes', 'No', 'Ask for a new workplace violence restraining order');
     for (const number of ['WV-0101', 'WV-0102', 'WV-0104', 'WV-0105', 'WV-0103']) expect(screen.getByText(number)).toBeInTheDocument();
-    expect(screen.getByText(copy.route.notFilledYet)).toBeInTheDocument();
+    expect(screen.queryByText(copy.route.notFilledYet)).toBeNull();
     expect(screen.queryByRole('button', { name: copy.route.toPetition })).toBeNull();
-    expect(screen.getByRole('button', { name: stepName('start') })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: copy.route.toForm }));
+    expect(screen.getByRole('textbox', { name: "The employer's full legal name" })).toBeInTheDocument();
+    expect(screen.getByText(/Form WV-0101/)).toBeInTheDocument();
   });
 
   it('sends an employer without 2 employees to an explanation, and Start over goes back to the first question', async () => {
@@ -908,5 +910,42 @@ describe('19. Letters the court forms cannot print', () => {
     await goToStep(user, 'forms');
     await user.type(screen.getByRole('textbox', { name: "The other person's last name" }), 'Muñoz-José');
     expect(screen.queryByText(/can't print these letters/)).toBeNull();
+  });
+});
+
+// Workplace violence: the employer files for an employee (WV-0100); the defendant responds.
+describe('20. Workplace violence forms', () => {
+  async function choose(user: User, ...options: string[]) {
+    for (const option of options) {
+      await user.click(screen.getByRole('radio', { name: option }));
+      await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    }
+    await user.click(screen.getByRole('button', { name: copy.route.toForm }));
+  }
+
+  it('asks about the temporary restraining order notice only when one is requested', async () => {
+    const user = renderApp();
+    await choose(user, 'An employee of my business or organization', 'Yes', 'Stalked the employee', 'Yes', 'No', 'Ask for a new workplace violence restraining order');
+    await user.click(screen.getByRole('button', { name: 'Paragraph 6: a temporary restraining order' }));
+    expect(screen.queryByRole('group', { name: 'How was the defendant told about this petition?' })).toBeNull();
+    await user.click(screen.getByRole('checkbox', { name: 'Ask for a temporary restraining order now' }));
+    expect(screen.getByRole('group', { name: 'How was the defendant told about this petition?' })).toBeInTheDocument();
+  });
+
+  it('the employer gets the petition and a separate Confidential Form about the employee', async () => {
+    const user = renderApp();
+    await choose(user, 'An employee of my business or organization', 'Yes', 'Stalked the employee', 'Yes', 'No', 'Ask for a new workplace violence restraining order');
+    await user.click(screen.getByRole('button', { name: 'Confidential Form: about the employee' }));
+    expect(screen.getByRole('textbox', { name: "The employee's home address" })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: copy.forms.downloadHeading }));
+    expect(within(screen.getByRole('region', { name: copy.forms.confidentialHeading })).getByText('PO-0104')).toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: copy.forms.publicHeading })).getByText('WV-0101')).toBeInTheDocument();
+  });
+
+  it('a defendant served with an Order to Show Cause gets the Response, signed in their own name', async () => {
+    const user = renderApp();
+    await choose(user, 'Someone asked the court for an order against me', 'An Order to Show Cause about workplace violence');
+    expect(screen.getByRole('textbox', { name: 'Your first name' })).toBeInTheDocument();
+    expect(screen.getByText(/Form WV-0104/)).toBeInTheDocument();
   });
 });

@@ -164,6 +164,21 @@ describe('forms for an existing order', () => {
     }
   }, 30_000);
 
+  it('has no violations on every section of the employer\'s workplace violence petition', async () => {
+    const user = renderApp();
+    for (const option of ['An employee of my business or organization', 'Yes', 'Stalked the employee', 'Yes', 'No', 'Ask for a new workplace violence restraining order']) {
+      await user.click(screen.getByRole('radio', { name: option }));
+      await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    }
+    await user.click(screen.getByRole('button', { name: copy.route.toForm }));
+    const sections = screen.getAllByRole('button').filter((b) => b.closest('nav[aria-label="' + copy.forms.sectionsLabel + '"]'));
+    for (const section of sections) {
+      await user.click(section);
+      for (const box of screen.queryAllByRole('checkbox')) if (!(box as HTMLInputElement).checked) await user.click(box);
+      await expectNoViolations();
+    }
+  }, 60_000);
+
   it('has no violations on the foreign order registration', async () => {
     const user = renderApp();
     for (const option of ['Me', 'I already have a protection order', 'Another state, a tribe, or another country', 'Register the order in Indiana for the first time']) {

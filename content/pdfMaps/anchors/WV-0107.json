@@ -1,0 +1,609 @@
+{
+ "form": "WV-0107",
+ "revision": "TCM-WV-0107 Approved 07/10",
+ "anchors": [
+  {
+   "key": "caption.court",
+   "page": 1,
+   "find": "^STATE OF INDIANA",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.division",
+   "page": 1,
+   "find": "DIVISION, ROOM",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.room",
+   "page": 1,
+   "find": "DIVISION, ROOM",
+   "nth": 0,
+   "blank": 1,
+   "padLeft": 1
+  },
+  {
+   "key": "caption.county",
+   "page": 1,
+   "find": "^COUNTY OF",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.caseNumber",
+   "page": 1,
+   "find": "^CASE NO",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.plaintiff",
+   "page": 1,
+   "find": "^PLAINTIFF: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.defendant",
+   "page": 1,
+   "find": "^DEFENDANT: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.employee",
+   "page": 1,
+   "find": "^EMPLOYEE: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "injunction.date",
+   "page": 1,
+   "find": "previously issued an Injunction on",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "expires",
+   "page": 1,
+   "find": "will expire on$",
+   "nth": 0,
+   "kind": "lines",
+   "count": 1
+  },
+  {
+   "key": "change",
+   "page": 1,
+   "find": "^change is: _",
+   "nth": 0,
+   "kind": "lines",
+   "count": 4,
+   "includeFound": true,
+   "blank": 0
+  },
+  {
+   "key": "change.continued",
+   "page": 1,
+   "find": "Continued on attachment 3a",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "\\(____"
+  },
+  {
+   "key": "household",
+   "page": 1,
+   "find": "^a\\. ____ Defendant shall not",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "____"
+  },
+  {
+   "key": "household.1.name",
+   "page": 1,
+   "find": "^\\(1\\) \\(Name\\):$",
+   "nth": 0,
+   "kind": "lines",
+   "count": 1
+  },
+  {
+   "key": "household.1.sex.male",
+   "page": 1,
+   "find": "^Sex: __ Male __ Female",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__(?= Male)"
+  },
+  {
+   "key": "household.1.sex.female",
+   "page": 1,
+   "find": "^Sex: __ Male __ Female",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__(?= Female)"
+  },
+  {
+   "key": "household.1.dob",
+   "page": 1,
+   "find": "^Date of birth: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "household.2.name",
+   "page": 1,
+   "find": "^\\(2\\) \\(Name\\):$",
+   "nth": 0,
+   "kind": "lines",
+   "count": 1
+  },
+  {
+   "key": "household.2.sex.male",
+   "page": 2,
+   "find": "^Sex: __ Male __ Female",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__(?= Male)"
+  },
+  {
+   "key": "household.2.sex.female",
+   "page": 2,
+   "find": "^Sex: __ Male __ Female",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__(?= Female)"
+  },
+  {
+   "key": "household.2.dob",
+   "page": 2,
+   "find": "^Date of birth: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "household.3.name",
+   "page": 2,
+   "find": "^\\(3\\) \\(Name\\):$",
+   "nth": 0,
+   "kind": "lines",
+   "count": 1
+  },
+  {
+   "key": "household.3.sex.male",
+   "page": 2,
+   "find": "^Sex: __ Male __ Female",
+   "nth": 1,
+   "kind": "checkAt",
+   "match": "__(?= Male)"
+  },
+  {
+   "key": "household.3.sex.female",
+   "page": 2,
+   "find": "^Sex: __ Male __ Female",
+   "nth": 1,
+   "kind": "checkAt",
+   "match": "__(?= Female)"
+  },
+  {
+   "key": "household.3.dob",
+   "page": 2,
+   "find": "^Date of birth: _",
+   "nth": 1,
+   "blank": 0
+  },
+  {
+   "key": "household.continued",
+   "page": 2,
+   "find": "Continued on Attachment 8a",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "prohibit.1",
+   "page": 2,
+   "find": "^\\(1\\) __ shall not batter",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "prohibit.2",
+   "page": 2,
+   "find": "^\\(2\\) __ shall not follow or stalk",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "prohibit.3",
+   "page": 2,
+   "find": "^\\(3\\) __ shall not follow the employee",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "prohibit.4",
+   "page": 2,
+   "find": "^\\(4\\) __ shall not telephone",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "prohibit.5",
+   "page": 2,
+   "find": "^\\(5\\) __ shall not enter",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "prohibit.6",
+   "page": 2,
+   "find": "^\\(6\\)__ other",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "prohibit.6.detail",
+   "page": 2,
+   "find": "^\\(6\\)__ other",
+   "nth": 0,
+   "kind": "lines",
+   "count": 3,
+   "includeFound": true,
+   "blank": 0
+  },
+  {
+   "key": "stayAway.yards",
+   "page": 2,
+   "find": "stay at least \\(specify\\)",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1
+  },
+  {
+   "key": "stayAway.others",
+   "page": 2,
+   "find": "^\\(1\\) Employee__",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "stayAway.others.names",
+   "page": 2,
+   "find": "^\\(1\\) Employee__",
+   "nth": 0,
+   "kind": "lines",
+   "count": 3
+  },
+  {
+   "key": "stayAway.residence",
+   "page": 2,
+   "find": "^\\(2\\) __ Employee\u2019s residence",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "stayAway.residence.address",
+   "page": 2,
+   "find": "^\\(2\\) __ Employee\u2019s residence",
+   "nth": 0,
+   "kind": "lines",
+   "count": 2
+  },
+  {
+   "key": "stayAway.work",
+   "page": 2,
+   "find": "^\\(3\\) __ Employee\u2019s place",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "stayAway.work.address",
+   "page": 2,
+   "find": "^\\(3\\) __ Employee\u2019s place",
+   "nth": 0,
+   "kind": "lines",
+   "count": 2
+  },
+  {
+   "key": "stayAway.school",
+   "page": 2,
+   "find": "^\\(4\\) __ Employee\u2019s children",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "stayAway.school.address",
+   "page": 2,
+   "find": "^\\(address optional\\):$",
+   "nth": 0,
+   "kind": "lines",
+   "count": 3
+  },
+  {
+   "key": "stayAway.vehicle",
+   "page": 2,
+   "find": "^\\(5\\) __ Employee\u2019s vehicle",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "stayAway.vehicle.detail",
+   "page": 2,
+   "find": "^\\(5\\) __ Employee\u2019s vehicle",
+   "nth": 0,
+   "kind": "lines",
+   "count": 2
+  },
+  {
+   "key": "stayAway.other",
+   "page": 3,
+   "find": "^\\(6\\) __ Other",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "stayAway.other.detail",
+   "page": 3,
+   "find": "^\\(6\\) __ Other",
+   "nth": 0,
+   "kind": "lines",
+   "count": 2
+  },
+  {
+   "key": "deprive.yes",
+   "page": 3,
+   "find": "^__ Yes __ No",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "^__(?= Yes)"
+  },
+  {
+   "key": "deprive.no",
+   "page": 3,
+   "find": "^__ Yes __ No",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__(?= No)"
+  },
+  {
+   "key": "deprive.explain",
+   "page": 3,
+   "find": "^__ Yes __ No",
+   "nth": 0,
+   "kind": "lines",
+   "count": 3
+  },
+  {
+   "key": "costs",
+   "page": 3,
+   "find": "^5\\. ___ COSTS",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "___"
+  },
+  {
+   "key": "costs.pay",
+   "page": 3,
+   "find": "^__ Defendant should be ordered",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "costs.detail",
+   "page": 3,
+   "find": "^__ Defendant should be ordered",
+   "nth": 0,
+   "kind": "lines",
+   "count": 2,
+   "includeFound": true,
+   "blank": 0
+  },
+  {
+   "key": "otherOrders",
+   "page": 3,
+   "find": "^6\\. __ OTHER ORDERS",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "otherOrders.detail",
+   "page": 3,
+   "find": "orders previously requested",
+   "nth": 0,
+   "kind": "lines",
+   "count": 4,
+   "includeFound": true,
+   "blank": 0
+  },
+  {
+   "key": "agencies",
+   "page": 3,
+   "find": "^Law enforcement agency Address",
+   "nth": 0,
+   "kind": "lines",
+   "count": 4,
+   "columns": [
+    90,
+    306
+   ]
+  },
+  {
+   "key": "shorten",
+   "page": 3,
+   "find": "^8\\. __ Plaintiff requests",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "shorten.days",
+   "page": 3,
+   "find": "^\\(specify number\\): _",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1
+  },
+  {
+   "key": "otherCase",
+   "page": 3,
+   "find": "^9\\. __ Plaintiff has asked",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "otherCase.county",
+   "page": 3,
+   "find": "County, Case No",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "otherCase.number",
+   "page": 3,
+   "find": "County, Case No",
+   "nth": 0,
+   "blank": 1
+  },
+  {
+   "key": "employeePO",
+   "page": 3,
+   "find": "^10\\. __ Employee has asked",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__"
+  },
+  {
+   "key": "employeePO.county",
+   "page": 3,
+   "find": "County, Case No",
+   "nth": 1,
+   "blank": 0
+  },
+  {
+   "key": "employeePO.number",
+   "page": 3,
+   "find": "County, Case No",
+   "nth": 1,
+   "blank": 1
+  },
+  {
+   "key": "def.sex.male",
+   "page": 4,
+   "find": "^Sex: __ Male __ Female Ht",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__(?= Male)"
+  },
+  {
+   "key": "def.sex.female",
+   "page": 4,
+   "find": "^Sex: __ Male __ Female Ht",
+   "nth": 0,
+   "kind": "checkAt",
+   "match": "__(?= Female)"
+  },
+  {
+   "key": "def.height",
+   "page": 4,
+   "find": "Ht\\.?: _",
+   "nth": 0,
+   "blank": 0,
+   "padLeft": 1
+  },
+  {
+   "key": "def.weight",
+   "page": 4,
+   "find": "Ht\\.?: _",
+   "nth": 0,
+   "blank": 1,
+   "padLeft": 1
+  },
+  {
+   "key": "def.eyes",
+   "page": 4,
+   "find": "^Eye color: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "def.hair",
+   "page": 4,
+   "find": "^Eye color: _",
+   "nth": 0,
+   "blank": 1
+  },
+  {
+   "key": "def.race",
+   "page": 4,
+   "find": "^Eye color: _",
+   "nth": 0,
+   "blank": 2
+  },
+  {
+   "key": "def.age",
+   "page": 4,
+   "find": "^Age: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "def.dob",
+   "page": 4,
+   "find": "^Age: _",
+   "nth": 0,
+   "blank": 1
+  },
+  {
+   "key": "affirm.a",
+   "page": 4,
+   "find": "^a\\. on the basis of my own",
+   "kind": "mark"
+  },
+  {
+   "key": "affirm.b",
+   "page": 4,
+   "find": "^b\\. on the basis that I have",
+   "kind": "mark"
+  },
+  {
+   "key": "printedName",
+   "page": 4,
+   "find": "^_+ _+$",
+   "nth": 1,
+   "blank": 0
+  },
+  {
+   "key": "signer.title",
+   "page": 4,
+   "find": "^Title of person signing",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "filer.phone",
+   "page": 4,
+   "find": "^TELEPHONE NO\\.:",
+   "kind": "after",
+   "word": "^NO\\.:$",
+   "w": 150,
+   "size": 9
+  }
+ ]
+}

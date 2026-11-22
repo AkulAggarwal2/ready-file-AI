@@ -470,28 +470,30 @@
       "packet": []
     },
     "wv-new": {
-      "flow": "forms",
+      "flow": "form",
       "title": "Workplace violence restraining order",
-      "summary": "File one petition for each employee. You fill in the Order to Show Cause too, except the hearing dates, the case number, and the judge's signature. The blank Response and Proof of Service forms are served with the papers. Someone other than you serves the papers.",
+      "summary": "File one petition for each employee. You fill in the Order to Show Cause too, except the hearing date, the case number, and the judge's signature. The court adds its cover sheet. The blank Response and Proof of Service forms are served with the papers, by someone other than you.",
       "packet": [
         "WV-0101",
         "WV-0102",
-        "COVER",
-        "PO-0104",
-        "PNW-0102",
         "WV-0104",
         "WV-0105",
-        "WV-0103"
-      ]
+        "WV-0103",
+        "PNW-0102",
+        "PO-0104",
+        "COVER"
+      ],
+      "questionnaire": "wv-new"
     },
     "wv-modify": {
-      "flow": "forms",
+      "flow": "form",
       "title": "Change a workplace violence restraining order",
       "summary": "The court needs a big change since the order was issued.",
       "packet": [
         "WV-0107",
         "WV-0103"
-      ]
+      ],
+      "questionnaire": "wv-modify"
     },
     "respondent-hearing": {
       "flow": "form",
@@ -503,13 +505,14 @@
       "questionnaire": "hearing-respondent"
     },
     "wv-response": {
-      "flow": "forms",
+      "flow": "form",
       "title": "Respond to a workplace violence petition",
       "summary": "Fill in the Response and have someone else serve it on the employer. That person fills in the Proof of Service.",
       "packet": [
         "WV-0104",
         "WV-0105"
-      ]
+      ],
+      "questionnaire": "wv-response"
     },
     "respondent-contempt": {
       "flow": "info",

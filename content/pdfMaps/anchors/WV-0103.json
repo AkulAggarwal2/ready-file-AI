@@ -1,0 +1,63 @@
+{
+ "form": "WV-0103",
+ "revision": "WV-0103",
+ "anchors": [
+  {
+   "key": "caption.court",
+   "page": 1,
+   "find": "^STATE OF INDIANA",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.division",
+   "page": 1,
+   "find": "DIVISION, ROOM",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.room",
+   "page": 1,
+   "find": "DIVISION, ROOM",
+   "nth": 0,
+   "blank": 1,
+   "padLeft": 1
+  },
+  {
+   "key": "caption.county",
+   "page": 1,
+   "find": "^COUNTY OF",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.caseNumber",
+   "page": 1,
+   "find": "^CASE NO",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.plaintiff",
+   "page": 1,
+   "find": "^PLAINTIFF: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.defendant",
+   "page": 1,
+   "find": "^DEFENDANT: _",
+   "nth": 0,
+   "blank": 0
+  },
+  {
+   "key": "caption.employee",
+   "page": 1,
+   "find": "^EMPLOYEE: _",
+   "nth": 0,
+   "blank": 0
+  }
+ ]
+}

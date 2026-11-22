@@ -39,6 +39,9 @@ export interface Field {
   fields?: Field[];
   mapAs?: string;
   join?: boolean;
+  // Prints the items as table rows, one column per item field (like
+  // "Law enforcement agency | Address").
+  table?: boolean;
   max?: number;
   overflow?: string;
   // The most items the court accepts at all (9 protected people per order).

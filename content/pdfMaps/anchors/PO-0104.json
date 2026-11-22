@@ -24,6 +24,13 @@
    "blank": 0
   },
   {
+   "key": "caption.employee",
+   "page": 1,
+   "find": "^_+$",
+   "nth": 0,
+   "blank": 0
+  },
+  {
    "key": "restrained.name",
    "page": 1,
    "find": "^Name: Home:",

@@ -166,6 +166,14 @@ function resolve(form, pages, anchor) {
     };
   }
 
+  if (kind === 'checkAt') {
+    // An X on a checkbox written as underscores inside a line, like the "__"
+    // in "Sex: __ Male __ Female" on the workplace violence forms. The
+    // regular expression matches the box itself.
+    const { x0, x1 } = spanOf(line, new RegExp(anchor.match), where);
+    return { key: anchor.key, page: anchor.page, kind: 'check', x: round((x0 + x1) / 2 - 3.5), y: round(page.height - line.y1 + 2) };
+  }
+
   if (kind === 'strike') {
     // A line through words that do not apply, for forms that say "strike
     // through the language that does not apply" (PO-0107). The words are
@@ -187,7 +195,10 @@ function resolve(form, pages, anchor) {
     // An X in the middle of the blank before the choice.
     return { key: anchor.key, page: anchor.page, kind, x: round((blank.x0 + blank.x1) / 2 - 3), y: round(page.height - line.y1 + 2) };
   }
-  return { key: anchor.key, page: anchor.page, kind, ...box(page, line, blank, anchor.padLeft), size: anchor.size };
+  // "w" widens a blank into free space after it, like a caption line that
+  // has room up to the bracket column.
+  const fitted = box(page, line, blank, anchor.padLeft);
+  return { key: anchor.key, page: anchor.page, kind, ...fitted, w: anchor.w ?? fitted.w, size: anchor.size };
 }
 
 function build(form) {

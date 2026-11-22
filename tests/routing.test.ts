@@ -51,7 +51,7 @@ describe('routing.json', () => {
     [['me', 'have-order', 'outside', 'register'], ['PO-0119']],
     [['me', 'dismissed'], ['PO-0111']],
     [['me', 'no-contact'], []],
-    [['employer', 'yes', 'threat', 'yes', 'no', 'new'], ['WV-0101', 'WV-0102', 'COVER', 'PO-0104', 'PNW-0102', 'WV-0104', 'WV-0105', 'WV-0103']],
+    [['employer', 'yes', 'threat', 'yes', 'no', 'new'], ['WV-0101', 'WV-0102', 'WV-0104', 'WV-0105', 'WV-0103', 'PNW-0102', 'PO-0104', 'COVER']],
     [['employer', 'yes', 'threat', 'yes', 'no', 'modify'], ['WV-0107', 'WV-0103']],
     [['employer', 'no'], []],
     [['employer', 'yes', 'threat', 'yes', 'yes'], []],

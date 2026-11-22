@@ -12,7 +12,8 @@ import {
   po0107Values,
   po0116Values,
   po0119Values,
-  po0128Values, type Attachment, type FormValues, type PacketInput } from './values';
+  po0128Values,
+  wvValues, type Attachment, type FormValues, type PacketInput } from './values';
 
 // Builds the filled court forms entirely in the browser; nothing is sent
 // anywhere. Public forms and confidential forms are separate PDFs, so the
@@ -41,6 +42,7 @@ const BUILDERS: Record<string, (input: PacketInput) => FormValues> = {
   'PO-0116': po0116Values,
   'PO-0119': po0119Values,
   'PO-0128': po0128Values,
+  ...Object.fromEntries(['WV-0101', 'WV-0102', 'WV-0103', 'WV-0104', 'WV-0105', 'WV-0107'].map((form) => [form, (input: PacketInput) => wvValues(form, input)])),
 };
 
 /** A questionnaire's forms, in filing order, with what fills each one. */
@@ -221,7 +223,10 @@ export async function buildPacket(input: PacketInput, load: TemplateLoader, text
     const scratch = await PDFDocument.create();
     const scratchFonts: Fonts = { regular: await scratch.embedFont(StandardFonts.Helvetica), bold: await scratch.embedFont(StandardFonts.HelveticaBold) };
     const attachmentPages = attachments.reduce((n, a) => n + drawAttachment(scratch, scratchFonts, a, captionLine), 0);
-    if (map.fields.some((f) => f.key === 'q10')) values.q10 = String(attachmentPages + affidavitPages);
+    // "Number of pages attached" and "Page _ of _ pages" count the attachments.
+    for (const key of ['q10', 'q20', 'pagesAttached']) if (map.fields.some((f) => f.key === key)) values[key] = String(attachmentPages + affidavitPages);
+    const totalPages = String(template.getPageCount() + attachmentPages);
+    for (const field of map.fields) if (field.key.startsWith('pageCount.')) values[field.key] = totalPages;
 
     await stamp(template, map, values);
     const pages = await out.copyPages(template, template.getPageIndices());

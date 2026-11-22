@@ -74,7 +74,7 @@ function shownAnswers(input: PacketInput): Answers {
 export function attachmentCaption(input: PacketInput): string {
   const a = shownAnswers(input);
   // On a workplace violence form the employer is the plaintiff.
-  const petitioner = text(a['employer.name']) || petitionerCaption(a) || 'Petitioner';
+  const petitioner = text(a['plaintiff.name']) || petitionerCaption(a) || 'Petitioner';
   return `${petitioner} v. ${fullName(a, 'respondent') || 'Respondent'}`;
 }
 
@@ -292,6 +292,11 @@ export function po0104Values(input: PacketInput): FormValues {
     continuable[id] = { label: 'to Confidential Form', heading: 'Confidential Form (continued)' };
   }
   values['restrained.name'] = fullName(a, 'respondent');
+  // On a workplace violence case the employer is the plaintiff and the employee has a line of their own.
+  if (text(a['plaintiff.name'])) {
+    values['caption.petitioner'] = text(a['plaintiff.name']);
+    values['caption.employee'] = text(a['employee.name']);
+  }
   values['restrained.dob'] = courtDate(text(a['restrained.dob']));
   values['petitioner.dob'] = courtDate(text(a['petitioner.dob']));
 
@@ -343,15 +348,18 @@ export function po0104Values(input: PacketInput): FormValues {
 /** Values for the Notice of Exclusion of Confidential Information (PNW-0102). */
 export function pnw0102Values(input: PacketInput): FormValues {
   const a = shownAnswers(input);
+  const employer = text(a['plaintiff.name']);
+  const party = employer ? 'Plaintiff' : 'Petitioner';
   return {
     values: {
       ...caption(a),
+      ...(employer && { 'caption.petitioner': employer }),
       filedWithClerk: true,
       'text.filingOrTender': 'filing',
-      'text.partyName1': 'Petitioner',
+      'text.partyName1': party,
       'text.filedOrTendered': 'filed',
-      'text.partyName2': 'Petitioner,',
-      'text.insertName': fullName(a, 'petitioner'),
+      'text.partyName2': `${party},`,
+      'text.insertName': text(a['signer.name']) || fullName(a, 'petitioner'),
     },
     continuable: {},
     attachments: [],
@@ -431,8 +439,11 @@ export function genericValues(form: string, input: PacketInput): FormValues {
   const attachments: Attachment[] = [];
 
   for (const [id, value] of Object.entries(a)) {
-    // A fixed answer has no field; it fills the map key "<id>.<value>".
-    const field = fields.get(id) ?? (typeof value === 'string' ? ({ id, type: 'choice', label: id } as Field) : undefined);
+    // A fixed answer has no field; text fills the map key "<id>.<value>",
+    // and true checks the box "<id>".
+    const field =
+      fields.get(id) ??
+      (typeof value === 'string' ? ({ id, type: 'choice', label: id } as Field) : typeof value === 'boolean' ? ({ id, type: 'checkbox', label: id } as Field) : undefined);
     if (!field) continue;
     switch (field.type) {
       case 'checkbox':
@@ -447,18 +458,25 @@ export function genericValues(form: string, input: PacketInput): FormValues {
         values[`${id}.${text(value)}`] = true;
         break;
       case 'multi':
-        for (const picked of Array.isArray(value) ? (value as string[]) : []) values[`${id}.${picked}`] = true;
+        for (const picked of Array.isArray(value) ? (value as string[]) : []) values[`${field.mapAs ?? id}.${picked}`] = true;
         break;
       case 'group': {
         const items = rows(value).filter((r) => Object.values(r).some((v) => v?.trim()));
         const max = field.max ?? items.length;
         const line = (item: Record<string, string>) =>
           field.fields!.map((sub) => (sub.type === 'date' ? courtDate(item[sub.id] ?? '') : (item[sub.id] ?? '').trim())).filter(Boolean).join(', ');
-        if (field.join) {
+        if (field.table) {
+          values[field.mapAs ?? id] = items.slice(0, max).map((item) => field.fields!.map((sub) => (item[sub.id] ?? '').trim()));
+        } else if (field.join) {
           values[field.mapAs ?? id] = items.slice(0, max).map(line).join('\n');
         } else {
           items.slice(0, max).forEach((item, i) => {
-            for (const sub of field.fields!) values[`${field.mapAs ?? id}.${i + 1}.${sub.id}`] = sub.type === 'date' ? courtDate(item[sub.id] ?? '') : (item[sub.id] ?? '');
+            for (const sub of field.fields!) {
+              const key = `${field.mapAs ?? id}.${i + 1}.${sub.id}`;
+              values[key] = sub.type === 'date' ? courtDate(item[sub.id] ?? '') : (item[sub.id] ?? '');
+              // A choice in a row also checks its box, like "household.1.sex.male".
+              if (sub.type === 'choice' && item[sub.id]) values[`${key}.${item[sub.id]}`] = true;
+            }
           });
         }
         if (items.length > max) {
@@ -488,7 +506,8 @@ export function genericValues(form: string, input: PacketInput): FormValues {
   }
 
   const signer = input.questionnaire.filer === 'respondent' ? 'respondent' : 'petitioner';
-  values.printedName = fullName(a, signer);
+  // For an employer, a person signs for the business and gives their title.
+  values.printedName = text(a['signer.name']) || fullName(a, signer);
 
   // Long free text goes on an attachment rather than being cut off.
   const continuable: FormValues['continuable'] = {};
@@ -550,4 +569,41 @@ export function po0119Values(input: PacketInput): FormValues {
 export function po0128Values(input: PacketInput): FormValues {
   const a = shownAnswers(input);
   return { values: { ...existingCaption(a), 'respondent.address': text(a['respondent.address']) }, continuable: {}, attachments: [] };
+}
+
+// ---------------------------------------------------------------------------
+// Workplace violence forms (WV-0101 to WV-0107). The employer is the
+// Plaintiff and files on behalf of an employee; the other person is the
+// Defendant.
+
+/** The workplace violence caption: Plaintiff, Defendant, and Employee. */
+function wvCaption(a: Answers): StampValues {
+  return {
+    'caption.plaintiff': text(a['plaintiff.name']),
+    'caption.defendant': fullName(a, 'respondent'),
+    'caption.employee': text(a['employee.name']),
+  };
+}
+
+/** Values for any workplace violence form: the generic ones, plus the caption and boxes the answers imply. */
+export function wvValues(form: string, input: PacketInput): FormValues {
+  const built = genericValues(form, input);
+  const a = shownAnswers(input);
+  const v = built.values;
+  Object.assign(v, wvCaption(a));
+  const defendant = fullName(a, 'respondent');
+  v['def.name'] = defendant;
+  v['def.name.order'] = defendant;
+  // The certification box is checked when any way of giving notice is.
+  v['notice.certify'] = ['oralDefendant', 'writtenDefendant', 'oralAttorney', 'writtenAttorney', 'goodFaith', 'notRequired'].some((k) => v[`notice.${k}`] === true);
+  v['costs.pay'] = v.costs === true;
+  v.statement = Boolean(text(a['statement.text']));
+  // Household members are protected only when listed; WV-0102 and WV-0107
+  // also name them in the stay-away order.
+  const household = (Array.isArray(a.protectedHousehold) ? (a.protectedHousehold as Record<string, string>[]) : []).map((r) => (r.name ?? '').trim()).filter(Boolean);
+  v.household = household.length > 0;
+  if (household.length > 0) v['stayAway.others.names'] = [text(a['employee.name']), ...household].filter(Boolean).join(', ');
+  // No filing fee for a petition about violence or threats (WV-0101 paragraph 18).
+  if (form === 'WV-0101') v.fee = true;
+  return built;
 }

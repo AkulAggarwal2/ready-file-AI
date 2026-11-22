@@ -29,6 +29,14 @@
       "w": 244.9
     },
     {
+      "key": "caption.employee",
+      "page": 1,
+      "kind": "text",
+      "x": 47.3,
+      "y": 620.5,
+      "w": 244.9
+    },
+    {
       "key": "restrained.name",
       "page": 1,
       "kind": "text",
