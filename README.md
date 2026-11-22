@@ -52,7 +52,14 @@ See "The incident splitter" below.
    list items past what fits, go on labeled attachments (4a, 8a, 9(a) to
    9(c)), and question 10 counts the pages. Signature and date lines and
    anything the clerk fills stay blank. The PDF code and the forms load only
-   when she asks for the PDF, and nothing leaves the device.
+   when she asks for the PDF, and nothing leaves the device. There are two
+   PDFs: the petition with the Notice of Exclusion, and the Confidential Form
+   on its own, marked on every page, so it is never printed into the copy of
+   the petition that is served on the other person.
+   For a child, the same steps use the child's petition (PO-0101): the
+   child's wording (`copy.child` in copy.json replaces matching keys), the
+   child form's relationship lines and acts (including sex grooming), and the
+   child named "by next friend" on every caption.
 1. **Start:** she checks the grounds that apply (question 1), or none for
    "not sure".
 2. **Incidents:** she adds each incident with a date (a new one opens on the
@@ -84,6 +91,7 @@ them right away. For a production build, run `npm run build` again.
 | [content/resources.json](content/resources.json) | The advocate contacts behind "Talk to an advocate". An entry with `verified: false` shows a "Not checked yet" label. |
 | [content/forms.json](content/forms.json) | Every form on the court's protection order forms page: number, official title, dates, Word and PDF links (for citation only), who fills it, and what ReadyFile makes from it. A test keeps it in step with the page's list. |
 | [content/questionnaires/petition-adult.json](content/questionnaires/petition-adult.json) | The Court forms questions for the adult packet, section by section in each form's order (PO-0100, then PO-0104). Field ids match the PDF map keys. `showIf` hides a field until it applies; `$relationship`, `$convicted` and `$grounds` come from earlier steps. Groups say how many fit on the form (`max`) and which attachment takes the rest. |
+| [content/questionnaires/petition-child.json](content/questionnaires/petition-child.json) | The same for a petition filed on behalf of a child (PO-0101): the child's name, the filer as next friend, the child form's question 1, 2, 5 and 9 lines, and a Confidential Form page about the child. |
 | [content/pdfMaps/](content/pdfMaps) | Where each answer prints on the court's PDF. Edit `anchors/<FORM>.json` (a line's text and which blank on it), then run `node scripts/build-pdf-maps.mjs` (needs poppler's `pdftotext`) to regenerate `<FORM>.json`. Never edit the generated files by hand. |
 | [content/routing.json](content/routing.json) | The Your situation questions. Each option goes to another question (`next`) or an outcome; each outcome lists its court forms. A test checks every option leads somewhere and every form exists. |
 | [content/safety-questions.json](content/safety-questions.json) | The optional safety questions (from the Petition Review Flags design). Each has `id`, `question` (what the petitioner sees), `staffLabel` (the chip Desk shows for a "yes"), `sourceCitation`, and `verified`. ReadyFile and Desk both read it. |

@@ -356,7 +356,7 @@
       ]
     },
     "child-new": {
-      "flow": "forms",
+      "flow": "petition",
       "variant": "child",
       "title": "Petition for an order for protection for a child",
       "summary": "You file as the child's next friend. The petition for a child, the Confidential Form, and the Notice of Exclusion are filed together.",

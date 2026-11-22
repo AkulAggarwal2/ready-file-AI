@@ -19,11 +19,10 @@ import { StepHeading } from '../ui/StepHeading';
 const domId = (id: string) => `f-${id.replace(/[^\w-]/g, '-')}`;
 
 /**
- * The questionnaire for the packet her situation leads to. Only the adult
- * petition continues to this step so far (routing.json), so it is the only one.
+ * The questionnaire for the petition her situation leads to: her own, or a child's.
  */
 function useQuestionnaire() {
-  return questionnaires['petition-adult'];
+  return questionnaires[useVariant() === 'child' ? 'petition-child' : 'petition-adult'];
 }
 
 /**
@@ -84,7 +83,7 @@ export function FormsStep() {
 
 function useEarlier(): EarlierAnswers {
   const { state } = useAppState();
-  return { relationship: state.relationship, convicted: state.convicted, grounds: state.grounds };
+  return { relationship: state.relationship, convicted: state.convicted, grounds: state.grounds, childRole: childRole(state.route) };
 }
 
 function SectionForm({ section, n, total }: { section: Section; n: number; total: number }) {

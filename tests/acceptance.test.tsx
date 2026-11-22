@@ -786,3 +786,54 @@ describe('16. Court forms', () => {
     expect(screen.getByRole('textbox', { name: "The other person's first name" })).toHaveValue('Sam');
   });
 });
+
+// A parent, guardian, or other adult filing for a child (PO-0101, PO-0103).
+describe('17. Petition for a child', () => {
+  async function toChildStart(user: User, role = 'I am the child\'s parent') {
+    for (const option of ['My child, or a child I am the guardian of', 'Ask for a new protection order', role, 'At or near the child\'s home']) {
+      await user.click(screen.getByRole('radio', { name: option }));
+      await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    }
+    for (const number of ['PO-0101', 'PO-0104', 'PNW-0102']) expect(screen.getByText(number)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: copy.route.toPetition }));
+  }
+
+  it('asks about the child, with sex grooming and the child form\'s relationship lines', async () => {
+    const user = renderApp();
+    await toChildStart(user);
+    const child = copy.child.start;
+    expect(screen.getByRole('heading', { level: 1, name: child.heading })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: copy.start.grounds['sex-grooming'] })).toBeInTheDocument();
+    const select = screen.getByRole('combobox', { name: child.relationshipLabel });
+    expect(within(select).getByRole('option', { name: child.relationships.parent })).toBeInTheDocument();
+    expect(within(select).queryByRole('option', { name: copy.start.relationships.ward })).toBeNull();
+  });
+
+  it('lists the child form\'s acts, including sex grooming, in the child\'s words', async () => {
+    const user = renderApp();
+    await toChildStart(user);
+    await user.click(screen.getByRole('button', { name: copy.start.begin }));
+    await addIncident(user, 'He sent her messages every night asking her to keep secrets from her parents.');
+    expect(screen.getByRole('checkbox', { name: copy.child.incident.acts['sex-grooming'] })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: copy.child.incident.acts['caused-harm'] })).toBeInTheDocument();
+    expect(screen.queryByRole('checkbox', { name: copy.incident.acts['caused-harm'] })).toBeNull();
+  });
+
+  it('asks for the child\'s name and, for "another adult", how they represent the child', async () => {
+    const user = renderApp();
+    await toChildStart(user, 'I am another adult acting for the child');
+    await user.click(screen.getByRole('button', { name: copy.start.begin }));
+    await goToStep(user, 'forms');
+    expect(screen.getByRole('textbox', { name: "The child's first name" })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'How do you represent the child?' })).toBeInTheDocument();
+    expect(screen.getByText(/Form PO-0101/)).toBeInTheDocument();
+  });
+
+  it('does not ask a parent how they represent the child', async () => {
+    const user = renderApp();
+    await toChildStart(user);
+    await user.click(screen.getByRole('button', { name: copy.start.begin }));
+    await goToStep(user, 'forms');
+    expect(screen.queryByRole('textbox', { name: 'How do you represent the child?' })).toBeNull();
+  });
+});

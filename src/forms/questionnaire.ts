@@ -1,4 +1,5 @@
 import petitionAdultJson from '../../content/questionnaires/petition-adult.json';
+import petitionChildJson from '../../content/questionnaires/petition-child.json';
 import { courtForm } from './index';
 
 // The questions for a packet of court forms, in each form's own order
@@ -13,7 +14,7 @@ export interface FieldOption {
 }
 
 /**
- * When a field shows. "$relationship", "$convicted" and "$grounds" come from
+ * When a field shows. "$relationship", "$convicted", "$grounds" and "$childRole" come from
  * the earlier steps; anything else is another field's answer.
  */
 export type Condition =
@@ -66,6 +67,8 @@ export interface EarlierAnswers {
   relationship: string | null;
   convicted: string;
   grounds: string[];
+  // For a child's petition: parent, guardian, or other.
+  childRole?: string;
 }
 
 const TYPES: FieldType[] = ['text', 'textarea', 'date', 'number', 'phone', 'checkbox', 'yesno', 'choice', 'multi', 'group'];
@@ -101,12 +104,14 @@ export function validateQuestionnaire(raw: Questionnaire): Questionnaire {
 
 export const questionnaires: Record<string, Questionnaire> = {
   'petition-adult': validateQuestionnaire(petitionAdultJson as Questionnaire),
+  'petition-child': validateQuestionnaire(petitionChildJson as Questionnaire),
 };
 
 function valueOf(field: string, answers: Answers, earlier: EarlierAnswers): Answer | null | undefined {
   if (field === '$relationship') return earlier.relationship;
   if (field === '$convicted') return earlier.convicted;
   if (field === '$grounds') return earlier.grounds;
+  if (field === '$childRole') return earlier.childRole ?? '';
   return answers[field];
 }
 

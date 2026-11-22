@@ -1,4 +1,4 @@
-import { ACTS, type Act, type Ground, type Relationship } from '../checker';
+import { ACTS, CHILD_ACTS, type Act, type Ground, type Relationship } from '../checker';
 import { holds, type Answer, type Answers, type EarlierAnswers, type Field, type Questionnaire } from '../forms/questionnaire';
 import type { Incident } from '../organizer';
 import type { StampValues } from './stamp';
@@ -52,7 +52,7 @@ function incidentDate(incident: Incident): string {
   return '';
 }
 
-export function fullName(answers: Answers, who: 'petitioner' | 'respondent'): string {
+export function fullName(answers: Answers, who: 'petitioner' | 'respondent' | 'child'): string {
   return ['first', 'middle', 'last']
     .map((part) => text(answers[`${who}.${part}`]))
     .filter(Boolean)
@@ -65,7 +65,7 @@ const rows = (value: Answer | undefined): Record<string, string>[] =>
 
 /** Only the answers to fields that show, so a hidden answer never prints. */
 function shownAnswers(input: PacketInput): Answers {
-  const earlier: EarlierAnswers = { relationship: input.relationship, convicted: input.convicted, grounds: input.grounds };
+  const earlier: EarlierAnswers = { relationship: input.relationship, convicted: input.convicted, grounds: input.grounds, childRole: input.childRole };
   const fields = new Map<string, Field>(input.questionnaire.sections.flatMap((s) => s.fields.map((f) => [f.id, f])));
   const shown: Answers = {};
   // A field can depend on another hidden one, so repeat until nothing changes.
@@ -94,11 +94,21 @@ function phone(value: string): { area: string; number: string } {
   return { area: '', number: value.trim() };
 }
 
+/**
+ * The petitioner as captions name them: the adult, or on a child's petition,
+ * the child "by next friend" (PO-0103).
+ */
+export function petitionerCaption(answers: Answers): string {
+  const child = fullName(answers, 'child');
+  const filer = fullName(answers, 'petitioner');
+  return child ? `${child}, by next friend ${filer}` : filer;
+}
+
 function caption(answers: Answers): StampValues {
   return {
     'caption.court': text(answers['court.name']),
     'caption.county': text(answers['court.county']),
-    'caption.petitioner': fullName(answers, 'petitioner'),
+    'caption.petitioner': petitionerCaption(answers),
     'caption.respondent': fullName(answers, 'respondent'),
   };
 }
@@ -354,4 +364,50 @@ export function pnw0102Values(input: PacketInput): FormValues {
     continuable: {},
     attachments: [],
   };
+}
+
+const CHILD_HOUSEHOLD: Relationship[] = [
+  'spouse-lived', 'lived-together', 'parent', 'dating', 'sexual', 'child-in-common', 'blood-adoption', 'marriage',
+  'guardian', 'custodian', 'foster-parent', 'minor-child-of',
+];
+
+/**
+ * Values for the petition filed on behalf of a child (PO-0101). Its questions
+ * match PO-0100's except the caption, question 1 (the filer's role), the
+ * relationship lines, the non-family choices, question 5d, the grooming act,
+ * and the signature (the child's printed name).
+ */
+export function po0101Values(input: PacketInput): FormValues {
+  const built = po0100Values(input);
+  const a = shownAnswers(input);
+  const values: StampValues = {};
+  // Copy everything that means the same on both forms; the adult-only keys
+  // are left out, so nothing from PO-0100's layout leaks onto PO-0101.
+  for (const [key, value] of Object.entries(built.values)) {
+    if (/^(caption\.petitioner|q1\.|q2\.|q7\.|printedName)/.test(key) && !key.startsWith('q2.offender') && !/^q2\.(blood-adoption|marriage)\.detail$/.test(key)) continue;
+    values[key] = value;
+  }
+  values['caption.child'] = fullName(a, 'child');
+  values['caption.nextFriend'] = fullName(a, 'petitioner');
+
+  const role = input.childRole ?? '';
+  values['q1.parent'] = role === 'parent';
+  values['q1.guardian'] = role === 'guardian';
+  values['q1.other'] = role === 'other';
+  values['q1.other.detail'] = role === 'other' ? text(a['q1.other.detail']) : '';
+
+  if (input.relationship && CHILD_HOUSEHOLD.includes(input.relationship)) values[`q2.${input.relationship}`] = true;
+  if (input.relationship === 'none') {
+    const pick = text(a['q2.nonFamily']);
+    for (const kind of ['stalking', 'sex-offense', 'sex-grooming', 'harassment']) values[`q2.nf.${kind}`] = pick === kind;
+  }
+
+  const q5 = Array.isArray(a.q5) ? (a.q5 as string[]) : [];
+  values['q5.d'] = q5.includes('d');
+
+  const acts = new Set<Act>(input.incidents.flatMap((incident) => incident.acts));
+  for (const act of CHILD_ACTS) values[`q7.${act}`] = acts.has(act);
+
+  values.printedName = fullName(a, 'child');
+  return { ...built, values };
 }

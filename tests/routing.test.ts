@@ -60,8 +60,8 @@ describe('routing.json', () => {
     expect(packetFor(...path)).toEqual(packet);
   });
 
-  it('only the adult petition continues into the petition steps for now', () => {
-    const petitions = Object.entries(routing.outcomes).filter(([, o]) => o.flow === 'petition').map(([id]) => id);
-    expect(petitions).toEqual(['adult-new']);
+  it('the adult and child petitions continue into the petition steps', () => {
+    const petitions = Object.entries(routing.outcomes).filter(([, o]) => o.flow === 'petition').map(([id, o]) => [id, o.variant]);
+    expect(petitions).toEqual([['adult-new', 'adult'], ['child-new', 'child']]);
   });
 });

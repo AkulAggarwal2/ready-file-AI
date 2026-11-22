@@ -100,7 +100,7 @@ function resolve(form, pages, anchor) {
     if (anchor.includeFound) boxes.push(box(page, line, line.blanks[anchor.blank ?? line.blanks.length - 1], anchor.padLeft));
     for (const next of page.lines.slice(start + 1 + (anchor.skip ?? 0))) {
       if (boxes.length >= anchor.count) break;
-      if (next.blanks.length === 0 || next.text.replace(/[_\s.,;]/g, '').length > 0) break;
+      if (next.blanks.length === 0 || next.text.replace(/[_\s.,;()]/g, '').length > 0) break;
       boxes.push(box(page, next, next.blanks[0]));
     }
     if (boxes.length !== anchor.count) throw new Error(`${where}: wanted ${anchor.count} lines, found ${boxes.length}`);

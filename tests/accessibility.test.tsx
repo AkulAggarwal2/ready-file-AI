@@ -124,6 +124,27 @@ async function goToStepByName(user: ReturnType<typeof renderApp>, step: 'forms')
   await user.click(screen.getByRole('button', { name: stepName(step) }));
 }
 
+describe('petition for a child', () => {
+  it('has no violations on the child Start screen, an incident, and the child forms sections', async () => {
+    const user = renderApp();
+    for (const option of ['My child, or a child I am the guardian of', 'Ask for a new protection order', 'I am another adult acting for the child', "At or near the child's home"]) {
+      await user.click(screen.getByRole('radio', { name: option }));
+      await user.click(screen.getByRole('button', { name: copy.route.continue }));
+    }
+    await user.click(screen.getByRole('button', { name: copy.route.toPetition }));
+    await expectNoViolations();
+    await user.click(screen.getByRole('button', { name: copy.start.begin }));
+    await user.click(screen.getByRole('button', { name: copy.organize.add }));
+    await expectNoViolations();
+    await goToStepByName(user, 'forms');
+    const sections = screen.getAllByRole('button').filter((b) => b.closest('nav[aria-label="' + copy.forms.sectionsLabel + '"]'));
+    for (const section of sections) {
+      await user.click(section);
+      await expectNoViolations();
+    }
+  }, 30_000);
+});
+
 describe('names and focus', () => {
   it('the step bar buttons have unique names, so "Start" means one button', () => {
     render(<App />);

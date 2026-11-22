@@ -8,7 +8,7 @@ import { createIncident } from '../src/organizer';
 import { buildPacket, packetFor, pdfMap, type PacketText } from '../src/pdf/packet';
 import { printable } from '../src/pdf/stamp';
 import { loadTemplate } from '../src/pdf/templates';
-import { courtDate, pnw0102Values, po0100Values, po0104Values, type PacketInput } from '../src/pdf/values';
+import { courtDate, pnw0102Values, po0100Values, po0101Values, po0104Values, type PacketInput } from '../src/pdf/values';
 import { LENA_FOUR_INCIDENTS, LENA_FOUR_PLACES } from '../src/samples/lena';
 
 // All names, numbers and addresses here are fictional.
@@ -104,10 +104,17 @@ const hex = (t: string) => [...t].map((ch) => ch.charCodeAt(0).toString(16).padS
 const fromDisk = async (form: string) => Uint8Array.from(readFileSync(`src/pdf/templates/${form}.pdf`));
 
 describe('questionnaire content', () => {
-  it('is valid, and every section belongs to a form the app fills', () => {
-    expect(() => validateQuestionnaire(JSON.parse(JSON.stringify(questionnaire)))).not.toThrow();
+  it.each(['petition-adult', 'petition-child'])('%s is valid, and every section belongs to a form the app fills', (id) => {
+    const q = questionnaires[id];
+    expect(() => validateQuestionnaire(JSON.parse(JSON.stringify(q)))).not.toThrow();
     const filled = courtForms.filter((f) => f.generate === 'fill').map((f) => f.id);
-    for (const section of questionnaire.sections) expect(filled).toContain(section.form);
+    for (const section of q.sections) expect(filled).toContain(section.form);
+  });
+
+  it('the child questionnaire drops support for the filer, which PO-0101 does not have', () => {
+    const ids = questionnaires['petition-child'].sections.flatMap((s) => s.fields.map((f) => f.id));
+    expect(ids).not.toContain('q9.maintenance');
+    expect(ids).toEqual(expect.arrayContaining(['child.first', 'child.last', 'q1.other.detail']));
   });
 
   it('rejects a condition on an unknown field', () => {
@@ -116,18 +123,19 @@ describe('questionnaire content', () => {
     expect(() => validateQuestionnaire(broken)).toThrow(/unknown field/);
   });
 
-  it('only uses field ids the PDF maps know, so every answer lands on the form', () => {
-    const keys = new Set(ADULT_PACKET.flatMap(({ form }) => pdfMap(form).fields.map((f) => f.key)));
+  it.each(['adult', 'child'] as const)('%s: only uses field ids the PDF maps know, so every answer lands on the form', (variant) => {
+    const questionnaire = questionnaires[`petition-${variant}`];
+    const keys = new Set(packetFor(variant).flatMap(({ form }) => pdfMap(form).fields.map((f) => f.key)));
     // Fields that feed a value under another name: names, groups, phones, choices and helpers.
-    const indirect = /^(petitioner\.(first|middle|last)|respondent\.(first|middle|last)|court\.|q2\.nonFamily|q2\.offender\.lifetime|q4\.cases|q5|q6\.attorney|q9\.(animals\w+\.animals|surrender\.items|phones\.numbers|reimburse\.\w+\.amount)|affirm|affidavitPages|household|protected|notify|.*\.phone\.|.*\.sex|restrained\.scars$)/;
+    const indirect = /^(child\.(first|middle|last)|petitioner\.(first|middle|last)|respondent\.(first|middle|last)|court\.|q2\.nonFamily|q2\.offender\.lifetime|q4\.cases|q5|q6\.attorney|q9\.(animals\w+\.animals|surrender\.items|phones\.numbers|reimburse\.\w+\.amount)|affirm|affidavitPages|household|protected|notify|.*\.phone\.|.*\.sex|restrained\.scars$)/;
     const unmapped = questionnaire.sections.flatMap((s) => s.fields.map((f) => f.id)).filter((id) => !keys.has(id) && !indirect.test(id));
     expect(unmapped).toEqual([]);
   });
 });
 
 describe('PDF maps', () => {
-  it('exist for every form in the adult packet and match its page count and revision', async () => {
-    for (const { form } of ADULT_PACKET) {
+  it('exist for every form in both packets and match its page count', async () => {
+    for (const { form } of [...ADULT_PACKET, ...packetFor('child')]) {
       const map = pdfMap(form);
       const doc = await PDFDocument.load(await fromDisk(form));
       expect(doc.getPageCount(), form).toBe(map.pages);
@@ -196,6 +204,71 @@ describe('values for PO-0100', () => {
     const v = po0100Values({ ...input, relationship: 'none', answers: { ...answers, 'q2.nonFamily': 'harassment' } }).values;
     expect([v['q2.b'], v['q2.c'], v['q2.d']]).toEqual([false, false, true]);
     expect(v['q2.dating']).toBeUndefined();
+  });
+});
+
+describe('values for PO-0101 (filed on behalf of a child)', () => {
+  const childInput: PacketInput = {
+    ...input,
+    questionnaire: questionnaires['petition-child'],
+    answers: {
+      ...answers,
+      'child.first': 'Mia',
+      'child.last': 'Example',
+      'q1.other.detail': 'Aunt with temporary custody',
+      q5: ['c', 'd'],
+      'q9.maintenance': true,
+    },
+    grounds: ['sex-grooming'],
+    relationship: 'none',
+    childRole: 'other',
+    incidents: [createIncident({ description: 'He messaged her every night.', acts: ['sex-grooming', 'harassment'] })],
+  };
+  const { values } = po0101Values({ ...childInput, answers: { ...childInput.answers, 'q2.nonFamily': 'sex-grooming' } });
+
+  it('names the child as Petitioner and the filer as next friend', () => {
+    expect(values['caption.child']).toBe('Mia Example');
+    expect(values['caption.nextFriend']).toBe('Lena Example');
+    expect(values['caption.petitioner']).toBeUndefined();
+    expect(values.printedName).toBe('Mia Example');
+  });
+
+  it('checks the filer\'s role (question 1) and describes "other"', () => {
+    expect([values['q1.parent'], values['q1.guardian'], values['q1.other']]).toEqual([false, false, true]);
+    expect(values['q1.other.detail']).toBe('Aunt with temporary custody');
+    expect(values['q1.a']).toBeUndefined();
+  });
+
+  it('uses the child form\'s lines for question 2, 5 and 7', () => {
+    expect(values['q2.nf.sex-grooming']).toBe(true);
+    expect(values['q2.nf.stalking']).toBe(false);
+    expect(values['q2.d']).toBeUndefined();
+    expect([values['q5.a'], values['q5.c'], values['q5.d']]).toEqual([false, true, true]);
+    expect(values['q7.sex-grooming']).toBe(true);
+    expect(values['q7.harassment']).toBe(true);
+  });
+
+  it('never prints support for the filer, which PO-0101 does not have', () => {
+    expect(values['q9.maintenance'] || undefined).toBeUndefined();
+    expect(pdfMap('PO-0101').fields.some((f) => f.key === 'q9.maintenance')).toBe(false);
+  });
+
+  it('names the child "by next friend" on the Confidential Form and the Notice of Exclusion', () => {
+    expect(po0104Values(childInput).values['caption.petitioner']).toBe('Mia Example, by next friend Lena Example');
+    const pnw = pnw0102Values(childInput).values;
+    expect(pnw['caption.petitioner']).toBe('Mia Example, by next friend Lena Example');
+    expect(pnw['text.insertName']).toBe('Lena Example');
+  });
+
+  it('builds the child packet: PO-0101 and PNW-0102 public, PO-0104 separate', async () => {
+    const result = await buildPacket('child', childInput, fromDisk, TEXT);
+    expect(result.forms.map((f) => [f.form, f.confidential])).toEqual([
+      ['PO-0101', false],
+      ['PNW-0102', false],
+      ['PO-0104', true],
+    ]);
+    expect((await PDFDocument.load(result.public)).getPageCount()).toBe(1 + 8 + result.forms[0].attachmentPages + 2);
+    if (process.env.PDF_OUT) writeFileSync(`${process.env.PDF_OUT}-child.pdf`, result.public);
   });
 });
 

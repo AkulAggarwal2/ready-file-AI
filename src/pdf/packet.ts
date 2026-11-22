@@ -3,7 +3,7 @@ import { courtForm } from '../forms';
 import type { Variant } from '../content';
 import { PACKET_FORMS } from '../forms/packets';
 import { fits, printable, stamp, wrap, type PdfMap, type StampValues } from './stamp';
-import { fullName, pnw0102Values, po0100Values, po0104Values, type Attachment, type FormValues, type PacketInput } from './values';
+import { fullName, petitionerCaption, pnw0102Values, po0100Values, po0101Values, po0104Values, type Attachment, type FormValues, type PacketInput } from './values';
 
 // Builds the filled court forms entirely in the browser; nothing is sent
 // anywhere. Public forms and confidential forms are separate PDFs, so the
@@ -24,6 +24,7 @@ export type TemplateLoader = (form: string) => Promise<Uint8Array>;
 
 const BUILDERS: Record<string, (input: PacketInput) => FormValues> = {
   'PO-0100': po0100Values,
+  'PO-0101': po0101Values,
   'PO-0104': po0104Values,
   'PNW-0102': pnw0102Values,
 };
@@ -210,5 +211,5 @@ export async function buildPacket(variant: Variant, input: PacketInput, load: Te
 
 /** The petitioner as the caption names them: the adult, or the child by their next friend. */
 function captionName(input: PacketInput): string {
-  return fullName(input.answers, 'petitioner') || 'Petitioner';
+  return petitionerCaption(input.answers) || 'Petitioner';
 }
