@@ -1,5 +1,5 @@
 // Acceptance tests from section 12 of DESK_PROMPT.md. All data is fictional.
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
 import { describe, expect, it } from 'vitest';
@@ -274,6 +274,11 @@ describe('15. Accessibility', () => {
     await expectNoViolations();
     await user.click(screen.getByRole('button', { name: deskCopy.hold.holdButton }));
     await user.click(screen.getByRole('button', { name: deskCopy.contactPanel.logCall }));
+    await expectNoViolations();
+    // With a tooltip open: Shift+Tab back onto "Send to magistrate now".
+    act(() => screen.getByRole('button', { name: deskCopy.hold.preview }).focus());
+    await user.tab({ shift: true });
+    expect(screen.getByText(deskCopy.tooltips.sendNow)).toHaveAttribute('data-popover-open');
     await expectNoViolations();
     await user.click(screen.getByRole('button', { name: deskCopy.hold.preview }));
     await expectNoViolations();

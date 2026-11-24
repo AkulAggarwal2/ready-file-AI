@@ -42,7 +42,8 @@ export interface AppState {
   // Asked only for sexual assault.
   convicted: YesNoUnknown;
   incidents: Incident[];
-  // Ids of incidents whose fields are open for editing.
+  // Ids of incidents whose fields are open for editing. At most one is open,
+  // so the list stays short.
   expanded: string[];
   // Keys of check questions she answered with "Continue as is".
   dismissed: string[];
@@ -55,6 +56,9 @@ export interface AppState {
   // The step to go back to after "Add more" sends her to an earlier step whose
   // own button would otherwise move her on, such as Start.
   returnTo: Step | null;
+  // The question she left with "Add more". While it is set, the screen she
+  // went to offers a button back to that question, open.
+  returnQuestion: string | null;
   // Spoken by the live region after organizing, merging, deleting, and so on.
   announcement: string;
   undo: UndoEntry | null;
@@ -77,6 +81,7 @@ export const initialState: AppState = {
   safetyAnswers: {},
   focusTarget: null,
   returnTo: null,
+  returnQuestion: null,
   announcement: '',
   undo: null,
 };
@@ -87,7 +92,9 @@ export type Action =
   | { type: 'setStory'; story: string }
   | { type: 'setPersonDetails'; changes: PersonDetails }
   | { type: 'loadSample'; story: string; incidents: Incident[] }
-  | { type: 'addMore'; focusTarget: string; expandId?: string; step?: Step; returnTo?: Step }
+  | { type: 'addMore'; focusTarget: string; expandId?: string; step?: Step; returnTo?: Step; returnQuestion?: string }
+  | { type: 'backToQuestion' }
+  | { type: 'questionReturned' }
   | { type: 'updateIncident'; id: string; changes: Partial<IncidentFields> }
   | { type: 'appendToIncident'; id: string; field: TextField; phrase: string }
   | { type: 'addIncident' }
@@ -136,9 +143,16 @@ export function reducer(state: AppState, action: Action): AppState {
         relationship: action.relationship,
         step: state.returnTo ?? 'incidents',
         returnTo: null,
+        // Set only by "Add more", so she keeps the way back to her question.
+        returnQuestion: state.returnQuestion,
       };
     case 'goTo':
-      return { ...state, step: action.step, returnTo: null, undo: null };
+      return { ...state, step: action.step, returnTo: null, returnQuestion: null, undo: null };
+    case 'backToQuestion':
+      // Keeps returnQuestion, so the Questions step can open it. That step clears it.
+      return { ...state, step: 'questions', returnTo: null, undo: null };
+    case 'questionReturned':
+      return state.returnQuestion ? { ...state, returnQuestion: null } : state;
     case 'setStory':
       return { ...state, story: action.story };
     case 'setPersonDetails':
@@ -151,10 +165,10 @@ export function reducer(state: AppState, action: Action): AppState {
         step: action.step ?? 'incidents',
         focusTarget: action.focusTarget,
         returnTo: action.returnTo ?? null,
-        expanded:
-          action.expandId && !state.expanded.includes(action.expandId)
-            ? [...state.expanded, action.expandId]
-            : state.expanded,
+        // A chip on the Incidents step has no question of its own, so it keeps
+        // the way back to the question she came from, if any.
+        returnQuestion: action.returnQuestion ?? state.returnQuestion,
+        expanded: action.expandId ? [action.expandId] : state.expanded,
         undo: null,
       };
     case 'updateIncident':
@@ -177,11 +191,13 @@ export function reducer(state: AppState, action: Action): AppState {
       };
     }
     case 'addIncident': {
-      const incident = createIncident();
+      // A new incident opens on the date picker. "I know about when" and
+      // "I don't remember" are still one choice away.
+      const incident = createIncident({ date: { kind: 'exact', value: '' } });
       return {
         ...state,
         incidents: [...state.incidents, incident],
-        expanded: [...state.expanded, incident.id],
+        expanded: [incident.id],
         focusTarget: headingId(incident.id),
         announcement: fill(copy.announce.added, { count: state.incidents.length + 1 }),
       };
@@ -241,7 +257,7 @@ export function reducer(state: AppState, action: Action): AppState {
       const number = state.incidents.findIndex((incident) => incident.id === action.id) + 1;
       return {
         ...state,
-        expanded: open ? state.expanded.filter((id) => id !== action.id) : [...state.expanded, action.id],
+        expanded: open ? [] : [action.id],
         announcement: fill(open ? copy.announce.collapsed : copy.announce.expanded, { n: number }),
       };
     }

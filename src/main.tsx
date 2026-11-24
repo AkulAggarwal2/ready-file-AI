@@ -1,11 +1,12 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
-import { applyTheme, preferredTheme } from './ui/ThemeToggle';
+import { applyTheme } from './ui/ThemeToggle';
 import './styles.css';
 
-// Before the first render, so the page never flashes the other theme.
-applyTheme(preferredTheme());
+// Every visit starts in light mode (Shark Tank feedback: easier for people who
+// don't use dark mode). Set before the first render, so the page never flashes.
+applyTheme('light');
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

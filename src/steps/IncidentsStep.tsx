@@ -11,6 +11,7 @@ import { StepHeading } from '../ui/StepHeading';
 import { Timeline } from '../ui/Timeline';
 import { UndoToast } from '../ui/UndoToast';
 import { IncidentCard } from './IncidentCard';
+import { addMoreAction } from './questionTargets';
 
 export function IncidentsStep() {
   const { state, dispatch } = useAppState();
@@ -72,18 +73,19 @@ export function IncidentsStep() {
         {forList.length > 0 && (
           <ul className="chip-list">
             {forList.map((finding) => (
-              <li key={finding.key} className="chip chip-warning">
-                {copy.badges[finding.conditionType]}
+              <li key={finding.key}>
+                <button
+                  type="button"
+                  className="chip chip-warning chip-button"
+                  onClick={() => dispatch(addMoreAction(finding, state.incidents[0]?.id, false))}
+                >
+                  {copy.badges[finding.conditionType]}
+                </button>
               </li>
             ))}
           </ul>
         )}
       </div>
-
-      <details className="disclosure">
-        <summary>{copy.timeline.heading}</summary>
-        <Timeline incidents={state.incidents} />
-      </details>
 
       {state.incidents.length === 0 && <p>{c.empty}</p>}
       {state.incidents.map((incident, index) => (
@@ -108,6 +110,12 @@ export function IncidentsStep() {
         {c.add}
       </button>
 
+      {/* Below the cards, so the incidents come first. */}
+      <details className="disclosure">
+        <summary>{copy.timeline.heading}</summary>
+        <Timeline incidents={state.incidents} />
+      </details>
+
       <div className="button-row">
         <button type="button" className="btn" onClick={() => dispatch({ type: 'goTo', step: 'start' })}>
           {c.back}
@@ -116,6 +124,16 @@ export function IncidentsStep() {
           {c.confirm}
         </button>
       </div>
+
+      {/* After "Add more", the way back stays at the bottom of the screen
+          while she edits, so she never has to scroll to find it. */}
+      {state.returnQuestion && (
+        <div className="return-bar">
+          <button type="button" className="btn btn-primary" onClick={() => dispatch({ type: 'backToQuestion' })}>
+            {copy.check.backToQuestion}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

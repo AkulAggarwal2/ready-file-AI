@@ -501,7 +501,7 @@ describe('13. Sexual assault', () => {
     const select = screen.getByRole('combobox', { name: copy.story.convictedLabel });
     expect(select).toHaveFocus();
     await user.selectOptions(select, 'yes');
-    await user.click(screen.getByRole('button', { name: copy.story.next }));
+    await user.click(screen.getByRole('button', { name: copy.check.backToQuestion }));
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
     expect(summaryText()).toContain(copy.summary.convicted);
     expect(screen.getByText(copy.review.formSexOffense)).toBeInTheDocument();
@@ -571,5 +571,54 @@ describe('14. Petition review flags', () => {
     await toQuestions(user);
     await user.click(screen.getByRole('button', { name: copy.check.toReview }));
     expect(summaryText()).not.toContain(copy.summary.safety);
+  });
+});
+
+describe('getting back to a question, and one incident at a time', () => {
+  it('"Back to the question" returns to the question she came from, open and focused', async () => {
+    const user = renderApp();
+    await begin(user, 'Harassment');
+    await addIncident(user, 'He yelled at me.');
+    await toQuestions(user);
+    await user.click(questionToggle(copy.badges.incidentPlaceMissing));
+    await user.click(screen.getByRole('button', { name: copy.check.addMore }));
+    expect(screen.getByRole('textbox', { name: copy.incident.placeLabel })).toHaveFocus();
+
+    await user.click(screen.getByRole('button', { name: copy.check.backToQuestion }));
+    const toggle = questionToggle(copy.badges.incidentPlaceMissing);
+    expect(toggle).toHaveFocus();
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('has no way back when she came to the incidents another way', async () => {
+    const user = renderApp();
+    await begin(user, 'Harassment');
+    await addIncident(user, 'He yelled at me.');
+    expect(screen.queryByRole('button', { name: copy.check.backToQuestion })).toBeNull();
+  });
+
+  it('a question chip on an incident opens it at that field', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await loadSample(user, 'four');
+    const card = screen.getAllByRole('region', { name: /^Incident \d$/ })[0];
+    const chip = within(card).getAllByRole('button', { name: copy.badges.incidentPeopleMissing })[0];
+    await user.click(chip);
+    expect(within(card).getByRole('textbox', { name: copy.incident.presentLabel })).toHaveFocus();
+  });
+
+  it('keeps one incident open, and Done closes it', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await loadSample(user, 'four');
+    const edits = screen.getAllByRole('button', { name: copy.incident.edit });
+    await user.click(edits[0]);
+    await user.click(edits[1]);
+    expect(screen.getAllByRole('textbox', { name: copy.incident.descriptionLabel })).toHaveLength(1);
+
+    const done = screen.getAllByRole('button', { name: copy.incident.done });
+    await user.click(done[done.length - 1]);
+    expect(screen.queryAllByRole('textbox', { name: copy.incident.descriptionLabel })).toHaveLength(0);
+    expect(screen.getByRole('heading', { level: 2, name: 'Incident 2' })).toHaveFocus();
   });
 });

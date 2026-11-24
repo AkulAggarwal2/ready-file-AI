@@ -62,6 +62,8 @@ describe('axe finds no violations', () => {
     const user = renderApp();
     await begin(user, 'Stalking');
     await loadSample(user, 'four');
+    // Delete is inside the open card.
+    await user.click(screen.getAllByRole('button', { name: copy.incident.edit })[0]);
 
     await user.click(screen.getAllByRole('button', { name: copy.incident.delete })[0]);
     expect(screen.getByText(copy.incident.deleteQuestion)).toHaveFocus();

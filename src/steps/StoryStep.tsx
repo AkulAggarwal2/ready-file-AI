@@ -138,8 +138,13 @@ export function StoryStep() {
         <button type="button" className="btn" onClick={() => dispatch({ type: 'goTo', step: 'incidents' })}>
           {c.back}
         </button>
-        <button type="button" className="btn btn-primary" onClick={() => dispatch({ type: 'goTo', step: 'questions' })}>
-          {c.next}
+        {/* After "Add more", this takes her back to the question she came from, open. */}
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => dispatch(state.returnQuestion ? { type: 'backToQuestion' } : { type: 'goTo', step: 'questions' })}
+        >
+          {state.returnQuestion ? copy.check.backToQuestion : c.next}
         </button>
       </div>
     </div>
