@@ -13,18 +13,29 @@ import { IncidentsStep } from './steps/IncidentsStep';
 import { StoryStep } from './steps/StoryStep';
 import { StepIndicator } from './ui/StepIndicator';
 import { ThemeToggle } from './ui/ThemeToggle';
+import { HandsFreeBar, HandsFreeProvider, HandsFreeSwitch } from './voice/HandsFree';
+import { useHandsFree } from './voice/handsFreeContext';
+import { COVER_ATTRIBUTE } from './voice/pageControls';
 
 export function App() {
   return (
     <AppStateProvider>
-      <Shell />
+      <HandsFreeProvider>
+        <Shell />
+      </HandsFreeProvider>
     </AppStateProvider>
   );
 }
 
 function Shell() {
   const { state, dispatch } = useAppState();
-  const clearAll = useCallback(() => dispatch({ type: 'reset' }), [dispatch]);
+  const turnOffVoiceControl = useHandsFree()?.turnOff;
+  // When everything is cleared, the microphone turns off too: the next person
+  // at this device must not find it listening.
+  const clearAll = useCallback(() => {
+    turnOffVoiceControl?.();
+    dispatch({ type: 'reset' });
+  }, [dispatch, turnOffVoiceControl]);
   const { secondsLeft, stay } = useInactivityTimeout(IDLE_TIMEOUT_MS, TIMEOUT_WARNING_SECONDS, clearAll);
   const warningShowing = secondsLeft !== null;
   const header = useRef<HTMLElement>(null);
@@ -45,10 +56,11 @@ function Shell() {
   // the back button never leads back into the tool after Quick exit.
   return (
     <>
-      <header ref={header} className="site-header">
+      <header ref={header} className="site-header" {...{ [COVER_ATTRIBUTE]: '' }}>
         <div className="header-row">
           <span className="brand">{copy.app.name}</span>
           <div className="header-actions">
+            <HandsFreeSwitch />
             <ThemeToggle />
             <QuickExit />
           </div>
@@ -71,6 +83,8 @@ function Shell() {
         {state.step === 'questions' && <CheckStep />}
         {state.step === 'review' && <ReviewStep />}
       </main>
+
+      <HandsFreeBar />
 
       {warningShowing && <TimeoutWarning secondsLeft={secondsLeft} onStay={stay} />}
     </>

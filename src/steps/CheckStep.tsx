@@ -6,6 +6,7 @@ import { useAppState } from '../state/AppStateProvider';
 import { useFindings } from '../state/findings';
 import { StepHeading } from '../ui/StepHeading';
 import { addMoreAction, PLACES } from './questionTargets';
+import { ASK_ATTRIBUTE, OPEN_ATTRIBUTE, PROMPT_ATTRIBUTE } from '../voice/formQuestions';
 import { SafetyQuestions } from './SafetyQuestions';
 
 /** What the question card says the question is about. */
@@ -85,7 +86,8 @@ export function CheckStep() {
             const about = aboutLabel(finding, index);
 
             return (
-              <li key={finding.key} className="card question">
+              // By voice, each question card is asked in turn: opened, read, and answered.
+              <li key={finding.key} className="card question" {...{ [ASK_ATTRIBUTE]: '' }}>
                 <h2 className="question-title">
                   <button
                     id={toggleId(finding.key)}
@@ -94,6 +96,7 @@ export function CheckStep() {
                     aria-expanded={isOpen}
                     aria-controls={isOpen ? panelId(finding.key) : undefined}
                     onClick={() => toggle(finding.key)}
+                    {...{ [OPEN_ATTRIBUTE]: '' }}
                   >
                     <span className="question-label">
                       {about} · {copy.badges[finding.conditionType]}
@@ -114,7 +117,7 @@ export function CheckStep() {
                         matches={finding.matches}
                       />
                     )}
-                    <p id={questionTextId(finding.key)} className="question-text">
+                    <p id={questionTextId(finding.key)} className="question-text" {...{ [PROMPT_ATTRIBUTE]: '' }}>
                       {finding.questionText}
                       {DEMO_MODE && !finding.verified && (
                         <span className="badge badge-dev">{fill(c.unverified, { ruleId: finding.ruleId })}</span>
@@ -155,7 +158,12 @@ export function CheckStep() {
         <button type="button" className="btn" onClick={() => dispatch({ type: 'goTo', step: 'story' })}>
           {c.back}
         </button>
-        <button type="button" className="btn btn-primary" onClick={() => dispatch({ type: 'goTo', step: 'review' })}>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => dispatch({ type: 'goTo', step: 'review' })}
+          {...{ [ASK_ATTRIBUTE]: copy.voice.handsFree.ask.questionsDone }}
+        >
           {c.toReview}
         </button>
       </div>

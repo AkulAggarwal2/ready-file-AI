@@ -1,5 +1,7 @@
 import type { CaseType, Relationship, YesNoUnknown } from '../checker';
 import { copy, fill, type SafetyAnswer } from '../content';
+import type { TextField } from '../voice/incidentAnswers';
+import { appendSpoken, appendWords } from '../voice/transcript';
 import { createIncident, mergeIncidents, type Incident, type IncidentFields } from '../organizer';
 
 // All state lives in memory only (section 8). Nothing here is ever written to
@@ -94,6 +96,7 @@ export type Action =
   | { type: 'backToQuestion' }
   | { type: 'questionReturned' }
   | { type: 'updateIncident'; id: string; changes: Partial<IncidentFields> }
+  | { type: 'appendToIncident'; id: string; field: TextField; phrase: string }
   | { type: 'addIncident' }
   | { type: 'deleteIncident'; id: string }
   | { type: 'mergeWithNext'; id: string }
@@ -175,6 +178,18 @@ export function reducer(state: AppState, action: Action): AppState {
           incident.id === action.id ? { ...incident, ...action.changes } : incident,
         ),
       };
+    case 'appendToIncident': {
+      // A spoken answer is added after what is already in the field, never over it.
+      const append = action.field === 'place' ? appendWords : appendSpoken;
+      return {
+        ...state,
+        incidents: state.incidents.map((incident) =>
+          incident.id === action.id
+            ? { ...incident, [action.field]: append(incident[action.field], action.phrase) }
+            : incident,
+        ),
+      };
+    }
     case 'addIncident': {
       // A new incident opens on the date picker. "I know about when" and
       // "I don't remember" are still one choice away.

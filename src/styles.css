@@ -653,6 +653,155 @@ blockquote {
   vertical-align: middle;
 }
 
+/* Voice typing */
+.btn-voice {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.btn-voice svg {
+  width: 1.25em;
+  height: 1.25em;
+  flex: none;
+}
+
+.btn-voice.is-listening,
+.btn-voice.is-listening:hover {
+  background: var(--primary);
+  color: var(--primary-text);
+}
+
+.btn-voice.is-listening svg {
+  animation: listening-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes listening-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.dictation-status {
+  margin: var(--space-1) 0 0;
+  font-weight: 600;
+}
+
+.dictation-status:empty {
+  display: none;
+}
+
+.dictation-pending {
+  margin: var(--space-1) 0 0;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.voice-unavailable {
+  margin: var(--space-3) 0;
+}
+
+.dev-only-inline {
+  font-family: ui-monospace, monospace;
+  font-size: var(--text-sm);
+}
+
+/* A microphone button in the corner of a text field */
+.voice-field-box {
+  position: relative;
+}
+
+.voice-field-box.has-mic > input,
+.voice-field-box.has-mic > textarea {
+  padding-right: 3.25rem;
+}
+
+.voice-field-mic {
+  position: absolute;
+  /* Lines up with the field, which has a small top margin. */
+  top: calc(var(--space-1) + 4px);
+  right: 4px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--primary);
+  cursor: pointer;
+}
+
+.voice-field-mic:hover {
+  background: var(--primary-soft);
+}
+
+.voice-field-mic:disabled {
+  color: var(--muted);
+  background: transparent;
+  cursor: default;
+}
+
+.voice-field-mic svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.voice-field-mic.is-listening,
+.voice-field-mic.is-listening:hover {
+  background: var(--primary);
+  color: var(--primary-text);
+}
+
+.voice-field-mic.is-listening svg {
+  animation: listening-pulse 1.4s ease-in-out infinite;
+}
+
+.voice-note {
+  margin-top: var(--space-2);
+}
+
+.voice-field-link {
+  min-height: 32px;
+  font-size: var(--text-sm);
+}
+
+/* Answering an incident's questions by voice */
+.voice-guide-start {
+  margin-bottom: var(--space-4);
+}
+
+.voice-guide-panel {
+  position: sticky;
+  bottom: calc(var(--space-3) + var(--hands-free-height, 0px));
+  z-index: 5;
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--primary);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.voice-guide-panel p {
+  margin: 0;
+}
+
+.voice-guide-progress {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.voice-guide-question {
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.voice-guide-panel .button-row {
+  margin: var(--space-2) 0 0;
+}
+
 .dev-only {
   margin-top: var(--space-4);
   padding: var(--space-2) var(--space-3);
@@ -963,6 +1112,12 @@ button:disabled {
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
+  }
+
+  .btn-voice.is-listening svg,
+  .voice-field-mic.is-listening svg,
+  .hands-free-dot.is-listening svg {
+    animation: none;
   }
 }
 
@@ -1336,7 +1491,7 @@ select {
 /* The way back to a question, stuck to the bottom of the screen. */
 .return-bar {
   position: sticky;
-  bottom: 0;
+  bottom: var(--hands-free-height, 0px);
   z-index: 10;
   display: flex;
   justify-content: center;
@@ -1352,7 +1507,7 @@ select {
 
 /* WCAG 2.4.11: a field that gets keyboard focus never scrolls in behind the bar. */
 html:has(.return-bar) {
-  scroll-padding-bottom: 5rem;
+  scroll-padding-bottom: calc(5rem + var(--hands-free-height, 0px));
 }
 
 /* Desktop (Team 1): use more of the width. */
@@ -1372,4 +1527,261 @@ html:has(.return-bar) {
 
 .form-checklist li + li {
   margin-top: var(--space-2);
+}
+
+/* Voice control: using the whole form by voice (src/voice/HandsFree.tsx). */
+
+/* The switch in the header: a microphone in a 48px tap target, filled when on. */
+.hands-free-switch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.hands-free-switch-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.hands-free-switch-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.hands-free-switch:hover .hands-free-switch-icon {
+  border-color: var(--primary);
+}
+
+.hands-free-switch[aria-checked='true'] .hands-free-switch-icon {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--primary-text);
+}
+
+/* Room at the bottom of the page, so the bar never covers the last field or button. */
+.content {
+  padding-bottom: calc(var(--space-6) + var(--hands-free-height, 0px));
+}
+
+html {
+  scroll-padding-bottom: calc(var(--hands-free-height, 0px) + var(--space-3));
+}
+
+/* Stays at the bottom of the screen while voice control is on. */
+.hands-free-bar {
+  position: fixed;
+  bottom: var(--space-3);
+  left: 50%;
+  z-index: 20;
+  width: min(52rem, calc(100% - 2 * var(--space-3)));
+  max-height: 50vh;
+  overflow-y: auto;
+  transform: translateX(-50%);
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--primary);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  text-align: left;
+}
+
+.hands-free-bar p {
+  margin: 0;
+}
+
+.hands-free-bar .button-row {
+  margin: var(--space-2) 0 0;
+}
+
+.hands-free-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.hands-free-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--primary-text);
+}
+
+.hands-free-dot svg {
+  width: 22px;
+  height: 22px;
+}
+
+.hands-free-dot.is-listening svg {
+  animation: listening-pulse 1.4s ease-in-out infinite;
+}
+
+.hands-free-text {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.hands-free-state {
+  font-weight: 700;
+}
+
+.hands-free-choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: var(--space-1) var(--space-4);
+  margin: var(--space-1) 0 0;
+  padding-left: 1.25rem;
+  font-weight: 400;
+}
+
+.hands-free-progress {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.hands-free-question {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.hands-free-hint {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.hands-free-say {
+  margin-top: var(--space-1) !important;
+  font-weight: 600;
+}
+
+.hands-free-choices li.is-chosen {
+  font-weight: 700;
+}
+
+.hands-free-chosen {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.hands-free-moves {
+  margin-top: var(--space-1) !important;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.hands-free-heard {
+  color: var(--muted);
+  font-style: italic;
+  overflow-wrap: anywhere;
+}
+
+.hands-free-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.hands-free-help {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+
+.hands-free-help h2 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-md);
+}
+
+.hands-free-help ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.hands-free-help li + li {
+  margin-top: var(--space-1);
+}
+
+/* "Show numbers": a number beside each thing she can press. */
+.voice-numbers {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.voice-number {
+  position: fixed;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding: 0 0.4rem;
+  border: 2px solid var(--surface);
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--primary-text);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: var(--shadow);
+}
+
+@media (max-width: 26rem) {
+  .hands-free-bar {
+    padding: var(--space-3);
+  }
+
+  /* On a phone the bar keeps to the question and what to say. The hint is
+     already under the field, and the buttons say how to skip or go back. */
+  .hands-free-hint,
+  .hands-free-moves,
+  .hands-free-dot {
+    display: none;
+  }
+
+  .hands-free-actions .btn {
+    min-height: 44px;
+    padding-top: var(--space-1);
+    padding-bottom: var(--space-1);
+  }
+
+  .hands-free-actions {
+    width: 100%;
+  }
+
+  .hands-free-actions .btn {
+    flex: 1 1 0;
+  }
+}
+
+@media (forced-colors: active) {
+  .hands-free-switch[aria-checked='true'] .hands-free-switch-icon,
+  .voice-number {
+    border: 2px solid ButtonText;
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
 }

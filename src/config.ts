@@ -12,3 +12,41 @@ export const LLM_ENABLED = import.meta.env.VITE_ENABLE_LLM === 'true';
 // resources that still have TODO contacts. It is on in development and when
 // built with VITE_DEMO_MODE=true. Real users never see it.
 export const DEMO_MODE = import.meta.env.DEV || import.meta.env.VITE_DEMO_MODE === 'true';
+
+// Voice typing listens for this language. Speech is turned into text only on
+// this device (see src/voice/speechRecognition.ts).
+export const VOICE_LANGUAGE = 'en-US';
+
+// When answering an incident's questions by voice, a written answer is done
+// after this long with no speech, and the next question starts.
+export const ANSWER_PAUSE_MS = 2500;
+
+// Voice typing in a text box stops after this long with no speech, and what
+// she said is added. Counted from the browser's last finished phrase, which
+// itself comes a moment after she stops talking.
+export const VOICE_PAUSE_MS = 1000;
+
+// Tidying voice typing with the browser's built-in model, which runs on this
+// device (src/voice/onDeviceModel.ts). Like the AI splitter (section 9), it is
+// off by default: on only in demo mode, or when built with
+// VITE_ENABLE_ON_DEVICE_AI=true. The team decides whether real users get it.
+export const ON_DEVICE_AI_ENABLED = DEMO_MODE || import.meta.env.VITE_ENABLE_ON_DEVICE_AI === 'true';
+
+// How long tidying one field's voice typing may take before her words are
+// added as she said them. She is waiting at the field, so this is short.
+export const TIDY_TIMEOUT_MS = 20 * 1000;
+
+// Voice control (src/voice/HandsFree.tsx), for using the whole form by voice.
+// A box's microphone waits this long for her to go on before it adds what she
+// said: longer than VOICE_PAUSE_MS, for people who speak more slowly or need
+// to rest between words.
+export const HANDS_FREE_PAUSE_MS = 2500;
+
+// After a box's microphone or "Answer by voice" finishes, voice control
+// listens again after this short gap.
+export const HANDS_FREE_RESTART_MS = 300;
+
+// Voice control's guided mode: how long the on-device model may take to work
+// out which choice she means from her own words (src/voice/pickChoice.ts).
+// Off unless ON_DEVICE_AI_ENABLED. She is waiting, so this is short.
+export const CHOICE_TIMEOUT_MS = 10 * 1000;

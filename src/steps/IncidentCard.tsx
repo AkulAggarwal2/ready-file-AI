@@ -7,6 +7,8 @@ import { headingId, moveButtonId } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
 import { ConfirmButton } from '../ui/ConfirmButton';
 import { IncidentFields } from './IncidentEditor';
+import { ASK_ATTRIBUTE } from '../voice/formQuestions';
+import { IncidentVoiceGuide } from './IncidentVoiceGuide';
 import { addMoreAction } from './questionTargets';
 
 interface Props {
@@ -141,10 +143,18 @@ export function IncidentCard({
 
       {expanded && (
         <div id={fieldsId} className="card-fields">
-          <IncidentFields incident={incident} />
+          <IncidentVoiceGuide incident={incident}>
+            <IncidentFields incident={incident} />
+          </IncidentVoiceGuide>
 
           <div className="button-row card-actions">
-            <button type="button" className="btn btn-primary" aria-describedby={headingId(id)} onClick={finishEditing}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              aria-describedby={headingId(id)}
+              onClick={finishEditing}
+              {...{ [ASK_ATTRIBUTE]: copy.voice.handsFree.ask.incidentDone }}
+            >
               {c.done}
             </button>
           </div>

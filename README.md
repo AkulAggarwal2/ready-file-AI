@@ -208,6 +208,164 @@ The splitter uses the `IncidentExtractor` interface in
   anything else. Either way, she sees the result as a draft and confirms it
   herself.
 
+## Voice typing
+
+She can speak instead of type. The code is in [src/voice/](src/voice/).
+
+- **Answer by voice (each incident):** an open incident card asks its
+  questions one at a time, in the card's order: when, where, how, what
+  happened, who was there, did she see it herself, how it made her feel, and
+  proof. Focus moves to each field, and a panel at the bottom of the screen
+  shows the question, Skip, and Stop. She can also say "skip" or "stop".
+  Written answers keep her words and are added after anything already there.
+  They move on after a 2.5-second pause (`ANSWER_PAUSE_MS`). Choice answers
+  ("last week", "in person", "yes") move on once understood; if an answer
+  matches no option, she is asked again
+  ([src/voice/incidentAnswers.ts](src/voice/incidentAnswers.ts)). Voice never
+  checks the "What did the person do?" boxes (question 7), because a wrong
+  check on a sworn form is serious.
+- **Every text box** (her story, the questions about the person, and each
+  incident's text fields) has a small microphone button in its corner
+  ([src/voice/VoiceField.tsx](src/voice/VoiceField.tsx)). She talks, and when
+  she pauses for a second (`VOICE_PAUSE_MS`, counted from the browser's last
+  finished phrase), listening stops and what she said is added after what is
+  already in the box. What she already typed is never changed. She presses the
+  microphone again to keep going. Only one microphone listens at a time.
+- **Tidying (on with the on-device model):** in the bigger boxes, the
+  browser's built-in model fixes punctuation, grammar, and filler words like
+  "um" before her words are added
+  ([src/voice/tidyText.ts](src/voice/tidyText.ts)). Its instructions list the
+  only changes it may make, and forbid adding facts, swapping her words for
+  other words, or summarizing. It is asked to always pick its most likely
+  word (`topK: 1`), so it doesn't get creative; Chrome versions that refuse
+  that setting use a normal session.
+- **Only answers are added (on with the on-device model):** the model also
+  gets the box's question (its label and hint) and says whether what she said
+  answers it. If it clearly doesn't (she was talking to someone in the room,
+  or a TV was on), nothing is added, the status line says so, and an "Add it
+  anyway" link adds it. "I don't remember" counts as an answer, and when the
+  model isn't sure, it counts what she said as an answer. This check runs in
+  every box, including the short ones. She can edit the result
+  in the box, and a "Use my exact words instead" link under the box swaps in
+  exactly what she said, until she edits it. The app throws the tidied
+  version away, and adds her words as she said them, if it changes a number,
+  adds or drops a "not" or "never", or adds or drops more than 15% of
+  the words that carry facts (small words like "and then" or "like" and
+  verb endings don't count). Short one-line boxes (where, about when) are
+  never tidied. If the model is missing or takes over 20 seconds
+  (`TIDY_TIMEOUT_MS`), her words are added as she said them.
+- **Each pause ends a sentence.** Speech recognition often leaves out
+  punctuation, and the manual splitter finds sentences by their ending marks,
+  so a phrase without one gets a period
+  ([src/voice/transcript.ts](src/voice/transcript.ts)).
+
+**Phones:** the microphones show only where the browser confirms on-device
+speech recognition, which most phone browsers don't offer today. There, the
+text boxes have no microphone, and a note says voice typing works in Chrome
+on a computer. Chrome's built-in model (for tidying) runs only on computers,
+so a phone that does offer on-device speech adds her words as she said them. She can still use her
+keyboard's own voice typing; that is the phone maker's feature, not
+ReadyFile's. The layout already works at phone width if phone browsers add
+on-device recognition later.
+
+**On this device only.** In many browsers, speech recognition sends the
+audio to the browser maker's server, which section 8 rules out. ReadyFile
+asks the browser for on-device recognition (`processLocally`) and shows
+voice typing only when the browser confirms it. Recent Chrome on a computer
+does. The first use downloads the speech model, which holds none of her
+words. Other browsers say voice typing is not available; in demo mode, the
+note also shows what the browser answered.
+The microphone turns off when she leaves the step, times out, or uses Quick
+exit. Talking counts as activity, so she is never timed out while she speaks.
+The listening language is `VOICE_LANGUAGE` in [src/config.ts](src/config.ts).
+
+### Voice control (the whole form by voice)
+
+For anyone who can't easily type or use a mouse. It is off until she turns
+it on, from "Hard to type or use a mouse?" on the Start step or the
+microphone switch in the header. The microphone in each box and "Answer by
+voice" work the same whether it is on or off. The code is in
+[src/voice/HandsFree.tsx](src/voice/HandsFree.tsx),
+[src/voice/formQuestions.ts](src/voice/formQuestions.ts),
+[src/voice/voiceCommands.ts](src/voice/voiceCommands.ts), and
+[src/voice/pageControls.ts](src/voice/pageControls.ts).
+
+- **It asks the questions in order.** When she turns it on, the bar at the
+  bottom shows the step's first question ("Question 1 of 3 on this step"),
+  its hint, and exactly what to say: a numbered list of choices (she says one
+  or its number), "say your answer" for a box (the box's own microphone
+  listens, and her answer is added when she stops talking), "say each one
+  that fits, then 'done'" for check boxes, or "say 'yes' or 'Add an
+  incident'". When she answers, it moves on by itself, through every step:
+  Start, each incident (a spoken date like "last week" goes straight into
+  the right date box), Your story, each card on the Questions step (opened,
+  read, and answered with "Add more" or "Continue as is"), and Review.
+  "Skip" and "back" (also buttons in the bar) move between questions, and
+  "try again" asks again. "Skip" said into a box acts at once and adds
+  nothing. If nothing went into a box, she is told and can try again.
+- **She can answer in her own words.** Without AI, a sentence that mentions a
+  choice picks it: "I'm seeking for stalking" or "I have a concern about
+  stalking" is Stalking, "we used to date" is "We are dating or used to
+  date", "he kept texting me" is "Phone call or text"
+  ([src/voice/voiceCommands.ts](src/voice/voiceCommands.ts)). A word after
+  "not" doesn't count ("it's not stalking, it's harassment" is Harassment),
+  and when two choices fit equally it asks which one she meant. "Yeah, let's
+  add one", "no, I'm done", "can we skip this one", and "I think it happened
+  last week" work too. The bar always says what it chose, and "back" changes it.
+- **The on-device model, for the rest (on with on-device AI).** When her
+  words name no choice ("he's my ex boyfriend"), the browser's built-in
+  model picks the choice she means, or none
+  ([src/voice/pickChoice.ts](src/voice/pickChoice.ts)). Its answer is held to
+  the list of choices plus "none" and checked again, it is told never to
+  guess or to decide for her from a story of what happened, and an answer
+  that comes after she has moved on is dropped. It is only used to pick one
+  from a list, never for check boxes, and never off the device
+  (`CHOICE_TIMEOUT_MS`, 10 seconds).
+- **Check boxes stay strict.** On "What did the person do?", a box is checked
+  only when her sentence has its whole name: "he threatened to hurt me" checks
+  only "Threatened to hurt me" (not also "Hurt me"), and a "not" anywhere in
+  that part of the sentence ("he never threatened to hurt me") checks nothing.
+- **How it finds the questions.** Fields are found on the page in order: a
+  group of radio buttons or check boxes, a list, a box, or a date. Questions
+  answered with a button are marked in the step's code with `data-voice-ask`
+  (the Start button, "Add an incident", an incident's Done, each step's
+  next button, the Questions cards, and Review's copy and print). "Answer by
+  voice" on an incident card is hidden while voice control is on, so there
+  is one guide at a time.
+- **Say what you see.** She says the words on a button, choice, or check box
+  ("Next", "Stalking", "Hurt me") and it is pressed. The names come from the
+  page itself (visible words, labels, and screen reader names), so every step,
+  and any step added later, works without a list of commands per screen. When
+  two things have the same name, the one in the page wins over the step bar,
+  then the one nearest to where she is; if that still doesn't decide it, they
+  get numbers and she says one.
+- **Boxes and lists.** Saying a box's name ("What happened") moves there and
+  starts that box's own microphone, with the same tidying. With voice control
+  on, the box waits 2.5 seconds (`HANDS_FREE_PAUSE_MS`) instead of 1 before it
+  adds what she said, for people who speak slowly or need to rest between
+  words. Saying a list's name ("How did it happen?") moves there and shows its
+  choices in the bar; she says one.
+- **Forgiving, but never from a sentence.** Speech recognition mishears some
+  accents more than others, so a name still matches with an ending changed
+  ("hurts"), one letter off in a longer word, or the less important words left
+  out ("next" for "Next: Your story"). But every word she says must be in the
+  name: "he hurt me" never checks "Hurt me", because a wrong check mark on a
+  sworn form is serious. Quick exit leaves only for its whole name.
+- **Fixed words:** "help", "scroll down", "scroll up", "show numbers" (a
+  number on everything she can see, for names that are long or hard for the
+  browser to understand), and "stop listening".
+- **Only a time goes into "about when".** On "When did it happen?", a phrase
+  becomes an "about when" date only if it sounds like a time ("last week",
+  "two days ago", "the night before Christmas"), so talk from someone else
+  in the room never lands there.
+- **A bar at the bottom** shows the question, what it heard, and what it
+  did, with Previous question, Skip question, Help, and Stop listening. It steps aside while a box's
+  microphone or "Answer by voice" is listening, then listens again. Focused
+  fields are scrolled clear of it. If the microphone is blocked or stops
+  working, it turns off and says why, instead of trying again forever.
+- It turns off with Quick exit (either way) and when the timeout clears
+  everything, so the next person at the device doesn't find it listening.
+
 ## ReadyFile Desk
 
 A court-staff companion, built from [DESK_PROMPT.md](DESK_PROMPT.md). It runs
@@ -243,7 +401,7 @@ Desk's code is in [src/desk/](src/desk/). ReadyFile never imports from it.
 
 ## Tests
 
-`npm test` runs 146 tests in [tests/](tests/):
+`npm test` runs 405 tests in [tests/](tests/):
 
 - **Acceptance tests 1–8 from section 12:** `acceptance.test.tsx` covers
   tests 1–6 and 8, and `content.test.ts` covers test 7, the banned-phrase
@@ -257,6 +415,36 @@ Desk's code is in [src/desk/](src/desk/). ReadyFile never imports from it.
   `content.test.ts` covers 13, 14, and 16.
 - **Source code scans:** checks that the code has no storage calls, network
   calls, history changes, or hardcoded phone numbers.
+- **Voice typing:** [tests/fakeVoice.ts](tests/fakeVoice.ts) stands in for the
+  browser's on-device speech recognition and built-in model, so tests can
+  "speak" and choose what the model answers.
+  - `voice-text.test.ts`: joining spoken words to a field, reading spoken
+    answers, the check that the tidied text keeps her meaning (numbers,
+    "not"s, added or dropped facts), and the model's instructions. Its worked
+    examples must pass the app's own check.
+  - `voice-browser.test.ts`: speech recognition only on the device, the model
+    not used until it is ready, no randomness (and the fallback where Chrome
+    refuses that), time limits, and closing sessions.
+  - `voice-field.test.tsx`: the microphone in each box, through the whole
+    app: stopping on a pause, tidying, "Use my exact words instead",
+    skipping what isn't an answer and "Add it anyway", one microphone at a
+    time, errors, and axe checks.
+  - `voice-guide.test.tsx`: "Answer by voice", including that it never
+    checks the question 7 boxes.
+  - `voice-commands.test.ts`: voice control reading what she says (commands,
+    numbers, "check" and "uncheck", "skip", "back", "done", "yes") and finding
+    what she named, including misheard words, that a sentence containing a
+    name never matches, and which phrases sound like a time.
+  - `voice-page.test.ts`: finding what she can press on a page by its names,
+    only the dialog while one is open, picking between controls with the same
+    name, pressing, checking, choosing, or starting a box's microphone, reading
+    a step's questions in order, and keeping the question in view above the
+    bar (even when the bar is taller than half a phone's screen).
+  - `voice-control.test.tsx`: voice control through the whole app: the
+    questions asked in order on Start, an incident, and the Questions step,
+    spoken dates, boxes, lists by name or number, check boxes and "done",
+    "skip" and "back", trying again, waiting while words are tidied, numbers,
+    Quick exit, errors, the inactivity timer, and axe checks.
 
 ## Open TODOs
 
@@ -266,10 +454,21 @@ Desk's code is in [src/desk/](src/desk/). ReadyFile never imports from it.
 - [ ] Team: confirm the quick exit address (now `https://www.weather.com`).
 - [ ] Decide whether to turn off spellcheck in the story box. Some browsers'
       "enhanced" spellcheck sends typed text to a server.
+- [ ] Team: decide whether real users get tidying with the on-device model
+      (`VITE_ENABLE_ON_DEVICE_AI`), and test it on the laptops petitioners
+      use. Chrome's built-in model needs a recent desktop Chrome, enough
+      memory, and a one-time download of about 2 GB.
 - [ ] Real AI splitter: needs a small server that holds the API key and keeps
       the no-storage rules. It should be used with fictional data only.
+- [ ] Team: decide whether to offer voice typing, and test it with a real
+      microphone and a screen reader. Check the words that "Answer by voice"
+      matches to choices (in [src/voice/incidentAnswers.ts](src/voice/incidentAnswers.ts)).
 - [ ] Accessibility check with a real screen reader (VoiceOver, NVDA) and a
       contrast checker.
+- [ ] Team: test voice control with people who use it every day (for
+      example, people with limited hand use or speech differences), with
+      different accents, and next to the voice control built into Mac and
+      Windows. Voice control only understands English (`VOICE_LANGUAGE`).
 - [ ] Not built yet (section 6): field explainer, denial explainer, and
       domestic violence petitions. The follow-up queue and bench summary are
       in ReadyFile Desk.

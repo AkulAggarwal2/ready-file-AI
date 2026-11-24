@@ -1,6 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-const ACTIVITY_EVENTS = ['pointerdown', 'keydown', 'input', 'scroll', 'touchstart'] as const;
+// Voice typing changes fields without a key press, so it sends this event to
+// count as activity. Someone who can't use a keyboard or mouse is never timed
+// out while she is talking.
+export const VOICE_ACTIVITY_EVENT = 'readyfile:voice-activity';
+
+/** Counts what she just said as activity, like a key press. */
+export function noteVoiceActivity(): void {
+  window.dispatchEvent(new Event(VOICE_ACTIVITY_EVENT));
+}
+
+const ACTIVITY_EVENTS = ['pointerdown', 'keydown', 'input', 'scroll', 'touchstart', VOICE_ACTIVITY_EVENT] as const;
 
 /**
  * Calls onTimeout after idleMs with no activity. For the last warningSeconds,

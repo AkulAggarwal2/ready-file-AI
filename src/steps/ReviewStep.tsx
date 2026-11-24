@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ASK_ATTRIBUTE } from '../voice/formQuestions';
 import { copy } from '../content';
 import { summarySections, summaryText, type SummarySection } from '../review/summary';
 import { ORGANIZE_HEADING_ID } from '../state/appState';
@@ -38,7 +39,7 @@ export function ReviewStep() {
         {summary}
       </pre>
 
-      <div className="button-row">
+      <div className="button-row" {...{ [ASK_ATTRIBUTE]: copy.voice.handsFree.ask.review }}>
         <button type="button" className="btn btn-primary" onClick={copySummary}>
           {c.copy}
         </button>

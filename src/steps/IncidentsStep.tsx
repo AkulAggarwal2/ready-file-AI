@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { ASK_ATTRIBUTE } from '../voice/formQuestions';
 import type { Finding } from '../checker';
 import { DEMO_MODE } from '../config';
 import { copy, fill } from '../content';
@@ -106,7 +107,13 @@ export function IncidentsStep() {
         />
       ))}
 
-      <button id={ADD_INCIDENT_ID} type="button" className="btn" onClick={() => dispatch({ type: 'addIncident' })}>
+      <button
+        id={ADD_INCIDENT_ID}
+        type="button"
+        className="btn"
+        onClick={() => dispatch({ type: 'addIncident' })}
+        {...{ [ASK_ATTRIBUTE]: copy.voice.handsFree.ask.addIncident }}
+      >
         {c.add}
       </button>
 
@@ -120,7 +127,12 @@ export function IncidentsStep() {
         <button type="button" className="btn" onClick={() => dispatch({ type: 'goTo', step: 'start' })}>
           {c.back}
         </button>
-        <button type="button" className="btn btn-primary" onClick={() => dispatch({ type: 'goTo', step: 'story' })}>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => dispatch({ type: 'goTo', step: 'story' })}
+          {...{ [ASK_ATTRIBUTE]: copy.voice.handsFree.ask.incidentsDone }}
+        >
           {c.confirm}
         </button>
       </div>
