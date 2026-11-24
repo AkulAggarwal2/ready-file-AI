@@ -13,6 +13,7 @@ import {
 } from '../src/voice/incidentAnswers';
 import { keepsHerMeaning, parseTidied, TIDY_PROMPTS, TIDY_SCHEMA, tidyInput } from '../src/voice/tidyText';
 import { appendSpoken, appendWords, toSentence } from '../src/voice/transcript';
+import { CHOICE_PROMPTS, choiceInput, choiceSchema, NO_CHOICE, readChoice } from '../src/voice/pickChoice';
 
 describe('joining spoken words to a field', () => {
   it('ends a spoken phrase with a period, unless it already ends a sentence', () => {
@@ -203,5 +204,43 @@ describe('withTimeout', () => {
     vi.useFakeTimers();
     await withTimeout(Promise.resolve('done'), 1000);
     expect(vi.getTimerCount()).toBe(0);
+  });
+});
+
+describe('picking a choice with the model (guided voice control)', () => {
+  const CHOICES = ['In person', 'Online', 'Phone call or text'];
+
+  it('may only answer with one of the choices or "none"', () => {
+    expect(choiceSchema(CHOICES)).toEqual({
+      type: 'object',
+      properties: { choice: { type: 'string', enum: [...CHOICES, NO_CHOICE] } },
+      required: ['choice'],
+      additionalProperties: false,
+    });
+  });
+
+  it('uses only an answer that is one of the choices', () => {
+    expect(readChoice('{"choice":"Online"}', CHOICES)).toBe(1);
+    expect(readChoice('{"choice":"none"}', CHOICES)).toBeNull();
+    expect(readChoice('{"choice":"By letter"}', CHOICES)).toBeNull();
+    expect(readChoice('{"choice":"online"}', CHOICES)).toBeNull();
+    expect(readChoice('Online', CHOICES)).toBeNull();
+  });
+
+  it('is told not to decide for her, and its examples keep to their own lists', () => {
+    const [system, ...examples] = CHOICE_PROMPTS;
+    expect(system.content).toMatch(/Do not decide for them from a story/);
+    expect(system.content).toMatch(/Never guess/);
+    for (let i = 0; i < examples.length; i += 2) {
+      const choices = [...examples[i].content.matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+      const answer = JSON.parse(examples[i + 1].content).choice;
+      expect([...choices, NO_CHOICE]).toContain(answer);
+    }
+    // At least one example where the right answer is "none".
+    expect(examples.some((m) => m.role === 'assistant' && m.content.includes(NO_CHOICE))).toBe(true);
+  });
+
+  it('sends the question, its choices, and what she said', () => {
+    expect(choiceInput('How?', ['A', 'B'], 'he texted')).toBe('Question: How?\nChoices: "A", "B"\nWhat they said: he texted');
   });
 });

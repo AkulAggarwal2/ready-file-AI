@@ -289,3 +289,133 @@ const TIME_WORDS =
 export function soundsLikeWhen(phrase: string): boolean {
   return TIME_WORDS.test(normalize(phrase));
 }
+
+// ---------------------------------------------------------------------------
+// Answers said in a sentence, in guided mode: "I'm here about stalking",
+// "it's not stalking, it's harassment", "yeah, let's add one".
+
+const NEGATIONS = new Set([
+  'not', 'no', 'never', 'dont', 'didnt', 'doesnt', 'isnt', 'wasnt', 'arent', 'werent', 'cant', 'wont', 'nobody', 'nothing',
+]);
+
+// Words that say little about which choice she means, on top of SMALL_WORDS.
+const VAGUE_WORDS = new Set(['like', 'these', 'one', 'or', 'some', 'something', 'thing', 'things', 'just', 'really', 'very']);
+
+/** Same word, also allowing a shared start ("harass" and "harassment"). For picking among a few choices. */
+function looselySameWord(said: string, name: string): boolean {
+  return sameWord(said, name) || (Math.min(said.length, name.length) >= 5 && said.slice(0, 5) === name.slice(0, 5));
+}
+
+/** True if a "not" (or the like) comes just before this word. */
+function negatedAt(list: string[], index: number): boolean {
+  return NEGATIONS.has(list[index - 1]) || NEGATIONS.has(list[index - 2]);
+}
+
+export type ChoicePick =
+  | { kind: 'one'; index: number }
+  // More than one choice fits about as well: ask which one she means.
+  | { kind: 'several'; indexes: number[] }
+  | { kind: 'none' };
+
+/**
+ * The choice a sentence mentions, for picking one from a list: "I'm seeking
+ * stalking" is "Stalking". A choice counts by its telling words, so "domestic
+ * violence" is "Domestic or family violence". A word after "not" doesn't
+ * count, unless the choice says "not" too ("I'm not sure" is "Not sure").
+ */
+export function pickMentionedChoice(phrase: string, names: string[]): ChoicePick {
+  const said = words(phrase).filter((word) => !FILLER.has(word));
+  if (said.length === 0) return { kind: 'none' };
+
+  const scored = names.map((name, index) => {
+    const nameWords = words(name);
+    const telling = nameWords
+      .map((word, at) => ({ word, negated: negatedAt(nameWords, at) }))
+      .filter(({ word }) => !SMALL_WORDS.has(word) && !VAGUE_WORDS.has(word) && !NEGATIONS.has(word));
+    const matched = telling.filter(({ word, negated }) =>
+      said.some((saidWord, at) => looselySameWord(saidWord, word) && negatedAt(said, at) === negated),
+    ).length;
+    return { index, matched, coverage: telling.length ? matched / telling.length : 0 };
+  });
+
+  const found = scored.filter((choice) => choice.matched > 0).sort((a, b) => b.coverage - a.coverage);
+  if (found.length === 0) return { kind: 'none' };
+  if (found.length === 1) return { kind: 'one', index: found[0].index };
+  const [best, next] = found;
+  if (best.coverage >= 0.5 && best.coverage - next.coverage >= 0.15) return { kind: 'one', index: best.index };
+  return { kind: 'several', indexes: found.slice(0, 3).map((choice) => choice.index) };
+}
+
+/**
+ * The check boxes a sentence names in full, for "What did the person do?":
+ * "he threatened to hurt me" is only "Threatened to hurt me", not also "Hurt
+ * me", and "he didn't hurt me" is none. Stricter than picking from a list,
+ * since a wrong check mark on a sworn form is serious.
+ */
+export function namedInFull(phrase: string, names: string[]): number[] {
+  const said = words(phrase).filter((word) => !FILLER.has(word));
+  const spans: { index: number; start: number; end: number; negated: boolean }[] = [];
+  names.forEach((name, index) => {
+    const nameWords = words(name);
+    if (nameWords.length === 0) return;
+    for (let start = 0; start + nameWords.length <= said.length; start++) {
+      if (nameWords.every((word, i) => sameWord(said[start + i], word))) {
+        spans.push({ index, start, end: start + nameWords.length, negated: negatedInClause(said, start) });
+        break;
+      }
+    }
+  });
+  // A name inside a longer one she said ("hurt me" in "threatened to hurt
+  // me") is part of that one, even when that one has a "not".
+  return spans
+    .filter(
+      (span) =>
+        !spans.some(
+          (other) => other !== span && other.start <= span.start && other.end >= span.end && other.end - other.start > span.end - span.start,
+        ),
+    )
+    .filter((span) => !span.negated)
+    .map((span) => span.index);
+}
+
+// Words that start a new part of a sentence, so a "not" before them doesn't reach past.
+const CLAUSE_BREAKS = new Set(['and', 'but', 'then', 'so', 'because', 'also', 'after', 'before', 'when']);
+
+/** True if a "not" comes earlier in the same part of the sentence. */
+function negatedInClause(list: string[], index: number): boolean {
+  for (let i = index - 1; i >= 0; i--) {
+    if (CLAUSE_BREAKS.has(list[i])) return false;
+    if (NEGATIONS.has(list[i])) return true;
+  }
+  return false;
+}
+
+const YES_STARTS = ['yes', 'yeah', 'yep', 'yup', 'sure', 'of course', 'i do', 'i would', 'lets', 'please do', 'go ahead'];
+const NO_STARTS = ['no', 'nope', 'not now', 'not yet', 'i dont', 'i do not', 'im done', 'that is all', 'thats all', 'nothing else'];
+
+/** Yes or no at the start of a sentence: "yeah, let's add one", "no, I'm done". */
+export function readYesNoWithin(phrase: string): 'yes' | 'no' | null {
+  const joined = words(phrase).filter((word) => !FILLER.has(word)).join(' ');
+  if (!joined) return null;
+  const startsWith = (lead: string) => joined === lead || joined.startsWith(`${lead} `);
+  // "No" first: "I don't" starts with "I do".
+  if (NO_STARTS.some(startsWith)) return 'no';
+  if (YES_STARTS.some(startsWith)) return 'yes';
+  return null;
+}
+
+/** "Can we skip this one?" or "go back to the last one", said in a sentence. Never in a box. */
+export function readMoveWithin(phrase: string): 'skip' | 'back' | null {
+  const joined = ` ${words(phrase).join(' ')} `;
+  if (/ (skip|pass on) /.test(joined) && !/ (dont|do not|not) skip /.test(joined)) return 'skip';
+  if (/ (go back|previous question|last question|question before) /.test(joined)) return 'back';
+  return null;
+}
+
+// Words that often come before a time but aren't part of it.
+const WHEN_LEAD_INS = /^(?:(?:i think|i believe|maybe|probably|so|well)\s+)*(?:it|this|that)\s+(?:happened|was)\s+/i;
+
+/** "It happened last week" is "last week", for the "about when" box. */
+export function trimWhen(text: string): string {
+  return text.trim().replace(WHEN_LEAD_INS, '').replace(/[.!?]+$/, '');
+}

@@ -4,13 +4,18 @@ import { describe, expect, it } from 'vitest';
 import {
   isBoxCommand,
   matchName,
+  namedInFull,
   normalize,
+  pickMentionedChoice,
   readGuideCommand,
+  readMoveWithin,
   readNumber,
   readVoiceCommand,
+  readYesNoWithin,
   sameWord,
   scoreName,
   soundsLikeWhen,
+  trimWhen,
   type Candidate,
   type NameAttempt,
 } from '../src/voice/voiceCommands';
@@ -264,4 +269,104 @@ describe('guided mode words', () => {
       expect(soundsLikeWhen(phrase)).toBe(false);
     },
   );
+});
+
+describe('answers in her own words (no AI)', () => {
+  const ORDER = ['Stalking', 'Harassment', 'Domestic or family violence', 'Sexual assault', 'Not sure'];
+  const KNOW = [
+    'We are or were married',
+    'We are dating or used to date',
+    'We have a child together',
+    'We are or were related by marriage, like a stepparent or in-law',
+    "None of these, like a neighbor, coworker, or stranger",
+    "Not sure, or I'd rather not say",
+  ];
+  const ACTS = ['Tried to hurt me', 'Threatened to hurt me', 'Hurt me', 'Made me afraid I would be hurt'];
+  const pick = (phrase: string, names: string[]) => {
+    const result = pickMentionedChoice(phrase, names);
+    if (result.kind === 'one') return names[result.index];
+    if (result.kind === 'several') return result.indexes.map((i) => names[i]);
+    return null;
+  };
+
+  it.each([
+    ["I'm seeking for stalking", 'Stalking'],
+    ['I have a concern about stalking', 'Stalking'],
+    ['he was stalking me', 'Stalking'],
+    ['harassing', 'Harassment'],
+    ['it is domestic violence', 'Domestic or family violence'],
+    ["it's not stalking, it's harassment", 'Harassment'],
+    ["I'm not sure", 'Not sure'],
+  ])('"%s" picks %s', (phrase, choice) => {
+    expect(pick(phrase, ORDER)).toBe(choice);
+  });
+
+  it('asks when two fit, and picks nothing from unrelated talk', () => {
+    expect(pick("I'm not sure if it's stalking", ORDER)).toEqual(['Stalking', 'Not sure']);
+    expect(pick('turn the TV down', ORDER)).toBeNull();
+    // "Sure" without a "not" is not "Not sure".
+    expect(pick("I'm sure it's harassment", ORDER)).toBe('Harassment');
+  });
+
+  it.each([
+    ['we used to date', 'We are dating or used to date'],
+    ["we're married", 'We are or were married'],
+    ['he is a coworker', 'None of these, like a neighbor, coworker, or stranger'],
+    ['we have a kid together, a child', 'We have a child together'],
+  ])('"%s" picks "%s"', (phrase, choice) => {
+    expect(pick(phrase, KNOW)).toBe(choice);
+  });
+
+  it('checks only the boxes named in full, and never after a "not"', () => {
+    const named = (phrase: string) => namedInFull(phrase, ACTS).map((i) => ACTS[i]);
+    expect(named('he hurt me')).toEqual(['Hurt me']);
+    expect(named('he threatened to hurt me')).toEqual(['Threatened to hurt me']);
+    expect(named('he tried to hurt me and he made me afraid I would be hurt')).toEqual([
+      'Tried to hurt me',
+      'Made me afraid I would be hurt',
+    ]);
+    expect(named("he didn't hurt me")).toEqual([]);
+    expect(named('he never threatened to hurt me')).toEqual([]);
+    expect(named('afraid')).toEqual([]);
+    expect(named('he threatened me')).toEqual([]);
+  });
+
+  it.each([
+    ['yes please', 'yes'],
+    ["yeah let's add one", 'yes'],
+    ['sure', 'yes'],
+    ["no I'm done", 'no'],
+    ["I don't want to", 'no'],
+    ['not now', 'no'],
+    ["that's all", 'no'],
+    ['he said yes', null],
+  ])('reads "%s" as %s', (phrase, answer) => {
+    expect(readYesNoWithin(phrase)).toBe(answer);
+  });
+
+  it('hears skip and go back in a sentence', () => {
+    expect(readMoveWithin('can we skip this one')).toBe('skip');
+    expect(readMoveWithin("let's go back")).toBe('back');
+    expect(readMoveWithin("don't skip it")).toBeNull();
+    expect(readMoveWithin('he came back')).toBeNull();
+  });
+
+  it('keeps only the time from "it happened last week"', () => {
+    expect(trimWhen('it happened last week')).toBe('last week');
+    expect(trimWhen('I think it was two days ago.')).toBe('two days ago');
+    expect(trimWhen('the week before Thanksgiving')).toBe('the week before Thanksgiving');
+  });
+});
+
+describe('a "not" in a sentence about check boxes', () => {
+  const ACTS = ['Threatened to hurt me', 'Hurt me', 'Made me afraid I would be hurt'];
+  const named = (phrase: string) => namedInFull(phrase, ACTS).map((i) => ACTS[i]);
+
+  it('reaches to the end of its part of the sentence, but not past "and" or "but"', () => {
+    expect(named('he did not ever really hurt me')).toEqual([]);
+    expect(named("he didn't threaten me but he hurt me")).toEqual(['Hurt me']);
+    expect(named('he never threatened to hurt me and he made me afraid I would be hurt')).toEqual([
+      'Made me afraid I would be hurt',
+    ]);
+  });
 });

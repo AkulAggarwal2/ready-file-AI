@@ -303,6 +303,28 @@ voice" work the same whether it is on or off. The code is in
   "Skip" and "back" (also buttons in the bar) move between questions, and
   "try again" asks again. "Skip" said into a box acts at once and adds
   nothing. If nothing went into a box, she is told and can try again.
+- **She can answer in her own words.** Without AI, a sentence that mentions a
+  choice picks it: "I'm seeking for stalking" or "I have a concern about
+  stalking" is Stalking, "we used to date" is "We are dating or used to
+  date", "he kept texting me" is "Phone call or text"
+  ([src/voice/voiceCommands.ts](src/voice/voiceCommands.ts)). A word after
+  "not" doesn't count ("it's not stalking, it's harassment" is Harassment),
+  and when two choices fit equally it asks which one she meant. "Yeah, let's
+  add one", "no, I'm done", "can we skip this one", and "I think it happened
+  last week" work too. The bar always says what it chose, and "back" changes it.
+- **The on-device model, for the rest (on with on-device AI).** When her
+  words name no choice ("he's my ex boyfriend"), the browser's built-in
+  model picks the choice she means, or none
+  ([src/voice/pickChoice.ts](src/voice/pickChoice.ts)). Its answer is held to
+  the list of choices plus "none" and checked again, it is told never to
+  guess or to decide for her from a story of what happened, and an answer
+  that comes after she has moved on is dropped. It is only used to pick one
+  from a list, never for check boxes, and never off the device
+  (`CHOICE_TIMEOUT_MS`, 10 seconds).
+- **Check boxes stay strict.** On "What did the person do?", a box is checked
+  only when her sentence has its whole name: "he threatened to hurt me" checks
+  only "Threatened to hurt me" (not also "Hurt me"), and a "not" anywhere in
+  that part of the sentence ("he never threatened to hurt me") checks nothing.
 - **How it finds the questions.** Fields are found on the page in order: a
   group of radio buttons or check boxes, a list, a box, or a date. Questions
   answered with a button are marked in the step's code with `data-voice-ask`
@@ -379,7 +401,7 @@ Desk's code is in [src/desk/](src/desk/). ReadyFile never imports from it.
 
 ## Tests
 
-`npm test` runs 370 tests in [tests/](tests/):
+`npm test` runs 405 tests in [tests/](tests/):
 
 - **Acceptance tests 1–8 from section 12:** `acceptance.test.tsx` covers
   tests 1–6 and 8, and `content.test.ts` covers test 7, the banned-phrase

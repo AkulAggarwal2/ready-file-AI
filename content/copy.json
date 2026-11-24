@@ -388,7 +388,7 @@
       "stoppedWorking": "Voice control stopped because the microphone is not working. You can turn it on again, or use the keyboard or mouse.",
       "guide": {
         "progress": "Question {n} of {total} on this step",
-        "sayChoice": "Say one of these, or its number:",
+        "sayChoice": "Say it in your own words, or say one of these or its number:",
         "sayWhen": "Say the date, like “March 3, 2026” or “last week.” You can also say “I don't remember,” or one of these:",
         "sayChecks": "Say each one that fits. When you have finished, say “done.” If none fit, say “none.”",
         "listeningText": "Listening. Say your answer. When you stop talking, it is added to the box.",
@@ -406,7 +406,13 @@
         "dateSet": "Added the date: {date}.",
         "notADate": "We did not catch a date. Say it like “March 3, 2026,” or say “skip.”",
         "notUnderstood": "We did not catch that. Say one of the choices, or “skip.”",
-        "noAnswer": "Nothing was added. Say “try again” to answer, or “skip.”"
+        "noAnswer": "Nothing was added. Say “try again” to answer, or “skip.”",
+        "understood": "Chose “{name}.” If that is not right, say “back.”",
+        "whichOne": "Did you mean {names}? Say the one you mean.",
+        "thinking": "Working out what you meant…",
+        "checkedSome": "Checked {names}. Say any others that fit, or say “done.”",
+        "notChecked": "We did not catch which ones fit. Say the words of each one, like “Hurt me,” or say “done.”",
+        "and": " and "
       },
       "ask": {
         "start": "Ready to start?",

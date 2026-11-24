@@ -34,6 +34,7 @@ const bar = () => screen.queryByRole('region', { name: hf.barLabel });
 const barSays = () => within(screen.getByRole('region', { name: hf.barLabel })).getByRole('status').textContent;
 const voiceSwitch = () => screen.getByRole('switch', { name: hf.switchLabel });
 const g = hf.guide;
+const modelAnswerChoice = (choice: string) => JSON.stringify({ choice });
 /** The question the bar is asking. */
 const asking = () => document.querySelector('.hands-free-question')?.textContent ?? null;
 const choicesShown = () =>
@@ -232,7 +233,8 @@ describe('answering the questions in order', () => {
     const user = renderApp();
     await turnOn(user);
     await say('banana bread');
-    expect(barSays()).toBe(g.notUnderstood);
+    // With no model in the browser, it says so once it knows.
+    await waitFor(() => expect(barSays()).toBe(g.notUnderstood));
     expect(asking()).toBe(copy.start.caseTypeLegend);
   });
 
@@ -266,16 +268,126 @@ describe('answering the questions in order', () => {
 
     // Check boxes: each one she says, then "done".
     await nowAsking(copy.incident.actsLegend);
-    await say('he hurt me');
-    expect(screen.getByRole('checkbox', { name: copy.incident.acts['caused-harm'] })).not.toBeChecked();
-    // One word isn't enough for a check box: a wrong check on a sworn form is serious.
+    const box = (act: keyof typeof copy.incident.acts) => screen.getByRole('checkbox', { name: copy.incident.acts[act] });
+    // A wrong check on a sworn form is serious: one word, or a "not", checks nothing.
     await say('afraid');
-    expect(screen.getByRole('checkbox', { name: copy.incident.acts['placed-in-fear'] })).not.toBeChecked();
+    expect(box('placed-in-fear')).not.toBeChecked();
+    await say("he didn't hurt me");
+    expect(box('caused-harm')).not.toBeChecked();
+    expect(barSays()).toBe(g.notChecked);
+    // In a sentence: only the one she named in full.
+    await say('he threatened to hurt me');
+    expect(box('threatened-harm')).toBeChecked();
+    expect(box('caused-harm')).not.toBeChecked();
     await say('hurt me');
-    expect(screen.getByRole('checkbox', { name: copy.incident.acts['caused-harm'] })).toBeChecked();
+    expect(box('caused-harm')).toBeChecked();
     expect(asking()).toBe(copy.incident.actsLegend);
     await say('done');
     await nowAsking(copy.incident.presentLabel);
+  });
+
+  it('understands a choice said in a sentence', async () => {
+    const user = renderApp();
+    await turnOn(user);
+    await say("I'm seeking for stalking");
+    expect(screen.getByRole('radio', { name: copy.start.caseTypes.stalking })).toBeChecked();
+    expect(barSays()).toBe(fill(g.understood, { name: copy.start.caseTypes.stalking }));
+
+    await nowAsking(copy.start.relationshipLabel);
+    await say('back');
+    await nowAsking(copy.start.caseTypeLegend);
+    await say("it's not stalking, it's harassment");
+    expect(screen.getByRole('radio', { name: copy.start.caseTypes.harassment })).toBeChecked();
+
+    await nowAsking(copy.start.relationshipLabel);
+    await say('we used to date');
+    expect(screen.getByRole('combobox', { name: copy.start.relationshipLabel })).toHaveValue('dating');
+  });
+
+  it('asks which one she meant when two fit', async () => {
+    const user = renderApp();
+    await turnOn(user);
+    await say("I'm not sure if it's stalking");
+    expect(barSays()).toBe(
+      fill(g.whichOne, { names: `“${copy.start.caseTypes.stalking}” or “${copy.start.caseTypes['not-sure']}”` }),
+    );
+    expect(screen.getByRole('radio', { name: copy.start.caseTypes.stalking })).not.toBeChecked();
+    expect(asking()).toBe(copy.start.caseTypeLegend);
+  });
+
+  it('with the on-device model, understands her own words, and only picks from the list', async () => {
+    const model = installModel({
+      answer: (input) =>
+        modelAnswerChoice(input.includes("my ex") ? copy.start.relationships.dating : input.includes('weather') ? 'none' : 'Something else'),
+    });
+    const user = renderApp();
+    await turnOn(user);
+    await say('skip');
+    await nowAsking(copy.start.relationshipLabel);
+
+    // Not a choice.
+    await say('the weather is nice');
+    await waitFor(() => expect(barSays()).toBe(g.notUnderstood));
+    // An answer that isn't on the list is never used.
+    await say('he lives down the road');
+    await waitFor(() => expect(barSays()).toBe(g.notUnderstood));
+    expect(screen.getByRole('combobox', { name: copy.start.relationshipLabel })).toHaveValue('');
+
+    await say("he's my ex");
+    await waitFor(() => expect(screen.getByRole('combobox', { name: copy.start.relationshipLabel })).toHaveValue('dating'));
+    expect(barSays()).toBe(fill(g.understood, { name: copy.start.relationships.dating }));
+    // The model was told the question and its choices, and kept to them.
+    expect(model.inputs.at(-1)).toContain(`Question: ${copy.start.relationshipLabel}`);
+    expect(model.promptOptions.at(-1)?.responseConstraint).toMatchObject({
+      properties: { choice: { enum: expect.arrayContaining([copy.start.relationships.dating, 'none']) } },
+    });
+  });
+
+  it("ignores the model's answer if she has moved on by then", async () => {
+    installModel({
+      answer: () =>
+        new Promise<string>((resolve) => setTimeout(() => resolve(modelAnswerChoice(copy.start.relationships.dating)), 150)),
+    });
+    const user = renderApp();
+    await turnOn(user);
+    await say('skip');
+    await nowAsking(copy.start.relationshipLabel);
+    await say("he's my ex");
+    expect(barSays()).toBe(g.thinking);
+    await say('skip');
+    await nowAsking(hf.ask.start);
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    expect(screen.getByRole('combobox', { name: copy.start.relationshipLabel })).toHaveValue('');
+    expect(asking()).toBe(hf.ask.start);
+  });
+
+  it('understands yes, no, and skip in a sentence', async () => {
+    const user = renderApp();
+    await turnOn(user);
+    await say('can we skip this one');
+    await nowAsking(copy.start.relationshipLabel);
+    await say('skip');
+    await nowAsking(hf.ask.start);
+    await say("yeah let's start");
+    await nowAsking(hf.ask.addIncident);
+    await say("no I'm done");
+    await nowAsking(hf.ask.incidentsDone);
+  });
+
+  it('puts "it happened last week" in the "about when" box as "last week"', async () => {
+    const user = renderApp();
+    await onIncidentCard(user);
+    await say('I think it happened last week');
+    await waitFor(() =>
+      expect(screen.getByRole('textbox', { name: copy.incident.approximateLabel })).toHaveValue('last week'),
+    );
+  });
+
+  it('puts a date said in a sentence in the date box', async () => {
+    const user = renderApp();
+    await onIncidentCard(user);
+    await say('the date was March 3, 2026');
+    await waitFor(() => expect(screen.getByLabelText(copy.incident.exactLabel)).toHaveValue('2026-03-03'));
   });
 
   it('puts an exact date in the date box', async () => {

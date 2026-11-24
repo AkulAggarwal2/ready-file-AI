@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { HANDS_FREE_RESTART_MS } from '../config';
+import { HANDS_FREE_RESTART_MS, ON_DEVICE_AI_ENABLED } from '../config';
 import { copy, fill } from '../content';
 import { useAppState } from '../state/AppStateProvider';
 import { Tooltip } from '../ui/Tooltip';
 import { findQuestions, questionFrom, readQuestion, type FormQuestion, type QuestionChoice } from './formQuestions';
 import { HandsFreeContext, useHandsFree, type HandsFree } from './handsFreeContext';
 import { readDateAnswer } from './incidentAnswers';
+import { warmUpOnDeviceModel } from './onDeviceModel';
+import { pickChoiceWithModel } from './pickChoice';
 import {
   actOn,
   asCandidates,
@@ -28,9 +30,14 @@ import { MicrophoneIcon } from './VoiceNotes';
 import {
   isBoxCommand,
   matchName,
+  namedInFull,
+  pickMentionedChoice,
   readGuideCommand,
+  readMoveWithin,
   readVoiceCommand,
+  readYesNoWithin,
   soundsLikeWhen,
+  trimWhen,
   type VoiceAction,
   type VoiceCommand,
 } from './voiceCommands';
@@ -272,7 +279,7 @@ export function HandsFreeProvider({ children }: { children: ReactNode }) {
         continueAfter(question.container);
         return fill(h.chosen, { name: option.text });
       }
-      const value = date.kind === 'exact' ? date.value : date.text;
+      const value = date.kind === 'exact' ? date.value : trimWhen(date.text);
       setTimeout(() => {
         const box = document.getElementById(date.kind === 'exact' ? when.exact : when.approx);
         if (!(box instanceof HTMLInputElement)) return;
@@ -363,6 +370,71 @@ export function HandsFreeProvider({ children }: { children: ReactNode }) {
     [answerWith, ask, move],
   );
 
+  /**
+   * What she said as an answer in her own words, without AI: "I'm here about
+   * stalking", "yeah, let's add one", "he threatened to hurt me". Null if it
+   * isn't one.
+   */
+  const answerInWords = useCallback(
+    (question: FormQuestion, said: string): string | null => {
+      const moveTo = readMoveWithin(said);
+      if (moveTo) return move(moveTo === 'skip' ? 1 : -1);
+      const names = question.choices.map((choice) => choice.name);
+
+      if (question.kind === 'ask' && question.choices.length === 1) {
+        const answer = readYesNoWithin(said);
+        if (answer === 'yes') return answerWith(question, question.choices[0]);
+        if (answer === 'no') return move(1);
+      }
+      if (question.kind === 'checks') {
+        const named = namedInFull(said, names);
+        if (named.length === 0) return null;
+        for (const index of named) {
+          const choice = question.choices[index];
+          actOn({ element: choice.element, kind: 'checkbox', names: [choice.name], exactOnly: false }, 'check');
+        }
+        setPageVersion((version) => version + 1);
+        return fill(g.checkedSome, { names: quoteList(named.map((index) => names[index]), g.and) });
+      }
+      // "When did it happen?" takes a date instead (see answerWhen).
+      if (question.kind === 'choice' && !question.when) {
+        const pick = pickMentionedChoice(said, names);
+        if (pick.kind === 'one') {
+          answerWith(question, question.choices[pick.index]);
+          return fill(g.understood, { name: names[pick.index] });
+        }
+        if (pick.kind === 'several') {
+          return fill(g.whichOne, { names: quoteList(pick.indexes.map((index) => names[index]), g.or) });
+        }
+      }
+      return null;
+    },
+    [answerWith, move],
+  );
+
+  /**
+   * Her own words named no choice: with on-device AI on, the model picks the
+   * one she means, or none. The question must still be the same when it answers.
+   */
+  const askModelForChoice = useCallback(
+    (question: FormQuestion, said: string) => {
+      const asked = question.container;
+      const names = question.choices.map((choice) => choice.name);
+      void pickChoiceWithModel(question.prompt, names, said).then((index) => {
+        if (!onNow.current || questionNow.current !== asked || !asked.isConnected) return;
+        const now = readQuestion(asked);
+        const choice = index === null ? undefined : now?.choices[index];
+        if (!now || !choice || choice.name !== names[index!]) {
+          setMessage(g.notUnderstood);
+          return;
+        }
+        answerWith(now, choice);
+        setMessage(fill(g.understood, { name: choice.name }));
+      });
+    },
+    [answerWith],
+  );
+
   const dictationStop = useRef<() => void>(() => {});
 
   // `reason` is set when it turns itself off, so the bar can say why.
@@ -398,7 +470,7 @@ export function HandsFreeProvider({ children }: { children: ReactNode }) {
       const current = questionNow.current;
       const question = current?.isConnected ? readQuestion(current) : null;
       // The question first, then the fixed words, then anything on the screen by name.
-      const answer = question ? answerQuestion(question, command) : null;
+      const answer = question ? (answerQuestion(question, command) ?? answerInWords(question, said)) : null;
       if (answer !== null) {
         setMessage(answer);
         return;
@@ -430,9 +502,18 @@ export function HandsFreeProvider({ children }: { children: ReactNode }) {
           return;
         }
       }
+      if (question?.kind === 'choice' && !question.when && ON_DEVICE_AI_ENABLED) {
+        setMessage(g.thinking);
+        askModelForChoice(question, said);
+        return;
+      }
+      if (question?.kind === 'checks') {
+        setMessage(g.notChecked);
+        return;
+      }
       setMessage(question ? g.notUnderstood : fill(h.notFound, { said }));
     },
-    [answerQuestion, answerWhen, continueAfter, respondToCommand, turnOff],
+    [answerQuestion, answerInWords, answerWhen, askModelForChoice, continueAfter, respondToCommand, turnOff],
   );
 
   const dictation = useDictation(handlePhrase);
@@ -454,8 +535,9 @@ export function HandsFreeProvider({ children }: { children: ReactNode }) {
     setMessage('');
     setStopped(null);
     // Started right away, inside the click: the first time, the browser
-    // allows the speech download only then.
+    // allows the speech download only then. The model too, if it is used.
     void start();
+    if (ON_DEVICE_AI_ENABLED) warmUpOnDeviceModel();
     // The first question: where she is, or the first one on this step.
     ask(questionFrom(findQuestions(), focusInPage()));
   }, [ask, start]);
@@ -695,6 +777,11 @@ export function HandsFreeOffer() {
 /** “A” or “B.” with the period inside the last quote. */
 function quoteAll(names: string[]): string {
   return names.map((name, i) => (i === names.length - 1 ? `“${name}.”` : `“${name}”`)).join(g.or);
+}
+
+/** “A,” “B,” and “C” — for a question that ends after the list. */
+function quoteList(names: string[], joiner: string): string {
+  return names.map((name) => `“${name}”`).join(joiner);
 }
 
 /** What she can say to answer this question, shown under it. */

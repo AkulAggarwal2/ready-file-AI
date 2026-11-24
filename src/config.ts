@@ -45,3 +45,8 @@ export const HANDS_FREE_PAUSE_MS = 2500;
 // After a box's microphone or "Answer by voice" finishes, voice control
 // listens again after this short gap.
 export const HANDS_FREE_RESTART_MS = 300;
+
+// Voice control's guided mode: how long the on-device model may take to work
+// out which choice she means from her own words (src/voice/pickChoice.ts).
+// Off unless ON_DEVICE_AI_ENABLED. She is waiting, so this is short.
+export const CHOICE_TIMEOUT_MS = 10 * 1000;
