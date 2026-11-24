@@ -276,7 +276,48 @@ does. The first use downloads the speech model, which holds none of her
 words. Other browsers say voice typing is not available; in demo mode, the
 note also shows what the browser answered.
 The microphone turns off when she leaves the step, times out, or uses Quick
-exit. The listening language is `VOICE_LANGUAGE` in [src/config.ts](src/config.ts).
+exit. Talking counts as activity, so she is never timed out while she speaks.
+The listening language is `VOICE_LANGUAGE` in [src/config.ts](src/config.ts).
+
+### Voice control (the whole form by voice)
+
+For anyone who can't easily type or use a mouse. It is off until she turns
+it on, from "Hard to type or use a mouse?" on the Start step or the
+microphone switch in the header. The microphone in each box and "Answer by
+voice" work the same whether it is on or off. The code is in
+[src/voice/HandsFree.tsx](src/voice/HandsFree.tsx),
+[src/voice/voiceCommands.ts](src/voice/voiceCommands.ts), and
+[src/voice/pageControls.ts](src/voice/pageControls.ts).
+
+- **Say what you see.** She says the words on a button, choice, or check box
+  ("Next", "Stalking", "Hurt me") and it is pressed. The names come from the
+  page itself (visible words, labels, and screen reader names), so every step,
+  and any step added later, works without a list of commands per screen. When
+  two things have the same name, the one in the page wins over the step bar,
+  then the one nearest to where she is; if that still doesn't decide it, they
+  get numbers and she says one.
+- **Boxes and lists.** Saying a box's name ("What happened") moves there and
+  starts that box's own microphone, with the same tidying. With voice control
+  on, the box waits 2.5 seconds (`HANDS_FREE_PAUSE_MS`) instead of 1 before it
+  adds what she said, for people who speak slowly or need to rest between
+  words. Saying a list's name ("How did it happen?") moves there and shows its
+  choices in the bar; she says one.
+- **Forgiving, but never from a sentence.** Speech recognition mishears some
+  accents more than others, so a name still matches with an ending changed
+  ("hurts"), one letter off in a longer word, or the less important words left
+  out ("next" for "Next: Your story"). But every word she says must be in the
+  name: "he hurt me" never checks "Hurt me", because a wrong check mark on a
+  sworn form is serious. Quick exit leaves only for its whole name.
+- **Fixed words:** "help", "scroll down", "scroll up", "show numbers" (a
+  number on everything she can see, for names that are long or hard for the
+  browser to understand), and "stop listening".
+- **A bar at the bottom** says it is listening, what it heard, and what it
+  did, with Help and Stop listening buttons. It steps aside while a box's
+  microphone or "Answer by voice" is listening, then listens again. Focused
+  fields are scrolled clear of it. If the microphone is blocked or stops
+  working, it turns off and says why, instead of trying again forever.
+- It turns off with Quick exit (either way) and when the timeout clears
+  everything, so the next person at the device doesn't find it listening.
 
 ## ReadyFile Desk
 
@@ -313,7 +354,7 @@ Desk's code is in [src/desk/](src/desk/). ReadyFile never imports from it.
 
 ## Tests
 
-`npm test` runs 248 tests in [tests/](tests/):
+`npm test` runs 327 tests in [tests/](tests/):
 
 - **Acceptance tests 1–8 from section 12:** `acceptance.test.tsx` covers
   tests 1–6 and 8, and `content.test.ts` covers test 7, the banned-phrase
@@ -343,6 +384,16 @@ Desk's code is in [src/desk/](src/desk/). ReadyFile never imports from it.
     time, errors, and axe checks.
   - `voice-guide.test.tsx`: "Answer by voice", including that it never
     checks the question 7 boxes.
+  - `voice-commands.test.ts`: voice control reading what she says (commands,
+    numbers, "check" and "uncheck") and finding what she named, including
+    misheard words, and that a sentence containing a name never matches.
+  - `voice-page.test.ts`: finding what she can press on a page by its names,
+    only the dialog while one is open, picking between controls with the same
+    name, and pressing, checking, choosing, or starting a box's microphone.
+  - `voice-control.test.tsx`: voice control through the whole app: Start by
+    voice, speaking into boxes, lists, check boxes, numbers, Quick exit,
+    errors, stepping aside for "Answer by voice", the inactivity timer, and
+    axe checks.
 
 ## Open TODOs
 
@@ -363,6 +414,10 @@ Desk's code is in [src/desk/](src/desk/). ReadyFile never imports from it.
       matches to choices (in [src/voice/incidentAnswers.ts](src/voice/incidentAnswers.ts)).
 - [ ] Accessibility check with a real screen reader (VoiceOver, NVDA) and a
       contrast checker.
+- [ ] Team: test voice control with people who use it every day (for
+      example, people with limited hand use or speech differences), with
+      different accents, and next to the voice control built into Mac and
+      Windows. Voice control only understands English (`VOICE_LANGUAGE`).
 - [ ] Not built yet (section 6): field explainer, denial explainer, and
       domestic violence petitions. The follow-up queue and bench summary are
       in ReadyFile Desk.

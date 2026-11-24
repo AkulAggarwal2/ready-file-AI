@@ -35,3 +35,13 @@ export const ON_DEVICE_AI_ENABLED = DEMO_MODE || import.meta.env.VITE_ENABLE_ON_
 // How long tidying one field's voice typing may take before her words are
 // added as she said them. She is waiting at the field, so this is short.
 export const TIDY_TIMEOUT_MS = 20 * 1000;
+
+// Voice control (src/voice/HandsFree.tsx), for using the whole form by voice.
+// A box's microphone waits this long for her to go on before it adds what she
+// said: longer than VOICE_PAUSE_MS, for people who speak more slowly or need
+// to rest between words.
+export const HANDS_FREE_PAUSE_MS = 2500;
+
+// After a box's microphone or "Answer by voice" finishes, voice control
+// listens again after this short gap.
+export const HANDS_FREE_RESTART_MS = 300;

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ON_DEVICE_AI_ENABLED, VOICE_PAUSE_MS } from '../config';
+import { HANDS_FREE_PAUSE_MS, ON_DEVICE_AI_ENABLED, VOICE_PAUSE_MS } from '../config';
+import { useHandsFreeOn } from './handsFreeContext';
 import { warmUpOnDeviceModel } from './onDeviceModel';
 import { tidySpokenText } from './tidyText';
 import { appendSpoken, appendWords } from './transcript';
@@ -92,12 +93,14 @@ export function useVoiceField({ value, onChange, question, oneLine = false }: Vo
   const listening = status === 'listening';
 
   // She paused: stop listening. Counted from the browser's last finished
-  // phrase, so a short breath mid-sentence doesn't cut her off.
+  // phrase, so a short breath mid-sentence doesn't cut her off. With voice
+  // control on, she gets longer, since she may speak slowly or need a rest.
+  const pause = useHandsFreeOn() ? HANDS_FREE_PAUSE_MS : VOICE_PAUSE_MS;
   useEffect(() => {
     if (!listening || !heard || pending) return;
-    const timer = setTimeout(stop, VOICE_PAUSE_MS);
+    const timer = setTimeout(stop, pause);
     return () => clearTimeout(timer);
-  }, [listening, heard, pending, stop]);
+  }, [listening, heard, pending, stop, pause]);
 
   // When listening ends, the model checks and tidies what she said, if it can.
   // Without the model, her words are added as she said them.

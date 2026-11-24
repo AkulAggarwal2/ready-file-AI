@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { VOICE_LANGUAGE } from '../config';
+import { noteVoiceActivity } from '../safety/useInactivityTimeout';
 import {
   canAskForOnDeviceSpeech,
   checkOnDeviceSpeech,
@@ -50,6 +51,24 @@ function toDictationError(browserError: string): DictationError | null {
 // The browser has one microphone. Starting voice typing in one place turns it
 // off anywhere else, so two fields never hear the same words.
 let activeListener: Recognition | null = null;
+const micWatchers = new Set<() => void>();
+
+function setActiveListener(listener: Recognition | null) {
+  activeListener = listener;
+  for (const watcher of micWatchers) watcher();
+}
+
+function watchMicrophone(onChange: () => void): () => void {
+  micWatchers.add(onChange);
+  return () => micWatchers.delete(onChange);
+}
+
+const microphoneOn = () => activeListener !== null;
+
+/** True while any field, the incident questions, or voice control is listening. */
+export function useMicrophoneOn(): boolean {
+  return useSyncExternalStore(watchMicrophone, microphoneOn, () => false);
+}
 
 /**
  * Voice typing for one field. onPhrase gets each finished phrase (usually
@@ -90,6 +109,7 @@ export function useDictation(onPhrase: (phrase: string) => void): Dictation {
   }, []);
 
   const handleResult = useCallback((event: RecognitionResultEvent) => {
+    noteVoiceActivity();
     let notFinal = '';
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const result = event.results[i];
@@ -125,21 +145,21 @@ export function useDictation(onPhrase: (phrase: string) => void): Dictation {
     listener.onerror = (event) => setError(toDictationError(event.error));
     listener.onend = () => {
       recognition.current = null;
-      if (activeListener === listener) activeListener = null;
+      if (activeListener === listener) setActiveListener(null);
       if (!mounted.current) return;
       setPending('');
       setStatus('ready');
     };
 
     activeListener?.abort();
-    activeListener = listener;
     recognition.current = listener;
+    setActiveListener(listener);
     try {
       listener.start();
       setStatus('listening');
     } catch {
       recognition.current = null;
-      activeListener = null;
+      setActiveListener(null);
       setStatus('ready');
       setError('other');
     }

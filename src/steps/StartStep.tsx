@@ -4,6 +4,7 @@ import { IDLE_TIMEOUT_MS } from '../config';
 import { copy, fill } from '../content';
 import { useAppState } from '../state/AppStateProvider';
 import { StepHeading } from '../ui/StepHeading';
+import { HandsFreeOffer } from '../voice/HandsFree';
 
 export const RELATIONSHIP_ID = 'relationship';
 
@@ -36,6 +37,8 @@ export function StartStep() {
         <h2 id="safety-heading">{copy.start.safetyHeading}</h2>
         <p>{fill(copy.start.safetyNote, { minutes: IDLE_TIMEOUT_MS / 60000 })}</p>
       </section>
+
+      <HandsFreeOffer />
 
       <fieldset aria-describedby="case-type-hint">
         <legend>{copy.start.caseTypeLegend}</legend>

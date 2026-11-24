@@ -92,7 +92,12 @@ export function latestRecognition(): FakeRecognition {
   return recognition;
 }
 
-type Globals = { SpeechRecognition?: unknown; webkitSpeechRecognition?: unknown; LanguageModel?: unknown };
+/** The microphone that is listening now, or null if none is. */
+export function listeningRecognition(): FakeRecognition | null {
+  return FakeRecognition.instances.filter((recognition) => recognition.started && !recognition.ended).at(-1) ?? null;
+}
+
+type Globals ={ SpeechRecognition?: unknown; webkitSpeechRecognition?: unknown; LanguageModel?: unknown };
 const globals = globalThis as Globals;
 
 export function installSpeech() {

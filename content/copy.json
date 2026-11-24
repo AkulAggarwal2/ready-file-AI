@@ -343,6 +343,48 @@
       "unrelated": "That didn’t sound like an answer to “{field}”, so nothing was added.",
       "addAnyway": "Add it anyway",
       "demoReport": "Demo only: not tidied ({reason})."
+    },
+    "handsFree": {
+      "offerHeading": "Hard to type or use a mouse?",
+      "offerBody": "You can fill in this whole form by voice. Say the words you see on the screen, like “Next” or “Stalking,” and we press them for you. To answer a question, say the name of its box, then say your answer.",
+      "offerUnavailable": "You can fill in this whole form by voice in recent versions of Chrome on a computer. It does not work in this browser.",
+      "turnOn": "Use this form by voice",
+      "turnOnAgain": "Turn voice control on again",
+      "turnOff": "Stop using voice",
+      "isOn": "Voice control is on. Say “help” to see what you can say.",
+      "switchLabel": "Use this form by voice",
+      "barLabel": "Voice control",
+      "listening": "Voice control is listening. Say what you see on the screen, or say “help.”",
+      "heard": "We heard: “{said}”",
+      "help": "Help",
+      "hideHelp": "Hide help",
+      "stop": "Stop listening",
+      "close": "Close",
+      "helpHeading": "What you can say",
+      "helpItems": [
+        "The words on a button or choice, like “Next,” “Stalking,” or “Hurt me.” Say it again to uncheck a box.",
+        "The name of a box, like “What happened.” Then say your answer. When you stop talking, it is added to the box.",
+        "The name of a list, like “How did it happen?” Then say one of its choices.",
+        "“Scroll down” or “scroll up.”",
+        "“Show numbers” to put a number on everything you can press. Then say a number.",
+        "“Quick exit” to leave this site fast.",
+        "“Stop listening” to turn voice control off."
+      ],
+      "pressed": "Pressed “{name}.”",
+      "chosen": "Chose “{name}.”",
+      "checked": "Checked “{name}.”",
+      "unchecked": "Unchecked “{name}.”",
+      "alreadyChecked": "“{name}” is already checked.",
+      "alreadyUnchecked": "“{name}” is already unchecked.",
+      "dictating": "Say your answer for “{name}.”",
+      "focused": "Moved to “{name}.” Voice typing does not work in this box. You can type instead.",
+      "choose": "“{name}”: say one of these choices.",
+      "notFound": "We did not find “{said}” on this screen. Say the words on a button, or say “show numbers.”",
+      "several": "More than one thing is called “{said}.” Say the number of the one you want.",
+      "sayNumber": "Say the number of what you want to press. Say “hide numbers” to go back.",
+      "numbersFirst": "Say “show numbers” first, then say a number.",
+      "noNumber": "There is no number {n} on the screen. Say another number, or “hide numbers.”",
+      "stoppedWorking": "Voice control stopped because the microphone is not working. You can turn it on again, or use the keyboard or mouse."
     }
   }
 }
