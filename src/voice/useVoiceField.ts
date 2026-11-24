@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { HANDS_FREE_PAUSE_MS, ON_DEVICE_AI_ENABLED, VOICE_PAUSE_MS } from '../config';
-import { useHandsFreeOn } from './handsFreeContext';
+import { useHandsFree } from './handsFreeContext';
 import { warmUpOnDeviceModel } from './onDeviceModel';
 import { tidySpokenText } from './tidyText';
 import { appendSpoken, appendWords } from './transcript';
-import { useDictation, type Dictation } from './useDictation';
+import { useDictation, useHoldMicrophone, type Dictation } from './useDictation';
+import { isBoxCommand } from './voiceCommands';
 
 export interface VoiceFieldOptions {
   value: string;
@@ -59,12 +60,14 @@ export function useVoiceField({ value, onChange, question, oneLine = false }: Vo
   const [unrelated, setUnrelated] = useState<string | null>(null);
   const [versions, setVersions] = useState<Versions | null>(null);
   const [tidyReport, setTidyReport] = useState('');
-  const latest = useRef({ value, onChange, question });
+  const handsFree = useHandsFree();
+  const takeCommand = handsFree?.takeSpokenCommand;
+  const latest = useRef({ value, onChange, question, takeCommand });
   const mounted = useRef(true);
   const append = oneLine ? appendWords : appendSpoken;
 
   useEffect(() => {
-    latest.current = { value, onChange, question };
+    latest.current = { value, onChange, question, takeCommand };
   });
 
   useEffect(() => {
@@ -95,12 +98,14 @@ export function useVoiceField({ value, onChange, question, oneLine = false }: Vo
   // She paused: stop listening. Counted from the browser's last finished
   // phrase, so a short breath mid-sentence doesn't cut her off. With voice
   // control on, she gets longer, since she may speak slowly or need a rest.
-  const pause = useHandsFreeOn() ? HANDS_FREE_PAUSE_MS : VOICE_PAUSE_MS;
+  // "Skip" or "go back" on its own acts at once, without waiting for the pause.
+  const pause = handsFree?.on ? HANDS_FREE_PAUSE_MS : VOICE_PAUSE_MS;
+  const onlyACommand = !!handsFree?.on && isBoxCommand(heard);
   useEffect(() => {
     if (!listening || !heard || pending) return;
-    const timer = setTimeout(stop, pause);
+    const timer = setTimeout(stop, onlyACommand ? 0 : pause);
     return () => clearTimeout(timer);
-  }, [listening, heard, pending, stop, pause]);
+  }, [listening, heard, pending, stop, pause, onlyACommand]);
 
   // When listening ends, the model checks and tidies what she said, if it can.
   // Without the model, her words are added as she said them.
@@ -108,6 +113,9 @@ export function useVoiceField({ value, onChange, question, oneLine = false }: Vo
     if (listening || !heard.trim()) return;
     const said = heard.trim();
     setHeard('');
+    // With voice control on, "skip" or "go back" on its own moves between
+    // questions instead of going into the box.
+    if (latest.current.takeCommand?.(said)) return;
     if (!ON_DEVICE_AI_ENABLED) {
       insert(said);
       return;
@@ -124,6 +132,9 @@ export function useVoiceField({ value, onChange, question, oneLine = false }: Vo
       else insert(said);
     });
   }, [listening, heard, oneLine, insert]);
+
+  // Voice control waits while her words are being tidied.
+  useHoldMicrophone(checking);
 
   const start = useCallback(async () => {
     setAdded(null);

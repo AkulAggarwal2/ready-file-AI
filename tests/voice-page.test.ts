@@ -6,9 +6,11 @@ import {
   controlsOnScreen,
   findControls,
   pickLikeliest,
+  scrollIntoClearView,
   visibleText,
   type PageControl,
 } from '../src/voice/pageControls';
+import { findQuestions, questionFrom } from '../src/voice/formQuestions';
 
 function page(html: string) {
   document.body.innerHTML = html;
@@ -187,5 +189,104 @@ describe('doing what she asked', () => {
   it("only moves to a box whose microphone is busy", () => {
     page('<div class="voice-field-box"><label for="a">Story</label><textarea id="a"></textarea><button class="voice-field-mic" disabled></button></div>');
     expect(actOn(byName('Story'), 'press')).toEqual({ kind: 'focused', name: 'Story' });
+  });
+});
+
+describe('the questions on a step, in order (guided mode)', () => {
+  const kinds = () => findQuestions().map((q) => [q.kind, q.prompt]);
+
+  it('finds each kind of question, in the order it appears', () => {
+    page(`<main>
+      <fieldset aria-describedby="h"><legend>What kind of order?</legend><p id="h">Pick one.</p>
+        <label><input type="radio" name="t"> Stalking</label><label><input type="radio" name="t" checked> Not sure</label></fieldset>
+      <label for="rel">How do you know this person?</label>
+      <select id="rel"><option value="">Choose one</option><option value="a">Married</option><option value="b">Dating</option></select>
+      <label for="d">Date</label><input id="d" type="date">
+      <label for="story">Your story</label><textarea id="story"></textarea>
+      <fieldset><legend>What did the person do?</legend><label><input type="checkbox"> Hurt me</label></fieldset>
+      <button data-voice-ask="Ready to start?">Start</button>
+    </main>`);
+    expect(kinds()).toEqual([
+      ['choice', 'What kind of order?'],
+      ['choice', 'How do you know this person?'],
+      ['date', 'Date'],
+      ['text', 'Your story'],
+      ['checks', 'What did the person do?'],
+      ['ask', 'Ready to start?'],
+    ]);
+    const [order, list] = findQuestions();
+    expect(order.hint).toBe('Pick one.');
+    expect(order.choices.map((c) => [c.name, c.checked])).toEqual([
+      ['Stalking', false],
+      ['Not sure', true],
+    ]);
+    // Not the empty "Choose one".
+    expect(list.choices.map((c) => c.name)).toEqual(['Married', 'Dating']);
+  });
+
+  it('leaves out the step bar, demo-only parts, voice control itself, hidden parts, and plain buttons', () => {
+    page(`<main>
+      <nav><label for="n">Search</label><input id="n"></nav>
+      <div class="dev-only"><label for="x">Demo</label><input id="x"></div>
+      <section data-voice-no-questions><label for="y">Offer</label><input id="y"></section>
+      <div hidden><label for="z">Hidden</label><input id="z"></div>
+      <button>Delete</button>
+      <label for="real">Where did it happen?</label><input id="real">
+    </main>`);
+    expect(kinds()).toEqual([['text', 'Where did it happen?']]);
+  });
+
+  it('reads a group of buttons as one question, and a closed card as one to open', () => {
+    page(`<main>
+      <li data-voice-ask><button data-voice-open aria-expanded="false">Incident 1 · Date missing</button></li>
+      <li data-voice-ask><button data-voice-open aria-expanded="true">Incident 2</button>
+        <p data-voice-prompt>Do you know the date? <span class="badge-dev">Unverified</span></p>
+        <button>Add more</button><button>Continue as is</button></li>
+    </main>`);
+    const [closed, open] = findQuestions();
+    expect(closed.opener?.textContent).toBe('Incident 1 · Date missing');
+    expect(closed.choices).toEqual([]);
+    expect(open.prompt).toBe('Do you know the date?');
+    expect(open.choices.map((c) => c.name)).toEqual(['Add more', 'Continue as is']);
+  });
+
+  it('knows where a spoken date goes for "When did it happen?"', () => {
+    page(`<main><label for="w">When did it happen?</label>
+      <select id="w" data-voice-when-exact="d" data-voice-when-approx="a"><option value="exact">I know the date</option></select></main>`);
+    expect(findQuestions()[0].when).toEqual({ exact: 'd', approx: 'a' });
+  });
+
+  it('starts where she is, or at the next question after it', () => {
+    page(`<main><h1 tabindex="-1">Step</h1>
+      <label for="a">First</label><input id="a"><p id="between" tabindex="-1">Note</p>
+      <label for="b">Second</label><input id="b"></main>`);
+    const questions = findQuestions();
+    expect(questionFrom(questions, document.getElementById('b'))?.prompt).toBe('Second');
+    expect(questionFrom(questions, document.getElementById('between'))?.prompt).toBe('Second');
+    expect(questionFrom(questions, document.querySelector('h1'))?.prompt).toBe('First');
+    expect(questionFrom(questions, null)?.prompt).toBe('First');
+  });
+});
+
+describe('keeping what she is on in view', () => {
+  const box = (top: number, bottom: number) =>
+    ({ top, bottom, height: bottom - top, width: 100, left: 0, right: 100, x: 0, y: top, toJSON: () => ({}) }) as DOMRect;
+
+  it('scrolls it between the header and the bar, even when the bar is taller than half the screen', () => {
+    page(`<header data-voice-cover></header><main><select id="s"><option>x</option></select></main>
+      <section data-voice-cover id="bar"></section>`);
+    const innerHeight = window.innerHeight;
+    Object.defineProperty(window, 'innerHeight', { value: 844, configurable: true });
+    document.querySelector('header')!.getBoundingClientRect = () => box(0, 100);
+    // A phone: the bar starts above the middle of the screen.
+    document.getElementById('bar')!.getBoundingClientRect = () => box(400, 840);
+    document.getElementById('s')!.getBoundingClientRect = () => box(618, 666);
+    const scrollBy = vi.fn();
+    window.scrollBy = scrollBy;
+
+    scrollIntoClearView(document.getElementById('s')!);
+    // To the middle of 100–400: its top at 226.
+    expect(scrollBy).toHaveBeenCalledWith(expect.objectContaining({ top: 618 - 226 }));
+    Object.defineProperty(window, 'innerHeight', { value: innerHeight, configurable: true });
   });
 });

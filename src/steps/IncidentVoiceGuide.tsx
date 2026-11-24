@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from 'react';
 import { copy, fill } from '../content';
 import type { Incident } from '../organizer';
 import { useAppState } from '../state/AppStateProvider';
+import { useHandsFreeOn } from '../voice/handsFreeContext';
 import { MicrophoneIcon } from '../voice/VoiceNotes';
 import { GUIDED_FIELDS, isChoiceField, type GuidedField } from '../voice/incidentAnswers';
 import { useIncidentInterview, type Interview } from '../voice/useIncidentInterview';
@@ -74,7 +75,9 @@ export function IncidentVoiceGuide({ incident, children }: Props) {
 
   // The fields stay in the same place in the page whether or not voice
   // typing is offered, so they aren't rebuilt once the browser answers.
-  const offered = dictation.status !== 'checking' && dictation.status !== 'unavailable';
+  // With voice control on, it already asks every question, so this one isn't offered.
+  const handsFreeOn = useHandsFreeOn();
+  const offered = dictation.status !== 'checking' && dictation.status !== 'unavailable' && !handsFreeOn;
 
   return (
     <>

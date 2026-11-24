@@ -4,6 +4,7 @@ import { IDLE_TIMEOUT_MS } from '../config';
 import { copy, fill } from '../content';
 import { useAppState } from '../state/AppStateProvider';
 import { StepHeading } from '../ui/StepHeading';
+import { ASK_ATTRIBUTE } from '../voice/formQuestions';
 import { HandsFreeOffer } from '../voice/HandsFree';
 
 export const RELATIONSHIP_ID = 'relationship';
@@ -78,7 +79,7 @@ export function StartStep() {
       </select>
 
       <div className="button-row">
-        <button type="submit" className="btn btn-primary">
+        <button type="submit" className="btn btn-primary" {...{ [ASK_ATTRIBUTE]: copy.voice.handsFree.ask.start }}>
           {copy.start.begin}
         </button>
       </div>

@@ -243,3 +243,49 @@ export function matchName(attempts: NameAttempt[], candidates: Candidate[]): Mat
   }
   return { kind: 'none' };
 }
+
+export type GuideCommand = 'skip' | 'back' | 'repeat' | 'done' | 'yes' | 'no';
+
+// Words for moving between questions in guided mode, matched in full.
+const GUIDE_PHRASES: [string[], GuideCommand][] = [
+  [['skip', 'skip it', 'skip this', 'skip this one', 'skip question', 'skip this question', 'next question', 'pass'], 'skip'],
+  [['back', 'go back', 'previous', 'previous question', 'last question', 'question before', 'the question before'], 'back'],
+  [['repeat', 'again', 'try again', 'say again', 'say that again', 'repeat that', 'repeat the question', 'what was the question'], 'repeat'],
+  [['done', 'im done', 'i am done', 'finished', 'im finished', 'thats all', 'that is all', 'thats it', 'none', 'none of these', 'no more', 'nothing else', 'next'], 'done'],
+  [['yes', 'yeah', 'yep', 'yes please', 'sure', 'ok', 'okay'], 'yes'],
+  [['no', 'nope', 'no thanks', 'no thank you', 'not now'], 'no'],
+];
+
+/** A word for moving between questions, if that is all she said. */
+export function readGuideCommand(phrase: string): GuideCommand | null {
+  const joined = words(phrase).join(' ');
+  if (!joined) return null;
+  for (const [phrases, command] of GUIDE_PHRASES) {
+    if (phrases.includes(joined)) return command;
+  }
+  return null;
+}
+
+/**
+ * Whether a phrase said into a box is only a command, not an answer. Only
+ * "skip", "go back", "try again", and "stop listening": a one-word answer
+ * like "none" or "no" is a real answer in a box.
+ */
+export function isBoxCommand(phrase: string): boolean {
+  const command = readGuideCommand(phrase);
+  if (command === 'skip' || command === 'back' || command === 'repeat') return true;
+  return readVoiceCommand(phrase)?.kind === 'stopListening';
+}
+
+// Words that say when something happened.
+const TIME_WORDS =
+  /\b(\d+|today|yesterday|tonight|ago|recently|day|days|week|weeks|weekend|month|months|year|years|morning|afternoon|evening|night|nights|monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|june|july|august|september|october|november|december|spring|summer|autumn|winter|christmas|thanksgiving|easter|halloween|holiday|holidays|birthday)\b/;
+
+/**
+ * Whether a phrase sounds like a time, like "last week" or "the night before
+ * Christmas". Other talk (someone else in the room) never goes into the
+ * "about when" box.
+ */
+export function soundsLikeWhen(phrase: string): boolean {
+  return TIME_WORDS.test(normalize(phrase));
+}

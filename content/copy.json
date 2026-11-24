@@ -346,7 +346,7 @@
     },
     "handsFree": {
       "offerHeading": "Hard to type or use a mouse?",
-      "offerBody": "You can fill in this whole form by voice. Say the words you see on the screen, like “Next” or “Stalking,” and we press them for you. To answer a question, say the name of its box, then say your answer.",
+      "offerBody": "You can fill in this whole form by voice. We ask each question in order and show what you can say. You answer out loud, and we fill it in. You can also say the words on any button.",
       "offerUnavailable": "You can fill in this whole form by voice in recent versions of Chrome on a computer. It does not work in this browser.",
       "turnOn": "Use this form by voice",
       "turnOnAgain": "Turn voice control on again",
@@ -362,9 +362,10 @@
       "close": "Close",
       "helpHeading": "What you can say",
       "helpItems": [
-        "The words on a button or choice, like “Next,” “Stalking,” or “Hurt me.” Say it again to uncheck a box.",
-        "The name of a box, like “What happened.” Then say your answer. When you stop talking, it is added to the box.",
-        "The name of a list, like “How did it happen?” Then say one of its choices.",
+        "Answer the question shown here. For a list, say a choice or its number.",
+        "“Skip” for the next question, “back” for the one before, or “try again” to answer again.",
+        "For a box, say your answer. When you stop talking, it is added to the box.",
+        "The words on any button or choice on the screen, like “Next” or “Hurt me.”",
         "“Scroll down” or “scroll up.”",
         "“Show numbers” to put a number on everything you can press. Then say a number.",
         "“Quick exit” to leave this site fast.",
@@ -384,7 +385,38 @@
       "sayNumber": "Say the number of what you want to press. Say “hide numbers” to go back.",
       "numbersFirst": "Say “show numbers” first, then say a number.",
       "noNumber": "There is no number {n} on the screen. Say another number, or “hide numbers.”",
-      "stoppedWorking": "Voice control stopped because the microphone is not working. You can turn it on again, or use the keyboard or mouse."
+      "stoppedWorking": "Voice control stopped because the microphone is not working. You can turn it on again, or use the keyboard or mouse.",
+      "guide": {
+        "progress": "Question {n} of {total} on this step",
+        "sayChoice": "Say one of these, or its number:",
+        "sayWhen": "Say the date, like “March 3, 2026” or “last week.” You can also say “I don't remember,” or one of these:",
+        "sayChecks": "Say each one that fits. When you have finished, say “done.” If none fit, say “none.”",
+        "listeningText": "Listening. Say your answer. When you stop talking, it is added to the box.",
+        "sayTextAgain": "Say “try again” to answer this question, or “skip.”",
+        "sayDate": "Say the date, like “March 3, 2026.”",
+        "sayYes": "Say “yes” or “{name}.” Say “no” to skip it.",
+        "sayButtons": "Say {names}",
+        "or": " or ",
+        "chosenMark": "(chosen)",
+        "moves": "Say “skip” for the next question, or “back” for the one before.",
+        "previous": "Previous question",
+        "skip": "Skip question",
+        "last": "There are no more questions on this step.",
+        "first": "This is the first question on this step.",
+        "dateSet": "Added the date: {date}.",
+        "notADate": "We did not catch a date. Say it like “March 3, 2026,” or say “skip.”",
+        "notUnderstood": "We did not catch that. Say one of the choices, or “skip.”",
+        "noAnswer": "Nothing was added. Say “try again” to answer, or “skip.”"
+      },
+      "ask": {
+        "start": "Ready to start?",
+        "addIncident": "Do you want to add an incident?",
+        "incidentDone": "Is this incident finished?",
+        "incidentsDone": "Have you added all your incidents?",
+        "storyDone": "Are you finished with this step?",
+        "questionsDone": "Ready to review everything?",
+        "review": "Your summary is ready. Do you want to copy it or print it?"
+      }
     }
   }
 }

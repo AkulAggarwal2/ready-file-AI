@@ -18,8 +18,6 @@ export interface HandsFree {
   heard: string;
   // What happened after she said it.
   message: string;
-  // The choices of the list she just moved to.
-  choices: string[] | null;
   helpOpen: boolean;
   // The controls with a number on them, while numbers show.
   numbered: PageControl[] | null;
@@ -29,6 +27,19 @@ export interface HandsFree {
   turnOff: () => void;
   toggleHelp: () => void;
   dismissStopped: () => void;
+  // Guided mode: the question being asked, and moving between questions.
+  question: import('./formQuestions').FormQuestion | null;
+  // Where the question is among the questions on this step (from 0), and how many there are.
+  questionNumber: number;
+  questionCount: number;
+  skipQuestion: () => void;
+  previousQuestion: () => void;
+  /**
+   * What she said into a box's microphone, when it is only a command like
+   * "skip" or "go back". Returns true if voice control used it, so the box
+   * leaves it out.
+   */
+  takeSpokenCommand: (said: string) => boolean;
 }
 
 export const HandsFreeContext = createContext<HandsFree | null>(null);

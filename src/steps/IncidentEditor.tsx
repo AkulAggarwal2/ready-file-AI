@@ -3,6 +3,7 @@ import { copy } from '../content';
 import { HOW_OPTIONS, type HowItHappened, type Incident, type IncidentDate } from '../organizer';
 import { todayIso } from '../state/findings';
 import { useAppState } from '../state/AppStateProvider';
+import { WHEN_APPROX_ATTRIBUTE, WHEN_EXACT_ATTRIBUTE } from '../voice/formQuestions';
 import { VoiceField } from '../voice/VoiceField';
 
 const DATE_KINDS: IncidentDate['kind'][] = ['exact', 'approximate', 'unknown'];
@@ -45,6 +46,8 @@ export function IncidentFields({ incident }: { incident: Incident }) {
           <label htmlFor={dateKindId(id)}>{c.dateLabel}</label>
           <select
             id={dateKindId(id)}
+            // By voice, a spoken date ("March 3, 2026" or "last week") goes straight into the right box.
+            {...{ [WHEN_EXACT_ATTRIBUTE]: exactDateId(id), [WHEN_APPROX_ATTRIBUTE]: `${id}-approx` }}
             value={date.kind}
             onChange={(e) => update({ date: changeDateKind(date, e.target.value as IncidentDate['kind']) })}
           >

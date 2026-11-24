@@ -1654,6 +1654,42 @@ html {
   font-weight: 400;
 }
 
+.hands-free-progress {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.hands-free-question {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.hands-free-hint {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.hands-free-say {
+  margin-top: var(--space-1) !important;
+  font-weight: 600;
+}
+
+.hands-free-choices li.is-chosen {
+  font-weight: 700;
+}
+
+.hands-free-chosen {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.hands-free-moves {
+  margin-top: var(--space-1) !important;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
 .hands-free-heard {
   color: var(--muted);
   font-style: italic;
@@ -1715,6 +1751,20 @@ html {
 @media (max-width: 26rem) {
   .hands-free-bar {
     padding: var(--space-3);
+  }
+
+  /* On a phone the bar keeps to the question and what to say. The hint is
+     already under the field, and the buttons say how to skip or go back. */
+  .hands-free-hint,
+  .hands-free-moves,
+  .hands-free-dot {
+    display: none;
+  }
+
+  .hands-free-actions .btn {
+    min-height: 44px;
+    padding-top: var(--space-1);
+    padding-bottom: var(--space-1);
   }
 
   .hands-free-actions {

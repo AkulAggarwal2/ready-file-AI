@@ -2,12 +2,15 @@
 // functions, no browser. All words are fictional.
 import { describe, expect, it } from 'vitest';
 import {
+  isBoxCommand,
   matchName,
   normalize,
+  readGuideCommand,
   readNumber,
   readVoiceCommand,
   sameWord,
   scoreName,
+  soundsLikeWhen,
   type Candidate,
   type NameAttempt,
 } from '../src/voice/voiceCommands';
@@ -209,4 +212,56 @@ describe('finding what she named', () => {
   it('finds nothing for words that are not on the screen', () => {
     expect(matchName(said('banana'), CARD)).toEqual({ kind: 'none' });
   });
+});
+
+describe('guided mode words', () => {
+  it.each([
+    ['skip', 'skip'],
+    ['Skip this question.', 'skip'],
+    ['next question', 'skip'],
+    ['go back', 'back'],
+    ['previous question', 'back'],
+    ['try again', 'repeat'],
+    ['done', 'done'],
+    ["that's all", 'done'],
+    ['none', 'done'],
+    ['yes', 'yes'],
+    ['yeah', 'yes'],
+    ['no', 'no'],
+    ['not now', 'no'],
+  ])('reads "%s" as %s', (phrase, command) => {
+    expect(readGuideCommand(phrase)).toBe(command);
+  });
+
+  it('reads them only when that is all she said', () => {
+    expect(readGuideCommand('he told me to skip work')).toBeNull();
+    expect(readGuideCommand('yes he did')).toBeNull();
+    expect(readGuideCommand('')).toBeNull();
+  });
+
+  it('in a box, treats only moving words as commands, never a short answer', () => {
+    expect(isBoxCommand('skip')).toBe(true);
+    expect(isBoxCommand('go back')).toBe(true);
+    expect(isBoxCommand('try again')).toBe(true);
+    expect(isBoxCommand('stop listening')).toBe(true);
+    // Real answers to "Who was there?" or "Proof you have".
+    expect(isBoxCommand('none')).toBe(false);
+    expect(isBoxCommand('no')).toBe(false);
+    expect(isBoxCommand('yes')).toBe(false);
+    expect(isBoxCommand('my sister')).toBe(false);
+  });
+
+  it.each(['last week', 'two days ago', 'March 3', 'the night before Christmas', 'in the summer', '2025', 'on Friday'])(
+    'hears "%s" as a time',
+    (phrase) => {
+      expect(soundsLikeWhen(phrase)).toBe(true);
+    },
+  );
+
+  it.each(['he hurt me', 'turn the TV down', 'he told me about it', 'he made me fall', 'I may be wrong'])(
+    'does not hear "%s" as a time',
+    (phrase) => {
+      expect(soundsLikeWhen(phrase)).toBe(false);
+    },
+  );
 });

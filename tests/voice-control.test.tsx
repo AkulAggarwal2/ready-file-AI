@@ -8,7 +8,14 @@ import { copy, fill } from '../src/content';
 import { leaveSite } from '../src/safety/leaveSite';
 import { useInactivityTimeout, VOICE_ACTIVITY_EVENT } from '../src/safety/useInactivityTimeout';
 import { begin, renderApp, type User } from './helpers';
-import { installSpeech, listeningRecognition, uninstallVoice, type FakeRecognition } from './fakeVoice';
+import {
+  installModel,
+  installSpeech,
+  listeningRecognition,
+  modelAnswer,
+  uninstallVoice,
+  type FakeRecognition,
+} from './fakeVoice';
 
 // Short pauses, so the tests don't wait. A box's microphone waits longer with
 // voice control on (HANDS_FREE_PAUSE_MS) than without it (VOICE_PAUSE_MS).
@@ -26,6 +33,14 @@ const hf = copy.voice.handsFree;
 const bar = () => screen.queryByRole('region', { name: hf.barLabel });
 const barSays = () => within(screen.getByRole('region', { name: hf.barLabel })).getByRole('status').textContent;
 const voiceSwitch = () => screen.getByRole('switch', { name: hf.switchLabel });
+const g = hf.guide;
+/** The question the bar is asking. */
+const asking = () => document.querySelector('.hands-free-question')?.textContent ?? null;
+const choicesShown = () =>
+  Array.from(document.querySelectorAll('.hands-free-choices li')).map((item) => item.firstChild?.textContent);
+async function nowAsking(prompt: string) {
+  await waitFor(() => expect(asking()).toBe(prompt));
+}
 
 /** Waits for voice control (or a box) to be listening, and gives that microphone. */
 async function microphone(): Promise<FakeRecognition> {
@@ -51,8 +66,10 @@ async function turnOn(user: User) {
 async function onIncidentCard(user: User) {
   await turnOn(user);
   await begin(user, 'Stalking');
+  await nowAsking(hf.ask.addIncident);
   await say('Add an incident');
   await screen.findByRole('textbox', { name: copy.incident.descriptionLabel });
+  await nowAsking(copy.incident.dateLabel);
 }
 
 beforeEach(() => {
@@ -81,7 +98,8 @@ describe('turning voice control on and off', () => {
 
     const listening = listeningRecognition()!;
     expect(listening).toMatchObject({ processLocally: true, continuous: true, lang: 'en-US' });
-    expect(within(bar()!).getByText(hf.listening)).toBeInTheDocument();
+    // It starts with the step's first question.
+    expect(asking()).toBe(copy.start.caseTypeLegend);
     expect(voiceSwitch()).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByText(hf.isOn)).toBeInTheDocument();
   });
@@ -136,7 +154,8 @@ describe('turning voice control on and off', () => {
 
     await user.click(screen.getByRole('button', { name: hf.turnOnAgain }));
     await microphone();
-    expect(within(bar()!).getByText(hf.listening)).toBeInTheDocument();
+    // It starts with the step's first question.
+    expect(asking()).toBe(copy.start.caseTypeLegend);
   });
 
   it('stops trying when the microphone keeps ending as soon as it starts', async () => {
@@ -166,39 +185,208 @@ describe('turning voice control on and off', () => {
   });
 });
 
-describe('filling in the form by voice', () => {
-  it('fills in the Start step: a choice, a list, and the Start button', async () => {
+describe('answering the questions in order', () => {
+  it("asks the Start step's questions one at a time, and moves on as she answers", async () => {
     const user = renderApp();
     await turnOn(user);
+    expect(document.querySelector('.hands-free-progress')?.textContent).toBe(fill(g.progress, { n: 1, total: 3 }));
+    expect(choicesShown()).toEqual(Object.values(copy.start.caseTypes));
 
-    await say('Stalking');
-    expect(screen.getByRole('radio', { name: 'Stalking' })).toBeChecked();
-    expect(barSays()).toBe(fill(hf.chosen, { name: 'Stalking' }));
+    // A choice by its number.
+    await say('2');
+    expect(screen.getByRole('radio', { name: copy.start.caseTypes.harassment })).toBeChecked();
+    await nowAsking(copy.start.relationshipLabel);
+    expect(screen.getByRole('combobox', { name: copy.start.relationshipLabel })).toHaveFocus();
+    // Its choices, without "Choose one".
+    expect(choicesShown()).not.toContain(copy.start.relationships['']);
 
-    await say('How do you know this person');
-    const list = screen.getByRole('combobox', { name: copy.start.relationshipLabel });
-    expect(list).toHaveFocus();
-    // Its choices are listed in the bar, without "Choose one".
-    const choices = within(screen.getByRole('region', { name: hf.barLabel })).getAllByRole('listitem');
-    expect(choices.map((item) => item.textContent)).toContain(copy.start.relationships.dating);
-    expect(choices.map((item) => item.textContent)).not.toContain(copy.start.relationships['']);
+    await say('back');
+    await nowAsking(copy.start.caseTypeLegend);
+    // A choice by one of its words.
+    await say('stalking');
+    expect(screen.getByRole('radio', { name: copy.start.caseTypes.stalking })).toBeChecked();
+    await nowAsking(copy.start.relationshipLabel);
 
     await say('dating');
-    expect(list).toHaveValue('dating');
+    expect(screen.getByRole('combobox', { name: copy.start.relationshipLabel })).toHaveValue('dating');
+    await nowAsking(hf.ask.start);
+    expect(document.querySelector('.hands-free-say')?.textContent).toBe(fill(g.sayYes, { name: copy.start.begin }));
 
-    // The page's Start button, not "Start" in the step bar.
-    await say('Start');
+    await say('yes');
     expect(await screen.findByRole('button', { name: copy.organize.add })).toBeInTheDocument();
+    await nowAsking(hf.ask.addIncident);
   });
 
-  it("says when nothing on the screen has that name", async () => {
+  it('moves between questions with the Skip and Previous buttons too', async () => {
+    const user = renderApp();
+    await turnOn(user);
+    await user.click(screen.getByRole('button', { name: g.skip }));
+    await nowAsking(copy.start.relationshipLabel);
+    await user.click(screen.getByRole('button', { name: g.previous }));
+    await nowAsking(copy.start.caseTypeLegend);
+    await user.click(screen.getByRole('button', { name: g.previous }));
+    expect(barSays()).toBe(g.first);
+  });
+
+  it('says so when it did not catch an answer', async () => {
     const user = renderApp();
     await turnOn(user);
     await say('banana bread');
-    expect(barSays()).toBe(fill(hf.notFound, { said: 'banana bread' }));
+    expect(barSays()).toBe(g.notUnderstood);
+    expect(asking()).toBe(copy.start.caseTypeLegend);
   });
 
-  it("speaks into a box by its name, then listens for what to press again", async () => {
+  it('fills in an incident: a spoken date, a box, a list, and check boxes', async () => {
+    const user = renderApp();
+    await onIncidentCard(user);
+
+    // "When did it happen?" takes the date itself.
+    await say('last week');
+    await waitFor(() =>
+      expect(screen.getByRole('textbox', { name: copy.incident.approximateLabel })).toHaveValue('last week'),
+    );
+
+    // A box: its own microphone listens, and the question stays in the bar.
+    await nowAsking(copy.incident.placeLabel);
+    const place = screen.getByRole('textbox', { name: copy.incident.placeLabel });
+    expect(place).toHaveFocus();
+    expect(within(bar()!).getByText(g.listeningText)).toBeInTheDocument();
+    await say('outside my gym');
+    await waitFor(() => expect(place).toHaveValue('outside my gym'));
+
+    await nowAsking(copy.incident.howLabel);
+    await say('in person');
+    expect(screen.getByRole('combobox', { name: copy.incident.howLabel })).toHaveValue('in-person');
+
+    await nowAsking(copy.incident.descriptionLabel);
+    await say('he waited by my car');
+    await waitFor(() =>
+      expect(screen.getByRole('textbox', { name: copy.incident.descriptionLabel })).toHaveValue('he waited by my car.'),
+    );
+
+    // Check boxes: each one she says, then "done".
+    await nowAsking(copy.incident.actsLegend);
+    await say('he hurt me');
+    expect(screen.getByRole('checkbox', { name: copy.incident.acts['caused-harm'] })).not.toBeChecked();
+    // One word isn't enough for a check box: a wrong check on a sworn form is serious.
+    await say('afraid');
+    expect(screen.getByRole('checkbox', { name: copy.incident.acts['placed-in-fear'] })).not.toBeChecked();
+    await say('hurt me');
+    expect(screen.getByRole('checkbox', { name: copy.incident.acts['caused-harm'] })).toBeChecked();
+    expect(asking()).toBe(copy.incident.actsLegend);
+    await say('done');
+    await nowAsking(copy.incident.presentLabel);
+  });
+
+  it('puts an exact date in the date box', async () => {
+    const user = renderApp();
+    await onIncidentCard(user);
+    await say('March 3, 2026');
+    await waitFor(() => expect(screen.getByLabelText(copy.incident.exactLabel)).toHaveValue('2026-03-03'));
+    await nowAsking(copy.incident.placeLabel);
+  });
+
+  it('never puts other talk into "When did it happen?"', async () => {
+    const user = renderApp();
+    await onIncidentCard(user);
+    await say('turn the TV down');
+    expect(barSays()).toBe(g.notUnderstood);
+    expect(screen.getByRole('combobox', { name: copy.incident.dateLabel })).toHaveValue('exact');
+    expect(asking()).toBe(copy.incident.dateLabel);
+  });
+
+  it('"skip" said into a box moves on at once, and adds nothing', async () => {
+    const user = renderApp();
+    await onIncidentCard(user);
+    await say('skip');
+    await nowAsking(copy.incident.exactLabel);
+    await say('skip');
+    await nowAsking(copy.incident.placeLabel);
+    const boxMicrophone = await microphone();
+    act(() => boxMicrophone.say('skip'));
+    // At once: well before the pause a box waits for (HANDS_FREE_PAUSE_MS).
+    await waitFor(() => expect(asking()).toBe(copy.incident.howLabel), { timeout: 200 });
+    expect(screen.getByRole('textbox', { name: copy.incident.placeLabel })).toHaveValue('');
+  });
+
+  it('when nothing went into a box, she can try again', async () => {
+    const user = renderApp();
+    await onIncidentCard(user);
+    await say('skip');
+    await say('skip');
+    await nowAsking(copy.incident.placeLabel);
+    const first = await microphone();
+    act(() => first.fail('no-speech'));
+    await waitFor(() => expect(barSays()).toBe(g.noAnswer));
+    expect(asking()).toBe(copy.incident.placeLabel);
+
+    await say('try again');
+    await waitFor(() => expect(within(bar()!).getByText(g.listeningText)).toBeInTheDocument());
+    await say('the parking lot');
+    await waitFor(() => expect(screen.getByRole('textbox', { name: copy.incident.placeLabel })).toHaveValue('the parking lot'));
+  });
+
+  it('waits while her words are tidied, then moves on', async () => {
+    // A model that takes a moment to tidy.
+    installModel({
+      answer: () => new Promise<string>((resolve) => setTimeout(() => resolve(modelAnswer(true, 'Outside my gym.')), 200)),
+    });
+    const user = renderApp();
+    await onIncidentCard(user);
+    await say('skip');
+    await say('skip');
+    await nowAsking(copy.incident.placeLabel);
+    await say('um outside my gym');
+    const place = screen.getByRole('textbox', { name: copy.incident.placeLabel });
+    await waitFor(() => expect(place).not.toHaveValue(''));
+    await nowAsking(copy.incident.howLabel);
+    expect(barSays()).not.toBe(g.noAnswer);
+  });
+
+  it('starts the questions of a step she moves to with the mouse', async () => {
+    const user = renderApp();
+    await turnOn(user);
+    await user.click(screen.getByRole('button', { name: copy.start.begin }));
+    await nowAsking(hf.ask.addIncident);
+  });
+
+  it('starts the next step after the last question of this one', async () => {
+    const user = renderApp();
+    await turnOn(user);
+    await say('skip');
+    await say('skip');
+    await nowAsking(hf.ask.start);
+    await say('no');
+    expect(barSays()).toBe(g.last);
+    await user.click(screen.getByRole('button', { name: copy.start.begin }));
+    await nowAsking(hf.ask.addIncident);
+  });
+
+  it('opens each card on the Questions step and offers its two answers', async () => {
+    const user = renderApp();
+    await begin(user, 'Stalking');
+    await user.click(screen.getByRole('button', { name: copy.organize.confirm }));
+    await user.click(screen.getByRole('button', { name: copy.story.next }));
+    await user.click(voiceSwitch());
+    await microphone();
+
+    const toggles = document.querySelectorAll<HTMLElement>('.question-toggle');
+    await waitFor(() => expect(toggles[0]).toHaveAttribute('aria-expanded', 'true'));
+    const firstQuestion = document.querySelector('.question-text')!.textContent!;
+    await nowAsking(firstQuestion);
+    expect(document.querySelector('.hands-free-say')?.textContent).toBe(
+      fill(g.sayButtons, { names: `“${copy.check.addMore}” or “${copy.check.continueAsIs}.”` }),
+    );
+
+    await say('continue as is');
+    await waitFor(() => expect(within(toggles[0]).getByText(copy.check.answered)).toBeInTheDocument());
+    // Then the next question on the step.
+    await waitFor(() => expect(asking()).not.toBe(firstQuestion));
+  });
+});
+
+describe('saying what she sees', () => {
+  it("speaks into a box by its name, and moves on once she has answered", async () => {
     const user = renderApp();
     await onIncidentCard(user);
     const commands = listeningRecognition();
@@ -206,16 +394,16 @@ describe('filling in the form by voice', () => {
     await say('What happened');
     const box = screen.getByRole('textbox', { name: copy.incident.descriptionLabel });
     expect(box).toHaveFocus();
-    // The box's own microphone has taken over, and shows its own status.
+    // The box's own microphone has taken over.
     expect(listeningRecognition()).not.toBe(commands);
-    expect(bar()).toBeNull();
+    await nowAsking(copy.incident.descriptionLabel);
 
     await say('he waited by my car');
     await waitFor(() => expect(box).toHaveValue('he waited by my car.'));
-    await waitFor(() => expect(bar()).toBeInTheDocument());
-    await microphone();
+    await nowAsking(copy.incident.actsLegend);
 
     await say('How did it happen');
+    await nowAsking(copy.incident.howLabel);
     await say('online');
     expect(screen.getByRole('combobox', { name: copy.incident.howLabel })).toHaveValue('online');
   });
@@ -240,7 +428,6 @@ describe('filling in the form by voice', () => {
 
     await say('he hurt me');
     expect(hurtMe).not.toBeChecked();
-    expect(barSays()).toBe(fill(hf.notFound, { said: 'he hurt me' }));
 
     await say('hurt me');
     expect(hurtMe).toBeChecked();
@@ -258,8 +445,9 @@ describe('filling in the form by voice', () => {
     const user = renderApp();
     await turnOn(user);
 
+    // Without numbers showing, a number picks one of the question's choices.
     await say('7');
-    expect(barSays()).toBe(hf.numbersFirst);
+    expect(barSays()).toBe(fill(hf.noNumber, { n: 7 }));
 
     await say('show numbers');
     expect(barSays()).toBe(hf.sayNumber);
@@ -293,21 +481,12 @@ describe('filling in the form by voice', () => {
     expect(listeningRecognition()).toBeNull();
   });
 
-  it('steps aside for "Answer by voice", then listens again', async () => {
+  it('hides "Answer by voice" on a card while voice control asks the questions', async () => {
     const user = renderApp();
     await onIncidentCard(user);
-    const commands = listeningRecognition();
-
-    await say('Answer by voice');
-    expect(screen.getByRole('group', { name: copy.voice.guide.panelLabel })).toBeInTheDocument();
-    expect(listeningRecognition()).not.toBe(commands);
-    expect(bar()).toBeNull();
-
-    await say('stop');
-    expect(screen.queryByRole('group', { name: copy.voice.guide.panelLabel })).toBeNull();
-    await waitFor(() => expect(bar()).toBeInTheDocument());
-    await say('hurt me');
-    expect(screen.getByRole('checkbox', { name: copy.incident.acts['caused-harm'] })).toBeChecked();
+    expect(screen.queryByRole('button', { name: copy.voice.guide.start })).toBeNull();
+    await say('stop listening');
+    expect(await screen.findByRole('button', { name: copy.voice.guide.start })).toBeInTheDocument();
   });
 
   it('counts what she says as activity, so she is not timed out while talking', async () => {

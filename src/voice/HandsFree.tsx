@@ -1,13 +1,19 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { HANDS_FREE_RESTART_MS } from '../config';
 import { copy, fill } from '../content';
+import { useAppState } from '../state/AppStateProvider';
 import { Tooltip } from '../ui/Tooltip';
+import { findQuestions, questionFrom, readQuestion, type FormQuestion, type QuestionChoice } from './formQuestions';
 import { HandsFreeContext, useHandsFree, type HandsFree } from './handsFreeContext';
+import { readDateAnswer } from './incidentAnswers';
 import {
   actOn,
   asCandidates,
   badgeAnchor,
+  bringIntoView,
+  choose,
   controlsOnScreen,
+  fillIn,
   findControls,
   pickLikeliest,
   scrollIntoClearView,
@@ -19,63 +25,268 @@ import {
 } from './pageControls';
 import { useDictation, useMicrophoneOn } from './useDictation';
 import { MicrophoneIcon } from './VoiceNotes';
-import { matchName, readVoiceCommand, type VoiceCommand } from './voiceCommands';
+import {
+  isBoxCommand,
+  matchName,
+  readGuideCommand,
+  readVoiceCommand,
+  soundsLikeWhen,
+  type VoiceAction,
+  type VoiceCommand,
+} from './voiceCommands';
 
 const h = copy.voice.handsFree;
+const g = h.guide;
 
 // If listening keeps ending right after it starts, with nothing heard, the
 // microphone isn't working. Stop trying, and say so, instead of looping.
 const QUICK_END_MS = 1000;
 const MAX_QUICK_ENDS = 3;
 
+// After an answer, the page updates (a card opens, a new step appears)
+// before the next question is found.
+const SETTLE_MS = 80;
+
 function describe(result: ActResult): string {
   return fill(h[result.kind], { name: result.name });
 }
 
+/** Focus is in the step's content, not the header or the bar. */
+function focusInPage(): Element | null {
+  const active = document.activeElement;
+  const main = document.querySelector('main');
+  return active && active !== document.body && main?.contains(active) ? active : null;
+}
+
+/** The box she is answering by voice, and what was in it before. */
+interface Answering {
+  container: HTMLElement;
+  field: HTMLInputElement | HTMLTextAreaElement;
+  before: string;
+}
+
 /**
- * Voice control for the whole app. While it is on, one microphone listens for
- * what she says: the words on a button or choice press it, the name of a box
- * starts that box's own microphone, and a few fixed words scroll, show help,
- * or turn it off. It steps aside while a field's microphone or "Answer by
- * voice" is listening, then listens again. Speech stays on the device.
+ * Voice control for the whole app. While it is on, it asks the questions on
+ * the screen one at a time, in order, and shows what she can say: a choice
+ * (or its number), her answer for a box (that box's own microphone listens),
+ * "yes" to press a button like "Add an incident", "skip", or "back". When
+ * she answers, it moves on, through every step. She can also say the words
+ * on anything on the screen to press it, or "show numbers", "scroll down",
+ * "help", and "stop listening". Speech stays on the device.
  */
 export function HandsFreeProvider({ children }: { children: ReactNode }) {
+  const { state } = useAppState();
   const [on, setOn] = useState(false);
   const [heard, setHeard] = useState('');
   const [message, setMessage] = useState('');
   const [helpOpen, setHelpOpen] = useState(false);
   const [numbered, setNumbered] = useState<PageControl[] | null>(null);
-  // The choices of the list she just moved to, shown as a list in the bar.
-  const [choices, setChoices] = useState<string[] | null>(null);
   // Why voice control turned itself off, until she closes the note.
   const [stopped, setStopped] = useState<string | null>(null);
+  // The question being asked: its fieldset, list, box, or ask.
+  const [questionElement, setQuestionElement] = useState<HTMLElement | null>(null);
+  // Bumped when the page changes, so the question and its choices are read again.
+  const [pageVersion, setPageVersion] = useState(0);
   const onNow = useRef(false);
   const numberedNow = useRef<PageControl[] | null>(null);
+  const questionNow = useRef<HTMLElement | null>(null);
+  const answering = useRef<Answering | null>(null);
+  const lastAsked = useRef<{ element: HTMLElement | null; at: number }>({ element: null, at: 0 });
   const quickEnds = useRef(0);
   const startedAt = useRef(0);
   const heardSinceStart = useRef(false);
-
-  useEffect(() => {
-    numberedNow.current = numbered;
-  }, [numbered]);
 
   const showNumbers = useCallback((controls: PageControl[] | null) => {
     numberedNow.current = controls;
     setNumbered(controls);
   }, []);
 
-  const press = useCallback(
-    (control: PageControl, action: Parameters<typeof actOn>[1]) => {
-      showNumbers(null);
-      const result = actOn(control, action);
-      if (result.kind === 'choose') setChoices(result.options);
-      return describe(result);
+  const setQuestion = useCallback((element: HTMLElement | null) => {
+    questionNow.current = element;
+    setQuestionElement(element);
+  }, []);
+
+  /** Starts the box's own microphone for her answer. */
+  const listenInBox = useCallback((question: FormQuestion) => {
+    const field = question.field as HTMLInputElement | HTMLTextAreaElement;
+    const microphone = field.closest('.voice-field-box')?.querySelector<HTMLButtonElement>('.voice-field-mic');
+    if (!microphone || microphone.disabled) return;
+    if (microphone.classList.contains('is-listening')) return;
+    answering.current = { container: question.container, field, before: field.value };
+    microphone.click();
+  }, []);
+
+  /** Asks a question: moves to it and, for a box, starts listening for the answer. */
+  const ask = useCallback(
+    (question: FormQuestion | null) => {
+      if (!onNow.current) return;
+      // The same question, asked twice in a moment (the page changed, and an answer moved on).
+      const now = Date.now();
+      if (question && lastAsked.current.element === question.container && now - lastAsked.current.at < 400) return;
+      lastAsked.current = { element: question?.container ?? null, at: now };
+
+      answering.current = null;
+      setQuestion(question?.container ?? null);
+      if (!question) return;
+
+      // A closed question card: open it, then ask what is inside.
+      if (question.opener) {
+        question.opener.click();
+        setTimeout(() => {
+          const opened = onNow.current && question.container.isConnected ? readQuestion(question.container) : null;
+          const first = opened?.choices[0]?.element;
+          if (first) bringIntoView(first);
+          setPageVersion((version) => version + 1);
+        }, SETTLE_MS);
+        return;
+      }
+
+      const target =
+        question.field ??
+        question.choices.find((choice) => choice.checked)?.element ??
+        question.choices[0]?.element ??
+        question.container;
+      bringIntoView(target);
+      if (question.kind === 'text') listenInBox(question);
     },
-    [showNumbers],
+    [listenInBox, setQuestion],
   );
 
-  const respond = useCallback(
-    (command: VoiceCommand, said: string): string => {
+  /** Turns off a box's microphone that is still listening. */
+  const stopBox = useCallback(() => {
+    answering.current = null;
+    document.querySelector<HTMLButtonElement>('.voice-field-mic.is-listening')?.click();
+  }, []);
+
+  /** The next (1) or previous (-1) question on this step. */
+  const move = useCallback(
+    (step: 1 | -1): string => {
+      stopBox();
+      const questions = findQuestions();
+      const index = questions.findIndex((question) => question.container === questionNow.current);
+      if (index === -1) {
+        ask(questionFrom(questions, focusInPage()));
+        return '';
+      }
+      const next = questions[index + step];
+      if (!next) return step === 1 ? g.last : g.first;
+      lastAsked.current = { element: null, at: 0 };
+      ask(next);
+      return '';
+    },
+    [ask, stopBox],
+  );
+
+  /**
+   * After an answer: once the page has updated, asks the next question. If
+   * focus moved somewhere new (a new incident, a new step), that is where
+   * the next question is.
+   */
+  const continueAfter = useCallback(
+    (container: HTMLElement) => {
+      setTimeout(() => {
+        if (!onNow.current) return;
+        const questions = findQuestions();
+        const focus = focusInPage();
+        const movedAway = !container.isConnected || (focus !== null && !container.contains(focus));
+        if (movedAway) {
+          ask(questionFrom(questions, focus));
+          return;
+        }
+        const index = questions.findIndex((question) => question.container === container);
+        const next = index === -1 ? questionFrom(questions, container) : questions[index + 1];
+        if (!next) {
+          setQuestion(null);
+          setMessage(g.last);
+          return;
+        }
+        ask(next);
+      }, SETTLE_MS);
+    },
+    [ask, setQuestion],
+  );
+
+  /** She said something to press on the page: the question follows where focus went. */
+  const followFocus = useCallback(() => {
+    setTimeout(() => {
+      if (!onNow.current) return;
+      const focus = focusInPage();
+      if (!focus) return;
+      const question = questionFrom(findQuestions(), focus);
+      if (question && question.container.contains(focus)) setQuestion(question.container);
+    }, SETTLE_MS);
+  }, [setQuestion]);
+
+  const press = useCallback(
+    (control: PageControl, action: VoiceAction) => {
+      showNumbers(null);
+      // Taken before acting: a box's microphone starts listening right away.
+      const before = control.kind === 'textbox' ? (control.element as HTMLTextAreaElement).value : '';
+      const result = actOn(control, action);
+      followFocus();
+      // She named a box and is answering in it: move on once she has.
+      if (result.kind === 'dictating') {
+        const field = control.element as HTMLInputElement | HTMLTextAreaElement;
+        answering.current = { container: field, field, before };
+      }
+      return describe(result);
+    },
+    [showNumbers, followFocus],
+  );
+
+  /** Answers the question with one of its choices. */
+  const answerWith = useCallback(
+    (question: FormQuestion, choice: QuestionChoice, action: VoiceAction = 'press'): string => {
+      showNumbers(null);
+      if (question.kind === 'checks') {
+        const result = actOn({ element: choice.element, kind: 'checkbox', names: [choice.name], exactOnly: false }, action);
+        setPageVersion((version) => version + 1);
+        return describe(result);
+      }
+      if (choice.option) {
+        const list = choice.element as HTMLSelectElement;
+        bringIntoView(list);
+        choose(list, choice.option);
+      } else {
+        bringIntoView(choice.element);
+        choice.element.click();
+      }
+      continueAfter(question.container);
+      return fill(question.kind === 'ask' ? h.pressed : h.chosen, { name: choice.name });
+    },
+    [continueAfter, showNumbers],
+  );
+
+  /** "When did it happen?": a spoken date goes into the date box or the "about when" box. */
+  const answerWhen = useCallback(
+    (question: FormQuestion, said: string): string | null => {
+      const date = readDateAnswer(said);
+      const when = question.when;
+      const list = question.field as HTMLSelectElement;
+      if (!date || !when) return null;
+      if (date.kind === 'approximate' && !soundsLikeWhen(date.text)) return null;
+      const option = Array.from(list.options).find((item) => item.value === date.kind);
+      if (!option) return null;
+      choose(list, option);
+      if (date.kind === 'unknown') {
+        continueAfter(question.container);
+        return fill(h.chosen, { name: option.text });
+      }
+      const value = date.kind === 'exact' ? date.value : date.text;
+      setTimeout(() => {
+        const box = document.getElementById(date.kind === 'exact' ? when.exact : when.approx);
+        if (!(box instanceof HTMLInputElement)) return;
+        bringIntoView(box);
+        fillIn(box, value);
+        continueAfter(box);
+      }, SETTLE_MS);
+      return fill(g.dateSet, { date: date.kind === 'exact' ? said.trim().replace(/[.!?]+$/, '') : value });
+    },
+    [continueAfter],
+  );
+
+  const respondToCommand = useCallback(
+    (command: VoiceCommand, said: string): string | null => {
       switch (command.kind) {
         case 'help':
           setHelpOpen(true);
@@ -105,7 +316,7 @@ export function HandsFreeProvider({ children }: { children: ReactNode }) {
         case 'name': {
           const controls = findControls();
           const match = matchName(command.attempts, asCandidates(controls));
-          if (match.kind === 'none') return fill(h.notFound, { said });
+          if (match.kind === 'none') return null;
           if (match.kind === 'found') return press(controls[match.index], match.action);
           const tied = match.indexes.map((index) => controls[index]);
           const likeliest = pickLikeliest(tied);
@@ -118,21 +329,56 @@ export function HandsFreeProvider({ children }: { children: ReactNode }) {
     [press, showNumbers],
   );
 
+  /** What she said, as an answer to the question being asked. Null if it isn't one. */
+  const answerQuestion = useCallback(
+    (question: FormQuestion, command: VoiceCommand | null): string | null => {
+      const guide = readGuideCommand(command?.kind === 'name' ? command.attempts[0].words.join(' ') : '');
+      if (guide === 'skip') return move(1);
+      if (guide === 'back') return move(-1);
+      if (guide === 'repeat') {
+        lastAsked.current = { element: null, at: 0 };
+        ask(question);
+        return '';
+      }
+      if (guide === 'done' && question.kind === 'checks') return move(1);
+      if (question.kind === 'ask' && question.choices.length === 1) {
+        if (guide === 'yes') return answerWith(question, question.choices[0]);
+        if (guide === 'no') return move(1);
+      }
+      // A choice's number, from the numbered list in the bar.
+      if (command?.kind === 'number' && !numberedNow.current && question.kind !== 'ask') {
+        const choice = question.choices[command.n - 1];
+        return choice ? answerWith(question, choice) : fill(h.noNumber, { n: command.n });
+      }
+      if (command?.kind === 'name' && question.choices.length > 0) {
+        // Picking one from a list: one telling word is enough. Check boxes
+        // and buttons need more of their name.
+        const lenient = question.kind === 'choice';
+        const candidates = question.choices.map((choice) => ({ names: [choice.name], minCoverage: lenient ? 0.01 : undefined }));
+        const match = matchName(command.attempts, candidates);
+        if (match.kind === 'found') return answerWith(question, question.choices[match.index], match.action);
+      }
+      return null;
+    },
+    [answerWith, ask, move],
+  );
+
   const dictationStop = useRef<() => void>(() => {});
 
   // `reason` is set when it turns itself off, so the bar can say why.
   const turnOff = useCallback(
     (reason: string | null = null) => {
       onNow.current = false;
+      answering.current = null;
       setOn(false);
       setHelpOpen(false);
       setMessage('');
-      setChoices(null);
       setStopped(reason);
+      setQuestion(null);
       showNumbers(null);
       dictationStop.current();
     },
-    [showNumbers],
+    [setQuestion, showNumbers],
   );
 
   const handlePhrase = useCallback(
@@ -144,14 +390,49 @@ export function HandsFreeProvider({ children }: { children: ReactNode }) {
       heardSinceStart.current = true;
       quickEnds.current = 0;
       setHeard(said);
-      setChoices(null);
       if (command.kind === 'stopListening') {
         turnOff();
         return;
       }
-      setMessage(respond(command, said));
+
+      const current = questionNow.current;
+      const question = current?.isConnected ? readQuestion(current) : null;
+      // The question first, then the fixed words, then anything on the screen by name.
+      const answer = question ? answerQuestion(question, command) : null;
+      if (answer !== null) {
+        setMessage(answer);
+        return;
+      }
+      if (command.kind !== 'name') {
+        setMessage(respondToCommand(command, said) ?? '');
+        return;
+      }
+      const pressed = respondToCommand(command, said);
+      if (pressed !== null) {
+        setMessage(pressed);
+        return;
+      }
+      if (question?.when || question?.kind === 'date') {
+        const date = question.when ? answerWhen(question, said) : null;
+        if (date !== null) {
+          setMessage(date);
+          return;
+        }
+        const exact = readDateAnswer(said);
+        if (question.kind === 'date' && exact?.kind === 'exact' && question.field instanceof HTMLInputElement) {
+          fillIn(question.field, exact.value);
+          continueAfter(question.container);
+          setMessage(fill(g.dateSet, { date: said }));
+          return;
+        }
+        if (question.kind === 'date') {
+          setMessage(g.notADate);
+          return;
+        }
+      }
+      setMessage(question ? g.notUnderstood : fill(h.notFound, { said }));
     },
-    [respond, turnOff],
+    [answerQuestion, answerWhen, continueAfter, respondToCommand, turnOff],
   );
 
   const dictation = useDictation(handlePhrase);
@@ -166,6 +447,7 @@ export function HandsFreeProvider({ children }: { children: ReactNode }) {
   const turnOn = useCallback(() => {
     onNow.current = true;
     quickEnds.current = 0;
+    lastAsked.current = { element: null, at: 0 };
     setOn(true);
     setHelpOpen(false);
     setHeard('');
@@ -174,7 +456,36 @@ export function HandsFreeProvider({ children }: { children: ReactNode }) {
     // Started right away, inside the click: the first time, the browser
     // allows the speech download only then.
     void start();
-  }, [start]);
+    // The first question: where she is, or the first one on this step.
+    ask(questionFrom(findQuestions(), focusInPage()));
+  }, [ask, start]);
+
+  // A box she named, or a box being asked, said into by voice.
+  const takeSpokenCommand = useCallback(
+    (said: string): boolean => {
+      if (!onNow.current || !isBoxCommand(said)) return false;
+      answering.current = null;
+      setHeard(said);
+      setTimeout(() => {
+        if (!onNow.current) return;
+        if (readVoiceCommand(said)?.kind === 'stopListening') {
+          turnOff();
+          return;
+        }
+        const guide = readGuideCommand(said);
+        if (guide === 'repeat') {
+          const current = questionNow.current;
+          const question = current?.isConnected ? readQuestion(current) : null;
+          lastAsked.current = { element: null, at: 0 };
+          ask(question);
+          return;
+        }
+        setMessage(move(guide === 'back' ? -1 : 1));
+      }, 0);
+      return true;
+    },
+    [ask, move, turnOff],
+  );
 
   // Keep listening while it is on, whenever no other microphone is.
   useEffect(() => {
@@ -204,15 +515,74 @@ export function HandsFreeProvider({ children }: { children: ReactNode }) {
     turnOff(copy.voice.errors[error]);
   }, [error, turnOff]);
 
-  // Back from a field's microphone: what was said before is done with.
+  // Back from a box's microphone (and its tidying): if her answer went in,
+  // the next question. If not, she can try again or skip. Checked a moment
+  // later, since tidying starts just after listening stops.
   const wasPaused = useRef(false);
   useEffect(() => {
-    if (wasPaused.current && !paused) {
-      setMessage('');
-      setHeard('');
-    }
+    const resumed = wasPaused.current && !paused;
     wasPaused.current = paused;
-  }, [paused]);
+    if (!resumed || !on) return;
+    const timer = setTimeout(() => {
+      const box = answering.current;
+      answering.current = null;
+      setHeard('');
+      if (!box || !box.field.isConnected) return;
+      if (box.field.value !== box.before) {
+        setMessage('');
+        continueAfter(box.container);
+      } else if (box.container === questionNow.current) {
+        setMessage(g.noAnswer);
+      }
+    }, SETTLE_MS);
+    return () => clearTimeout(timer);
+  }, [paused, on, continueAfter]);
+
+  // A new step: start with the question where focus is, or its first one.
+  useEffect(() => {
+    if (!onNow.current) return;
+    const timer = setTimeout(() => {
+      if (questionNow.current?.isConnected) return;
+      ask(questionFrom(findQuestions(), focusInPage()));
+    }, SETTLE_MS * 2);
+    return () => clearTimeout(timer);
+  }, [state.step, ask]);
+
+  // When the page changes (a card opens or closes, a choice is made), read
+  // the question again. If it is gone, go on from where focus is.
+  useEffect(() => {
+    const main = document.querySelector('main');
+    if (!on || !main || typeof MutationObserver === 'undefined') return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const observer = new MutationObserver(() => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        setPageVersion((version) => version + 1);
+        const current = questionNow.current;
+        if (current && !current.isConnected && !answering.current) {
+          ask(questionFrom(findQuestions(), focusInPage()));
+        }
+      }, SETTLE_MS * 2);
+    });
+    observer.observe(main, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-expanded', 'hidden'] });
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
+  }, [on, ask]);
+
+  // The question as it is on the page now, and where it is among this step's questions.
+  const { question, questionNumber, questionCount } = useMemo(() => {
+    void pageVersion;
+    if (!on || !questionElement?.isConnected) return { question: null, questionNumber: 0, questionCount: 0 };
+    const questions = findQuestions();
+    return {
+      question: readQuestion(questionElement),
+      questionNumber: questions.findIndex((item) => item.container === questionElement),
+      questionCount: questions.length,
+    };
+    // `message` and `heard` change after each answer, when choices may have changed.
+  }, [on, questionElement, pageVersion, message, heard]);
 
   const value = useMemo<HandsFree>(
     () => ({
@@ -224,16 +594,38 @@ export function HandsFreeProvider({ children }: { children: ReactNode }) {
       pending: dictation.pending,
       heard,
       message,
-      choices,
       helpOpen,
       numbered,
       stopped,
+      question,
+      questionNumber,
+      questionCount,
       turnOn,
       turnOff: () => turnOff(),
       toggleHelp: () => setHelpOpen((open) => !open),
       dismissStopped: () => setStopped(null),
+      skipQuestion: () => setMessage(move(1)),
+      previousQuestion: () => setMessage(move(-1)),
+      takeSpokenCommand,
     }),
-    [status, on, paused, dictation.pending, heard, message, choices, helpOpen, numbered, stopped, turnOn, turnOff],
+    [
+      status,
+      on,
+      paused,
+      dictation.pending,
+      heard,
+      message,
+      helpOpen,
+      numbered,
+      stopped,
+      question,
+      questionNumber,
+      questionCount,
+      turnOn,
+      turnOff,
+      move,
+      takeSpokenCommand,
+    ],
   );
 
   return <HandsFreeContext.Provider value={value}>{children}</HandsFreeContext.Provider>;
@@ -267,7 +659,11 @@ export function HandsFreeOffer() {
   if (!handsFree || handsFree.checking) return null;
 
   return (
-    <section className="callout hands-free-offer" aria-labelledby="hands-free-heading">
+    <section
+      className="callout hands-free-offer"
+      aria-labelledby="hands-free-heading"
+      {...{ 'data-voice-no-questions': '' }}
+    >
       <h2 id="hands-free-heading">{h.offerHeading}</h2>
       {!handsFree.available ? (
         <p>{h.offerUnavailable}</p>
@@ -296,15 +692,40 @@ export function HandsFreeOffer() {
   );
 }
 
+/** “A” or “B.” with the period inside the last quote. */
+function quoteAll(names: string[]): string {
+  return names.map((name, i) => (i === names.length - 1 ? `“${name}.”` : `“${name}”`)).join(g.or);
+}
+
+/** What she can say to answer this question, shown under it. */
+function sayLine(question: FormQuestion, boxListening: boolean): string {
+  switch (question.kind) {
+    case 'choice':
+      return question.when ? g.sayWhen : g.sayChoice;
+    case 'checks':
+      return g.sayChecks;
+    case 'text':
+      return boxListening ? g.listeningText : g.sayTextAgain;
+    case 'date':
+      return g.sayDate;
+    case 'ask':
+      if (question.opener) return '';
+      if (question.choices.length === 1) return fill(g.sayYes, { name: question.choices[0].name });
+      return fill(g.sayButtons, { names: quoteAll(question.choices.map((choice) => choice.name)) });
+  }
+}
+
 /**
- * Stays at the bottom of the screen while voice control is on: that it is
- * listening, what it heard, what it did, and help. Hidden while a field's
- * microphone has taken over, since that field shows its own status.
+ * Stays at the bottom of the screen while voice control is on: the question
+ * being asked and what she can say, what it heard, what it did, and help.
+ * While a box's microphone listens for her answer, the question stays.
  */
 export function HandsFreeBar() {
   const handsFree = useHandsFree();
   const bar = useRef<HTMLElement>(null);
-  const listening = !!handsFree?.on && !handsFree.paused;
+  const question = handsFree?.question ?? null;
+  const answeringInBox = !!handsFree?.paused && question?.kind === 'text';
+  const listening = !!handsFree?.on && (!handsFree.paused || answeringInBox);
   const showing = listening || !!handsFree?.stopped;
 
   // Shares the bar's height with CSS, so focused fields and the other bars at
@@ -351,8 +772,9 @@ export function HandsFreeBar() {
     );
   }
 
-  const { preparing, pending, heard, message, choices, helpOpen, numbered } = handsFree;
-  const words = pending || heard;
+  const { preparing, pending, heard, message, helpOpen, numbered, questionNumber, questionCount } = handsFree;
+  const words = answeringInBox ? '' : pending || heard;
+  const showChoices = question && question.kind !== 'ask' && question.choices.length > 0;
 
   return (
     <>
@@ -362,26 +784,50 @@ export function HandsFreeBar() {
             <MicrophoneIcon />
           </span>
           <div className="hands-free-text">
-            <p className="hands-free-state">{preparing ? copy.voice.preparing : h.listening}</p>
+            {question ? (
+              <>
+                {questionNumber >= 0 && (
+                  <p className="hands-free-progress">{fill(g.progress, { n: questionNumber + 1, total: questionCount })}</p>
+                )}
+                <p className="hands-free-question">{question.prompt}</p>
+                {question.hint && <p className="hands-free-hint">{question.hint}</p>}
+                <p className="hands-free-say">{preparing ? copy.voice.preparing : sayLine(question, answeringInBox)}</p>
+                {showChoices && (
+                  <ol className="hands-free-choices">
+                    {question.choices.map((choice, index) => (
+                      <li key={`${index}-${choice.name}`} className={choice.checked ? 'is-chosen' : undefined}>
+                        {choice.name}
+                        {choice.checked && <span className="hands-free-chosen"> {g.chosenMark}</span>}
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </>
+            ) : (
+              <p className="hands-free-state">{preparing ? copy.voice.preparing : h.listening}</p>
+            )}
             {/* Hidden from screen readers: it changes with every word. */}
             {words && (
               <p className="hands-free-heard" aria-hidden="true">
                 {fill(h.heard, { said: words })}
               </p>
             )}
-            {/* The choices are inside the status, so screen readers hear them too. */}
-            <div className="dictation-status" role="status">
+            <p className="dictation-status" role="status">
               {message}
-              {choices && (
-                <ul className="hands-free-choices">
-                  {choices.map((choice) => (
-                    <li key={choice}>{choice}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
+            </p>
+            {question && <p className="hands-free-moves">{g.moves}</p>}
           </div>
           <div className="hands-free-actions">
+            {question && (
+              <>
+                <button type="button" className="btn" onClick={handsFree.previousQuestion}>
+                  {g.previous}
+                </button>
+                <button type="button" className="btn" onClick={handsFree.skipQuestion}>
+                  {g.skip}
+                </button>
+              </>
+            )}
             <button type="button" className="btn" aria-expanded={helpOpen} onClick={handsFree.toggleHelp}>
               {helpOpen ? h.hideHelp : h.help}
             </button>

@@ -286,9 +286,30 @@ it on, from "Hard to type or use a mouse?" on the Start step or the
 microphone switch in the header. The microphone in each box and "Answer by
 voice" work the same whether it is on or off. The code is in
 [src/voice/HandsFree.tsx](src/voice/HandsFree.tsx),
+[src/voice/formQuestions.ts](src/voice/formQuestions.ts),
 [src/voice/voiceCommands.ts](src/voice/voiceCommands.ts), and
 [src/voice/pageControls.ts](src/voice/pageControls.ts).
 
+- **It asks the questions in order.** When she turns it on, the bar at the
+  bottom shows the step's first question ("Question 1 of 3 on this step"),
+  its hint, and exactly what to say: a numbered list of choices (she says one
+  or its number), "say your answer" for a box (the box's own microphone
+  listens, and her answer is added when she stops talking), "say each one
+  that fits, then 'done'" for check boxes, or "say 'yes' or 'Add an
+  incident'". When she answers, it moves on by itself, through every step:
+  Start, each incident (a spoken date like "last week" goes straight into
+  the right date box), Your story, each card on the Questions step (opened,
+  read, and answered with "Add more" or "Continue as is"), and Review.
+  "Skip" and "back" (also buttons in the bar) move between questions, and
+  "try again" asks again. "Skip" said into a box acts at once and adds
+  nothing. If nothing went into a box, she is told and can try again.
+- **How it finds the questions.** Fields are found on the page in order: a
+  group of radio buttons or check boxes, a list, a box, or a date. Questions
+  answered with a button are marked in the step's code with `data-voice-ask`
+  (the Start button, "Add an incident", an incident's Done, each step's
+  next button, the Questions cards, and Review's copy and print). "Answer by
+  voice" on an incident card is hidden while voice control is on, so there
+  is one guide at a time.
 - **Say what you see.** She says the words on a button, choice, or check box
   ("Next", "Stalking", "Hurt me") and it is pressed. The names come from the
   page itself (visible words, labels, and screen reader names), so every step,
@@ -311,8 +332,12 @@ voice" work the same whether it is on or off. The code is in
 - **Fixed words:** "help", "scroll down", "scroll up", "show numbers" (a
   number on everything she can see, for names that are long or hard for the
   browser to understand), and "stop listening".
-- **A bar at the bottom** says it is listening, what it heard, and what it
-  did, with Help and Stop listening buttons. It steps aside while a box's
+- **Only a time goes into "about when".** On "When did it happen?", a phrase
+  becomes an "about when" date only if it sounds like a time ("last week",
+  "two days ago", "the night before Christmas"), so talk from someone else
+  in the room never lands there.
+- **A bar at the bottom** shows the question, what it heard, and what it
+  did, with Previous question, Skip question, Help, and Stop listening. It steps aside while a box's
   microphone or "Answer by voice" is listening, then listens again. Focused
   fields are scrolled clear of it. If the microphone is blocked or stops
   working, it turns off and says why, instead of trying again forever.
@@ -354,7 +379,7 @@ Desk's code is in [src/desk/](src/desk/). ReadyFile never imports from it.
 
 ## Tests
 
-`npm test` runs 327 tests in [tests/](tests/):
+`npm test` runs 370 tests in [tests/](tests/):
 
 - **Acceptance tests 1–8 from section 12:** `acceptance.test.tsx` covers
   tests 1–6 and 8, and `content.test.ts` covers test 7, the banned-phrase
@@ -385,15 +410,19 @@ Desk's code is in [src/desk/](src/desk/). ReadyFile never imports from it.
   - `voice-guide.test.tsx`: "Answer by voice", including that it never
     checks the question 7 boxes.
   - `voice-commands.test.ts`: voice control reading what she says (commands,
-    numbers, "check" and "uncheck") and finding what she named, including
-    misheard words, and that a sentence containing a name never matches.
+    numbers, "check" and "uncheck", "skip", "back", "done", "yes") and finding
+    what she named, including misheard words, that a sentence containing a
+    name never matches, and which phrases sound like a time.
   - `voice-page.test.ts`: finding what she can press on a page by its names,
     only the dialog while one is open, picking between controls with the same
-    name, and pressing, checking, choosing, or starting a box's microphone.
-  - `voice-control.test.tsx`: voice control through the whole app: Start by
-    voice, speaking into boxes, lists, check boxes, numbers, Quick exit,
-    errors, stepping aside for "Answer by voice", the inactivity timer, and
-    axe checks.
+    name, pressing, checking, choosing, or starting a box's microphone, reading
+    a step's questions in order, and keeping the question in view above the
+    bar (even when the bar is taller than half a phone's screen).
+  - `voice-control.test.tsx`: voice control through the whole app: the
+    questions asked in order on Start, an incident, and the Questions step,
+    spoken dates, boxes, lists by name or number, check boxes and "done",
+    "skip" and "back", trying again, waiting while words are tidied, numbers,
+    Quick exit, errors, the inactivity timer, and axe checks.
 
 ## Open TODOs
 

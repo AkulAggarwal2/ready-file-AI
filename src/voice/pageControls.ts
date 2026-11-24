@@ -47,7 +47,8 @@ export function visibleText(element: Element): string {
   for (const node of Array.from(element.childNodes)) {
     if (node.nodeType === Node.TEXT_NODE) text += node.textContent ?? '';
     else if (node instanceof Element) {
-      if (node.matches('.sr-only, [aria-hidden="true"], svg, select, textarea, input, [hidden]')) continue;
+      // Demo-only badges (.badge-dev) aren't part of a question or a name.
+      if (node.matches('.sr-only, [aria-hidden="true"], svg, select, textarea, input, [hidden], .badge-dev')) continue;
       text += ` ${visibleText(node)} `;
     }
   }
@@ -95,7 +96,8 @@ function namesOf(element: HTMLElement, kind: ControlKind): string[] {
   return [...new Set(names.map((name) => name.trim()).filter(Boolean))];
 }
 
-function usable(element: HTMLElement): boolean {
+/** Shown, enabled, and not behind a dialog. */
+export function isUsable(element: HTMLElement): boolean {
   if (element.matches(':disabled')) return false;
   if (element.closest(`[hidden], [inert], [aria-hidden="true"], [${SKIP_ATTRIBUTE}]`)) return false;
   // Each field's own microphone is reached by saying the field's name.
@@ -124,7 +126,7 @@ export function findControls(doc: Document = document): PageControl[] {
   for (const root of roots) {
     for (const element of Array.from(root.querySelectorAll<HTMLElement>(SELECTOR))) {
       const kind = kindOf(element);
-      if (!kind || !usable(element)) continue;
+      if (!kind || !isUsable(element)) continue;
       const names = namesOf(element, kind);
       if (names.length === 0) continue;
       const exactOnly = element.closest(`[${EXACT_NAME_ATTRIBUTE}]`) !== null;
@@ -195,7 +197,8 @@ function isChecked(element: HTMLElement): boolean {
  * screen she can see: between the header and the voice control bar, so
  * neither covers it.
  */
-function bringIntoView(element: HTMLElement) {
+/** Moves focus to a control and scrolls it into clear view, as a key press would. */
+export function bringIntoView(element: HTMLElement) {
   element.focus({ preventScroll: true });
   scrollIntoClearView(element);
 }
@@ -221,7 +224,10 @@ export function scrollIntoClearView(element: HTMLElement) {
   for (const cover of covers) {
     const box = cover.getBoundingClientRect();
     if (box.height === 0) continue;
-    if (box.top < window.innerHeight / 2) top = Math.max(top, box.bottom);
+    // On a phone the bar can be taller than half the screen, so it is placed
+    // by the edge it sits against, not by where its top is.
+    const againstTop = box.top <= window.innerHeight - box.bottom;
+    if (againstTop) top = Math.max(top, box.bottom);
     else bottom = Math.min(bottom, box.top);
   }
   const target = top + Math.max(0, (bottom - top - rect.height) / 2);
@@ -229,10 +235,17 @@ export function scrollIntoClearView(element: HTMLElement) {
 }
 
 /** Sets a list's choice the way picking it with the mouse would, so the app hears it. */
-function choose(select: HTMLSelectElement, option: HTMLOptionElement) {
+export function choose(select: HTMLSelectElement, option: HTMLOptionElement) {
   const setValue = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value')?.set;
   setValue?.call(select, option.value);
   select.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+/** Fills in a box the way typing would, so the app hears it. */
+export function fillIn(input: HTMLInputElement, value: string) {
+  const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+  setValue?.call(input, value);
+  input.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
 /** Does what she asked with one control, the way a click or key press would. */

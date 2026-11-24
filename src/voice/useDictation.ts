@@ -63,11 +63,30 @@ function watchMicrophone(onChange: () => void): () => void {
   return () => micWatchers.delete(onChange);
 }
 
-const microphoneOn = () => activeListener !== null;
+// Fields still working on what she said (tidying it), after listening ended.
+let fieldsWorking = 0;
 
-/** True while any field, the incident questions, or voice control is listening. */
+const microphoneOn = () => activeListener !== null || fieldsWorking > 0;
+
+/**
+ * True while any field, the incident questions, or voice control is
+ * listening, or a field is still tidying what she said.
+ */
 export function useMicrophoneOn(): boolean {
   return useSyncExternalStore(watchMicrophone, microphoneOn, () => false);
+}
+
+/** Counts this field as busy while `working` is true, so voice control waits for it. */
+export function useHoldMicrophone(working: boolean) {
+  useEffect(() => {
+    if (!working) return;
+    fieldsWorking += 1;
+    for (const watcher of micWatchers) watcher();
+    return () => {
+      fieldsWorking -= 1;
+      for (const watcher of micWatchers) watcher();
+    };
+  }, [working]);
 }
 
 /**

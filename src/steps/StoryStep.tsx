@@ -5,6 +5,7 @@ import type { PersonDetails } from '../state/appState';
 import { useAppState } from '../state/AppStateProvider';
 import { StepHeading } from '../ui/StepHeading';
 import { VoiceTypingNote } from '../voice/VoiceNotes';
+import { ASK_ATTRIBUTE } from '../voice/formQuestions';
 import { VoiceField } from '../voice/VoiceField';
 
 export const THREAT_ID = 'threat';
@@ -143,6 +144,7 @@ export function StoryStep() {
           type="button"
           className="btn btn-primary"
           onClick={() => dispatch(state.returnQuestion ? { type: 'backToQuestion' } : { type: 'goTo', step: 'questions' })}
+          {...{ [ASK_ATTRIBUTE]: copy.voice.handsFree.ask.storyDone }}
         >
           {state.returnQuestion ? copy.check.backToQuestion : c.next}
         </button>
